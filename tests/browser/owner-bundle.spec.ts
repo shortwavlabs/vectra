@@ -7,7 +7,10 @@ import { join, resolve } from "node:path";
 import { expect, type Page, test } from "@playwright/test";
 import { lastResult, selectMode, upload, waitForState } from "./helpers.ts";
 
-const OUT = resolve(import.meta.dirname, "../../docs/research/p0-r/owner-acceptance-bundle");
+// OWNER_BUNDLE_DIR re-generates elsewhere (P0-R-GEO byte-identity check) without touching v1.
+const OUT = process.env.OWNER_BUNDLE_DIR
+  ? resolve(process.env.OWNER_BUNDLE_DIR)
+  : resolve(import.meta.dirname, "../../docs/research/p0-r/owner-acceptance-bundle");
 
 interface Case {
   name: string;

@@ -9,6 +9,8 @@
 //! - Writes annotated overlays (PNG).
 //!
 //! Usage: cargo run --release -p vector-engine --example geo_reproduce -- <out-dir>
+#[path = "../tests/common/exports.rs"]
+mod exports;
 #[path = "../tests/common/fixtures.rs"]
 mod fixtures;
 #[path = "../tests/common/geometry.rs"]
@@ -531,13 +533,13 @@ fn main() {
             .collect();
 
         let report = geometry::evaluate(&truth, &out.scene, 256, 256);
-        let svg_ok = svg_coords(&svg)
+        let svg_ok = exports::svg_coords(&svg)
             == out.scene.groups[0]
                 .paths
                 .iter()
                 .flat_map(|p| p.coords.clone())
                 .collect::<Vec<_>>();
-        let pdf_ok = pdf_matches(&pdf, &out.scene);
+        let pdf_ok = exports::pdf_matches(&pdf, &out.scene);
 
         overlays(&dir, id, &f, &truth, &stages, &out.scene);
 
@@ -644,68 +646,6 @@ fn main() {
             r.report.corner_position.max_abs
         );
     }
-}
-
-/// Numbers of an SVG written by `svg::to_svg` (absolute M/L/C/Z, space separated).
-fn svg_coords(svg: &str) -> Vec<f64> {
-    let mut v = Vec::new();
-    for part in svg.split(" d=\"").skip(1) {
-        let d = &part[..part.find('"').unwrap()];
-        let mut num = String::new();
-        for ch in d.chars() {
-            if ch.is_ascii_digit() || ch == '.' || ch == '-' {
-                if ch == '-' && !num.is_empty() {
-                    v.push(num.parse().unwrap());
-                    num.clear();
-                }
-                num.push(ch);
-            } else {
-                if !num.is_empty() {
-                    v.push(num.parse().unwrap());
-                    num.clear();
-                }
-            }
-        }
-        if !num.is_empty() {
-            v.push(num.parse().unwrap());
-        }
-    }
-    v
-}
-
-/// Decompresses the page content stream and compares every m/l/c operand with the scene (f32).
-fn pdf_matches(pdf: &[u8], scene: &Scene) -> bool {
-    let start = pdf.windows(7).position(|w| w == b"stream\n").unwrap() + 7;
-    let end = start + pdf[start..].windows(9).position(|w| w == b"endstream").unwrap();
-    let mut data = &pdf[start..end];
-    while data.last() == Some(&b'\n') {
-        data = &data[..data.len() - 1];
-    }
-    let raw = miniz_oxide::inflate::decompress_to_vec_zlib(data).unwrap();
-    let text = String::from_utf8_lossy(&raw);
-    let mut stack: Vec<f64> = Vec::new();
-    let mut ops = Vec::new();
-    for tok in text.split_whitespace() {
-        match tok {
-            "m" | "l" | "c" => {
-                ops.append(&mut stack);
-            }
-            _ => match tok.parse::<f64>() {
-                Ok(v) => stack.push(v),
-                Err(_) => stack.clear(),
-            },
-        }
-    }
-    let want: Vec<f64> = scene
-        .groups
-        .iter()
-        .flat_map(|g| g.paths.iter().flat_map(|p| p.coords.clone()))
-        .collect();
-    ops.len() == want.len()
-        && ops
-            .iter()
-            .zip(&want)
-            .all(|(a, b)| (a - f64::from(*b as f32)).abs() < 1e-4)
 }
 
 // ---------------------------------------------------------------------------------------------

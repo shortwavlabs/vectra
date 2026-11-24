@@ -246,6 +246,69 @@ fn main() {
                 }
             }
         }
-        _ => eprintln!("usage: geo_inspect arcs | curvature <fixture> <dir> [arcs] | small"),
+        Some("leak") => {
+            // P0-R residual-leak definition: transparent truth pixels (coverage < 0.5) rendered
+            // with alpha ≥ 128 at 1×, and their distance from the true alpha edge.
+            for (fx, inside) in [
+                (
+                    fixtures::transparent_ring(),
+                    Box::new(fixtures::ring(128.0, 128.0, 60.0, 100.0)) as Box<dyn Fn(f64, f64) -> bool>,
+                ),
+                (
+                    fixtures::logo_transparent_hole(),
+                    Box::new({
+                        let hole = fixtures::disc(128.0, 100.0, 20.0);
+                        move |x: f64, y: f64| !hole(x, y)
+                    }),
+                ),
+            ] {
+                for (name, settings) in [
+                    ("spline", r#"{"mode":"color"}"#),
+                    ("precision", r#"{"mode":"color","fit":{"mode":"precision"}}"#),
+                ] {
+                    let req =
+                        TraceRequest::from_json(&format!(r#"{{"presetVersion":1,"settings":{settings}}}"#)).unwrap();
+                    let out = vector_engine::vectorize(&fx.rgba, 256, 256, &req, &|| 0.0).unwrap();
+                    let svg = vector_engine::svg::to_svg(&out.scene).unwrap();
+                    let tree = resvg::usvg::Tree::from_str(&svg, &resvg::usvg::Options::default()).unwrap();
+                    let mut pm = resvg::tiny_skia::Pixmap::new(256, 256).unwrap();
+                    resvg::render(&tree, resvg::tiny_skia::Transform::identity(), &mut pm.as_mut());
+                    let (mut leaked, mut transparent, mut max_d) = (0usize, 0usize, 0.0f64);
+                    for y in 0..256 {
+                        for x in 0..256 {
+                            let i = y * 256 + x;
+                            if !fx.truth[i] {
+                                transparent += 1;
+                                if pm.data()[i * 4 + 3] >= 128 {
+                                    leaked += 1;
+                                    let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+                                    let here = inside(cx, cy);
+                                    let mut best = f64::INFINITY;
+                                    for r in 1..=64 {
+                                        let rad = r as f64 / 16.0;
+                                        for k in 0..64 {
+                                            let a = k as f64 * std::f64::consts::TAU / 64.0;
+                                            if inside(cx + rad * a.cos(), cy + rad * a.sin()) != here {
+                                                best = best.min(rad);
+                                            }
+                                        }
+                                        if best.is_finite() {
+                                            break;
+                                        }
+                                    }
+                                    max_d = max_d.max(best);
+                                }
+                            }
+                        }
+                    }
+                    println!(
+                        "{:<22} {name:<9} leak={:.4} ({leaked}/{transparent} px) max_leak_distance_px={max_d:.2}",
+                        fx.id,
+                        leaked as f64 / transparent as f64
+                    );
+                }
+            }
+        }
+        _ => eprintln!("usage: geo_inspect arcs | curvature <fixture> <dir> [arcs] | small | leak"),
     }
 }
