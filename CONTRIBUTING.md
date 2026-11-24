@@ -1,0 +1,2 @@
+# Contributing
+Vectra is an open-source project in research phase. Discuss significant design changes in an issue or RFC before implementation. Use focused branches and PRs; include rationale, tests, evidence and license provenance. Do not upload confidential artwork. Preset contributions must include deterministic fixture tests and vector-only export checks. Respect the privacy and resource constraints in the RFC. Code of conduct: treat contributors respectfully; harassment is not acceptable. License selection is proposed MIT and will be finalized on review.
