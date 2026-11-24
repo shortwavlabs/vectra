@@ -5,7 +5,7 @@ Status: **measured** on one machine. These numbers are not a support claim. Thre
 ## Setup
 - **Machine:** Apple M5 Max (arm64), 128 GiB RAM, macOS 26.6.2. On AC power; no other heavy load.
 - **Browsers:** Playwright 1.65.1 builds: Chrome Headless Shell 159.0.8154.6, Firefox 159.0, WebKit 27.2. User-agent strings in the raw data are Playwright device-descriptor emulations; the engines ran natively on macOS arm64. **This is not Safari, iOS or mobile data.**
-- **Build:** production (`pnpm run build`), served by `vp preview` with the production `_headers`. The engine (Rust and WASM) is unchanged since commit `b5304e4`. The app build also includes the worker warm-up added in the G5 commit.
+- **Build:** production (`pnpm run build`), served by `vp preview` with the production `_headers`. Measured on the engine as of commit `b5304e4`, plus the worker warm-up from the G5 commit. A later fix (`25e7867`) adds one `q`/`Q` pair around PDF backgrounds. It was not re-benchmarked; any effect on timing would be within noise.
 - **Harness:** `tests/browser/benchmark.spec.ts`, opt-in with `BENCH=1`. Input runs through the real UI path:
   1. A JPEG (quality 0.9) is generated in the page by scaling the CC0 Talbot photograph to 1, 4, 12 or 24 MP at a 640:526 aspect ratio.
   2. It is fed to the file input.
