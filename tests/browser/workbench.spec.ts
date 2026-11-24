@@ -231,3 +231,29 @@ test("repeated imports keep memory bounded", async ({ page, browserName }) => {
   const wasm = samples.map((s) => s.wasm);
   expect(Math.max(...wasm.slice(10))).toBeLessThanOrEqual(Math.max(...wasm.slice(0, 10)) * 1.25);
 });
+
+test("resource limits stop with clear, recoverable errors (no silent downscaling)", async ({
+  page,
+}) => {
+  await page.goto("/");
+  // Compressed input over 20 MiB: rejected before decoding.
+  const big = Buffer.alloc(21 * 1024 * 1024);
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(big, 0);
+  await page
+    .getByTestId("file")
+    .setInputFiles({ name: "huge-file.png", mimeType: "image/png", buffer: big });
+  await waitForState(page, "error");
+  await expect(page.getByTestId("status")).toContainText("too_large_file");
+  // Primitive budget: a dense halftone over a 9 MP source exceeds the 1,000,000-anchor default.
+  await selectMode(page, "halftone");
+  await page.getByLabel("Pitch (px)").fill("2");
+  await uploadGenerated(page, { width: 3000, height: 3000, type: "image/jpeg", name: "dense.jpg" });
+  await waitForState(page, "error", 60_000);
+  await expect(page.getByTestId("status")).toContainText("too_many_primitives");
+  await expect(page.getByTestId("status")).toContainText("increase pitch");
+  // Recover by changing the setting: same source, larger pitch.
+  await page.getByLabel("Pitch (px)").fill("12");
+  await waitForState(page, "done", 60_000);
+  const r = await lastResult(page);
+  expect(r.last.metrics.stats.anchors).toBeLessThanOrEqual(1_000_000);
+});
