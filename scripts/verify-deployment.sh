@@ -15,14 +15,15 @@ check() { # name, url, expected-regex for "header: value" lines
     if grep -qiE "$re" <<<"$headers"; then echo "ok   $name: $re"; else echo "FAIL $name: missing $re"; fail=1; fi
   done
 }
-index=$(curl -fsS "$BASE/")
-js=$(grep -oE 'assets/index-[^"]+\.js' <<<"$index" | head -1)
-worker=$(curl -fsS "$BASE/$js" | grep -oE 'vectorize\.worker-[^"]+\.js' | head -1)
-wasm=$(curl -fsS "$BASE/sw.js" | grep -oE 'assets/vector_engine_wasm_bg-[^"]+\.wasm' | head -1)
+# Asset names come from the service worker's precache list (one build, content-hashed names).
+sw=$(curl -fsS "$BASE/sw.js")
+js=$(grep -oE 'assets/index-[A-Za-z0-9_-]+\.js' <<<"$sw" | head -1)
+worker=$(grep -oE 'assets/vectorize\.worker-[A-Za-z0-9_-]+\.js' <<<"$sw" | head -1)
+wasm=$(grep -oE 'assets/vector_engine_wasm_bg-[A-Za-z0-9_-]+\.wasm' <<<"$sw" | head -1)
 CSP="content-security-policy: .*script-src 'self' 'wasm-unsafe-eval'"
 check "index" "$BASE/" '^content-type: text/html' "$CSP" "x-content-type-options: nosniff" "referrer-policy: no-referrer" "cross-origin-opener-policy: same-origin" "x-frame-options: DENY"
 check "main js" "$BASE/$js" '^content-type: (application|text)/javascript' "cache-control: .*immutable"
-check "worker" "$BASE/assets/$worker" '^content-type: (application|text)/javascript' "$CSP" "cache-control: .*immutable"
+check "worker" "$BASE/$worker" '^content-type: (application|text)/javascript' "$CSP" "cache-control: .*immutable"
 check "wasm" "$BASE/$wasm" '^content-type: application/wasm' "cache-control: .*immutable"
 check "service worker" "$BASE/sw.js" '^content-type: (application|text)/javascript' "cache-control: no-cache"
 check "notices" "$BASE/THIRD-PARTY-NOTICES.txt" '^content-type: text/plain'
