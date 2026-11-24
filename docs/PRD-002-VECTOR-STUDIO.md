@@ -1,6 +1,6 @@
 # PRD-002 — Vectra Vector Creation Studio
 Status: proposed for maintainer review | 2026-11-23
-Related: [PRD](PRD.md), [RFC-001](RFC-001.md), [Preset baseline](PRESETS.md), [Design baseline](DESIGN.md), [Validation](VALIDATION.md), [Tool and style specification](VECTOR-STUDIO-TOOLS.md).
+Related: [PRD](PRD.md), [RFC-001](RFC-001.md), [Preset baseline](PRESETS.md), [Design baseline](DESIGN.md), [Validation](VALIDATION.md), [Tool and style specification](VECTOR-STUDIO-TOOLS.md), [Optional image sources and community presets](IMAGE-SOURCES-AND-COMMUNITY.md).
 
 ## Executive summary
 Vectra is a small, purpose-built Illustrator-like creative application for importing raster artwork, tracing it into genuine vectors, editing the result and creating expressive print-inspired artwork. Tracing is the beginning of a workflow, not the deliverable. The product remains an open-source, local-first browser app on Cloudflare Pages, with Vite+ and a browser-target WASM core. No account, upload, subscription or backend is required.
@@ -41,6 +41,8 @@ Alternatives include Illustrator (trace, expand, simplify, recolor), Inkscape (t
 | VS-10 | Should P2-C | User presets and deterministic seeds; same source/recipe/seed reproduce result within documented runtime |
 | VS-11 | Should P3 | Advanced engraving, carve, stipple, geometric abstraction and stencil |
 | VS-12 | Should P4 | Local .vectra project round trip, batch and validated professional print features |
+| VS-13 | Should post-core | Local preset import/export, versioned recipes and optional static community library with moderated submissions |
+| VS-14 | Could post-core | Optional online image provider browser, Unsplash first, subject to policy, privacy and feasibility gates |
 
 P1 is the minimum usable studio, not the full flagship release. P2-C establishes the creative differentiator. Persisting projects may move earlier if owner prioritizes continuity; P1 must warn about unsaved changes and offer export. No full typography, multi-page publishing, 3D, general painting, SVG import of arbitrary active content, AI redraw or cloud collaboration in initial scope.
 
@@ -74,3 +76,6 @@ Desktop target: 48–56 px left rail, flexible central canvas, 288–336 px righ
 
 ## Delivery sequence
 P0 unchanged. After P0 review, write RFC-002 with editor state and command/geometry contracts, then P1-A document/selection/history, P1-B production workspace, P1-C core editing/export, P2-A advanced geometry, P2-B effects, P2-C Print/DIY Underground, P3 advanced effects, P4 project persistence/print/batch. Review scope and adjust sequencing after prototype evidence. Each phase needs a gate report, tests, screenshots and owner review. No dependency or gate is approved merely by appearing in this PR.
+
+## Future creative ecosystem
+The Import panel may offer Local file, Clipboard and optional Browse images (Unsplash first). A community preset website may support browsing, downloading, remixing and submitting recipes. These are optional extensions, not required for local editing. Any credential-protecting Cloudflare Worker/Pages Function is an isolated online adapter, not an artwork-processing backend. Online requests and provider tracking must be disclosed; the original no-network guarantee applies to the local core. See [image sources and community specification](IMAGE-SOURCES-AND-COMMUNITY.md) for requirements, research, licensing and acceptance gates. No changes to current P0 scope.
