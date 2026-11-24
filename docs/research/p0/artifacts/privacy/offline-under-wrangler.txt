@@ -1,0 +1,3 @@
+chromium {"offlineSession":"passed","workerRecreatedOffline":true}
+firefox {"offlineSession":"passed","workerRecreatedOffline":true}
+webkit {"offlineSession":"passed","workerRecreatedOffline":false}

@@ -1,5 +1,7 @@
 # Cloudflare Pages and Vite+
-Proposed static deployment, not yet provisioned.
+Proposed static deployment, not yet provisioned. P0 validated the static build and local Pages emulation; a real deploy is OWNER TEST PENDING (docs/research/p0/P0-G4-CLOUDFLARE-PAGES.md).
+
+P0 recommendation: Pages v3 Git builds lack Rust, wasm-bindgen and pnpm 12, so build with the pinned toolchain locally or in one pinned CI job (`pnpm install && pnpm run build`). Verify with `node scripts/check-dist.mjs` and optionally `wrangler pages dev dist`. Then the maintainer uploads with `wrangler pages deploy dist --project-name <name>` (credentials stay with the maintainer). Workers Static Assets is an equivalent target for the same `dist/`. `public/_headers` sets the CSP (`'wasm-unsafe-eval'` is required), security headers and `immutable` caching for `/assets/*`.
 
 Use Vite+ commands vp install, vp dev, vp check, vp test, vp build; consult official CI guide for exact pinned bootstrap. Lock Node, package manager, Rust and wasm-bindgen versions. Build WASM before web bundling; ensure generated artifacts are included in dist. Do not assume Pages has Rust or vp preinstalled. P0 test clean Pages Git build; if unsupported, build locally or in pinned CI/container and use Wrangler Pages direct upload in a separately configured project. Never commit Cloudflare credentials.
 

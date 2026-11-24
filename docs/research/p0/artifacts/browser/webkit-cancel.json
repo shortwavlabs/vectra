@@ -1,0 +1,9 @@
+{
+  "cancelAckMs": 0,
+  "clickToVisibleMs": 29,
+  "stats": {
+    "workersCreated": 2,
+    "terminations": 1,
+    "staleMessagesDropped": 0
+  }
+}

@@ -1,5 +1,5 @@
 # Validation and benchmark plan
-All gates unexecuted. Targets are provisional and must be ratified with P0 evidence.
+Targets are provisional. P0 executed the corpus, quality, export, privacy and desktop performance checks; results and proposed threshold revisions are in docs/research/p0 (BENCHMARKS.md, FINAL-REPORT.md). Not yet run: mobile and real Safari, Linux build, owner art review, Inkscape/viewer round-trips.
 
 ## Corpus
 Create procedural fixtures: circle, nested rings, sharp corners, 1px strokes, transparent antialiased logo, adjacent color blocks, gradient, checkerboard, noise, rotated EXIF JPEG, malformed input and oversized header. Add licensed/public-domain photos, scans and botanical artwork with source/license/hash manifest. No private user artwork in public repo. Hold out a separate art set.

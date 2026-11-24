@@ -1,0 +1,37 @@
+chromium  passed       0.2s  pdf-eval.spec.ts :: jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+chromium  passed       0.4s  csp.spec.ts :: without 'wasm-unsafe-eval' the WASM engine is blocked
+chromium  passed       0.4s  smoke.spec.ts :: production build traces in a module worker under the production CSP
+chromium  passed       0.4s  workbench.spec.ts :: malformed, unsupported and oversized inputs produce actionable errors
+chromium  passed       0.6s  privacy.spec.ts :: no artwork bytes, filename, settings or exports are transmitted
+chromium  passed       1.8s  workbench.spec.ts :: cancellation is acknowledged immediately and the next job succeeds
+chromium  passed       2.2s  workbench.spec.ts :: SVG and PDF downloads are produced from the same scene and contain only vector data
+chromium  passed       2.3s  workbench.spec.ts :: rapid setting changes never show a stale result
+chromium  passed       5.4s  workbench.spec.ts :: fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+chromium  passed      16.0s  workbench.spec.ts :: repeated imports keep memory bounded
+chromium  passed      21.0s  privacy.spec.ts :: the complete workflow works offline once the application has loaded
+chromium  skipped      0.0s  benchmark.spec.ts :: benchmark matrix
+firefox   passed       0.2s  pdf-eval.spec.ts :: jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+firefox   passed       0.5s  smoke.spec.ts :: production build traces in a module worker under the production CSP
+firefox   passed       0.6s  workbench.spec.ts :: malformed, unsupported and oversized inputs produce actionable errors
+firefox   passed       0.7s  privacy.spec.ts :: no artwork bytes, filename, settings or exports are transmitted
+firefox   passed       0.8s  csp.spec.ts :: without 'wasm-unsafe-eval' the WASM engine is blocked
+firefox   passed       1.4s  privacy.spec.ts :: the complete workflow works offline once the application has loaded
+firefox   passed       1.8s  workbench.spec.ts :: cancellation is acknowledged immediately and the next job succeeds
+firefox   passed       2.4s  workbench.spec.ts :: SVG and PDF downloads are produced from the same scene and contain only vector data
+firefox   passed       2.4s  workbench.spec.ts :: rapid setting changes never show a stale result
+firefox   passed       5.7s  workbench.spec.ts :: fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+firefox   passed      16.2s  workbench.spec.ts :: repeated imports keep memory bounded
+firefox   skipped      0.0s  benchmark.spec.ts :: benchmark matrix
+webkit    passed       0.2s  pdf-eval.spec.ts :: jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+webkit    passed       0.6s  csp.spec.ts :: without 'wasm-unsafe-eval' the WASM engine is blocked
+webkit    passed       0.6s  smoke.spec.ts :: production build traces in a module worker under the production CSP
+webkit    passed       0.6s  workbench.spec.ts :: malformed, unsupported and oversized inputs produce actionable errors
+webkit    passed       0.7s  privacy.spec.ts :: no artwork bytes, filename, settings or exports are transmitted
+webkit    passed       1.4s  workbench.spec.ts :: cancellation is acknowledged immediately and the next job succeeds
+webkit    passed       2.3s  workbench.spec.ts :: SVG and PDF downloads are produced from the same scene and contain only vector data
+webkit    passed       2.5s  workbench.spec.ts :: rapid setting changes never show a stale result
+webkit    passed       5.5s  workbench.spec.ts :: fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+webkit    passed      16.5s  workbench.spec.ts :: repeated imports keep memory bounded
+webkit    passed      21.2s  privacy.spec.ts :: the complete workflow works offline once the application has loaded
+webkit    skipped      0.0s  benchmark.spec.ts :: benchmark matrix
+{"startTime": "2026-11-24T02:29:04.576Z", "duration": 137226.58299999998, "expected": 33, "skipped": 3, "unexpected": 0, "flaky": 0}

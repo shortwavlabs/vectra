@@ -1,0 +1,7 @@
+file	bytes	objects	pdfimages	mediaBox	meanAbsDiff	maxDiff	pctPxOver32	block32MeanAbsDiff	operators	problems
+adjacent_colors-limited.pdf	3477	21	0	0.00 0.00 425.20 425.20	0.9903	124	0.1129	0.9242	G,Original,Q,R,W,c,cm,end,endobj,f,f*,g,h,l,m,n,obj,object,q,re,rg,startxref,trailer,w,xref	object scan found /XObject; object scan found /Font
+antialiased_discs-mosaic.pdf	7429	21	0	0.00 0.00 425.20 425.20	0.7846	131	0.0836	0.7630	G,Original,Q,R,W,c,cm,end,endobj,f,f*,g,h,m,n,obj,object,q,re,rg,startxref,trailer,w,xref	object scan found /XObject; object scan found /Font
+gradient-halftone-transparent.pdf	115861	21	0	0.00 0.00 425.20 106.30	3.1736	175	3.2706	0.7992	G,Original,Q,R,W,c,cm,end,endobj,f,g,h,l,m,n,obj,object,q,re,rg,startxref,trailer,w,xref	object scan found /XObject; object scan found /Font
+gradient-halftone.pdf	71321	21	0	0.00 0.00 425.20 106.30	2.8014	150	2.3140	1.0174	G,Original,Q,R,W,c,cm,end,endobj,f,g,h,l,m,n,obj,object,q,re,rg,startxref,trailer,w,xref	object scan found /XObject; object scan found /Font
+nested_rings-bw.pdf	4384	21	0	0.00 0.00 425.20 425.20	0.2125	151	0.2529	0.2071	G,Original,Q,R,W,c,cm,end,endobj,f,f*,g,h,m,n,obj,object,q,re,startxref,trailer,w,xref	object scan found /XObject; object scan found /Font
+transparent_ring-color.pdf	3926	21	0	0.00 0.00 425.20 425.20	0.3720	121	0.1084	0.3465	G,Original,Q,R,W,c,cm,end,endobj,f,f*,g,h,m,n,obj,object,q,re,rg,startxref,trailer,w,xref	object scan found /XObject; object scan found /Font

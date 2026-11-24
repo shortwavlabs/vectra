@@ -1,0 +1,31 @@
+test adjacent_colour_regions_keep_exact_colours ... G1 adjacent_colors {"mode":"color"}                             paths=5 wrong_px=0.00000
+G1 adjacent_colors {"mode":"color","compositing":"mosaic"}      paths=5 wrong_px=0.00000
+G1 adjacent_colors {"mode":"limited","colors":5}                paths=5 wrong_px=0.00000
+test bw_simple_shapes_match_ground_truth ... G1 bw circle           iou=0.9936 paths=1 subpaths=1 anchors=8 svg_bytes=563
+G1 bw rectangles       iou=0.9930 paths=2 subpaths=2 anchors=30 svg_bytes=1410
+G1 bw sharp_corners    iou=0.9771 paths=1 subpaths=1 anchors=63 svg_bytes=2609
+G1 bw nested_rings     iou=0.9752 paths=3 subpaths=5 anchors=50 svg_bytes=2132
+G1 bw checkerboard     iou=1.0000 paths=128 subpaths=128 anchors=640 svg_bytes=22980
+test halftone_maps_tone_to_dot_area ... G1 halftone gradient dots=1137 anchors=5685 svg_bytes=189578 max_band_error=0.0251
+G1 halftone darkest band coverage nonzero=730297 evenodd=613800
+test halftone_respects_alpha_paper_and_limits ... G1 halftone transparent_ring leak=0.0211
+test identical_inputs_produce_identical_scenes ... ok
+test invert_and_threshold_follow_luminance ... ok
+test limited_palette_is_respected ... G1 limited color_gradient k=6 paths=7 anchors=35
+test malformed_inputs_return_typed_errors ... ok
+test nested_ring_holes_stay_open ... ok
+test pdf_export_is_vector_only_with_exact_page_size ... ok
+test speckle_removal_works_on_ink_and_holes ... G1 noise speckle16 paths=1 subpaths=1  speckle0 paths=52 subpaths=61
+test svg_export_is_allowlisted_vector_only ... ok
+test thin_strokes_are_reported ... G1 thin_strokes spline speckle16   iou=0.9834 paths=8
+G1 thin_strokes spline speckle0    iou=0.9834 paths=8
+G1 thin_strokes polygon speckle0   iou=0.9834 paths=8
+test transparent_pixels_never_become_ink_or_fill ... G1 alpha transparent_ring       {"mode":"bw"}                                iou=0.9823 leak=0.0062
+G1 alpha transparent_ring       {"mode":"color"}                             iou=0.9823 leak=0.0062
+G1 alpha transparent_ring       {"mode":"color","compositing":"mosaic"}      iou=0.9933 leak=0.0019
+G1 alpha transparent_ring       {"mode":"limited","colors":4}                iou=0.9933 leak=0.0019
+G1 alpha logo_transparent_hole  {"mode":"bw"}                                iou=0.9996 leak=0.0008
+G1 alpha logo_transparent_hole  {"mode":"color"}                             iou=0.9996 leak=0.0008
+G1 alpha logo_transparent_hole  {"mode":"color","compositing":"mosaic"}      iou=0.9997 leak=0.0087
+G1 alpha logo_transparent_hole  {"mode":"limited","colors":4}                iou=0.9997 leak=0.0087
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s
