@@ -50,6 +50,8 @@ export default defineConfig({
       "packages/vector-engine-wasm/pkg/**",
       "experiments/**",
       "docs/research/p0/artifacts/**",
+      "docs/research/p0-r/artifacts/**",
+      "docs/mockups/**",
     ],
   },
   lint: {
