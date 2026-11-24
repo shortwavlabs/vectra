@@ -8,13 +8,14 @@
 //! hierarchical colour clustering (via visioncortex), compositing, curve fitting and cleanup.
 
 use visioncortex::color_clusters::{HIERARCHICAL_MAX, KeyingAction, Runner, RunnerConfig};
-use visioncortex::{BinaryImage, Color, ColorImage, PointI32};
-use vtracer::ir::{Layer, Paint, PathCmd, RegionMask, Segmentation, VectorDoc};
+use visioncortex::{BinaryImage, Color, ColorImage, PointF64, PointI32};
+use vtracer::ir::{Layer, MultiPath, Paint, PathCmd, RegionMask, Segmentation, Shape, SubPath, VectorDoc};
 
 use crate::color::{Luma, Rgba};
 use crate::error::EngineError;
 use crate::image::RgbaImage;
 use crate::params::{Compositing, FitMode, FitSettings};
+use crate::precision;
 use crate::region::Mask;
 use crate::scene::PathBuilder;
 
@@ -213,13 +214,64 @@ pub fn fit_colors(seg: &mut Segmentation, layer_difference: i32, palette: &[Rgba
     Ok(())
 }
 
+/// Source data the precision fitter reads.
+pub struct PrecisionInput<'a> {
+    pub img: RgbaImage<'a>,
+    pub luma: &'a Luma,
+    pub policy: precision::EdgePolicy,
+    /// Precision fitting options; `None` keeps VTracer's fitting.
+    pub options: Option<precision::Options>,
+}
+
+/// Precision compositing: every layer traced independently (stacked, paint order kept) with
+/// Vectra's sub-pixel contour and G1 cubic fitter instead of VTracer's spline fitter.
+fn precision_compose(seg: &Segmentation, input: &PrecisionInput, opts: &precision::Options) -> VectorDoc {
+    let field = precision::Field::new(
+        input.img,
+        input.luma,
+        input.policy,
+        opts.subpixel,
+        seg.layers.iter().map(|l| region_mask(&l.mask)),
+    );
+    let pt = |p: [f64; 2]| PointF64 { x: p[0], y: p[1] };
+    let mut doc = VectorDoc::new(seg.width, seg.height);
+    for layer in &seg.layers {
+        let mut path = MultiPath::new();
+        for c in precision::contours(&field, &region_mask(&layer.mask)) {
+            let Some(l) = precision::fit_contour(&c, opts) else {
+                continue;
+            };
+            let mut sub = SubPath::new();
+            sub.commands.push(PathCmd::MoveTo(pt(l.start)));
+            for s in &l.segs {
+                sub.commands.push(match *s {
+                    precision::Seg::Line(e) => PathCmd::LineTo(pt(e)),
+                    precision::Seg::Cubic(c) => PathCmd::CubicTo(pt([c[0], c[1]]), pt([c[2], c[3]]), pt([c[4], c[5]])),
+                });
+            }
+            sub.commands.push(PathCmd::Close);
+            path.push(sub);
+        }
+        if !path.is_empty() {
+            doc.shapes.push(Shape {
+                paint: layer.paint,
+                path,
+            });
+        }
+    }
+    doc
+}
+
 /// Colour fitting → compositing (curve fitting + simplification) → cleanup, via VTracer.
+/// With precision options, Vectra's precision fitter replaces VTracer's compositing.
+#[allow(clippy::too_many_arguments)]
 pub fn fit_segmentation(
     mut seg: Segmentation,
     fit: &FitSettings,
     compositing: Compositing,
     layer_difference: i32,
     palette: &[Rgba],
+    input: &PrecisionInput,
     clock: &dyn Fn() -> f64,
     times: &mut StageTimes,
 ) -> Result<VectorDoc, EngineError> {
@@ -249,7 +301,10 @@ pub fn fit_segmentation(
         fitter.fit(&mut seg);
     }
     let t1 = clock();
-    let mut doc = pipeline.compositing.compose(&seg, &pipeline.curve_passes);
+    let mut doc = match &input.options {
+        Some(opts) => precision_compose(&seg, input, opts),
+        None => pipeline.compositing.compose(&seg, &pipeline.curve_passes),
+    };
     let t2 = clock();
     for pass in &pipeline.optimizers {
         pass.run(&mut doc);

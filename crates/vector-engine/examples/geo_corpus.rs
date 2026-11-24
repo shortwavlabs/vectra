@@ -3,6 +3,8 @@
 //! Usage: cargo run --release -p vector-engine --example geo_corpus -- <png-dir> <json-path>
 #[path = "../tests/common/corpus.rs"]
 mod corpus;
+#[path = "../tests/common/fixtures.rs"]
+mod fixtures;
 #[path = "../tests/common/geometry.rs"]
 mod geometry;
 

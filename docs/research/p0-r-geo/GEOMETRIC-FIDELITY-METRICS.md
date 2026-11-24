@@ -114,3 +114,9 @@ These are proposals for maintainer approval, not silent adjustments.
   - A threshold-defined contour cannot reach the analytic tip, hence 1.5 px rather than 1.0 px.
 
 Every threshold reports a margin per fixture in GEOMETRY-VALIDATION. If a Tier A target is missed for a reason that cannot be fixed, it is reported as missed, with the reason. It is not re-tiered.
+
+## Amendments made during evaluation (applied identically to every variant, baseline included)
+The thresholds did not change. Three measurement corrections were found by inspecting results, and each one is recorded here:
+1. **Coincident stacked boundaries.** A lower stacked layer can run exactly along an upper layer's visible edge and then turn away underneath it. Its samples on that edge were counted as a second, visible copy of the edge. An output point within 0.1 px of a later path's outline is now treated as covered, because the later path's own samples score that edge. A real sliver wider than 0.1 px is still scored.
+2. **Curvature at smooth primitive transitions.** The true curvature of a rounded rectangle jumps from 1/r to 0 at each arc–line tangent point, and no G1 curve can follow that exactly. Curvature statistics now exclude 2 px around such transitions, as they already did around corners. Radial and contour statistics are unchanged.
+3. **Corners of nested compound shapes.** Polygon vertices inside nested differences (a square with two holes) were missing from the true corners, so correct output corners were counted as tangent breaks. All polygon vertices in the shape tree are now included.

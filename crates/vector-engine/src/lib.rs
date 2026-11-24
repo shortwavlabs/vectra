@@ -12,6 +12,7 @@ pub mod halftone;
 pub mod image;
 pub mod params;
 pub mod pdf;
+pub mod precision;
 pub mod region;
 pub mod scene;
 pub mod svg;
@@ -155,6 +156,31 @@ pub fn vectorize(
     req: &TraceRequest,
     clock: &dyn Fn() -> f64,
 ) -> Result<Output, EngineError> {
+    vectorize_impl(data, width, height, req, clock, None)
+}
+
+/// Engineering evaluation only (P0-R-GEO): traces with Vectra's precision fitter and the given
+/// options in place of VTracer's curve fitting (stacked compositing). Not used by the app.
+#[doc(hidden)]
+pub fn vectorize_with_precision_options(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    req: &TraceRequest,
+    clock: &dyn Fn() -> f64,
+    options: precision::Options,
+) -> Result<Output, EngineError> {
+    vectorize_impl(data, width, height, req, clock, Some(options))
+}
+
+fn vectorize_impl(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    req: &TraceRequest,
+    clock: &dyn Fn() -> f64,
+    precision_options: Option<precision::Options>,
+) -> Result<Output, EngineError> {
     req.validate()?;
     let img = RgbaImage::new(data, width, height, req.max_pixels)?;
     let (w, h) = (width as usize, height as usize);
@@ -181,7 +207,26 @@ pub fn vectorize(
             let seg = trace::bw_segmentation(&mask, w, h, s.speckle as usize, s.ink);
             drop(mask);
             t.segment = clock() - t1;
-            let doc = trace::fit_segmentation(seg, &s.fit, params::Compositing::Stacked, 0, &[], clock, &mut stage)?;
+            let input = trace::PrecisionInput {
+                img,
+                luma: &luma,
+                policy: precision::EdgePolicy::Luma {
+                    threshold: s.threshold,
+                    invert: s.invert,
+                    alpha_threshold: s.alpha_threshold,
+                },
+                options: precision_options,
+            };
+            let doc = trace::fit_segmentation(
+                seg,
+                &s.fit,
+                params::Compositing::Stacked,
+                0,
+                &[],
+                &input,
+                clock,
+                &mut stage,
+            )?;
             palette.push(PaletteEntry {
                 id: "ink".into(),
                 color: s.ink,
@@ -205,7 +250,24 @@ pub fn vectorize(
                 s.speckle as usize,
             );
             t.segment = clock() - t1;
-            let doc = trace::fit_segmentation(seg, &s.fit, s.compositing, s.layer_difference, &[], clock, &mut stage)?;
+            let input = trace::PrecisionInput {
+                img,
+                luma: &luma,
+                policy: precision::EdgePolicy::Color {
+                    alpha_threshold: s.alpha_threshold,
+                },
+                options: precision_options,
+            };
+            let doc = trace::fit_segmentation(
+                seg,
+                &s.fit,
+                s.compositing,
+                s.layer_difference,
+                &[],
+                &input,
+                clock,
+                &mut stage,
+            )?;
             let ts = clock();
             let p = paths_with_palette(trace::doc_paths(&doc), &mut palette, "c");
             t.scene = clock() - ts;
@@ -247,7 +309,15 @@ pub fn vectorize(
             // Quantised image: full colour precision, single-step layering, palette snap after.
             let seg = trace::cluster_segmentation(image, key, 0, 1, s.speckle as usize);
             t.segment = clock() - t1;
-            let doc = trace::fit_segmentation(seg, &s.fit, s.compositing, 1, &colors, clock, &mut stage)?;
+            let input = trace::PrecisionInput {
+                img,
+                luma: &luma,
+                policy: precision::EdgePolicy::Color {
+                    alpha_threshold: s.alpha_threshold,
+                },
+                options: precision_options,
+            };
+            let doc = trace::fit_segmentation(seg, &s.fit, s.compositing, 1, &colors, &input, clock, &mut stage)?;
             let ts = clock();
             let traced = trace::doc_paths(&doc);
             let p = paths_with_palette(traced, &mut palette, "x");

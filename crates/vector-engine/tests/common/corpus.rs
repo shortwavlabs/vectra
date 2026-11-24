@@ -89,6 +89,61 @@ fn diff(a: Shape, b: Shape) -> Shape {
     Shape::Diff(Box::new(a), Box::new(b))
 }
 
+/// Chromium's decode of a straight-alpha PNG: canvas storage is premultiplied, so
+/// `getImageData` returns RGB = round(round(c·a/255)·255/a) for partially transparent pixels.
+pub fn browser_decode(rgba: &[u8]) -> Vec<u8> {
+    rgba.chunks_exact(4)
+        .flat_map(|p| {
+            let a = u32::from(p[3]);
+            let rt = |c: u8| match a {
+                0 => 0,
+                255 => c,
+                _ => {
+                    let pm = (u32::from(c) * a + 127) / 255;
+                    ((pm * 255 + a / 2) / a).min(255) as u8
+                }
+            };
+            [rt(p[0]), rt(p[1]), rt(p[2]), p[3]]
+        })
+        .collect()
+}
+
+/// The two owner-rejected cases: P0 fixture pixels as the browser decoded them for the bundle,
+/// with analytic truth.
+pub fn rejected() -> Vec<GeoFixture> {
+    let frame = Shape::Polygon(vec![[0.0, 0.0], [256.0, 0.0], [256.0, 256.0], [0.0, 256.0]]);
+    vec![
+        GeoFixture {
+            id: "05-color-transparent-hole".into(),
+            set: "rejected",
+            description: "DEF-GEO-001: opaque blue field with a transparent circular hole c=(128,100) r=20".into(),
+            w: 256,
+            h: 256,
+            background: CLEAR,
+            layers: vec![(diff(frame, circle([128.0, 100.0], 20.0)), [30, 60, 200, 255])],
+            settings: COLOR.into(),
+            ideal: true,
+            rgba: browser_decode(&super::fixtures::logo_transparent_hole().rgba),
+        },
+        GeoFixture {
+            id: "04-color-discs".into(),
+            set: "rejected",
+            description: "DEF-GEO-002: discs r=60 at (96,110) red, (160,110) blue, (128,165) yellow on white".into(),
+            w: 256,
+            h: 256,
+            background: WHITE,
+            layers: vec![
+                (circle([96.0, 110.0], 60.0), [230, 60, 50, 255]),
+                (circle([160.0, 110.0], 60.0), [40, 120, 220, 255]),
+                (circle([128.0, 165.0], 60.0), [250, 190, 30, 255]),
+            ],
+            settings: COLOR.into(),
+            ideal: true,
+            rgba: browser_decode(&super::fixtures::antialiased_discs().rgba),
+        },
+    ]
+}
+
 pub fn all() -> Vec<GeoFixture> {
     let mut v = validation();
     v.extend(negative());

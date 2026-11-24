@@ -357,6 +357,7 @@ impl GeoFixture {
         let mut prims = Vec::new();
         let mut samples = Vec::new();
         let mut corners: Vec<(P, Option<f64>)> = Vec::new();
+        let mut transitions: Vec<P> = Vec::new();
         for (k, (shape, col)) in self.layers.iter().enumerate() {
             let mut s = Vec::new();
             shape.boundary(ds, &mut prims, &mut s);
@@ -377,6 +378,18 @@ impl GeoFixture {
                     corners.push((if vis[i] { s[i].p } else { s[j].p }, None));
                 }
             }
+            // Smooth transitions between primitives of one outline (arc ↔ line of a rounded
+            // rectangle): the true curvature itself jumps there.
+            for i in 0..s.len() {
+                let j = (i + 1) % s.len();
+                if s[i].prim != s[j].prim
+                    && vis[i]
+                    && norm(sub(s[i].p, s[j].p)) < 3.0 * ds
+                    && !matches!(shape, Shape::Polygon(_))
+                {
+                    transitions.push(s[j].p);
+                }
+            }
             samples.extend(s.into_iter().zip(vis).filter(|(_, v)| *v).map(|(q, _)| q));
             // Polygon vertices and round-rect tangent points that stay visible are corners.
             let mut poly_corners = |pts: &[P]| {
@@ -389,16 +402,18 @@ impl GeoFixture {
                     }
                 }
             };
-            match shape {
-                Shape::Polygon(pts) => poly_corners(pts),
-                Shape::Diff(a, b) => {
-                    for part in [a.as_ref(), b.as_ref()] {
-                        if let Shape::Polygon(pts) = part {
-                            poly_corners(pts);
-                        }
+            // Polygon vertices anywhere in the shape tree (nested differences included); only
+            // vertices on the shape's own visible boundary count.
+            let mut stack = vec![shape];
+            while let Some(sh) = stack.pop() {
+                match sh {
+                    Shape::Polygon(pts) => poly_corners(pts),
+                    Shape::Diff(a, b) => {
+                        stack.push(a);
+                        stack.push(b);
                     }
+                    _ => {}
                 }
-                _ => {}
             }
         }
         // Merge corners closer than 1 px.
@@ -408,7 +423,9 @@ impl GeoFixture {
                 merged.push(c);
             }
         }
-        Truth::new(samples, prims, merged, ds)
+        let mut t = Truth::new(samples, prims, merged, ds);
+        t.transitions = transitions;
+        t
     }
 }
 
@@ -433,6 +450,8 @@ pub struct Truth {
     pub prims: Vec<Prim>,
     /// Visible corners: position and, for polygon vertices, the true turning angle (degrees).
     pub corners: Vec<(P, Option<f64>)>,
+    /// G1 transitions between primitives (curvature jumps in the truth itself).
+    pub transitions: Vec<P>,
     grid: std::collections::HashMap<(i64, i64), Vec<usize>>,
 }
 
@@ -449,6 +468,7 @@ impl Truth {
             samples,
             prims,
             corners,
+            transitions: Vec::new(),
             grid,
         }
     }
@@ -646,6 +666,23 @@ fn line_samples(a: P, b: P, ds: f64, pi: usize, out: &mut Vec<OutSample>, poly: 
     poly.push(b);
 }
 
+fn near_outline(polys: &[&Vec<P>], p: P, eps: f64) -> bool {
+    polys.iter().any(|poly| {
+        let n = poly.len();
+        (0..n).any(|i| {
+            let (a, b) = (poly[i], poly[(i + 1) % n]);
+            let ab = sub(b, a);
+            let l2 = dot(ab, ab);
+            let t = if l2 > 0.0 {
+                (dot(sub(p, a), ab) / l2).clamp(0.0, 1.0)
+            } else {
+                0.0
+            };
+            norm(sub(p, add(a, mul(ab, t)))) < eps
+        })
+    })
+}
+
 /// Even-odd / nonzero point-in-path over a path's flattened subpaths.
 fn inside_path(polys: &[&Vec<P>], rule: FillRule, p: P) -> bool {
     let mut wind = 0i32;
@@ -778,13 +815,21 @@ pub fn evaluate(truth: &Truth, scene: &Scene, w: usize, h: usize) -> Report {
             b[3] = b[3].max(q[1]);
         }
     }
+    // A point is covered by a later path if it is inside it, or within 0.1 px of its outline:
+    // a stacked lower layer that runs along an upper layer's edge draws the same visible edge,
+    // which the upper path's own samples already score (amendment after the first run, applied
+    // to every variant alike).
     let visible = |p: P, path: usize| -> bool {
         if !in_frame(p, w, h, 0.5) {
             return false;
         }
         !(path + 1..s.rules.len()).any(|j| {
             let b = bbox[j];
-            p[0] >= b[0] && p[0] <= b[2] && p[1] >= b[1] && p[1] <= b[3] && inside_path(&by_path[j], s.rules[j], p)
+            p[0] >= b[0] - 0.1
+                && p[0] <= b[2] + 0.1
+                && p[1] >= b[1] - 0.1
+                && p[1] <= b[3] + 0.1
+                && (inside_path(&by_path[j], s.rules[j], p) || near_outline(&by_path[j], p, 0.1))
         })
     };
     let vis: Vec<&OutSample> = s.samples.iter().filter(|o| visible(o.p, o.path)).collect();
@@ -800,7 +845,9 @@ pub fn evaluate(truth: &Truth, scene: &Scene, w: usize, h: usize) -> Report {
             dev.push(sd);
             if !truth.near_corner(o.p, 2.0) {
                 dev_smooth.push(sd);
-                per_prim[t.prim].push((o.p, sd, o.kappa));
+                if !truth.transitions.iter().any(|q| norm(sub(*q, o.p)) < 2.0) {
+                    per_prim[t.prim].push((o.p, sd, o.kappa));
+                }
             }
         } else {
             dev.push(4.0); // stray output boundary (far from any truth)
