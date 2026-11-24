@@ -9,13 +9,16 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [["list"], ["json", { outputFile: "tests/output/playwright-results.json" }]],
-  use: { baseURL: "http://127.0.0.1:4173", trace: "off" },
-  webServer: {
-    command: "pnpm exec vp preview --host 127.0.0.1 --port 4173 --strictPort",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: false,
-    timeout: 60_000,
-  },
+  // PW_BASE_URL targets an already running server (e.g. `wrangler pages dev dist`) instead.
+  use: { baseURL: process.env.PW_BASE_URL ?? "http://127.0.0.1:4173", trace: "off" },
+  webServer: process.env.PW_BASE_URL
+    ? undefined
+    : {
+        command: "pnpm exec vp preview --host 127.0.0.1 --port 4173 --strictPort",
+        url: "http://127.0.0.1:4173",
+        reuseExistingServer: false,
+        timeout: 60_000,
+      },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "firefox", use: { ...devices["Desktop Firefox"] } },
