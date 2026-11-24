@@ -8,3 +8,16 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
+# Exact pins where upstream API stability is a concern; Cargo.lock pins everything else.
+vtracer = "=1.0.0-alpha.4"
+visioncortex = "=0.9.3"
+pdf-writer = "=0.15.0"
+miniz_oxide = "0.9.1"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+
+[dev-dependencies]
+# Independent SVG renderer for geometry tests (test-only, never shipped).
+resvg = { version = "=0.50.0", default-features = false }
+# PNG writer for the fixture generator example (test-only).
+png = "0.18.1"
