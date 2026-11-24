@@ -506,3 +506,66 @@ fn pdf_export_is_vector_only_with_exact_page_size() {
         "21600 pt > 14400 pt limit"
     );
 }
+
+/// Minimal content-stream interpreter: (fill rgb, active ExtGState name or "") per paint operator.
+fn paint_ops(content: &str) -> Vec<(String, String, String)> {
+    let (mut stack, mut gs, mut rg, mut last) = (Vec::new(), String::new(), String::new(), Vec::<&str>::new());
+    let mut out = Vec::new();
+    for t in content.split_ascii_whitespace() {
+        match t {
+            "q" => stack.push((gs.clone(), rg.clone())),
+            "Q" => (gs, rg) = stack.pop().unwrap(),
+            "gs" => gs = last.last().unwrap().to_string(),
+            "rg" => rg = last[last.len() - 3..].join(" "),
+            "f" | "f*" | "S" | "B" | "B*" => out.push((t.to_string(), rg.clone(), gs.clone())),
+            _ => {}
+        }
+        if t.chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_digit() || c == '-' || c == '.' || c == '/')
+        {
+            last.push(t);
+        } else {
+            last.clear();
+        }
+    }
+    out
+}
+
+#[test]
+fn translucent_fill_background_and_stroke_are_exported_without_alpha_leaks() {
+    let scene = fixtures::translucent_scene();
+    let svg = to_svg(&scene).unwrap();
+    assert!(svg.contains("fill-opacity=\"0.502\""), "background opacity");
+    assert!(svg.contains("fill-opacity=\"0.392\""), "translucent fill");
+    assert!(
+        svg.contains("stroke=\"#007800\" stroke-opacity=\"0.627\" stroke-width=\"3\""),
+        "{svg}"
+    );
+    let pdf = to_pdf(
+        &scene,
+        &PdfOptions {
+            width: 120.0,
+            unit: Unit::Pt,
+            dpi: None,
+        },
+    )
+    .unwrap();
+    let find = |needle: &[u8]| pdf.windows(needle.len()).position(|w| w == needle).unwrap();
+    let raw = miniz_oxide::inflate::decompress_to_vec_zlib(&pdf[find(b"stream\n") + 7..find(b"\nendstream")]).unwrap();
+    let ops = paint_ops(&String::from_utf8(raw).unwrap());
+    // background (translucent), opaque fill, translucent fill, stroke-only.
+    assert_eq!(ops.len(), 4, "{ops:?}");
+    assert!(!ops[0].2.is_empty(), "background uses an ExtGState");
+    assert_eq!(
+        ops[1].2, "",
+        "opaque fill must not inherit the background alpha: {ops:?}"
+    );
+    assert!(!ops[2].2.is_empty(), "translucent fill uses an ExtGState");
+    assert_eq!(ops[3].0, "S");
+    let text = String::from_utf8_lossy(&pdf);
+    assert!(
+        text.contains("/ca 0.5019608") && text.contains("/ca 0.39215687") && text.contains("/CA 0.627451"),
+        "{text}"
+    );
+}

@@ -388,3 +388,79 @@ pub fn all() -> Vec<Fixture> {
         checkerboard(),
     ]
 }
+
+/// Hand-built scene exercising translucent background, translucent fill and stroke paint.
+pub fn translucent_scene() -> vector_engine::scene::Scene {
+    use vector_engine::color::Rgba;
+    use vector_engine::scene::{Fill, FillRule, Group, Metadata, Path, SCENE_VERSION, Scene, Stroke};
+    let square = |x: f64, fill: Option<Fill>, stroke: Option<Stroke>| Path {
+        fill,
+        stroke,
+        fill_rule: FillRule::Nonzero,
+        verbs: "MLLLZ".into(),
+        coords: vec![x, 10.0, x + 30.0, 10.0, x + 30.0, 40.0, x, 40.0],
+    };
+    let opaque = Rgba::rgb(10, 20, 200);
+    Scene {
+        version: SCENE_VERSION,
+        width: 120.0,
+        height: 50.0,
+        background: Some(Rgba {
+            r: 250,
+            g: 240,
+            b: 200,
+            a: 128,
+        }),
+        palette: vec![],
+        groups: vec![Group {
+            id: "paint".into(),
+            clip: None,
+            paths: vec![
+                square(
+                    5.0,
+                    Some(Fill {
+                        color: opaque,
+                        palette_id: None,
+                    }),
+                    None,
+                ),
+                square(
+                    45.0,
+                    Some(Fill {
+                        color: Rgba {
+                            r: 200,
+                            g: 20,
+                            b: 10,
+                            a: 100,
+                        },
+                        palette_id: None,
+                    }),
+                    None,
+                ),
+                square(
+                    85.0,
+                    None,
+                    Some(Stroke {
+                        color: Rgba {
+                            r: 0,
+                            g: 120,
+                            b: 0,
+                            a: 160,
+                        },
+                        width: 3.0,
+                    }),
+                ),
+            ],
+        }],
+        metadata: Metadata {
+            generator: "test".into(),
+            engine_version: "0".into(),
+            mode: "paint-test".into(),
+            preset_version: 1,
+            seed: 0,
+            source_width: 120,
+            source_height: 50,
+            params: serde_json::Value::Null,
+        },
+    }
+}

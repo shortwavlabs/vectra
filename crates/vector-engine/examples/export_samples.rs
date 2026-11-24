@@ -45,5 +45,19 @@ fn main() {
             n += 1;
         }
     }
+    // Hand-built scene with translucent background, translucent fill and a stroke.
+    let scene = fixtures::translucent_scene();
+    std::fs::write(format!("{dir}/translucent_paint.svg"), to_svg(&scene).unwrap()).unwrap();
+    let pdf = to_pdf(
+        &scene,
+        &PdfOptions {
+            width: 150.0,
+            unit: Unit::Mm,
+            dpi: None,
+        },
+    )
+    .unwrap();
+    std::fs::write(format!("{dir}/translucent_paint.pdf"), pdf).unwrap();
+    n += 1;
     println!("wrote {n} SVG/PDF pairs to {dir}");
 }

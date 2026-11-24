@@ -117,6 +117,8 @@ pub fn to_pdf(scene: &Scene, opts: &PdfOptions) -> Result<Vec<u8>, EngineError> 
     // Scene units (y down) -> PDF points (y up).
     content.transform([s, 0.0, 0.0, -s, 0.0, page_h as f32]);
     if let Some(bg) = scene.background {
+        // Own graphics state, so a translucent background's alpha cannot leak into later paths.
+        content.save_state();
         if let Some(gs) = state_for(bg.a, 255) {
             content.set_parameters(Name(gs.as_bytes()));
         }
@@ -124,6 +126,7 @@ pub fn to_pdf(scene: &Scene, opts: &PdfOptions) -> Result<Vec<u8>, EngineError> 
         content.set_fill_rgb(r, g, b);
         content.rect(0.0, 0.0, scene.width as f32, scene.height as f32);
         content.fill_nonzero();
+        content.restore_state();
     }
     for group in &scene.groups {
         content.save_state();
