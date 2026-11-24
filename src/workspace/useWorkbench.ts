@@ -76,6 +76,10 @@ export function useWorkbench() {
   const [result, setResult] = useState<Result | null>(null);
   const [pdf, setPdf] = useState<PdfInfo | null>(null);
   const revision = useRef(0);
+  // Timing anchors for the P0-R performance baseline (metrics only).
+  const importAt = useRef(0);
+  const resultAt = useRef(0);
+  const previewProbe = useRef<(() => ResponsivenessSample) | null>(null);
   const debug = useRef<Record<string, unknown>>({ stats: client.stats, results: 0 });
 
   useEffect(() => {
@@ -101,6 +105,7 @@ export function useWorkbench() {
   const loadFile = useCallback(
     async (file: File) => {
       client.cancel();
+      importAt.current = performance.now();
       const rev = ++revision.current;
       setStatus({ kind: "decoding" });
       setResult((prev) => {
@@ -144,6 +149,9 @@ export function useWorkbench() {
           (out) => {
             const responsiveness = stop();
             if (out.revision !== revision.current) return;
+            resultAt.current = performance.now();
+            previewProbe.current?.(); // a previous preview never painted: stop its probe
+            previewProbe.current = startProbe();
             const blob = new Blob([out.svg], { type: "image/svg+xml" });
             const next: Result = {
               ...out,
@@ -231,7 +239,27 @@ export function useWorkbench() {
     [client, result],
   );
 
+  /** Called when the result <img> has loaded: measures decode + first paint of the SVG preview. */
+  const onPreviewLoaded = useCallback((img: HTMLImageElement) => {
+    const stopProbe = previewProbe.current;
+    previewProbe.current = null;
+    void img.decode().then(() =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          const now = performance.now();
+          const last = debug.current.last as Record<string, unknown> | undefined;
+          if (!last) return;
+          last.previewMs = now - resultAt.current;
+          last.importToVisibleMs = now - importAt.current;
+          last.previewResponsiveness = stopProbe?.() ?? null;
+          debug.current.previews = ((debug.current.previews as number | undefined) ?? 0) + 1;
+        }),
+      ),
+    );
+  }, []);
+
   return {
+    onPreviewLoaded,
     offlineReady,
     source,
     settings,

@@ -184,7 +184,12 @@ export function App() {
               {processing && result && "· outdated, re-processing…"}
             </figcaption>
             {result ? (
-              <img src={result.svgUrl} alt="Vectorized SVG result" data-testid="result" />
+              <img
+                src={result.svgUrl}
+                alt="Vectorized SVG result"
+                data-testid="result"
+                onLoad={(e) => wb.onPreviewLoaded(e.currentTarget)}
+              />
             ) : (
               <div className="empty">No result</div>
             )}
