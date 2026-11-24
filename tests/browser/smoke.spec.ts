@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-test("production build loads WASM inside a module worker under the production CSP", async ({ page }) => {
+test("production build loads WASM inside a module worker under the production CSP", async ({
+  page,
+}) => {
   const cspViolations: string[] = [];
   page.on("console", (m) => {
     if (/Content Security Policy|CSP/i.test(m.text())) cspViolations.push(m.text());
