@@ -59,7 +59,7 @@
 | Geometric accuracy | ≥ 0.33 px RMS | 0.24 px RMS; 0.8 px max | 0.066 px RMS | **0.046 px RMS, 0.49 px max** |
 | False-positive recognition | n/a | 0 (never fires) | n/a | **0 substitutions on all 7 negative controls** (`artifacts/selection/recognition-substitutions.md`) |
 | Photographic impact | changes the approved output | n/a | none: opt-in mode | **none: opt-in; defaults byte-identical** (PHOTOGRAPHIC-REGRESSION) |
-| Topology | as spline (specks of a lower layer's colour at junctions on 3 fixtures) | breaks on staircases | preserved except 1–2 specks | **preserved except specks on `discs-x2` and `discs-two-deep`** |
+| Topology | spline: specks of a lower layer's colour on 3 fixtures | breaks on staircases | preserved except 1–2 specks | **preserved except lower-layer slivers on `discs-x2` and `discs-two-deep` (and two 1.25–1.5 px² hairlines on 04 visible at 2× sampling)** |
 | Performance (corpus) | equal | +12 % | +3 % | **+4 % (125 vs 120 ms for 32 fixtures)** |
 | Peak heap (corpus) | equal | equal | equal | **equal (max 4.7 MiB, median 1.1 MiB)** |
 | Dependencies | none | none | none | **none added** |

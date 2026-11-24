@@ -6,6 +6,10 @@
 - Validation sets: `cargo run --release -p vector-engine --example geo_eval -- <dir> rejected,validation,negative spline,selected`.
 - Held-out set: `… heldout spline,selected`, run **once**, after the freeze.
 - Per-fixture pass/fail lines: `artifacts/evaluation/run-validation.txt` and `artifacts/validation/run-heldout.txt`. Full JSON is regenerated into `tests/output/geo-eval/`.
+- **Held-out history.**
+  - The held-out log was produced at the frozen configuration before two code-only changes: removal of the rejected `AreaReach` variant, and lint refactors.
+  - Re-run at the final head as a reproduction check: identical per-fixture results.
+  - Recognition-substitution *counts* for the held-out fixtures (not their metrics) were printed once before recognition was switched on in the frozen configuration. They showed no substitution on the held-out negative control and did not influence any parameter.
 
 Thresholds are those pre-registered in GEOMETRIC-FIDELITY-METRICS. A "fail" names every threshold missed. Nothing was re-tiered or relaxed.
 
@@ -107,7 +111,7 @@ The star/ring IoU deviation from P0-R is **closed** for the precision mode. The 
 | Fixture(s) | Missed threshold | Cause | Disposition |
 |---|---|---|---|
 | 04, `discs-two-deep`, `discs-x2` | Curvature uniformity near three-colour junctions; `discs-two-deep` also has 1 break of 16.5° and 33 vs 28 anchors | Classified in ALGORITHM-EVALUATION: mostly lower stacked layers redrawing an edge a higher path owns, plus blend pixels mixing three colours within 2–6 px of a junction. Position targets are met | Proposed for acceptance for P0. The fix (shared junction graph or label-level blend correction) is architectural, for P1 |
-| `discs-two-deep`, `discs-x2` | Topology: one speck (≥ 1 source px² at 4×) of a lower layer's colour | Same stacked-layer cause; spline has such specks on 3 fixtures | Same |
+| `discs-two-deep`, `discs-x2`, and 04 at 2× sampling | Topology: slivers of a lower layer's colour (`artifacts/selection/specks.txt`).<br>– `discs-two-deep`: blue, 2.2 and 1.1 px² at (63, 124–132) and (113–117, 78).<br>– `discs-x2`: yellow, 1.2 px² at (72, 206–210).<br>– **04**: yellow hairlines of 1.5 and 1.25 px² at the red disc's left (x ≈ 36, y 102.5–105.5) and top (x 88.5–91, y ≈ 50). These fall below the 1 px² floor at the pre-registered 4× sampling, so 04's topology check passes, but they exist. Confirmed with poppler on the committed PDF: `artifacts/selection/poppler-04-corrected-sliver-{left,top}.png`. 05: none (`poppler-05-corrected-hole.png`) | Same stacked-layer cause: the yellow union layer's outline coincides with the red top layer's where the disc is axis-tangent, and the two are fitted independently. Spline has such specks on 3 fixtures | Same |
 | `circle-hard-r40` (tier C) | 10 tangent breaks, 81 anchors | No antialiasing, so no sub-pixel information. The fitter follows the staircase midpoints. Position is within tier C (RMS 0.22, max 0.49) | Use spline or pixel fit for binary art. Request approval of tier C as "position only" |
 | `star`, `h-star-rot17`, `roundrect`, `h-roundrect-rot12` | Max curvature on straight edges (0.014–0.32 /px, target ≤ 0.005) | Short curved transitions next to rebuilt corners, within 2–4 px of a corner. Positions, corners and IoU pass | Missed by margin; visible only at ≥ 16× |
 | `strokes` | Corner within 1 px (2.32 px); two 3.2° breaks; straight-edge curvature | 2–3 px bars: the corner-rounding trim spans most of the bar end | Missed; spline is worse here (corners 2.5 px, 2 breaks, 64 vs 30 anchors) |
@@ -126,10 +130,19 @@ The star/ring IoU deviation from P0-R is **closed** for the precision mode. The 
   - the held-out two-hole disc and thin 4 px alpha ring.
 - **Small components** (`artifacts/selection/small-components.txt`, test `holes_rings_and_small_components_survive`). A 1 px hole in an 8×8 square and a 1 px blob with speckle 0 are all kept. Spline drops both the 1 px hole and the B&W blob.
 
-## One-pixel diagonal strokes (P0-R item)
-- Precision uses the same 4-connected segmentation, so 1-px diagonals stay separate pixel components.
-- Speckle removes them at the default, as before, and the corrected contour does not reconnect them.
-- **Disposition unchanged:** use `fit.mode = "pixel"` today; deferral to P1 Line Art (centreline / thin-feature strategy) is proposed.
+## One-pixel diagonal strokes (P0-R item, measured with `geo_inspect diagonals`)
+`thin_strokes`: diagonal pixels (x, x + 10), x in 180–235, rendered as ink at 1×; 56 true. Output: `artifacts/selection/diagonals.txt`.
+
+| Settings | Paths | Diagonal pixels rendered |
+|---|---|---|
+| B&W spline (default speckle 16) | 8 | 0 / 56 |
+| B&W spline, speckle 0 | 8 | 0 / 56 |
+| B&W pixel fit, speckle 0 (P0-R workaround) | 64 | 56 / 56 |
+| B&W precision (default speckle 16) | 8 | 0 / 56 |
+| B&W precision, speckle 0 | 64 | **56 / 56** |
+
+- **What improved.** With speckle 0, precision keeps the diagonal, like the pixel workaround, as 56 separate tiny shapes. These are 8-connected pixels in a 4-connected segmentation, not a connected stroke.
+- **Disposition.** A connected stroke needs a thin-feature or centreline strategy: deferral to P1 Line Art is proposed.
 
 ## Residual transparency leak (P0-R item)
 `geo_inspect leak` uses the P0-R definition: transparent truth pixels (coverage < 0.5) rendered with alpha ≥ 128 at 1×, and their distance from the true alpha edge. Raw fixture RGBA. Output: `artifacts/selection/transparency-leak.txt`.

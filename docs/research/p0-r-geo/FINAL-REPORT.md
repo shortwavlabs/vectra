@@ -42,13 +42,20 @@ The curvature-uniformity target added in this study is still missed on the discs
 | Original circle defects reproduced | **PASS** | DEFECT-REPRODUCTION: bundle SVG and PDF reproduced byte-for-byte (05 needs the browser premultiplied-decode model). Scene = SVG = PDF coordinates. Per-stage error measured; annotated 16× overlays |
 | Root cause established | **PASS** | ROOT-CAUSE-ANALYSIS: the VTracer replay equals the scene. Classified causes: lattice quantisation, outward outset (0.31–0.38 px), noise-split slices at a 10 px tolerance, no G1 joins, and (04 only) misassigned blend pixels. Serialisation ruled out (≤ 0.005 px) |
 | Geometric metrics validated | **PASS** | GEOMETRIC-FIDELITY-METRICS. `geometry_metrics.rs` (3 tests): an ideal circle scores ~0; kinks and flattening are detected while IoU stays > 0.99; more nodes are not rewarded; occlusion and lost holes are handled. Three measurement amendments recorded and applied to every variant |
-| Circle and ellipse correction | **PASS** for antialiased sources; tier C **PARTIAL** | All antialiased circles (r = 3–120, fractional centres, 2×2 to 16×16 antialiasing) and all 3 ellipses pass tier A/B, held-out included (centre ≤ 0.07, RMS ≤ 0.08, max ≤ 0.18 px, 0 breaks). The hard-thresholded circle meets only the tier C position limits (RMS 0.22, max 0.49 px; 10 breaks, 81 anchors) |
-| Overlapping coloured disc correction | **PARTIAL** | All of the brief's targets are met on 04, `discs-two-wide` and held-out `h-discs-three` (worst centre 0.050, RMS 0.057, max 0.26 px). The position targets are also met on `discs-two-deep` (0.066 / 0.077 / 0.40) and `discs-x2`. Missed: the added curvature-uniformity target near junctions (04, `discs-two-deep`, `discs-x2`), one 16.5° break and one lower-layer speck on `discs-two-deep`, and a speck on `discs-x2`. Classified; the fix is architectural (P1) |
+| Circle and ellipse correction | **PASS** for antialiased sources; tier C **PARTIAL** | All standalone antialiased circles (r = 3–100, fractional centres, 2×2 to 16×16 antialiasing) and all 3 ellipses pass tier A/B, held-out included (centre ≤ 0.07, RMS ≤ 0.08, max ≤ 0.18 px, 0 breaks). The hard-thresholded circle meets only the tier C position limits (RMS 0.22, max 0.49 px; 10 breaks, 81 anchors) |
+| Overlapping coloured disc correction | **PARTIAL** | All of the brief's targets are met on 04, `discs-two-wide` and held-out `h-discs-three` (worst centre 0.050, RMS 0.057, max 0.26 px). The position targets are also met on `discs-two-deep` (0.066 / 0.077 / 0.40) and `discs-x2`. Missed:
+- the added curvature-uniformity target near junctions (04, `discs-two-deep`, `discs-x2`);
+- one 16.5° break on `discs-two-deep`;
+- **hairline slivers of the lower (yellow) stacked layer**:
+  - on **04**, at the red disc's extreme left (x ≈ 36, y 102.5–105.5) and top (x 88.5–91, y ≈ 50), each about 0.5 × 3 px (1.25–1.5 px²);
+  - on `discs-two-deep` and `discs-x2` (`artifacts/selection/specks.txt`).
+
+All are classified; the fix is architectural (P1). Classified; the fix is architectural (P1) |
 | Transparent circular hole correction | **PASS** | 05 passes every target, the added ones included. So do holes at r = 10/20/30/33/40, scale ×0.5/×2, rings, the thin alpha ring and the two-hole disc |
 | General geometric regression | **PARTIAL** | Squares, rotated rectangles, triangle, compound holes and held-out rectangle pass. Missed by margin: straight-edge curvature next to rebuilt corners (star, rounded rectangles: 0.014–0.32 /px vs 0.005), and corners of 2–3 px bars (2.3 px). Spline fails every one of these worse |
 | Organic negative controls | **PASS** | 7/7 (6 + held-out) follow the irregular truth: organic RMS ≤ 0.076 px, max ≤ 0.21 px, against spline's 0.31–0.54 / 0.6–1.24 px. **0 recognised substitutions** |
 | Photographic regression | **PASS** | PHOTOGRAPHIC-REGRESSION: 326/326 files byte-identical to `7cdde36`, at `f51e265` and at `a4cf172`. The WASM 65-case output digest is unchanged (`68723671…`). Old Print is unchanged |
-| Topology preservation | **PARTIAL** | Every hole, ring and component is kept, including 1 px holes and blobs that spline drops. Exception: one extra speck of a lower stacked layer's colour (≥ 1 px² at 4×) on 2 of 32 fixtures (spline: 3) |
+| Topology preservation | **PARTIAL** | Every hole, ring and component is kept, including 1 px holes and blobs that spline drops. Exceptions: slivers of a lower stacked layer's colour. ≥ 1 px² at the metric's 4× sampling: 2 of 32 fixtures (spline: 3). At 2× sampling: also 04 (two yellow hairlines of 1.25–1.5 px² at the red disc's left and top). 05 has none |
 | Performance regression | **PASS** | PERFORMANCE-REGRESSION: default modes unchanged within noise (−11 % to +3 %), equal peak heap. Precision: 1.0–2.4× time, equal heap, +4 % on the geometry corpus |
 | SVG/PDF regression | **PASS** (automated); GUI **OWNER TEST PENDING** | EXPORT-REGRESSION: 105 native and 36 bundle-v2 PDFs, all vector-only, correct size, renderer agreement ≤ 0.93/255. Spline export report byte-identical to P0-R. Native = WASM precision SVG 26/26 |
 | Offline/privacy regression | **PASS** | Full Playwright suite: **54 passed, 9 skipped** (opt-in benchmark and bundle generators), **0 failed**, in Chromium 159, Firefox 159 and Playwright WebKit 27.2. Covers CSP negative control, privacy interception (no artwork, filename or settings transmitted), offline workflow and cancellation recovery, service-worker update, and the new precision workbench test (`artifacts/browser/playwright-full-run.txt`) |
@@ -56,9 +63,11 @@ The curvature-uniformity target added in this study is still missed on the discs
 | Owner visual acceptance | **OWNER TEST PENDING** | OWNER-ACCEPTANCE-CHECKLIST §A: bundle v2 (18 geometric cases, before/after SVG and PDF, contact sheet, 16× overlays, manifest with hashes) |
 
 ## Regression suite (executed)
+Recorded in `artifacts/regression/head-checks.txt`, run once at `758c42a`. `git diff --stat a4cf172 HEAD -- crates/vector-engine/src packages src` is empty, so engine and app sources are unchanged since the selected implementation.
 - Rust: `cargo fmt --check` and `cargo clippy --workspace --all-targets --locked -D warnings` clean. `cargo test --workspace --locked` passes: 14 lib + 15 engine + 3 metric + 4 precision tests.
-- TypeScript: `vp check` (format, lint, types) clean; `vp test` passes (14).
+- TypeScript: `vp check` (format, lint, types) clean; `vp test` passes (3 files, 14 tests).
 - Build: `pnpm run build` (WASM, bundle, notices `--check`, service worker, dist check) passes.
+- Held-out evaluation re-run at the head reproduces the frozen per-fixture results identically.
 - Byte-level regression corpus: 326/326 identical. Native export verification: 105/105. Bundle v2 verification: 36/36. WASM fingerprint: default digest unchanged, precision 26/26 native = WASM.
 - Browser: full Playwright suite 54 passed / 9 skipped / 0 failed (3 engines).
   - The workbench's "Fit: precision" reproduces bundle-v2 bytes: 04 in all 3 engines, 05 in Chromium.
@@ -91,7 +100,7 @@ The curvature-uniformity target added in this study is still missed on the discs
 **CONDITIONALLY READY — LIST REMAINING DECISIONS**
 
 Both reported examples are corrected. The brief's numerical targets are met with large margins, and the approved photographic behaviour is provably unchanged. Remaining owner decisions (OWNER-ACCEPTANCE-CHECKLIST):
-1. Visual acceptance of bundle v2 in Inkscape and macOS Preview, with 04 and 05 first.
+1. Visual acceptance of bundle v2 in Inkscape and macOS Preview, with 04 and 05 first. On 04, look for the two yellow hairlines at the red disc's left and top edges.
 2. Accept precision as an explicit opt-in fit mode with this name.
 3. Accept or reject for P0 the remaining deviations:
    - curvature near three-colour junctions and the two lower-layer specks (P1: shared junction graph or label-level blend correction);
@@ -99,4 +108,7 @@ Both reported examples are corrected. The brief's numerical targets are met with
    - thin-bar and acute-corner positions;
    - straight-edge curvature next to rebuilt corners.
 4. Approve the metric amendments and the tier B/C and acute-corner allowances.
-5. Confirm the revisited P0-R items: 1-px diagonals deferred to P1 Line Art; partial-alpha and browser-decode limits unchanged; the transparency leak resolved down to pixel rounding.
+5. Confirm the revisited P0-R items:
+   - 1-px diagonals: precision with speckle 0 keeps 56/56 diagonal pixels, as separate tiny shapes like the `pixel` workaround (default speckle: 0/56). A true stroke is deferred to P1 Line Art.
+   - Partial-alpha and browser-decode limits: unchanged.
+   - Transparency leak: resolved down to pixel rounding.

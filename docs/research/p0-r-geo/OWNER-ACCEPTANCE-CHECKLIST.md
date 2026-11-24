@@ -23,12 +23,13 @@ Bundle: [`owner-acceptance-bundle-v2/`](owner-acceptance-bundle-v2/).
 - [ ] **04 discs** (`04-color-discs-corrected-precision`).
   - The three discs read as circles, with even curvature along every arc and no flats.
   - The junctions where the discs meet are clean at normal zoom.
-  - Known: at ≥ 16× zoom a junction may show a small notch (≤ 0.3 px) or closely spaced nodes from overlapping stacked layers (GEOMETRY-VALIDATION).
+  - Known: at ≥ 16× zoom a junction may show a small notch (≤ 0.3 px) or closely spaced nodes from overlapping stacked layers.
+  - Known: two **yellow hairline slivers** of the lower stacked layer, each about 0.5 × 3 px, at the red disc's extreme left (x ≈ 36, y ≈ 102–106) and top (x ≈ 88–91, y ≈ 50). Judge whether they are visible at normal zoom (GEOMETRY-VALIDATION).
 - [ ] **Circles, ring, ellipses** (`10`–`15`). Round and smooth; ellipse ends are not kinked.
 - [ ] **Rounded rectangles, stars, overlaps** (`16`–`22`).
   - Straight sides are straight (lines, not curves); corners are crisp; round corners are round.
   - Overlapping shapes show no gaps or slivers.
-  - Known: `22-discs-deep` has one 16° kink near a junction and a speck at 4× sampling.
+  - Known: `22-discs-deep` has one 16° kink near a junction and blue slivers at (63, 124–132) and (113–117, 78).
 - [ ] **Negative controls** (`30`–`32`). The hand-drawn wobble, rough edge and organic silhouette are **kept**, not turned into circles.
 - [ ] **Unchanged approved cases.** Bundle v1's `01`, `03`, `06` and `07` (Talbot B&W, Hokusai limited, both Old Print) still represent the approved artistic and Old Print output. The current engine reproduces them byte-for-byte (EXPORT-REGRESSION).
 - [ ] Record the Inkscape version, the Preview / macOS version, and any case that still looks wrong.
@@ -44,7 +45,10 @@ Bundle: [`owner-acceptance-bundle-v2/`](owner-acceptance-bundle-v2/).
   - the tier B/C and acute-corner allowances.
 - [ ] **Earlier P0-R geometry items**, revisited:
   - Star/ring IoU: ≥ 0.98 in precision mode (0.996/0.996). Spline unchanged (0.977/0.975) as the artistic mode.
-  - 1-px diagonal strokes: not improved by the contour correction (same 4-connected segmentation). Keep the `pixel` fit workaround; defer to P1 Line Art.
+  - 1-px diagonal strokes (measured):
+    - precision with speckle 0 keeps 56/56 diagonal pixels, as separate tiny shapes, like the `pixel` workaround;
+    - at the default speckle 16 it keeps 0/56; spline keeps 0/56 even at speckle 0;
+    - a connected stroke needs P1 Line Art. Defer?
   - Partial alpha binarisation: unchanged, documented, warned.
   - Residual transparency leak: the ring leak is gone. The hole shows pixel-rounding flips within 0.12 px of an exact boundary. Accept?
   - Browser decoding differences: unchanged; in-WASM decoding stays a P1 candidate.

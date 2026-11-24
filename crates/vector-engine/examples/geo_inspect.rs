@@ -309,6 +309,128 @@ fn main() {
                 }
             }
         }
-        _ => eprintln!("usage: geo_inspect arcs | curvature <fixture> <dir> [arcs] | small | leak"),
+        Some("specks") => {
+            // Every output component that is not its colour's largest (truth: one per colour),
+            // rendered over the source background at `scale`×.
+            let f = corpus::all()
+                .into_iter()
+                .chain(corpus::rejected())
+                .find(|f| f.id == a[2])
+                .unwrap();
+            let scale: usize = a[3].parse().unwrap();
+            let mut settings: serde_json::Value = serde_json::from_str(&f.settings).unwrap();
+            settings["fit"] = serde_json::json!({"mode": "precision"});
+            let req = TraceRequest::from_json(
+                &serde_json::json!({"presetVersion": 1, "seed": 1, "settings": settings}).to_string(),
+            )
+            .unwrap();
+            let out = vector_engine::vectorize(&f.rgba, f.w as u32, f.h as u32, &req, &|| 0.0).unwrap();
+            let svg = vector_engine::svg::to_svg(&out.scene).unwrap();
+            let pm = render::rendered(&svg, &f, [0.0, 0.0, f.w as f64, f.h as f64], scale as f32);
+            let (w, h) = (pm.width() as usize, pm.height() as usize);
+            let mut palette: Vec<[u8; 4]> = vec![f.background];
+            for (_, c) in &f.layers {
+                palette.push(*c);
+            }
+            let lab: Vec<usize> = pm
+                .pixels()
+                .iter()
+                .map(|p| {
+                    let c = p.demultiply();
+                    (0..palette.len())
+                        .min_by_key(|&k| {
+                            (0..3)
+                                .map(|j| {
+                                    (i32::from([c.red(), c.green(), c.blue()][j]) - i32::from(palette[k][j])).pow(2)
+                                })
+                                .sum::<i32>()
+                        })
+                        .unwrap()
+                })
+                .collect();
+            let mut seen = vec![false; w * h];
+            let mut comps: Vec<(usize, usize, [usize; 4])> = Vec::new();
+            for s0 in 0..w * h {
+                if seen[s0] {
+                    continue;
+                }
+                let l = lab[s0];
+                let (mut n, mut bb) = (0, [usize::MAX, usize::MAX, 0, 0]);
+                let mut stack = vec![s0];
+                seen[s0] = true;
+                while let Some(i) = stack.pop() {
+                    n += 1;
+                    let (x, y) = (i % w, i / w);
+                    bb = [bb[0].min(x), bb[1].min(y), bb[2].max(x), bb[3].max(y)];
+                    for j in [
+                        (x > 0).then(|| i - 1),
+                        (x + 1 < w).then(|| i + 1),
+                        (y > 0).then(|| i - w),
+                        (y + 1 < h).then(|| i + w),
+                    ]
+                    .into_iter()
+                    .flatten()
+                    {
+                        if !seen[j] && lab[j] == l {
+                            seen[j] = true;
+                            stack.push(j);
+                        }
+                    }
+                }
+                comps.push((l, n, bb));
+            }
+            for (k, c) in palette.iter().enumerate() {
+                let mut mine: Vec<_> = comps.iter().filter(|x| x.0 == k).collect();
+                mine.sort_by_key(|x| std::cmp::Reverse(x.1));
+                for x in mine.iter().skip(1) {
+                    let b = x.2;
+                    println!(
+                        "{} {scale}x: extra component of #{:02x}{:02x}{:02x}: {} samples = {:.2} source px², bbox ({:.1},{:.1})–({:.1},{:.1}) source px",
+                        f.id,
+                        c[0],
+                        c[1],
+                        c[2],
+                        x.1,
+                        x.1 as f64 / (scale * scale) as f64,
+                        b[0] as f64 / scale as f64,
+                        b[1] as f64 / scale as f64,
+                        (b[2] + 1) as f64 / scale as f64,
+                        (b[3] + 1) as f64 / scale as f64
+                    );
+                }
+            }
+        }
+        Some("diagonals") => {
+            // P0-R thin-stroke probe: pixels of the 1-px diagonal (x, x+10), x in 180..236, rendered as ink.
+            let f = fixtures::thin_strokes();
+            let diag_truth = (180..236).filter(|&x| f.truth[(x + 10) * f.width + x]).count();
+            for settings in [
+                r#"{"mode":"bw"}"#,
+                r#"{"mode":"bw","speckle":0}"#,
+                r#"{"mode":"bw","speckle":0,"fit":{"mode":"pixel"}}"#,
+                r#"{"mode":"bw","fit":{"mode":"precision"}}"#,
+                r#"{"mode":"bw","speckle":0,"fit":{"mode":"precision"}}"#,
+            ] {
+                let req = TraceRequest::from_json(&format!(r#"{{"presetVersion":1,"settings":{settings}}}"#)).unwrap();
+                let out = vector_engine::vectorize(&f.rgba, f.width as u32, f.height as u32, &req, &|| 0.0).unwrap();
+                let svg = vector_engine::svg::to_svg(&out.scene).unwrap();
+                let tree = resvg::usvg::Tree::from_str(&svg, &resvg::usvg::Options::default()).unwrap();
+                let mut pm = resvg::tiny_skia::Pixmap::new(f.width as u32, f.height as u32).unwrap();
+                resvg::render(&tree, resvg::tiny_skia::Transform::identity(), &mut pm.as_mut());
+                let hit = (180..236)
+                    .filter(|&x| {
+                        let p = &pm.data()[((x + 10) * f.width + x) * 4..((x + 10) * f.width + x) * 4 + 4];
+                        p[3] >= 128 && u32::from(p[0]) * 2 < u32::from(p[3])
+                    })
+                    .count();
+                println!(
+                    "{settings:<56} paths={} diagonal_truth_px={diag_truth} diagonal_rendered_px={hit}",
+                    out.metrics.stats.paths
+                );
+            }
+        }
+        _ => eprintln!(
+            "usage: geo_inspect arcs | curvature <fixture> <dir> [arcs] | small | leak | specks <fixture> <scale> | diagonals"
+        ),
     }
 }

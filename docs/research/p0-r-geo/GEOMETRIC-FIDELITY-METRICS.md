@@ -1,6 +1,9 @@
 # P0-R-GEO Stages B and C: geometry corpus, metrics and acceptance thresholds
 
-**This document was committed before any corrective candidate was evaluated.** The thresholds below are pre-registered engineering targets for maintainer review, not established P0 capabilities. The existing IoU ≥ 0.98 target is retained and not lowered.
+**This document was committed (`0018ee4`) before any candidate was evaluated against these thresholds.**
+- **Disclosure.** A first prototype of the sub-pixel fitter had already been run on one disc fixture while the approach was being designed, and its starting defaults were chosen then (ALGORITHM-EVALUATION, Method).
+- **Status.** The thresholds below are pre-registered engineering targets for maintainer review, not established P0 capabilities.
+- **IoU.** The existing IoU ≥ 0.98 target is retained and not lowered.
 
 ## Corpus (Stage B)
 Code: `crates/vector-engine/tests/common/corpus.rs` (analytic definitions) and `geometry.rs` (rasteriser, ground truth, metrics).
