@@ -38,7 +38,7 @@ fn rot(a: P, t: f64) -> P {
     [a[0] * c - a[1] * s, a[0] * s + a[1] * c]
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub enum Shape {
     Circle {
         c: P,
@@ -356,7 +356,7 @@ impl GeoFixture {
     pub fn truth(&self, ds: f64) -> Truth {
         let mut prims = Vec::new();
         let mut samples = Vec::new();
-        let mut corners: Vec<P> = Vec::new();
+        let mut corners: Vec<(P, Option<f64>)> = Vec::new();
         for (k, (shape, col)) in self.layers.iter().enumerate() {
             let mut s = Vec::new();
             shape.boundary(ds, &mut prims, &mut s);
@@ -374,23 +374,37 @@ impl GeoFixture {
             for i in 0..s.len() {
                 let j = (i + 1) % s.len();
                 if vis[i] != vis[j] && norm(sub(s[i].p, s[j].p)) < 3.0 * ds {
-                    corners.push(if vis[i] { s[i].p } else { s[j].p });
+                    corners.push((if vis[i] { s[i].p } else { s[j].p }, None));
                 }
             }
             samples.extend(s.into_iter().zip(vis).filter(|(_, v)| *v).map(|(q, _)| q));
             // Polygon vertices and round-rect tangent points that stay visible are corners.
-            if let Shape::Polygon(pts) = shape {
-                for v in pts {
-                    if !self.layers[k + 1..].iter().any(|(sh, _)| sh.inside(*v)) && in_frame(*v, self.w, self.h, 0.5) {
-                        corners.push(*v);
+            let mut poly_corners = |pts: &[P]| {
+                let n = pts.len();
+                for i in 0..n {
+                    let v = pts[i];
+                    if !self.layers[k + 1..].iter().any(|(sh, _)| sh.inside(v)) && in_frame(v, self.w, self.h, 0.5) {
+                        let (a, b) = (sub(v, pts[(i + n - 1) % n]), sub(pts[(i + 1) % n], v));
+                        corners.push((v, Some(cross(a, b).atan2(dot(a, b)).abs().to_degrees())));
                     }
                 }
+            };
+            match shape {
+                Shape::Polygon(pts) => poly_corners(pts),
+                Shape::Diff(a, b) => {
+                    for part in [a.as_ref(), b.as_ref()] {
+                        if let Shape::Polygon(pts) = part {
+                            poly_corners(pts);
+                        }
+                    }
+                }
+                _ => {}
             }
         }
         // Merge corners closer than 1 px.
-        let mut merged: Vec<P> = Vec::new();
+        let mut merged: Vec<(P, Option<f64>)> = Vec::new();
         for c in corners {
-            if !merged.iter().any(|m| norm(sub(*m, c)) < 1.0) {
+            if !merged.iter().any(|m| norm(sub(m.0, c.0)) < 1.0) {
                 merged.push(c);
             }
         }
@@ -417,12 +431,13 @@ pub struct Truth {
     pub ds: f64,
     pub samples: Vec<Sample>,
     pub prims: Vec<Prim>,
-    pub corners: Vec<P>,
+    /// Visible corners: position and, for polygon vertices, the true turning angle (degrees).
+    pub corners: Vec<(P, Option<f64>)>,
     grid: std::collections::HashMap<(i64, i64), Vec<usize>>,
 }
 
 impl Truth {
-    pub fn new(samples: Vec<Sample>, prims: Vec<Prim>, corners: Vec<P>, ds: f64) -> Self {
+    pub fn new(samples: Vec<Sample>, prims: Vec<Prim>, corners: Vec<(P, Option<f64>)>, ds: f64) -> Self {
         let mut grid: std::collections::HashMap<(i64, i64), Vec<usize>> = std::collections::HashMap::new();
         for (i, s) in samples.iter().enumerate() {
             grid.entry((s.p[0].floor() as i64, s.p[1].floor() as i64))
@@ -464,7 +479,7 @@ impl Truth {
     }
 
     fn near_corner(&self, p: P, r: f64) -> bool {
-        self.corners.iter().any(|c| norm(sub(*c, p)) < r)
+        self.corners.iter().any(|c| norm(sub(c.0, p)) < r)
     }
 }
 
@@ -717,6 +732,8 @@ pub struct LoopShape {
 pub struct Report {
     /// Output visible boundary → nearest truth (signed by the truth's outward normal).
     pub contour: Stats,
+    /// Same, excluding output within 2 px of a true corner.
+    pub contour_smooth: Stats,
     /// Truth visible boundary → nearest visible output sample.
     pub missing: Stats,
     /// Symmetric contour (Hausdorff) distance.
@@ -732,6 +749,12 @@ pub struct Report {
     /// True corners with an output anchor within 1 px.
     pub corners_found: usize,
     pub corner_position: Stats,
+    /// Polygon corners: |output turning angle at the nearest anchor − true turning angle|, deg.
+    pub corner_angle: Stats,
+    /// Largest position error among acute corners (true turn > 120°, i.e. interior < 60°).
+    pub acute_corner_position_max: f64,
+    /// Largest position error among the other corners.
+    pub other_corner_position_max: f64,
     /// Straight truth: max |κ|·px over output samples on line primitives (0 for perfect lines).
     pub line_max_curvature: f64,
     pub line_deviation: Stats,
@@ -768,6 +791,7 @@ pub fn evaluate(truth: &Truth, scene: &Scene, w: usize, h: usize) -> Report {
 
     let mut r = Report::default();
     let mut dev = Vec::new();
+    let mut dev_smooth = Vec::new();
     let mut per_prim: Vec<Vec<(P, f64, f64)>> = vec![Vec::new(); truth.prims.len()]; // (point, signed dev, kappa)
     for o in &vis {
         if let Some((i, d)) = truth.nearest(o.p, 4.0) {
@@ -775,6 +799,7 @@ pub fn evaluate(truth: &Truth, scene: &Scene, w: usize, h: usize) -> Report {
             let sd = dot(sub(o.p, t.p), t.n).signum() * d;
             dev.push(sd);
             if !truth.near_corner(o.p, 2.0) {
+                dev_smooth.push(sd);
                 per_prim[t.prim].push((o.p, sd, o.kappa));
             }
         } else {
@@ -782,6 +807,7 @@ pub fn evaluate(truth: &Truth, scene: &Scene, w: usize, h: usize) -> Report {
         }
     }
     r.contour = Stats::of(&dev);
+    r.contour_smooth = Stats::of(&dev_smooth);
 
     // Missing: truth samples without visible output within 4 px count as 4 px.
     let mut out_grid: std::collections::HashMap<(i64, i64), Vec<P>> = std::collections::HashMap::new();
@@ -921,14 +947,32 @@ pub fn evaluate(truth: &Truth, scene: &Scene, w: usize, h: usize) -> Report {
     }
     r.true_corners = truth.corners.len();
     let mut cpos = Vec::new();
-    for c in &truth.corners {
-        let d = s.anchors.iter().map(|a| norm(sub(*a, *c))).fold(f64::MAX, f64::min);
+    let mut cang = Vec::new();
+    for (c, turn) in &truth.corners {
+        let near = s
+            .joins
+            .iter()
+            .map(|j| (norm(sub(j.p, *c)), j))
+            .min_by(|a, b| a.0.total_cmp(&b.0));
+        let d = near.map_or(4.0, |n| n.0);
         if d <= 1.0 {
             r.corners_found += 1;
         }
         cpos.push(d.min(4.0));
+        if turn.is_some_and(|t| t > 120.0) {
+            r.acute_corner_position_max = r.acute_corner_position_max.max(d.min(4.0));
+        } else {
+            r.other_corner_position_max = r.other_corner_position_max.max(d.min(4.0));
+        }
+        if let (Some(t), Some((dd, j))) = (turn, near)
+            && dd <= 2.0
+        {
+            let out = cross(j.t_in, j.t_out).atan2(dot(j.t_in, j.t_out)).abs().to_degrees();
+            cang.push(out - t);
+        }
     }
     r.corner_position = Stats::of(&cpos);
+    r.corner_angle = Stats::of(&cang);
     r
 }
 
@@ -1082,6 +1126,9 @@ pub fn topology(f: &GeoFixture, svg: &str, scale: usize) -> Topology {
     let (w, h) = (f.w * scale, f.h * scale);
     let tree = resvg::usvg::Tree::from_str(svg, &resvg::usvg::Options::default()).unwrap();
     let mut pm = resvg::tiny_skia::Pixmap::new(w as u32, h as u32).unwrap();
+    // Traced scenes leave the source background unpainted; show them over it, as a viewer would.
+    let bg = f.background;
+    pm.fill(resvg::tiny_skia::Color::from_rgba8(bg[0], bg[1], bg[2], bg[3]));
     resvg::render(
         &tree,
         resvg::tiny_skia::Transform::from_scale(scale as f32, scale as f32),

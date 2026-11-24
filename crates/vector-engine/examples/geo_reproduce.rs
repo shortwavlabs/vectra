@@ -512,7 +512,7 @@ fn main() {
                     if truth
                         .corners
                         .iter()
-                        .all(|c| (c[0] - b[3][0]).hypot(c[1] - b[3][1]) > 2.0)
+                        .all(|c| (c.0[0] - b[3][0]).hypot(c.0[1] - b[3][1]) > 2.0)
                     {
                         max_break = max_break.max(ang);
                         if ang > 2.0 {

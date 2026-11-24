@@ -101,6 +101,13 @@
         "max_abs": 0.6400963806092939,
         "bias": -0.2733055936661705
       },
+      "contour_smooth": {
+        "n": 1311,
+        "mean_abs": 0.2745397046072209,
+        "rms": 0.3149285731274556,
+        "max_abs": 0.6400963806092939,
+        "bias": -0.2733055936661705
+      },
       "missing": {
         "n": 2514,
         "mean_abs": 0.27751438584341803,
@@ -199,6 +206,15 @@
         "max_abs": 0.0,
         "bias": 0.0
       },
+      "corner_angle": {
+        "n": 0,
+        "mean_abs": 0.0,
+        "rms": 0.0,
+        "max_abs": 0.0,
+        "bias": 0.0
+      },
+      "acute_corner_position_max": 0.0,
+      "other_corner_position_max": 0.0,
       "line_max_curvature": 0.0,
       "line_deviation": {
         "n": 0,
@@ -352,6 +368,13 @@
         "rms": 0.4961296973631698,
         "max_abs": 1.0484633488910677,
         "bias": 0.20566251147486075
+      },
+      "contour_smooth": {
+        "n": 8868,
+        "mean_abs": 0.4595431086666189,
+        "rms": 0.5013118475904416,
+        "max_abs": 1.0484633488910677,
+        "bias": 0.20837844198210173
       },
       "missing": {
         "n": 16516,
@@ -566,6 +589,15 @@
         "max_abs": 0.24411894784371674,
         "bias": 0.13000496816803678
       },
+      "corner_angle": {
+        "n": 0,
+        "mean_abs": 0.0,
+        "rms": 0.0,
+        "max_abs": 0.0,
+        "bias": 0.0
+      },
+      "acute_corner_position_max": 0.0,
+      "other_corner_position_max": 0.24411894784371674,
       "line_max_curvature": 0.0,
       "line_deviation": {
         "n": 0,
