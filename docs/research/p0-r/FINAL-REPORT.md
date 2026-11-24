@@ -1,6 +1,6 @@
 # P0-R final report: engineering closure and baseline acceptance
 
-Date: 2026-11-24 · Branch: `p0/technical-feasibility` (PR #3, not merged) · Previously reviewed P0 head: `37b6c02` · `main` (PR #2 docs) merged in at `eee7115` · Reference machine: Apple M5 Max, macOS 26.6.2.
+Date: 2026-11-24 · Branch: `p0/technical-feasibility` (PR #3, not merged) · Previously reviewed P0 head: `37b6c02` · `main` (PR #2 docs) merged in at `eee7115`; `origin/main` has no newer commits (checked before the final push) · Reference machine: Apple M5 Max, macOS 26.6.2.
 
 ## Summary
 P0-R closes the P0 engineering gaps without starting P1.
@@ -22,7 +22,8 @@ P0-R closes the P0 engineering gaps without starting P1.
 - Geometry deviations are diagnosed: an outward boundary bias from fitting through pixel-staircase corners, at most about 1 px. They are proposed for acceptance or deferral and are **not** marked as met.
 
 **Owner actions:**
-- A real deployment, GUI compatibility checks and five decisions remain with the maintainer.
+- Three actions are required before merge: the copyright holder, the geometry dispositions and the GUI export check.
+- Four can be deferred explicitly: the service-worker and hosting acceptance, the real deployment, the Safari check and the P1 budget. See "Owner actions" below.
 
 ## Gate matrix
 | Gate | Result | Evidence | Remaining action |
@@ -35,7 +36,7 @@ P0-R closes the P0 engineering gaps without starting P1.
 | P0-R-G4 Deployment | **OWNER TEST PENDING** (local only: `wrangler dev` 16/16 header checks, 21/21 browser tests) | [DEPLOYMENT-READINESS](DEPLOYMENT-READINESS.md); `wrangler.jsonc`; `scripts/verify-deployment.sh` | Approve and run the preview deploy, then the verifier (checklist §D) |
 | P0-R-G5 Performance and privacy | **PARTIAL**: privacy PASS; performance measured; 2 proposed budget items not met (preview frame gaps; late budget errors); lower-end hardware, Safari and mobile **NOT RUN** | [PERFORMANCE-BASELINE](PERFORMANCE-BASELINE.md); `artifacts/native-bench/` | Approve the P1 budget and the lower-end target; measure on a lower-end device |
 | P0-R-G6 Licensing | **PARTIAL**: notices **PASS**; `LICENSE` pending the copyright holder (OWNER TEST PENDING) | [LICENSING-AND-DISTRIBUTION](LICENSING-AND-DISTRIBUTION.md); `public/THIRD-PARTY-NOTICES.txt` (35 components) | Confirm the copyright holder line |
-| Full P0 regression suite | **PASS** | macOS (`artifacts/regression/`): cargo 26/26, vp test 14/14, vp check, build, Playwright 48 passed / 0 failed; export reports identical to P0; P0 benchmark 0.97–1.02×. Linux arm64: all steps | — |
+| Full P0 regression suite | **PASS** | macOS (`artifacts/regression/`, run at `2ab61b4`): cargo 26/26, vp test 14/14, vp check, build, Playwright 48 passed / 9 skipped / 0 failed. The 9 skips are the opt-in benchmark, native-benchmark and owner-bundle specs × 3 engines, run separately with env flags. Export reports are identical to P0; P0 benchmark 0.97–1.02×. Since `2ab61b4` the only non-doc change is formatting in `scripts/summarize-native-bench.mjs`, a dev-only script. Linux arm64 at `01833ab`: all steps | — |
 
 No deviation is reported as accepted: no maintainer acceptance of the P0-R proposals has been given yet.
 
@@ -49,7 +50,7 @@ No deviation is reported as accepted: no maintainer acceptance of the P0-R propo
 - **Unchanged:** the Rust engine. The WASM SHA-256 is still `40b43967…` on macOS.
 
 ## Product principles check
-All processing stays local. There is no AI or inference, no external processing APIs, accounts, subscriptions, DRM or telemetry. The CSP is strict and unchanged (the service worker uses `worker-src 'self'`). Exports are genuine vector with no raster fallback (verified). Operations are deterministic (fingerprint). Resource budgets are explicit and recoverable (tested). The free MIT core and notices are in place.
+All processing stays local. There is no AI or inference, no external processing APIs, accounts, subscriptions, DRM or telemetry. The CSP is strict and unchanged (the service worker uses `worker-src 'self'`). Exports are genuine vector with no raster fallback (verified). Operations are deterministic (fingerprint). Resource budgets are explicit and recoverable (tested). MIT is declared in `package.json` and third-party notices ship with the build. The `LICENSE` file itself is pending confirmation of the copyright holder.
 
 ## Defects and risks carried into P1
 1. Preview painting of 12–37 MB SVGs blocks the main thread for 83–850 ms. Interactive rendering is the P1 bottleneck.
@@ -61,22 +62,23 @@ All processing stays local. There is no AI or inference, no external processing 
 7. The service-worker lifecycle and Cache Storage eviction are new operational surfaces.
 
 ## Owner actions
-See [OWNER-ACCEPTANCE-CHECKLIST](OWNER-ACCEPTANCE-CHECKLIST.md):
-1. Confirm the copyright holder, then the `LICENSE` file is added.
-2. Accept or reject the geometry dispositions.
-3. Accept the service-worker offline mechanism and the hosting target.
-4. Inspect the export bundle in Inkscape and Preview.
-5. Optionally run the real Safari check.
-6. Approve and run the preview deployment and verifier, or explicitly defer G4.
-7. Approve the P1 performance budget.
+See [OWNER-ACCEPTANCE-CHECKLIST](OWNER-ACCEPTANCE-CHECKLIST.md).
+
+**Required before merge:**
+1. Confirm the copyright holder, so the MIT `LICENSE` file can be added.
+2. Accept or reject each of the five geometry dispositions: three PROPOSED FOR ACCEPTANCE, two DEFERRED.
+3. Inspect the export bundle in Inkscape and Preview.
+
+**Before merge, or explicitly deferred by the maintainer:**
+4. Accept the service-worker offline mechanism and the hosting target (Workers Static Assets or Pages).
+5. Approve and run the preview deployment and `verify-deployment.sh`, or defer G4.
+6. Run the real Safari check (optional).
+7. Approve the proposed P1 performance budget and lower-end target. P1 planning needs this; it is not needed to merge the baseline.
 
 ## Recommendation
-**CONDITIONALLY READY — required owner actions:**
-- (1) confirm the copyright holder so the MIT `LICENSE` can be added;
-- (2) decide the five geometry dispositions;
-- (3) complete the Inkscape and Preview bundle inspection.
+**CONDITIONALLY READY — LIST REQUIRED OWNER ACTIONS**
 
-The real preview deployment (G4) and the Safari check can be run before merge or explicitly deferred by the maintainer. There are no blocking engineering defects.
+Required owner actions are items 1–3 above. Items 4–7 can be completed before merge or explicitly deferred. There are no blocking engineering defects.
 
 ## Branch
 Commits since `37b6c02` are listed in PR #3. The final head SHA is recorded in the PR description: this report is part of that commit, so it cannot contain its own SHA.
