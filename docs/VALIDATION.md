@@ -1,5 +1,11 @@
 # Validation and benchmark plan
-Targets are provisional. Results are in docs/research/p0 and docs/research/p0-r.
+Targets are provisional. Results are in docs/research/p0, docs/research/p0-r and docs/research/p0-r-geo.
+
+**Geometric fidelity (P0-R-GEO, 2026-11-24).** An analytic geometry corpus of 42 fixtures (validation, held-out, negative controls) is scored with validated metrics:
+- centre, radius, radial and curvature deviation;
+- tangent continuity, corners, topology and complexity.
+
+Thresholds were pre-registered in docs/research/p0-r-geo/GEOMETRIC-FIDELITY-METRICS.md. Precision fit passes 34 of 44 fixtures (spline: 0). Per-fixture results and every miss are in GEOMETRY-VALIDATION.md. Default (spline) outputs are byte-identical across a 114-case regression corpus.
 
 **Tested state (2026-11-24):**
 - **Executed:**

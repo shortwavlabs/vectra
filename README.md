@@ -2,7 +2,11 @@
 
 **From pixels to paths.** An open-source, local-first browser studio for raster tracing and artistic vector print effects.
 
-Status: P0 feasibility and P0-R engineering closure; a temporary engineering workbench runs locally. There is no product UI and no public deployment. See the [P0 final report](docs/research/p0/FINAL-REPORT.md) and the [P0-R final report](docs/research/p0-r/FINAL-REPORT.md).
+Status: P0 feasibility, P0-R engineering closure and P0-R-GEO geometric fidelity. A temporary engineering workbench runs locally; there is no product UI and no public deployment. See the final reports: [P0](docs/research/p0/FINAL-REPORT.md), [P0-R](docs/research/p0-r/FINAL-REPORT.md), [P0-R-GEO](docs/research/p0-r-geo/FINAL-REPORT.md).
+
+Tracing has two fit modes:
+- `spline` (default) is the approved artistic behaviour for photographs and organic artwork.
+- `precision` (opt-in, "Fit: precision" in the workbench) is for logos and geometric artwork. It produces sub-pixel boundaries from the antialiased source, smooth G1 curves, straight lines, crisp corners and exact circles where the evidence proves them.
 
 Import an image, choose a tracing or artistic preset, compare the result, tune its palette and geometry, and export editable SVG or genuine vector PDF. Artwork is processed on-device; no account or backend required.
 

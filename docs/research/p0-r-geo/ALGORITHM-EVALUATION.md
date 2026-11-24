@@ -8,7 +8,7 @@
 - 28 variants × 32 fixtures (2 rejected, 24 validation, 6 negative), scored against the pre-registered thresholds in GEOMETRIC-FIDELITY-METRICS.
 - Native release build; times are the median of 3 runs; peak heap is measured with a counting allocator.
 - Outputs:
-  - per-fixture pass/fail lines: `artifacts/evaluation/run-validation.log`;
+  - per-fixture pass/fail lines: `artifacts/evaluation/run-validation.txt`;
   - summary table: `artifacts/evaluation/summary-rejected+validation+negative.md`;
   - full JSON: regenerated into `tests/output/geo-eval/` (4 MB, not committed).
 - The held-out set was run once, after the configuration was frozen (GEOMETRY-VALIDATION).

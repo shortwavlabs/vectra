@@ -31,7 +31,7 @@ The maintainer's private concert photograph was **not** used: the concert images
 
 ## Browser path
 - **WASM fingerprint.** The 65-case output digest (13 fixtures × 5 modes, through the WASM build in Node) is `68723671…`. That is unchanged from P0-R, although the WASM binary itself changed (`40b43967…` → `be101bca…`) because it now contains the precision module.
-- **Workbench re-run.** Regenerating owner bundle v1 through the workbench (Chromium) with the current build is recorded in EXPORT-REGRESSION; it covers the B&W Talbot, limited Hokusai and both Old Print cases.
+- **Workbench re-run.** Owner bundle v1 re-generated through the workbench (Chromium) with the final build: **14/14 files byte-identical**, including B&W Talbot, limited Hokusai and both Old Print cases (EXPORT-REGRESSION).
 
 ## What the approved behaviour is protected against
 | Risk named in the brief | Status |

@@ -49,24 +49,32 @@ fn dot(pm: &mut sk::Pixmap, p: P, t: sk::Transform, col: sk::Paint, size: f32, s
     pm.fill_path(&path, &col, sk::FillRule::Winding, t, None);
 }
 
-/// Source pixels of `crop = [x0, y0, w, h]` at `zoom` on a checkerboard, with a pixel grid
-/// when zoomed in.
+/// Source pixels of `crop = [x0, y0, w, h]` at `zoom` on a checkerboard (nearest-neighbour
+/// when zoomed in, smooth when reduced), with a pixel grid when zoomed in.
 pub fn source(f: &GeoFixture, crop: [f64; 4], zoom: f32) -> (sk::Pixmap, sk::Transform) {
     let mut pm = sk::Pixmap::new((crop[2] * zoom as f64) as u32, (crop[3] * zoom as f64) as u32).unwrap();
     let t = sk::Transform::from_scale(zoom, zoom).pre_translate(-crop[0] as f32, -crop[1] as f32);
-    for y in crop[1] as usize..(crop[1] + crop[3]).ceil() as usize {
-        for x in crop[0] as usize..(crop[0] + crop[2]).ceil() as usize {
-            if x >= f.w || y >= f.h {
-                continue;
-            }
+    // The source over a 4-px checkerboard, at 1:1 (premultiplied for tiny-skia).
+    let mut img = sk::Pixmap::new(f.w as u32, f.h as u32).unwrap();
+    for y in 0..f.h {
+        for x in 0..f.w {
             let c = &f.rgba[(y * f.w + x) * 4..(y * f.w + x) * 4 + 4];
-            let checker = if (x / 4 + y / 4) % 2 == 0 { 235u8 } else { 210 };
+            let checker = if (x / 4 + y / 4) % 2 == 0 { 235u32 } else { 210 };
             let a = u32::from(c[3]);
-            let mix = |v: u8| ((u32::from(v) * a + u32::from(checker) * (255 - a)) / 255) as u8;
-            let rect = sk::Rect::from_xywh(x as f32, y as f32, 1.0, 1.0).unwrap();
-            pm.fill_rect(rect, &paint(mix(c[0]), mix(c[1]), mix(c[2]), 255), t, None);
+            let mix = |v: u8| ((u32::from(v) * a + checker * (255 - a)) / 255) as u8;
+            img.pixels_mut()[y * f.w + x] = sk::ColorU8::from_rgba(mix(c[0]), mix(c[1]), mix(c[2]), 255).premultiply();
         }
     }
+    let quality = if zoom >= 2.0 {
+        sk::FilterQuality::Nearest
+    } else {
+        sk::FilterQuality::Bicubic
+    };
+    let pp = sk::PixmapPaint {
+        quality,
+        ..Default::default()
+    };
+    pm.draw_pixmap(0, 0, img.as_ref(), &pp, t, None);
     if zoom >= 8.0 {
         let mut grid = sk::PathBuilder::new();
         for k in 0..=crop[2] as i32 {

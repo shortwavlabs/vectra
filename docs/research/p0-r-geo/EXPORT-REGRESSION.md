@@ -40,4 +40,6 @@ The precision geometry is in the scene itself, not a preview or PDF correction. 
   - Firefox and WebKit decode partial alpha differently (P0 limitation), so the test checks the structure there: two subpaths and at most 8 cubics.
 - `metrics.precisionFitVersion = 1` in every engine.
 
-Result: see "Regression suite" in FINAL-REPORT.
+Result: 6/6 pass (Chromium, Firefox, WebKit), within the full suite of 54 passed, 9 skipped, 0 failed.
+
+**Bundle v1 through the workbench.** `OWNER_BUNDLE=1 OWNER_BUNDLE_DIR=tests/output/bundle-v1-recheck pnpm exec playwright test tests/browser/owner-bundle.spec.ts --project=chromium` re-generates all 7 bundle-v1 cases with the final build. All **14/14 files are byte-identical** to `docs/research/p0-r/owner-acceptance-bundle/` (`artifacts/browser/bundle-v1-workbench-recheck.txt`).

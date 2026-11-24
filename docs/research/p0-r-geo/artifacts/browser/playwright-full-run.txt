@@ -1,0 +1,65 @@
+[1/63] [chromium] › tests/browser/benchmark.spec.ts:22:1 › benchmark matrix
+[2/63] [chromium] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked
+[3/63] [chromium] › tests/browser/native-benchmark.spec.ts:81:1 › native corpus baseline
+[4/63] [chromium] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic
+[5/63] [chromium] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job
+[6/63] [chromium] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working
+[7/63] [chromium] › tests/browser/owner-bundle.spec.ts:79:1 › owner acceptance bundle
+[8/63] [chromium] › tests/browser/pdf-eval.spec.ts:21:1 › jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+[9/63] [chromium] › tests/browser/precision.spec.ts:16:3 › precision fit in the workbench: 04-color-discs
+[10/63] [chromium] › tests/browser/precision.spec.ts:16:3 › precision fit in the workbench: 05-color-transparent-hole
+[11/63] [chromium] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted
+[12/63] [chromium] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded
+[13/63] [chromium] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP
+[14/63] [chromium] › tests/browser/sw-update.spec.ts:58:1 › a new deployment does not disturb open pages, then replaces the old cache
+[15/63] [chromium] › tests/browser/workbench.spec.ts:54:1 › fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+[16/63] [chromium] › tests/browser/workbench.spec.ts:85:1 › SVG and PDF downloads are produced from the same scene and contain only vector data
+[17/63] [chromium] › tests/browser/workbench.spec.ts:128:1 › cancellation is acknowledged immediately and the next job succeeds
+[18/63] [chromium] › tests/browser/workbench.spec.ts:158:1 › rapid setting changes never show a stale result
+[19/63] [chromium] › tests/browser/workbench.spec.ts:177:1 › malformed, unsupported and oversized inputs produce actionable errors
+[20/63] [chromium] › tests/browser/workbench.spec.ts:211:1 › repeated imports keep memory bounded
+[21/63] [chromium] › tests/browser/workbench.spec.ts:235:1 › resource limits stop with clear, recoverable errors (no silent downscaling)
+[22/63] [firefox] › tests/browser/benchmark.spec.ts:22:1 › benchmark matrix
+[23/63] [firefox] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked
+[24/63] [firefox] › tests/browser/native-benchmark.spec.ts:81:1 › native corpus baseline
+[25/63] [firefox] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic
+[26/63] [firefox] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job
+[27/63] [firefox] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working
+[28/63] [firefox] › tests/browser/owner-bundle.spec.ts:79:1 › owner acceptance bundle
+[29/63] [firefox] › tests/browser/pdf-eval.spec.ts:21:1 › jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+[30/63] [firefox] › tests/browser/precision.spec.ts:16:3 › precision fit in the workbench: 04-color-discs
+[31/63] [firefox] › tests/browser/precision.spec.ts:16:3 › precision fit in the workbench: 05-color-transparent-hole
+[32/63] [firefox] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted
+[33/63] [firefox] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded
+[34/63] [firefox] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP
+[35/63] [firefox] › tests/browser/sw-update.spec.ts:58:1 › a new deployment does not disturb open pages, then replaces the old cache
+[36/63] [firefox] › tests/browser/workbench.spec.ts:54:1 › fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+[37/63] [firefox] › tests/browser/workbench.spec.ts:85:1 › SVG and PDF downloads are produced from the same scene and contain only vector data
+[38/63] [firefox] › tests/browser/workbench.spec.ts:128:1 › cancellation is acknowledged immediately and the next job succeeds
+[39/63] [firefox] › tests/browser/workbench.spec.ts:158:1 › rapid setting changes never show a stale result
+[40/63] [firefox] › tests/browser/workbench.spec.ts:177:1 › malformed, unsupported and oversized inputs produce actionable errors
+[41/63] [firefox] › tests/browser/workbench.spec.ts:211:1 › repeated imports keep memory bounded
+[42/63] [firefox] › tests/browser/workbench.spec.ts:235:1 › resource limits stop with clear, recoverable errors (no silent downscaling)
+[43/63] [webkit] › tests/browser/benchmark.spec.ts:22:1 › benchmark matrix
+[44/63] [webkit] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked
+[45/63] [webkit] › tests/browser/native-benchmark.spec.ts:81:1 › native corpus baseline
+[46/63] [webkit] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic
+[47/63] [webkit] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job
+[48/63] [webkit] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working
+[49/63] [webkit] › tests/browser/owner-bundle.spec.ts:79:1 › owner acceptance bundle
+[50/63] [webkit] › tests/browser/pdf-eval.spec.ts:21:1 › jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+[51/63] [webkit] › tests/browser/precision.spec.ts:16:3 › precision fit in the workbench: 04-color-discs
+[52/63] [webkit] › tests/browser/precision.spec.ts:16:3 › precision fit in the workbench: 05-color-transparent-hole
+[53/63] [webkit] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted
+[54/63] [webkit] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded
+[55/63] [webkit] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP
+[56/63] [webkit] › tests/browser/sw-update.spec.ts:58:1 › a new deployment does not disturb open pages, then replaces the old cache
+[57/63] [webkit] › tests/browser/workbench.spec.ts:54:1 › fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+[58/63] [webkit] › tests/browser/workbench.spec.ts:85:1 › SVG and PDF downloads are produced from the same scene and contain only vector data
+[59/63] [webkit] › tests/browser/workbench.spec.ts:128:1 › cancellation is acknowledged immediately and the next job succeeds
+[60/63] [webkit] › tests/browser/workbench.spec.ts:158:1 › rapid setting changes never show a stale result
+[61/63] [webkit] › tests/browser/workbench.spec.ts:177:1 › malformed, unsupported and oversized inputs produce actionable errors
+[62/63] [webkit] › tests/browser/workbench.spec.ts:211:1 › repeated imports keep memory bounded
+[63/63] [webkit] › tests/browser/workbench.spec.ts:235:1 › resource limits stop with clear, recoverable errors (no silent downscaling)
+  9 skipped
+  54 passed (2.9m)

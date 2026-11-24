@@ -1,0 +1,1993 @@
+{
+  "cases": [
+    {
+      "analytic": "DEF-GEO-002: discs r=60 at (96,110) red, (160,110) blue, (128,165) yellow on white",
+      "case": "04-color-discs",
+      "check": "DEF-GEO-002: three overlapping discs; arcs round and even, junctions clean",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.04960160522081675,
+              "curvatureMax": 16.116322272780984,
+              "curvatureRms": 1.09637185879514,
+              "radialMaxPx": 0.25731905752196127,
+              "radialRmsPx": 0.05035739571177461,
+              "radius": 60.0,
+              "radiusErrorPx": 0.06324983262448569,
+              "visibleFraction": 0.5124668435013262
+            },
+            {
+              "centreErrorPx": 0.034540934494808356,
+              "curvatureMax": 0.015216407441581703,
+              "curvatureRms": 0.004557713588390819,
+              "radialMaxPx": 0.08079814593207857,
+              "radialRmsPx": 0.03257845281922304,
+              "radius": 60.0,
+              "radiusErrorPx": 0.03873172679485748,
+              "visibleFraction": 0.6779840848806366
+            },
+            {
+              "centreErrorPx": 0.021974412075383264,
+              "curvatureMax": 14.541127468600319,
+              "curvatureRms": 0.685668655930864,
+              "radialMaxPx": 0.25731905752195416,
+              "radialRmsPx": 0.056935813721123954,
+              "radius": 60.0,
+              "radiusErrorPx": -0.01781750576449781,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.25810557241225396,
+          "contourRmsPx": 0.05118372437374504,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "04-color-discs-corrected-precision.pdf",
+        "pdfBytes": 1472,
+        "pdfSha256": "bb564b2f2c4444a979f4678d0f5254f468911f8481e4eab79ee9dc79f64750a4",
+        "scene": {
+          "anchors": 46,
+          "cubics": 38,
+          "lines": 4,
+          "paths": 4,
+          "subpaths": 4
+        },
+        "settings": {
+          "alphaThreshold": 128,
+          "colorPrecision": 6,
+          "compositing": "stacked",
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "layerDifference": 16,
+          "mode": "color",
+          "speckle": 16
+        },
+        "svg": "04-color-discs-corrected-precision.svg",
+        "svgBytes": 2007,
+        "svgSha256": "85a84e342d9625b2995d6b65a0788f6dfab5edbcd9a2597a837fe48d43fb33e7"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.028933261973619784,
+              "curvatureMax": 1.1221548751893917,
+              "curvatureRms": 0.28679294658488047,
+              "radialMaxPx": 0.7117360977266074,
+              "radialRmsPx": 0.4665126041963545,
+              "radius": 60.0,
+              "radiusErrorPx": 0.4526942300544974,
+              "visibleFraction": 0.5124668435013262
+            },
+            {
+              "centreErrorPx": 0.5947110496669604,
+              "curvatureMax": 6.321537547864217,
+              "curvatureRms": 0.49225271624382605,
+              "radialMaxPx": 0.8749447638353018,
+              "radialRmsPx": 0.4875783462086802,
+              "radius": 60.0,
+              "radiusErrorPx": 0.026831156493976493,
+              "visibleFraction": 0.6779840848806366
+            },
+            {
+              "centreErrorPx": 0.5979128266367421,
+              "curvatureMax": 6.806250697699383,
+              "curvatureRms": 0.44502335931591247,
+              "radialMaxPx": 1.0481855612591673,
+              "radialRmsPx": 0.5303417691835745,
+              "radius": 60.0,
+              "radiusErrorPx": 0.012521357492047969,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 1.0484633488910677,
+          "contourRmsPx": 0.5019969969641355,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 19
+        },
+        "pdf": "04-color-discs-p0-spline.pdf",
+        "pdfBytes": 1755,
+        "pdfSha256": "a2ebb61125fc97d529434530da217a303dca9d83786fed182b4d3ee02a93440f",
+        "scene": {
+          "anchors": 73,
+          "cubics": 69,
+          "lines": 0,
+          "paths": 4,
+          "subpaths": 4
+        },
+        "settings": {
+          "alphaThreshold": 128,
+          "colorPrecision": 6,
+          "compositing": "stacked",
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "spline",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "layerDifference": 16,
+          "mode": "color",
+          "speckle": 16
+        },
+        "svg": "04-color-discs-p0-spline.svg",
+        "svgBytes": 3011,
+        "svgSha256": "43398fc9ade046f0bda588d0fd70de6b7cc9f77e98ea94012f1022d04a82865b"
+      },
+      "p0IdenticalToBundleV1": true,
+      "set": "rejected",
+      "source": "sources/04-color-discs.png",
+      "sourceFixture": "04-color-discs"
+    },
+    {
+      "analytic": "DEF-GEO-001: opaque blue field with a transparent circular hole c=(128,100) r=20",
+      "case": "05-color-transparent-hole",
+      "check": "DEF-GEO-001: transparent hole is a clean symmetric circle (4 cubics)",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.014485833557849062,
+              "curvatureMax": 0.024953921189817763,
+              "curvatureRms": 0.007015464127280567,
+              "radialMaxPx": 0.04456715578436388,
+              "radialRmsPx": 0.016168679191519646,
+              "radius": 20.0,
+              "radiusErrorPx": -0.009293984585049486,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.05070758580470684,
+          "contourRmsPx": 0.021660476757951953,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "05-color-transparent-hole-corrected-precision.pdf",
+        "pdfBytes": 806,
+        "pdfSha256": "a9a4bbe301643e52364b5c264138b7c4c6e68c639713ca820e05dcab240151a6",
+        "scene": {
+          "anchors": 10,
+          "cubics": 4,
+          "lines": 4,
+          "paths": 1,
+          "subpaths": 2
+        },
+        "settings": {
+          "alphaThreshold": 128,
+          "colorPrecision": 6,
+          "compositing": "stacked",
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "layerDifference": 16,
+          "mode": "color",
+          "speckle": 16
+        },
+        "svg": "05-color-transparent-hole-corrected-precision.svg",
+        "svgBytes": 498,
+        "svgSha256": "d460f2ba618844e5d094a64ae4e9423a9d3be96cefcf7660ed9a44fb44b50e98"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.033903425082744146,
+              "curvatureMax": 0.6693140822093533,
+              "curvatureRms": 0.2689062789983597,
+              "radialMaxPx": 0.6400629844000179,
+              "radialRmsPx": 0.3145932166139883,
+              "radius": 20.0,
+              "radiusErrorPx": 0.2729841970377258,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.6400963806092939,
+          "contourRmsPx": 0.3149285731274556,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 7
+        },
+        "pdf": "05-color-transparent-hole-p0-spline.pdf",
+        "pdfBytes": 876,
+        "pdfSha256": "fe32c4cb8ef52995f16f8c21e017b93e777087334b9f93b46da800d5287a02b3",
+        "scene": {
+          "anchors": 13,
+          "cubics": 11,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 2
+        },
+        "settings": {
+          "alphaThreshold": 128,
+          "colorPrecision": 6,
+          "compositing": "stacked",
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "spline",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "layerDifference": 16,
+          "mode": "color",
+          "speckle": 16
+        },
+        "svg": "05-color-transparent-hole-p0-spline.svg",
+        "svgBytes": 670,
+        "svgSha256": "f7a2e958448af8371e9b1217b1a3f7d5a408df84b90312c8bb7f08003b746c16"
+      },
+      "p0IdenticalToBundleV1": true,
+      "set": "rejected",
+      "source": "sources/05-color-transparent-hole.png",
+      "sourceFixture": "05-color-transparent-hole"
+    },
+    {
+      "analytic": "Green ring r 50–70 on transparency",
+      "case": "10-transparent-ring",
+      "check": "Transparent ring: both circles round, hole see-through",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.0074419979271435335,
+              "curvatureMax": 0.021508118119989206,
+              "curvatureRms": 0.006618135807964796,
+              "radialMaxPx": 0.038959490851169676,
+              "radialRmsPx": 0.01856203411096376,
+              "radius": 70.0,
+              "radiusErrorPx": 0.01586783041764761,
+              "visibleFraction": 1.0
+            },
+            {
+              "centreErrorPx": 0.008556843634758567,
+              "curvatureMax": 0.023065410298505062,
+              "curvatureRms": 0.0066663743422735455,
+              "radialMaxPx": 0.018259116304854217,
+              "radialRmsPx": 0.00911763035202268,
+              "radius": 50.0,
+              "radiusErrorPx": 0.0027614243805018646,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.0459718493696262,
+          "contourRmsPx": 0.021070120602316594,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "10-transparent-ring-corrected-precision.pdf",
+        "pdfBytes": 869,
+        "pdfSha256": "c497472bea5f120af06a3098383b26f6ba9e9fe2121b951a55c4716b9babca45",
+        "scene": {
+          "anchors": 10,
+          "cubics": 8,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 2
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "color"
+        },
+        "svg": "10-transparent-ring-corrected-precision.svg",
+        "svgBytes": 636,
+        "svgSha256": "4ae85127822198a3a9ab49b2423802c098fef5e60f6ac04e139592b541db887c"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.1551165092767585,
+              "curvatureMax": 1.621525233466409,
+              "curvatureRms": 0.219833939843355,
+              "radialMaxPx": 0.640049688547009,
+              "radialRmsPx": 0.39244200389444905,
+              "radius": 70.0,
+              "radiusErrorPx": 0.337310560097265,
+              "visibleFraction": 1.0
+            },
+            {
+              "centreErrorPx": 0.05470616903408765,
+              "curvatureMax": 0.5118511728633219,
+              "curvatureRms": 0.13918515188517833,
+              "radialMaxPx": 0.7557809515329836,
+              "radialRmsPx": 0.3799612698561804,
+              "radius": 50.0,
+              "radiusErrorPx": 0.31034935664100516,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.7560645434067322,
+          "contourRmsPx": 0.3875275336211688,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 12
+        },
+        "pdf": "10-transparent-ring-p0-spline.pdf",
+        "pdfBytes": 1039,
+        "pdfSha256": "8d7c2fdab9b00c0a857eab7248c2a476a5413b214654531e9c5a9a4830f442c8",
+        "scene": {
+          "anchors": 20,
+          "cubics": 18,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 2
+        },
+        "settings": {
+          "mode": "color"
+        },
+        "svg": "10-transparent-ring-p0-spline.svg",
+        "svgBytes": 993,
+        "svgSha256": "5c708048a0caea7334939c0411e51563fc42e814c2b848355bc0307529253631"
+      },
+      "set": "validation",
+      "source": "sources/10-transparent-ring.png",
+      "sourceFixture": "ring-alpha"
+    },
+    {
+      "analytic": "Black disc r=40 at (128.3,127.6)",
+      "case": "11-circle-r40",
+      "check": "Standalone circle r=40 at a fractional centre",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.0029823799255206725,
+              "curvatureMax": 0.02168353794799982,
+              "curvatureRms": 0.006647352478065798,
+              "radialMaxPx": 0.012957604636234521,
+              "radialRmsPx": 0.006297346619096452,
+              "radius": 40.0,
+              "radiusErrorPx": 0.00420634555722188,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.028056375721589047,
+          "contourRmsPx": 0.015752166654790085,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "11-circle-r40-corrected-precision.pdf",
+        "pdfBytes": 775,
+        "pdfSha256": "a47ba8705a8ea483718c866f9a8938908a8121edac04e101ae045816a0ebe2c2",
+        "scene": {
+          "anchors": 5,
+          "cubics": 4,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "11-circle-r40-corrected-precision.svg",
+        "svgBytes": 456,
+        "svgSha256": "0d5588720beb600b704dfd617f268ae28980fa42f921dcee7fc90aeaa8cb5228"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.07883228391549153,
+              "curvatureMax": 0.39814366232481735,
+              "curvatureRms": 0.12279922304674767,
+              "radialMaxPx": 0.5725153274972712,
+              "radialRmsPx": 0.3251709722528999,
+              "radius": 40.0,
+              "radiusErrorPx": 0.3056787029343653,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.572898460100484,
+          "contourRmsPx": 0.32548332281111436,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 6
+        },
+        "pdf": "11-circle-r40-p0-spline.pdf",
+        "pdfBytes": 827,
+        "pdfSha256": "e621865803dd8ca29bcee727317e831d45192bea13c838ebf0bfe334c046bd9c",
+        "scene": {
+          "anchors": 8,
+          "cubics": 7,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "11-circle-r40-p0-spline.svg",
+        "svgBytes": 565,
+        "svgSha256": "48445e367d40f35e55333fe3ab79cee25718ee7d2a7ddf67369c4dcd41c874d5"
+      },
+      "set": "validation",
+      "source": "sources/11-circle-r40.png",
+      "sourceFixture": "circle-r40-frac"
+    },
+    {
+      "analytic": "Black disc r=100 at (128.5,128.5)",
+      "case": "12-circle-r100",
+      "check": "Large circle r=100",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.003976479566312125,
+              "curvatureMax": 0.021847514490362818,
+              "curvatureRms": 0.006636128926807736,
+              "radialMaxPx": 0.038913417875107825,
+              "radialRmsPx": 0.021470583448035055,
+              "radius": 100.0,
+              "radiusErrorPx": 0.01886300163738497,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.045892481993616466,
+          "contourRmsPx": 0.025869884747786863,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "12-circle-r100-corrected-precision.pdf",
+        "pdfBytes": 763,
+        "pdfSha256": "f5f753444f3139c898cfe54b031a6b827469534a332a0fbd5b1f30c24d1d6dbf",
+        "scene": {
+          "anchors": 5,
+          "cubics": 4,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "12-circle-r100-corrected-precision.svg",
+        "svgBytes": 454,
+        "svgSha256": "1720885daf832d716ca1652848dd7f88fffbf131b1eddf73a56c80fc49a69ea5"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.06764896724741079,
+              "curvatureMax": 0.46377507280982444,
+              "curvatureRms": 0.12272105824638468,
+              "radialMaxPx": 0.787723486061978,
+              "radialRmsPx": 0.32966190191250033,
+              "radius": 100.0,
+              "radiusErrorPx": 0.19109666544828485,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.7877774643921879,
+          "contourRmsPx": 0.32998354895060955,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 4
+        },
+        "pdf": "12-circle-r100-p0-spline.pdf",
+        "pdfBytes": 825,
+        "pdfSha256": "12e924793b20b6ecc475b21b85d2be30ac30b48f275f5e5f3f2105af3c82bba4",
+        "scene": {
+          "anchors": 8,
+          "cubics": 7,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "12-circle-r100-p0-spline.svg",
+        "svgBytes": 562,
+        "svgSha256": "cb324e4f2b04d008f05515b50233170196feae4d89ea8c5425ffd8386cc004c4"
+      },
+      "set": "validation",
+      "source": "sources/12-circle-r100.png",
+      "sourceFixture": "circle-r100"
+    },
+    {
+      "analytic": "Disc r=15.7 at (47.13,39.71), 16×16 supersampling",
+      "case": "13-circle-r15.7",
+      "check": "Small circle r=15.7 (held-out)",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.005704962924650233,
+              "curvatureMax": 0.021849470927718717,
+              "curvatureRms": 0.006637129799911092,
+              "radialMaxPx": 0.009361936049714359,
+              "radialRmsPx": 0.005029067650705157,
+              "radius": 15.7,
+              "radiusErrorPx": -0.0016347653307047239,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.026326373089491924,
+          "contourRmsPx": 0.015281646378317764,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "13-circle-r15.7-corrected-precision.pdf",
+        "pdfBytes": 769,
+        "pdfSha256": "c05dac974c041f1f0cf22fad8c4d9dbad3f94277ff2344a2a3084b1e91128c22",
+        "scene": {
+          "anchors": 5,
+          "cubics": 4,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "13-circle-r15.7-corrected-precision.svg",
+        "svgBytes": 436,
+        "svgSha256": "b307d3c436a848887d2aaa9e83dfefaa0696b82b30b7a592f5f71c50a239491a"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.11481855368010302,
+              "curvatureMax": 0.7902451993151012,
+              "curvatureRms": 0.2968154018142994,
+              "radialMaxPx": 0.64689572977084,
+              "radialRmsPx": 0.33019442547632705,
+              "radius": 15.7,
+              "radiusErrorPx": 0.2919616292333984,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.6468969530858422,
+          "contourRmsPx": 0.3305060498683508,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 7
+        },
+        "pdf": "13-circle-r15.7-p0-spline.pdf",
+        "pdfBytes": 813,
+        "pdfSha256": "f21df9b5dba0696352adeb32f83fc243863018fdee480045903e8cc52ab47ca3",
+        "scene": {
+          "anchors": 8,
+          "cubics": 7,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "13-circle-r15.7-p0-spline.svg",
+        "svgBytes": 527,
+        "svgSha256": "eec28027eff4589632af880df1c129b61208b0497eaaf3ba7e22c704e8545717"
+      },
+      "set": "heldout",
+      "source": "sources/13-circle-r15.7.png",
+      "sourceFixture": "h-circle-r15.7"
+    },
+    {
+      "analytic": "Ellipse a=90 b=22.5 rotated 30°",
+      "case": "14-ellipse-4to1-rot30",
+      "check": "Rotated 4:1 ellipse: smooth, even curvature, pointed ends not kinked",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.18936359231950395,
+          "contourRmsPx": 0.09357875097248075,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "14-ellipse-4to1-rot30-corrected-precision.pdf",
+        "pdfBytes": 855,
+        "pdfSha256": "2beb33a0343dd2b5d4c307f12c664dc63c5454890f6610c8bc98aa51a217970e",
+        "scene": {
+          "anchors": 9,
+          "cubics": 8,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "14-ellipse-4to1-rot30-corrected-precision.svg",
+        "svgBytes": 615,
+        "svgSha256": "fb0457df0a33cb16863e1f6de6358915bafe00810729633903b46b56ea90d4cf"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 2.3178231381657186,
+          "contourRmsPx": 1.0939383163011898,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 5
+        },
+        "pdf": "14-ellipse-4to1-rot30-p0-spline.pdf",
+        "pdfBytes": 852,
+        "pdfSha256": "36f8e233b6cdd370da2b2d2e8133c8841c6f9e5f90213b6f16554fe22b054b38",
+        "scene": {
+          "anchors": 10,
+          "cubics": 9,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "14-ellipse-4to1-rot30-p0-spline.svg",
+        "svgBytes": 623,
+        "svgSha256": "1dc59a70bb932249ec751183e17d426917e75b8620d808a5b36030d8a241b5b6"
+      },
+      "set": "validation",
+      "source": "sources/14-ellipse-4to1-rot30.png",
+      "sourceFixture": "ellipse-4to1-rot30"
+    },
+    {
+      "analytic": "Ellipse a=75 b=25 rotated 63°",
+      "case": "15-ellipse-3to1-rot63",
+      "check": "Rotated 3:1 ellipse (held-out)",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.1758391348437982,
+          "contourRmsPx": 0.0920451148475982,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "15-ellipse-3to1-rot63-corrected-precision.pdf",
+        "pdfBytes": 850,
+        "pdfSha256": "ebebe50a6c2a2172e1dc19df5c6f92a9f7f9f659e1e8b16c6fab2b2c79e1617a",
+        "scene": {
+          "anchors": 9,
+          "cubics": 8,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "15-ellipse-3to1-rot63-corrected-precision.svg",
+        "svgBytes": 615,
+        "svgSha256": "2ef8c5685134da0590ac3af72dc497441c26d880778dd578431c3a295ee4e972"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 1.509082894392336,
+          "contourRmsPx": 0.6924649590726945,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 5
+        },
+        "pdf": "15-ellipse-3to1-rot63-p0-spline.pdf",
+        "pdfBytes": 891,
+        "pdfSha256": "17e300e0b8fd51a2c182e4f960ecef4816eacc7ea18feacfefe5f4bf4d0ac0ed",
+        "scene": {
+          "anchors": 12,
+          "cubics": 11,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "15-ellipse-3to1-rot63-p0-spline.svg",
+        "svgBytes": 715,
+        "svgSha256": "1c2db7a5c051c7ed627a7406329cddd01459c964bd7863da0df68389ded24b06"
+      },
+      "set": "heldout",
+      "source": "sources/15-ellipse-3to1-rot63.png",
+      "sourceFixture": "h-ellipse-3to1-rot63"
+    },
+    {
+      "analytic": "Rounded rectangle 160×100, corner radius 20",
+      "case": "16-roundrect",
+      "check": "Rounded rectangle: straight sides are lines, corners are round",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.019990371054337555,
+              "curvatureMax": 0.5418158686971981,
+              "curvatureRms": 0.11984382761778287,
+              "radialMaxPx": 0.06977194938459874,
+              "radialRmsPx": 0.03180071657076029,
+              "radius": 20.0,
+              "radiusErrorPx": -0.02139986444224462,
+              "visibleFraction": 0.25019888623707237
+            },
+            {
+              "centreErrorPx": 0.04849824563736937,
+              "curvatureMax": 0.2524420181530863,
+              "curvatureRms": 0.05784989193965348,
+              "radialMaxPx": 0.05601259004944126,
+              "radialRmsPx": 0.023708606242572452,
+              "radius": 20.0,
+              "radiusErrorPx": -0.06072914254063022,
+              "visibleFraction": 0.25019888623707237
+            },
+            {
+              "centreErrorPx": 0.015509029404068606,
+              "curvatureMax": 0.5418158686971917,
+              "curvatureRms": 0.12233713596141088,
+              "radialMaxPx": 0.06977194938459874,
+              "radialRmsPx": 0.03339676562560218,
+              "radius": 20.0,
+              "radiusErrorPx": -0.03795569633566487,
+              "visibleFraction": 0.25019888623707237
+            },
+            {
+              "centreErrorPx": 0.048498245637439194,
+              "curvatureMax": 0.2524420181530985,
+              "curvatureRms": 0.057849891939655916,
+              "radialMaxPx": 0.05601259004941639,
+              "radialRmsPx": 0.02370860624257009,
+              "radius": 20.0,
+              "radiusErrorPx": -0.06072914254069062,
+              "visibleFraction": 0.25019888623707237
+            }
+          ],
+          "contourMaxPx": 0.19256898114703896,
+          "contourRmsPx": 0.048972898372864074,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "16-roundrect-corrected-precision.pdf",
+        "pdfBytes": 986,
+        "pdfSha256": "4c8710d5c3e0f13e174f0360122aed5cb4843f381fc76889c6d61754e3ed81ef",
+        "scene": {
+          "anchors": 21,
+          "cubics": 20,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "16-roundrect-corrected-precision.svg",
+        "svgBytes": 963,
+        "svgSha256": "97d52653d9c1b8205a6768631499d9a861d2e2e45a5f2e87e97728230b460f0a"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 1.004530034957244,
+              "curvatureMax": 0.45364918972190105,
+              "curvatureRms": 0.22802555392474505,
+              "radialMaxPx": 0.6155281280883038,
+              "radialRmsPx": 0.3058446263846406,
+              "radius": 20.0,
+              "radiusErrorPx": -0.6448090314486876,
+              "visibleFraction": 0.25019888623707237
+            },
+            {
+              "centreErrorPx": 1.614079254981901,
+              "curvatureMax": 0.4625936438907944,
+              "curvatureRms": 0.2199263854358764,
+              "radialMaxPx": 0.6155281280883038,
+              "radialRmsPx": 0.2811183803121867,
+              "radius": 20.0,
+              "radiusErrorPx": -1.2469972133374725,
+              "visibleFraction": 0.25019888623707237
+            },
+            {
+              "centreErrorPx": 1.0045300349572157,
+              "curvatureMax": 0.45364918972191337,
+              "curvatureRms": 0.22802555392474805,
+              "radialMaxPx": 0.6155281280883038,
+              "radialRmsPx": 0.30584462638464016,
+              "radius": 20.0,
+              "radiusErrorPx": -0.644809031448677,
+              "visibleFraction": 0.25019888623707237
+            },
+            {
+              "centreErrorPx": 1.6140792549818812,
+              "curvatureMax": 0.46259364389079594,
+              "curvatureRms": 0.21992638543587809,
+              "radialMaxPx": 0.6155281280883038,
+              "radialRmsPx": 0.2811183803121828,
+              "radius": 20.0,
+              "radiusErrorPx": -1.246997213337469,
+              "visibleFraction": 0.25019888623707237
+            }
+          ],
+          "contourMaxPx": 0.6156316516607117,
+          "contourRmsPx": 0.2761476306142093,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 6
+        },
+        "pdf": "16-roundrect-p0-spline.pdf",
+        "pdfBytes": 1435,
+        "pdfSha256": "e1a39130f5cd61455f0045b903eae1f023ac7c793463c60f9d6711c05430d102",
+        "scene": {
+          "anchors": 49,
+          "cubics": 48,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "16-roundrect-p0-spline.svg",
+        "svgBytes": 2164,
+        "svgSha256": "0bb52c9b3ec65b41e3fd8b96df106a5bb9636d8889d6fe485bc3585bb214a14c"
+      },
+      "set": "validation",
+      "source": "sources/16-roundrect.png",
+      "sourceFixture": "roundrect"
+    },
+    {
+      "analytic": "Rounded rectangle 150×90 r=28 rotated 12°",
+      "case": "17-roundrect-rot12",
+      "check": "Rotated rounded rectangle (held-out)",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.25168137856207123,
+              "curvatureMax": 0.3528995093371987,
+              "curvatureRms": 0.06285823600568706,
+              "radialMaxPx": 0.04077437399756434,
+              "radialRmsPx": 0.023113347339432287,
+              "radius": 28.0,
+              "radiusErrorPx": 0.22023597218671398,
+              "visibleFraction": 0.2500710429099176
+            },
+            {
+              "centreErrorPx": 0.16891838389187885,
+              "curvatureMax": 0.44501589962815546,
+              "curvatureRms": 0.08951959232852878,
+              "radialMaxPx": 0.062043019731063964,
+              "radialRmsPx": 0.03830359570497914,
+              "radius": 28.0,
+              "radiusErrorPx": 0.12134330063004128,
+              "visibleFraction": 0.2500710429099176
+            },
+            {
+              "centreErrorPx": 0.2516813785620131,
+              "curvatureMax": 0.35289950933719094,
+              "curvatureRms": 0.06285823600568485,
+              "radialMaxPx": 0.040774373997571445,
+              "radialRmsPx": 0.02311334733942656,
+              "radius": 28.0,
+              "radiusErrorPx": 0.22023597218667135,
+              "visibleFraction": 0.2500710429099176
+            },
+            {
+              "centreErrorPx": 0.1689183838918875,
+              "curvatureMax": 0.4450158996281539,
+              "curvatureRms": 0.08951959232852866,
+              "radialMaxPx": 0.06204301973109949,
+              "radialRmsPx": 0.038303595704993865,
+              "radius": 28.0,
+              "radiusErrorPx": 0.12134330063003773,
+              "visibleFraction": 0.2500710429099176
+            }
+          ],
+          "contourMaxPx": 0.19403554455771974,
+          "contourRmsPx": 0.05782221537866843,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "17-roundrect-rot12-corrected-precision.pdf",
+        "pdfBytes": 1070,
+        "pdfSha256": "d5d2150e1b5bc826edee82b19458699a963c38972591b9ae757717df2863eca6",
+        "scene": {
+          "anchors": 21,
+          "cubics": 20,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "17-roundrect-rot12-corrected-precision.svg",
+        "svgBytes": 1072,
+        "svgSha256": "575008e67b9d8871f0ced2deeeef916f40288d5c885e4c3ec7b33b17e0e1605c"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.7419443592061987,
+              "curvatureMax": 0.48631660436581803,
+              "curvatureRms": 0.23815868865047024,
+              "radialMaxPx": 0.4898678289584524,
+              "radialRmsPx": 0.2176545416633354,
+              "radius": 28.0,
+              "radiusErrorPx": -0.49604243565999795,
+              "visibleFraction": 0.2500710429099176
+            },
+            {
+              "centreErrorPx": 1.1949049765601076,
+              "curvatureMax": 0.511688332826095,
+              "curvatureRms": 0.23294103164372143,
+              "radialMaxPx": 0.5951459964475347,
+              "radialRmsPx": 0.28219196339159774,
+              "radius": 28.0,
+              "radiusErrorPx": -0.8507717109169484,
+              "visibleFraction": 0.2500710429099176
+            },
+            {
+              "centreErrorPx": 0.717082083486973,
+              "curvatureMax": 0.48612381630906476,
+              "curvatureRms": 0.2380587442421346,
+              "radialMaxPx": 0.4847123503351227,
+              "radialRmsPx": 0.21550779654232166,
+              "radius": 28.0,
+              "radiusErrorPx": -0.4748215431088951,
+              "visibleFraction": 0.2500710429099176
+            },
+            {
+              "centreErrorPx": 1.1949049765600952,
+              "curvatureMax": 0.5116883328260949,
+              "curvatureRms": 0.2329410316437198,
+              "radialMaxPx": 0.595145996447517,
+              "radialRmsPx": 0.2821919633915864,
+              "radius": 28.0,
+              "radiusErrorPx": -0.8507717109169448,
+              "visibleFraction": 0.2500710429099176
+            }
+          ],
+          "contourMaxPx": 1.0534143021306517,
+          "contourRmsPx": 0.631831936057407,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 4
+        },
+        "pdf": "17-roundrect-rot12-p0-spline.pdf",
+        "pdfBytes": 1152,
+        "pdfSha256": "f1fb071b309759233b110858c24339a798ce01f447c6f220b01db67cb90ce015",
+        "scene": {
+          "anchors": 25,
+          "cubics": 24,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "17-roundrect-rot12-p0-spline.svg",
+        "svgBytes": 1248,
+        "svgSha256": "f647ef000e2dc7ebb263ceb89d02fcf85d28b378f7f95b0b2c2bba942c2986e2"
+      },
+      "set": "heldout",
+      "source": "sources/17-roundrect-rot12.png",
+      "sourceFixture": "h-roundrect-rot12"
+    },
+    {
+      "analytic": "Five-point star, outer 110, inner 45",
+      "case": "18-star",
+      "check": "Five-point star: straight edges, sharp tips",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.16511397994491053,
+          "contourRmsPx": 0.06453732276287545,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "18-star-corrected-precision.pdf",
+        "pdfBytes": 1226,
+        "pdfSha256": "779bf58f4444f042672131b05a92daf68caf514e9ce0d2c8d5bc03af3c6e5c9e",
+        "scene": {
+          "anchors": 31,
+          "cubics": 30,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "18-star-corrected-precision.svg",
+        "svgBytes": 1465,
+        "svgSha256": "cfb9c39b1dfb7d754e3527d60a26244b063a65fdc10d32f91d97da2824cd8721"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.7417364427577645,
+          "contourRmsPx": 0.47443628130078364,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 5
+        },
+        "pdf": "18-star-p0-spline.pdf",
+        "pdfBytes": 1919,
+        "pdfSha256": "79f0ddc56bfe98d338b82c1fc09488932bf66536045343b93a49a4e003f88f12",
+        "scene": {
+          "anchors": 73,
+          "cubics": 72,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "18-star-p0-spline.svg",
+        "svgBytes": 3034,
+        "svgSha256": "1a48cb35efa67fae1c1ed71adaadfaa4e5992d0e45ac88213dfecf3915726aac"
+      },
+      "set": "validation",
+      "source": "sources/18-star.png",
+      "sourceFixture": "star"
+    },
+    {
+      "analytic": "Five-point star outer 90 inner 38 rotated 17°",
+      "case": "19-star-rot17",
+      "check": "Rotated star (held-out)",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.18496580354123124,
+          "contourRmsPx": 0.0334693901932895,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "19-star-rot17-corrected-precision.pdf",
+        "pdfBytes": 1250,
+        "pdfSha256": "5582f3bfe68b8914ab7c4f36b021ed530bf8a4ba06874277726a3e1e5718eb43",
+        "scene": {
+          "anchors": 31,
+          "cubics": 30,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "19-star-rot17-corrected-precision.svg",
+        "svgBytes": 1460,
+        "svgSha256": "c00965fe0611960671a600e012b34588b11dde628a8dcd707a47e8cd90b34e5b"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.8747833479166564,
+          "contourRmsPx": 0.4981869524764242,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 4
+        },
+        "pdf": "19-star-rot17-p0-spline.pdf",
+        "pdfBytes": 1800,
+        "pdfSha256": "1a6b06085e3933ad11b99d983d5761413deb10480301dfb00b578f08845504d4",
+        "scene": {
+          "anchors": 66,
+          "cubics": 65,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "19-star-rot17-p0-spline.svg",
+        "svgBytes": 2734,
+        "svgSha256": "32ba8f8d169694d3af6edda4e7cb63c82b0415e3e2a62d2aba679e6d07e82220"
+      },
+      "set": "heldout",
+      "source": "sources/19-star-rot17.png",
+      "sourceFixture": "h-star-rot17"
+    },
+    {
+      "analytic": "Red rectangle, blue disc overlapping it, green rotated square",
+      "case": "20-overlap-rect-disc-square",
+      "check": "Overlapping rectangle, disc and rotated square: shared edges, no gaps or slivers",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.01324676436442695,
+              "curvatureMax": 1.0,
+              "curvatureRms": 0.13746688687058742,
+              "radialMaxPx": 0.07257515690211136,
+              "radialRmsPx": 0.01913059903862951,
+              "radius": 55.0,
+              "radiusErrorPx": 0.00546832967844324,
+              "visibleFraction": 0.8910590277777778
+            }
+          ],
+          "contourMaxPx": 0.07626580613134196,
+          "contourRmsPx": 0.021673742515040447,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "20-overlap-rect-disc-square-corrected-precision.pdf",
+        "pdfBytes": 950,
+        "pdfSha256": "a1ff10fbaa8ab65fb0dca09fd2407f63a04de7f46a021edbb09fdbe4e817beb5",
+        "scene": {
+          "anchors": 30,
+          "cubics": 5,
+          "lines": 21,
+          "paths": 4,
+          "subpaths": 4
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "color"
+        },
+        "svg": "20-overlap-rect-disc-square-corrected-precision.svg",
+        "svgBytes": 935,
+        "svgSha256": "9f40212112686f6b8c09ff7260c04854b003d58c1f307c766abb3608cea05b69"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.5502123214429218,
+              "curvatureMax": 1.0,
+              "curvatureRms": 0.28893082878117,
+              "radialMaxPx": 1.0812158970284713,
+              "radialRmsPx": 0.49105064077769855,
+              "radius": 55.0,
+              "radiusErrorPx": 0.04355470095124048,
+              "visibleFraction": 0.8910590277777778
+            }
+          ],
+          "contourMaxPx": 1.0813543659887197,
+          "contourRmsPx": 0.41088578318690333,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 7
+        },
+        "pdf": "20-overlap-rect-disc-square-p0-spline.pdf",
+        "pdfBytes": 1295,
+        "pdfSha256": "a0ceb86296cbfd984f2dff9b0d177100ead58d94a7c87fe7496187278afaa84b",
+        "scene": {
+          "anchors": 48,
+          "cubics": 44,
+          "lines": 0,
+          "paths": 4,
+          "subpaths": 4
+        },
+        "settings": {
+          "mode": "color"
+        },
+        "svg": "20-overlap-rect-disc-square-p0-spline.svg",
+        "svgBytes": 1949,
+        "svgSha256": "9c36037f2c8e72bca931cdafe723a7f3c0b354c3147bf5c37da00b6b6c81d660"
+      },
+      "set": "validation",
+      "source": "sources/20-overlap-rect-disc-square.png",
+      "sourceFixture": "adjacent-overlap"
+    },
+    {
+      "analytic": "Three discs r=45/52/38 overlapping at other angles",
+      "case": "21-discs-three",
+      "check": "Three overlapping discs at other angles (held-out)",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.03460152957853672,
+              "curvatureMax": 0.010305314733683568,
+              "curvatureRms": 0.002662993225323804,
+              "radialMaxPx": 0.04552895800233614,
+              "radialRmsPx": 0.020928001022712438,
+              "radius": 45.0,
+              "radiusErrorPx": 0.035184728640828666,
+              "visibleFraction": 0.5803713527851458
+            },
+            {
+              "centreErrorPx": 0.031182138574761153,
+              "curvatureMax": 0.011280149806096706,
+              "curvatureRms": 0.0033032373165500497,
+              "radialMaxPx": 0.06672114784277028,
+              "radialRmsPx": 0.02856393290128553,
+              "radius": 52.0,
+              "radiusErrorPx": 0.027030764180160816,
+              "visibleFraction": 0.8195868400918133
+            },
+            {
+              "centreErrorPx": 0.011600173174117332,
+              "curvatureMax": 0.011425335016166938,
+              "curvatureRms": 0.004751283554126697,
+              "radialMaxPx": 0.09980118319145248,
+              "radialRmsPx": 0.03554579390334633,
+              "radius": 38.0,
+              "radiusErrorPx": 0.02359280900116545,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.10261604456529055,
+          "contourRmsPx": 0.03295505995410537,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 0
+        },
+        "pdf": "21-discs-three-corrected-precision.pdf",
+        "pdfBytes": 1130,
+        "pdfSha256": "311ab03553fbeee4ded3a842af8a7953a307bc46128374101b9510c74389a752",
+        "scene": {
+          "anchors": 28,
+          "cubics": 20,
+          "lines": 4,
+          "paths": 4,
+          "subpaths": 4
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "color"
+        },
+        "svg": "21-discs-three-corrected-precision.svg",
+        "svgBytes": 1337,
+        "svgSha256": "da3cd87b6bcd25d574b8d30ce9ab29a185494c36bdceab761a08650eff42dcdc"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.1474389360819581,
+              "curvatureMax": 1.0,
+              "curvatureRms": 0.17635764726012612,
+              "radialMaxPx": 0.8094275903639812,
+              "radialRmsPx": 0.4271368726569649,
+              "radius": 45.0,
+              "radiusErrorPx": 0.32768256458955136,
+              "visibleFraction": 0.5803713527851458
+            },
+            {
+              "centreErrorPx": 0.42211929487509625,
+              "curvatureMax": 1.0,
+              "curvatureRms": 0.2023194748390466,
+              "radialMaxPx": 0.8004227540110804,
+              "radialRmsPx": 0.47173830574597897,
+              "radius": 52.0,
+              "radiusErrorPx": 0.12368444914219623,
+              "visibleFraction": 0.8195868400918133
+            },
+            {
+              "centreErrorPx": 0.6386433751830697,
+              "curvatureMax": 1.3701801669266684,
+              "curvatureRms": 0.24837082079494122,
+              "radialMaxPx": 0.795614442872278,
+              "radialRmsPx": 0.5288940252884942,
+              "radius": 38.0,
+              "radiusErrorPx": 0.05203269566899138,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.8094472751091698,
+          "contourRmsPx": 0.4812897592110578,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 18
+        },
+        "pdf": "21-discs-three-p0-spline.pdf",
+        "pdfBytes": 1514,
+        "pdfSha256": "c2c8758690fb1785e3a77614653ec9432e3d59d7fb70643371f78b9b28811901",
+        "scene": {
+          "anchors": 54,
+          "cubics": 50,
+          "lines": 0,
+          "paths": 4,
+          "subpaths": 4
+        },
+        "settings": {
+          "mode": "color"
+        },
+        "svg": "21-discs-three-p0-spline.svg",
+        "svgBytes": 2306,
+        "svgSha256": "5378cda8c4a9331cd0c83fe299b6661ee379accb31324e594729b594ca89dacb"
+      },
+      "set": "heldout",
+      "source": "sources/21-discs-three.png",
+      "sourceFixture": "h-discs-three"
+    },
+    {
+      "analytic": "Two discs r=50, centres 30 apart",
+      "case": "22-discs-deep",
+      "check": "Deep overlap of two discs",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.06600059012506583,
+              "curvatureMax": 29.638427895551928,
+              "curvatureRms": 2.626120221284153,
+              "radialMaxPx": 0.3994832719543595,
+              "radialRmsPx": 0.07692288926786339,
+              "radius": 50.0,
+              "radiusErrorPx": 0.024283815402057485,
+              "visibleFraction": 0.5969127943984723
+            },
+            {
+              "centreErrorPx": 0.010070858415431401,
+              "curvatureMax": 7.73871764571421,
+              "curvatureRms": 0.33329011847105455,
+              "radialMaxPx": 0.14226184145198317,
+              "radialRmsPx": 0.06570052434254847,
+              "radius": 50.0,
+              "radiusErrorPx": -0.02209257442185475,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 0.3994836142666951,
+          "contourRmsPx": 0.07218095851165011,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 1
+        },
+        "pdf": "22-discs-deep-corrected-precision.pdf",
+        "pdfBytes": 1173,
+        "pdfSha256": "bb1a982b843f2ec9593b2baa8c842454d4de7432c0362e65c1d8e90766931136",
+        "scene": {
+          "anchors": 33,
+          "cubics": 25,
+          "lines": 5,
+          "paths": 3,
+          "subpaths": 3
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "color"
+        },
+        "svg": "22-discs-deep-corrected-precision.svg",
+        "svgBytes": 1459,
+        "svgSha256": "d9e00875addf8ada9a63b6456e2f3eb564af5247418ca1d4f1f799166d719865"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [
+            {
+              "centreErrorPx": 0.2185477994767927,
+              "curvatureMax": 1.2996905301499724,
+              "curvatureRms": 0.2077153366932581,
+              "radialMaxPx": 1.2554969374017944,
+              "radialRmsPx": 0.5259429281384765,
+              "radius": 50.0,
+              "radiusErrorPx": 0.6122832285035855,
+              "visibleFraction": 0.5969127943984723
+            },
+            {
+              "centreErrorPx": 0.5078529894973487,
+              "curvatureMax": 1.0,
+              "curvatureRms": 0.24802820690042243,
+              "radialMaxPx": 1.1061861774148412,
+              "radialRmsPx": 0.46113487990981294,
+              "radius": 50.0,
+              "radiusErrorPx": -0.07395917911119199,
+              "visibleFraction": 1.0
+            }
+          ],
+          "contourMaxPx": 1.2556583916995927,
+          "contourRmsPx": 0.48992872172619034,
+          "organicMaxPx": null,
+          "organicRmsPx": null,
+          "tangentBreaks": 12
+        },
+        "pdf": "22-discs-deep-p0-spline.pdf",
+        "pdfBytes": 1156,
+        "pdfSha256": "25e737fe60a09a8fbd1706cfff6c2c85c1cbfe5a9c52e53cebc280b43b908e25",
+        "scene": {
+          "anchors": 28,
+          "cubics": 25,
+          "lines": 0,
+          "paths": 3,
+          "subpaths": 3
+        },
+        "settings": {
+          "mode": "color"
+        },
+        "svg": "22-discs-deep-p0-spline.svg",
+        "svgBytes": 1318,
+        "svgSha256": "8f53a5ffe7997cc067ad799b02fb706d8f1d4d1454043dd80ba880389dbdfcf7"
+      },
+      "set": "validation",
+      "source": "sources/22-discs-deep.png",
+      "sourceFixture": "discs-two-deep"
+    },
+    {
+      "analytic": "Near-circle r=60 with low-frequency wobble (2–3.5 % of r)",
+      "case": "30-hand-drawn-circle",
+      "check": "Negative control: the wobble must be kept, not made round",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.16665387060237402,
+          "contourRmsPx": 0.06440898878885944,
+          "organicMaxPx": 0.16665387060237402,
+          "organicRmsPx": 0.06440898878885944,
+          "tangentBreaks": 0
+        },
+        "pdf": "30-hand-drawn-circle-corrected-precision.pdf",
+        "pdfBytes": 851,
+        "pdfSha256": "54b4270fed9b2c7dd29b8f7039dae977d3ebdc9664e1698eea65fb9feb1b6b2c",
+        "scene": {
+          "anchors": 9,
+          "cubics": 8,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "30-hand-drawn-circle-corrected-precision.svg",
+        "svgBytes": 617,
+        "svgSha256": "c1ae3977b49e79ab79998e48e377db50590ae15653180de1addbfbcf00a54f0f"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.635570320982818,
+          "contourRmsPx": 0.3104628301967306,
+          "organicMaxPx": 0.635570320982818,
+          "organicRmsPx": 0.3104628301967306,
+          "tangentBreaks": 4
+        },
+        "pdf": "30-hand-drawn-circle-p0-spline.pdf",
+        "pdfBytes": 858,
+        "pdfSha256": "f290826cb1b9106adff7325be1523762b38264c72e1939de90ad9c7b79cea808",
+        "scene": {
+          "anchors": 10,
+          "cubics": 9,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "30-hand-drawn-circle-p0-spline.svg",
+        "svgBytes": 634,
+        "svgSha256": "f08073f561da6cc8155500246db59282597b26bfaf2b98dc8abaf47835acdfab"
+      },
+      "set": "negative",
+      "source": "sources/30-hand-drawn-circle.png",
+      "sourceFixture": "hand-drawn-circle"
+    },
+    {
+      "analytic": "Disc r=70 with high-frequency rough edge (≈1 px bumps)",
+      "case": "31-rough-ink",
+      "check": "Negative control: rough edge kept",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.20737461493970516,
+          "contourRmsPx": 0.06429706138571085,
+          "organicMaxPx": 0.20737461493970516,
+          "organicRmsPx": 0.06429706138571085,
+          "tangentBreaks": 0
+        },
+        "pdf": "31-rough-ink-corrected-precision.pdf",
+        "pdfBytes": 1706,
+        "pdfSha256": "44ad212f4b1034f1638d9bd9e89a93fe6aaa93aaa4f2350901de78e01e47faf7",
+        "scene": {
+          "anchors": 56,
+          "cubics": 55,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "31-rough-ink-corrected-precision.svg",
+        "svgBytes": 2442,
+        "svgSha256": "29e1e2d30d978fccc1db23467e4e2a3ff258d6476f64ea59bd5bae49cc7bd0fa"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 1.24244541727676,
+          "contourRmsPx": 0.5427143427705214,
+          "organicMaxPx": 1.24244541727676,
+          "organicRmsPx": 0.5427143427705214,
+          "tangentBreaks": 44
+        },
+        "pdf": "31-rough-ink-p0-spline.pdf",
+        "pdfBytes": 1591,
+        "pdfSha256": "09b48e9519d340551e3ab515a99b0f631d264a01055cccf5bbc99f5f050002e3",
+        "scene": {
+          "anchors": 59,
+          "cubics": 58,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "31-rough-ink-p0-spline.svg",
+        "svgBytes": 2338,
+        "svgSha256": "ee55324216e603b797d1f63e036ba1c2c3f3cde0ef232c28777916ceb2a2ba97"
+      },
+      "set": "negative",
+      "source": "sources/31-rough-ink.png",
+      "sourceFixture": "rough-ink"
+    },
+    {
+      "analytic": "Organic silhouette (harmonics 3, 5, 7)",
+      "case": "32-organic-blob",
+      "check": "Negative control: organic silhouette kept",
+      "corrected-precision": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "Vectra precision",
+          "precisionFitVersion": 1
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 0.18978366318326736,
+          "contourRmsPx": 0.07561655488248896,
+          "organicMaxPx": 0.18978366318326736,
+          "organicRmsPx": 0.07561655488248896,
+          "tangentBreaks": 0
+        },
+        "pdf": "32-organic-blob-corrected-precision.pdf",
+        "pdfBytes": 983,
+        "pdfSha256": "8a54ab2d2bc7af378c3e445a2b710a897a97bec8b8e050ff3be96450abb50b49",
+        "scene": {
+          "anchors": 16,
+          "cubics": 15,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "precision",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "bw"
+        },
+        "svg": "32-organic-blob-corrected-precision.svg",
+        "svgBytes": 882,
+        "svgSha256": "60069f4796234a4e19ff5c449b0a9004c649b996b9a4369b1d4e93da268a1f40"
+      },
+      "p0-spline": {
+        "algorithm": {
+          "engine": "0.0.0",
+          "fit": "VTracer 1.0.0-alpha.4 spline"
+        },
+        "geometry": {
+          "circles": [],
+          "contourMaxPx": 1.2067902019872265,
+          "contourRmsPx": 0.44038381998878773,
+          "organicMaxPx": 1.2067902019872265,
+          "organicRmsPx": 0.44038381998878773,
+          "tangentBreaks": 7
+        },
+        "pdf": "32-organic-blob-p0-spline.pdf",
+        "pdfBytes": 1018,
+        "pdfSha256": "8fa89afe8adc9e62ec978d0428be3b22e5e50f431893ab63e202cb15ade61937",
+        "scene": {
+          "anchors": 18,
+          "cubics": 17,
+          "lines": 0,
+          "paths": 1,
+          "subpaths": 1
+        },
+        "settings": {
+          "mode": "bw"
+        },
+        "svg": "32-organic-blob-p0-spline.svg",
+        "svgBytes": 956,
+        "svgSha256": "4089edfebf3d3ea3133238b02fc092ccc01d9c34f35f597fcb4f0258e34dece4"
+      },
+      "set": "negative",
+      "source": "sources/32-organic-blob.png",
+      "sourceFixture": "organic-blob"
+    }
+  ],
+  "engineVersion": "0.0.0",
+  "generator": "cargo run --release -p vector-engine --example geo_bundle",
+  "pdfWidth": "200 mm",
+  "precisionFitVersion": 1,
+  "rgba": "04/05 use the Chromium decode of the P0 fixtures (premultiplied canvas round trip), exactly as bundle v1; other sources are the PNGs in sources/",
+  "unchangedApprovedCases": [
+    {
+      "bundleV1": "../../p0-r/owner-acceptance-bundle/01-bw-photo-talbot.svg",
+      "case": "01-bw-photo-talbot",
+      "note": "Approved artistic/Old Print behaviour; not duplicated here. Byte identity of the current engine's output is verified through the workbench by tests/browser/owner-bundle.spec.ts and natively by the regression corpus (PHOTOGRAPHIC-REGRESSION).",
+      "settings": {
+        "maxAnchors": 1000000,
+        "maxPixels": 12000000,
+        "presetVersion": 1,
+        "seed": 1,
+        "settings": {
+          "alphaThreshold": 128,
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "spline",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "ink": "#000000",
+          "invert": false,
+          "mode": "bw",
+          "speckle": 16,
+          "threshold": 128
+        }
+      }
+    },
+    {
+      "bundleV1": "../../p0-r/owner-acceptance-bundle/03-limited-hokusai.svg",
+      "case": "03-limited-hokusai",
+      "note": "Approved artistic/Old Print behaviour; not duplicated here. Byte identity of the current engine's output is verified through the workbench by tests/browser/owner-bundle.spec.ts and natively by the regression corpus (PHOTOGRAPHIC-REGRESSION).",
+      "settings": {
+        "maxAnchors": 1000000,
+        "maxPixels": 12000000,
+        "presetVersion": 1,
+        "seed": 1,
+        "settings": {
+          "alphaThreshold": 128,
+          "colors": 8,
+          "compositing": "mosaic",
+          "fit": {
+            "cornerThreshold": 60,
+            "lengthThreshold": 4,
+            "mode": "spline",
+            "simplify": 0,
+            "spliceThreshold": 45
+          },
+          "mode": "limited",
+          "palette": null,
+          "speckle": 16
+        }
+      }
+    },
+    {
+      "bundleV1": "../../p0-r/owner-acceptance-bundle/06-oldprint-talbot.svg",
+      "case": "06-oldprint-talbot",
+      "note": "Approved artistic/Old Print behaviour; not duplicated here. Byte identity of the current engine's output is verified through the workbench by tests/browser/owner-bundle.spec.ts and natively by the regression corpus (PHOTOGRAPHIC-REGRESSION).",
+      "settings": {
+        "maxAnchors": 1000000,
+        "maxPixels": 12000000,
+        "presetVersion": 1,
+        "seed": 1,
+        "settings": {
+          "angle": 45,
+          "contrast": 0,
+          "dotPaths": "compound",
+          "gamma": 1,
+          "ink": "#1d1d1b",
+          "minCoverage": 0.02,
+          "mode": "halftone",
+          "paper": "#f3ead8",
+          "pitch": 10
+        }
+      }
+    },
+    {
+      "bundleV1": "../../p0-r/owner-acceptance-bundle/07-oldprint-transparent-gradient.svg",
+      "case": "07-oldprint-transparent-gradient",
+      "note": "Approved artistic/Old Print behaviour; not duplicated here. Byte identity of the current engine's output is verified through the workbench by tests/browser/owner-bundle.spec.ts and natively by the regression corpus (PHOTOGRAPHIC-REGRESSION).",
+      "settings": {
+        "maxAnchors": 1000000,
+        "maxPixels": 12000000,
+        "presetVersion": 1,
+        "seed": 1,
+        "settings": {
+          "angle": 45,
+          "contrast": 0,
+          "dotPaths": "compound",
+          "gamma": 1,
+          "ink": "#1d1d1b",
+          "minCoverage": 0.02,
+          "mode": "halftone",
+          "paper": null,
+          "pitch": 8
+        }
+      }
+    }
+  ]
+}

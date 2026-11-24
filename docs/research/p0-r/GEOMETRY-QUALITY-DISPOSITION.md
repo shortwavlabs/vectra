@@ -1,5 +1,7 @@
 # P0-R-G1: Geometry quality dispositions
 
+> **Superseded in part by P0-R-GEO (2026-11-24).** The maintainer rejected the circular geometry of bundle cases 04 and 05; the items below are revisited in [`../p0-r-geo/`](../p0-r-geo/FINAL-REPORT.md). The new opt-in `precision` fit mode meets the star/ring IoU ≥ 0.98 target (0.996/0.996). The spline (artistic) mode is unchanged.
+
 **Gate status: PARTIAL.** Every issue was reproduced and its cause identified. One residual item is fixed elsewhere: the PDF translucent-paint leak was fixed in P0 and is regression-tested in P0-R-G3. No tracing deviation has been accepted by the maintainer. The items below are **PROPOSED FOR ACCEPTANCE** or **DEFERRED** and await a maintainer decision. No threshold was lowered.
 
 Evidence:
