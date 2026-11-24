@@ -1,9 +1,9 @@
 # PRD-002 — Vectra Vector Creation Studio
 Status: proposed for maintainer review | 2026-11-23
-Related: [PRD](PRD.md), [RFC-001](RFC-001.md), [Preset baseline](PRESETS.md), [Design baseline](DESIGN.md), [Validation](VALIDATION.md), [Tool and style specification](VECTOR-STUDIO-TOOLS.md), [Optional image sources and community presets](IMAGE-SOURCES-AND-COMMUNITY.md).
+Related: [PRD](PRD.md), [RFC-001](RFC-001.md), [Preset baseline](PRESETS.md), [Design baseline](DESIGN.md), [Validation](VALIDATION.md), [Tool and style specification](VECTOR-STUDIO-TOOLS.md), [Optional image sources and community presets](IMAGE-SOURCES-AND-COMMUNITY.md), [Creative Lab](CREATIVE-LAB.md).
 
 ## Executive summary
-Vectra is a small, purpose-built Illustrator-like creative application for importing raster artwork, tracing it into genuine vectors, editing the result and creating expressive print-inspired artwork. Tracing is the beginning of a workflow, not the deliverable. The product remains an open-source, local-first browser app on Cloudflare Pages, with Vite+ and a browser-target WASM core. No account, upload, subscription or backend is required.
+Vectra is a small, purpose-built Illustrator-like creative application for importing raster artwork, tracing it into genuine vectors, editing the result and creating expressive print-inspired artwork. Tracing is the beginning of a workflow, not the deliverable. The product remains an open-source, local-first browser app on Cloudflare Pages, with Vite+ and a browser-target WASM core. No account, upload, subscription or backend is required for the core. Vectra is an artist-controlled creative instrument, not an AI image generator: all tracing, geometry editing, print simulations and seeded variations use conventional image processing and procedural algorithms; no inference or generative models are in scope.
 
 This addendum proposes an expanded post-P0 product scope. It supersedes conflicting product/UX priorities in PRD.md and DESIGN.md only after approval; it does not replace RFC-001's export or privacy requirements. Do not interrupt the in-flight P0 proof of concept or interpret this as authorization to start P1.
 
@@ -43,6 +43,12 @@ Alternatives include Illustrator (trace, expand, simplify, recolor), Inkscape (t
 | VS-12 | Should P4 | Local .vectra project round trip, batch and validated professional print features |
 | VS-13 | Should post-core | Local preset import/export, versioned recipes and optional static community library with moderated submissions |
 | VS-14 | Could post-core | Optional online image provider browser, Unsplash first, subject to policy, privacy and feasibility gates |
+| VS-15 | Must all phases | No AI in the creative runtime; deterministic conventional algorithms and procedural vector generation |
+| VS-16 | Should P2-C/P3 | Virtual Printing Press with independently editable ink plates and procedural print effects |
+| VS-17 | Should P2-C/P3 | Variation Lab with locked parameters, deterministic seeds, compare and explicit apply |
+| VS-18 | Should P2-C/P3 | Modular typed Recipe Builder and compatible community preset export |
+| VS-19 | Could P3 | Procedural Pattern Lab and Vector Glitch Lab |
+| VS-20 | Could P3/P4 | Artistic geometry brushes, multi-source collage, print preview and preflight |
 
 P1 is the minimum usable studio, not the full flagship release. P2-C establishes the creative differentiator. Persisting projects may move earlier if owner prioritizes continuity; P1 must warn about unsaved changes and offer export. No full typography, multi-page publishing, 3D, general painting, SVG import of arbitrary active content, AI redraw or cloud collaboration in initial scope.
 
@@ -84,3 +90,6 @@ P0 unchanged. After P0 review, write RFC-002 with editor state and command/geome
 
 ## Future creative ecosystem
 The Import panel may offer Local file, Clipboard and optional Browse images (Unsplash first). A community preset website may support browsing, downloading, remixing and submitting recipes. These are optional extensions, not required for local editing. Any credential-protecting Cloudflare Worker/Pages Function is an isolated online adapter, not an artwork-processing backend. Online requests and provider tracking must be disclosed; the original no-network guarantee applies to the local core. See [image sources and community specification](IMAGE-SOURCES-AND-COMMUNITY.md) for requirements, research, licensing and acceptance gates. No changes to current P0 scope.
+
+## Creative Lab direction
+The [Creative Lab specification](CREATIVE-LAB.md) expands the post-core roadmap with a virtual printing press, seeded Variation Lab, procedural pattern and glitch tools, modular recipe builder, artistic vector brushes, collage and print preview. The flagship combination is DIY Underground + Printing Press + Variation Lab + shareable recipes. No AI or neural runtime dependencies; creative control remains with the user. Effects are conventional and deterministic where seeded, and exported SVG/PDF remain genuine vector geometry. Exact scope is phased and subject to P0 evidence. No changes to current P0 scope.
