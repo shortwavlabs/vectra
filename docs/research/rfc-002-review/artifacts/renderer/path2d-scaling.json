@@ -1,0 +1,185 @@
+[
+ {
+  "engine": "chromium",
+  "version": "159.0.8154.6",
+  "rows": [
+   {
+    "anchors": 5000,
+    "singleMs": 7.200000002980232,
+    "manyMs": 0.29999999701976776,
+    "dStringBuildMs": 2.8999999910593033,
+    "dStringParseMs": 0.6000000089406967,
+    "addPathMs": 0.3999999910593033,
+    "usPerAnchorSingle": 1.4400000005960465,
+    "usPerAnchorMany": 0.05999999940395355,
+    "usPerAnchorParse": 0.12000000178813934
+   },
+   {
+    "anchors": 25000,
+    "singleMs": 170,
+    "manyMs": 1.300000011920929,
+    "dStringBuildMs": 9.199999988079071,
+    "dStringParseMs": 2.9000000059604645,
+    "addPathMs": 0.9000000059604645,
+    "usPerAnchorSingle": 6.8,
+    "usPerAnchorMany": 0.05200000047683716,
+    "usPerAnchorParse": 0.11600000023841858
+   },
+   {
+    "anchors": 50000,
+    "singleMs": 678.5,
+    "manyMs": 1.7999999970197678,
+    "dStringBuildMs": 18.700000002980232,
+    "dStringParseMs": 5.799999997019768,
+    "addPathMs": 1.7000000029802322,
+    "usPerAnchorSingle": 13.57,
+    "usPerAnchorMany": 0.03599999994039536,
+    "usPerAnchorParse": 0.11599999994039535
+   },
+   {
+    "anchors": 125000,
+    "singleMs": 4235,
+    "manyMs": 4.5,
+    "dStringBuildMs": 40.8999999910593,
+    "dStringParseMs": 14.799999997019768,
+    "addPathMs": 4.100000008940697,
+    "usPerAnchorSingle": 33.88,
+    "usPerAnchorMany": 0.036,
+    "usPerAnchorParse": 0.11839999997615815
+   },
+   {
+    "anchors": 250000,
+    "singleMs": 16936,
+    "manyMs": 15.399999991059303,
+    "dStringBuildMs": 89.40000000596046,
+    "dStringParseMs": 30.5,
+    "addPathMs": 8,
+    "usPerAnchorSingle": 67.744,
+    "usPerAnchorMany": 0.06159999996423721,
+    "usPerAnchorParse": 0.122
+   }
+  ]
+ },
+ {
+  "engine": "firefox",
+  "version": "159.0",
+  "rows": [
+   {
+    "anchors": 5000,
+    "singleMs": 0,
+    "manyMs": 0,
+    "dStringBuildMs": 3,
+    "dStringParseMs": 1,
+    "addPathMs": 0,
+    "usPerAnchorSingle": 0,
+    "usPerAnchorMany": 0,
+    "usPerAnchorParse": 0.2
+   },
+   {
+    "anchors": 25000,
+    "singleMs": 1,
+    "manyMs": 2,
+    "dStringBuildMs": 12,
+    "dStringParseMs": 4,
+    "addPathMs": 1,
+    "usPerAnchorSingle": 0.04,
+    "usPerAnchorMany": 0.08,
+    "usPerAnchorParse": 0.16
+   },
+   {
+    "anchors": 50000,
+    "singleMs": 1,
+    "manyMs": 4,
+    "dStringBuildMs": 21,
+    "dStringParseMs": 11,
+    "addPathMs": 2,
+    "usPerAnchorSingle": 0.02,
+    "usPerAnchorMany": 0.08,
+    "usPerAnchorParse": 0.22
+   },
+   {
+    "anchors": 125000,
+    "singleMs": 4,
+    "manyMs": 8,
+    "dStringBuildMs": 57,
+    "dStringParseMs": 26,
+    "addPathMs": 5,
+    "usPerAnchorSingle": 0.032,
+    "usPerAnchorMany": 0.064,
+    "usPerAnchorParse": 0.208
+   },
+   {
+    "anchors": 250000,
+    "singleMs": 7,
+    "manyMs": 22,
+    "dStringBuildMs": 107,
+    "dStringParseMs": 49,
+    "addPathMs": 14,
+    "usPerAnchorSingle": 0.028,
+    "usPerAnchorMany": 0.088,
+    "usPerAnchorParse": 0.196
+   }
+  ]
+ },
+ {
+  "engine": "webkit",
+  "version": "27.2",
+  "rows": [
+   {
+    "anchors": 5000,
+    "singleMs": 1,
+    "manyMs": 0,
+    "dStringBuildMs": 2,
+    "dStringParseMs": 1,
+    "addPathMs": 0,
+    "usPerAnchorSingle": 0.2,
+    "usPerAnchorMany": 0,
+    "usPerAnchorParse": 0.2
+   },
+   {
+    "anchors": 25000,
+    "singleMs": 1,
+    "manyMs": 2,
+    "dStringBuildMs": 7,
+    "dStringParseMs": 3,
+    "addPathMs": 2,
+    "usPerAnchorSingle": 0.04,
+    "usPerAnchorMany": 0.08,
+    "usPerAnchorParse": 0.12
+   },
+   {
+    "anchors": 50000,
+    "singleMs": 2,
+    "manyMs": 3,
+    "dStringBuildMs": 14,
+    "dStringParseMs": 6,
+    "addPathMs": 5,
+    "usPerAnchorSingle": 0.04,
+    "usPerAnchorMany": 0.06,
+    "usPerAnchorParse": 0.12
+   },
+   {
+    "anchors": 125000,
+    "singleMs": 5,
+    "manyMs": 8,
+    "dStringBuildMs": 52,
+    "dStringParseMs": 17,
+    "addPathMs": 10,
+    "usPerAnchorSingle": 0.04,
+    "usPerAnchorMany": 0.064,
+    "usPerAnchorParse": 0.136
+   },
+   {
+    "anchors": 250000,
+    "singleMs": 9,
+    "manyMs": 16,
+    "dStringBuildMs": 111,
+    "dStringParseMs": 30,
+    "addPathMs": 22,
+    "usPerAnchorSingle": 0.036,
+    "usPerAnchorMany": 0.064,
+    "usPerAnchorParse": 0.12
+   }
+  ]
+ }
+]
