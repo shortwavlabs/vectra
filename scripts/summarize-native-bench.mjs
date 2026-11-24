@@ -7,16 +7,29 @@ import { join, resolve } from "node:path";
 const dir = resolve(process.argv[2] ?? "tests/output/native-bench");
 const ms = (v) => (v === undefined || v === null ? "—" : Math.round(v).toLocaleString("en-US"));
 const mib = (v) => (v ? (v / 1048576).toFixed(0) : "—");
-const kb = (v) => (v ? (v / 1024 >= 1024 ? `${(v / 1048576).toFixed(1)} MB` : `${Math.round(v / 1024)} KB`) : "—");
+const kb = (v) =>
+  v ? (v / 1024 >= 1024 ? `${(v / 1048576).toFixed(1)} MB` : `${Math.round(v / 1024)} KB`) : "—";
 
-for (const file of readdirSync(dir).filter((f) => f.endsWith(".jsonl")).sort()) {
-  const rows = readFileSync(join(dir, file), "utf8").trim().split("\n").map((l) => JSON.parse(l));
+for (const file of readdirSync(dir)
+  .filter((f) => f.endsWith(".jsonl"))
+  .sort()) {
+  const rows = readFileSync(join(dir, file), "utf8")
+    .trim()
+    .split("\n")
+    .map((l) => JSON.parse(l));
   console.log(`\n### ${file.replace(".jsonl", "")}\n`);
-  console.log("| Image | Mode | Decode | Pre-process | Segment | Fit (compose) | Optimize+validate | SVG | Transfer+parse | WASM call cold / warm | Preview paint | Import→visible | PDF | Anchors | Paths | SVG / PDF size | WASM mem MiB | Max frame gap proc / preview |");
+  console.log(
+    "| Image | Mode | Decode | Pre-process | Segment | Fit (compose) | Optimize+validate | SVG | Transfer+parse | WASM call cold / warm | Preview paint | Import→visible | PDF | Anchors | Paths | SVG / PDF size | WASM mem MiB | Max frame gap proc / preview |",
+  );
   console.log("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   for (const r of rows) {
     if (r.error) {
-      console.log(`| ${r.image} | ${r.mode} | ${r.error.replace(/\|/g, "/").replace(/^Error: /, "").slice(0, 140)} ||||||||||||||||`);
+      console.log(
+        `| ${r.image} | ${r.mode} | ${r.error
+          .replace(/\|/g, "/")
+          .replace(/^Error: /, "")
+          .slice(0, 140)} ||||||||||||||||`,
+      );
       continue;
     }
     const c = r.cold;
