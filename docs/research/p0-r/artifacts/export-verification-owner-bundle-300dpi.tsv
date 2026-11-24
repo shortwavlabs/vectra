@@ -1,0 +1,8 @@
+file	bytes	objects	pdfimages	mediaBox	meanAbsDiff	maxDiff	pctPxOver32	block32MeanAbsDiff	operators	problems
+01-bw-photo-talbot.pdf	41866	6	0	0.00 0.00 566.93 465.94	1.1677	255	1.1375	0.6962	c,cm,end,endobj,f,f*,h,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+02-bw-transparent-ring.pdf	1157	6	0	0.00 0.00 566.93 566.93	0.1632	239	0.1469	0.1659	c,cm,end,endobj,f,f*,h,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+03-limited-hokusai.pdf	288132	6	0	0.00 0.00 566.93 380.91	1.6545	216	2.1249	0.6691	c,cm,end,endobj,f,f*,h,l,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+04-color-discs.pdf	1755	6	0	0.00 0.00 566.93 566.93	0.0577	195	0.1122	0.0567	c,cm,end,endobj,f,f*,h,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+05-color-transparent-hole.pdf	876	6	0	0.00 0.00 566.93 566.93	0.1286	221	0.1019	0.0111	c,cm,end,endobj,f,f*,h,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+06-oldprint-talbot.pdf	178591	6	0	0.00 0.00 566.93 465.94	4.9545	218	5.6903	1.2926	c,cm,end,endobj,f,h,m,n,obj,q,Q,R,re,rg,startxref,trailer,W,xref	
+07-oldprint-transparent-gradient.pdf	55943	6	0	0.00 0.00 566.93 141.73	3.5142	228	3.8805	1.0481	c,cm,end,endobj,f,h,m,n,obj,q,Q,R,re,rg,startxref,trailer,W,xref	

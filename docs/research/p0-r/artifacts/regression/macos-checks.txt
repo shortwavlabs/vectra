@@ -1,0 +1,24 @@
+# macOS regression run 2026-11-24T04:26:08Z at 2ab61b4
+cargo fmt: PASS
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.49s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+vp check: PASS (after formatting scripts/summarize-native-bench.mjs, committed)
+      Tests  14 passed (14)
+fixture manifest verified (15 files)
+third-party notices verified (35 components)
+dist/sw.js: version 407c919565b22a59, 6 precached files
+dist check passed
+40b43967b477aea1aeee732a6ec9049b31b1a9b41942d7e7bb3df2b720a1479c  packages/vector-engine-wasm/pkg/vector_engine_wasm_bg.wasm
+jsPDF/svg2pdf references in dist/assets/vectorize.worker-D-acjCzu.js:0
+jsPDF/svg2pdf references in dist/assets/index-Cv32Oyv-.js:0
+  9 skipped
+  48 passed (2.6m)
+chromium nested_rings-bw.svg identical to native
+chromium nested_rings-bw.pdf identical to native
+firefox nested_rings-bw.svg identical to native
+firefox nested_rings-bw.pdf identical to native
+webkit nested_rings-bw.svg identical to native
+webkit nested_rings-bw.pdf identical to native

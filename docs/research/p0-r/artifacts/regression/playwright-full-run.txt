@@ -1,0 +1,58 @@
+chromium  passed       0.2s  pdf-eval.spec.ts :: jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+chromium  passed       0.4s  csp.spec.ts :: without 'wasm-unsafe-eval' the WASM engine is blocked
+chromium  passed       0.4s  smoke.spec.ts :: production build traces in a module worker under the production CSP
+chromium  passed       0.4s  workbench.spec.ts :: malformed, unsupported and oversized inputs produce actionable errors
+chromium  passed       0.6s  privacy.spec.ts :: no artwork bytes, filename, settings or exports are transmitted
+chromium  passed       1.3s  privacy.spec.ts :: the complete workflow works offline once the application has loaded
+chromium  passed       1.5s  offline-recovery.spec.ts :: offline: an injected worker crash recovers on the next job
+chromium  passed       1.8s  workbench.spec.ts :: cancellation is acknowledged immediately and the next job succeeds
+chromium  passed       2.0s  offline-recovery.spec.ts :: offline: worker recycling after every job keeps working
+chromium  passed       2.2s  workbench.spec.ts :: SVG and PDF downloads are produced from the same scene and contain only vector data
+chromium  passed       2.3s  workbench.spec.ts :: rapid setting changes never show a stale result
+chromium  passed       2.6s  workbench.spec.ts :: resource limits stop with clear, recoverable errors (no silent downscaling)
+chromium  passed       4.7s  sw-update.spec.ts :: a new deployment does not disturb open pages, then replaces the old cache
+chromium  passed       5.6s  workbench.spec.ts :: fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+chromium  passed       6.2s  offline-recovery.spec.ts :: offline: repeated cancel → recover → trace → export, with no network traffic
+chromium  passed      16.1s  workbench.spec.ts :: repeated imports keep memory bounded
+chromium  skipped      0.0s  benchmark.spec.ts :: benchmark matrix
+chromium  skipped      0.0s  native-benchmark.spec.ts :: native corpus baseline
+chromium  skipped      0.0s  owner-bundle.spec.ts :: owner acceptance bundle
+firefox   passed       0.2s  pdf-eval.spec.ts :: jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+firefox   passed       0.4s  smoke.spec.ts :: production build traces in a module worker under the production CSP
+firefox   passed       0.5s  workbench.spec.ts :: malformed, unsupported and oversized inputs produce actionable errors
+firefox   passed       0.7s  privacy.spec.ts :: no artwork bytes, filename, settings or exports are transmitted
+firefox   passed       0.8s  csp.spec.ts :: without 'wasm-unsafe-eval' the WASM engine is blocked
+firefox   passed       1.3s  privacy.spec.ts :: the complete workflow works offline once the application has loaded
+firefox   passed       1.7s  offline-recovery.spec.ts :: offline: an injected worker crash recovers on the next job
+firefox   passed       1.9s  workbench.spec.ts :: cancellation is acknowledged immediately and the next job succeeds
+firefox   passed       2.0s  offline-recovery.spec.ts :: offline: worker recycling after every job keeps working
+firefox   passed       2.5s  workbench.spec.ts :: SVG and PDF downloads are produced from the same scene and contain only vector data
+firefox   passed       2.5s  workbench.spec.ts :: rapid setting changes never show a stale result
+firefox   passed       2.8s  sw-update.spec.ts :: a new deployment does not disturb open pages, then replaces the old cache
+firefox   passed       6.0s  workbench.spec.ts :: fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+firefox   passed       6.5s  offline-recovery.spec.ts :: offline: repeated cancel → recover → trace → export, with no network traffic
+firefox   passed      16.4s  workbench.spec.ts :: repeated imports keep memory bounded
+firefox   passed      16.4s  workbench.spec.ts :: resource limits stop with clear, recoverable errors (no silent downscaling)
+firefox   skipped      0.0s  benchmark.spec.ts :: benchmark matrix
+firefox   skipped      0.0s  native-benchmark.spec.ts :: native corpus baseline
+firefox   skipped      0.0s  owner-bundle.spec.ts :: owner acceptance bundle
+webkit    passed       0.2s  pdf-eval.spec.ts :: jsPDF + svg2pdf.js conversion of engine SVGs (evaluation)
+webkit    passed       0.5s  smoke.spec.ts :: production build traces in a module worker under the production CSP
+webkit    passed       0.6s  csp.spec.ts :: without 'wasm-unsafe-eval' the WASM engine is blocked
+webkit    passed       0.6s  workbench.spec.ts :: malformed, unsupported and oversized inputs produce actionable errors
+webkit    passed       0.8s  privacy.spec.ts :: no artwork bytes, filename, settings or exports are transmitted
+webkit    passed       1.4s  privacy.spec.ts :: the complete workflow works offline once the application has loaded
+webkit    passed       1.5s  workbench.spec.ts :: cancellation is acknowledged immediately and the next job succeeds
+webkit    passed       1.7s  offline-recovery.spec.ts :: offline: an injected worker crash recovers on the next job
+webkit    passed       2.1s  offline-recovery.spec.ts :: offline: worker recycling after every job keeps working
+webkit    passed       2.3s  workbench.spec.ts :: SVG and PDF downloads are produced from the same scene and contain only vector data
+webkit    passed       2.3s  workbench.spec.ts :: resource limits stop with clear, recoverable errors (no silent downscaling)
+webkit    passed       2.5s  workbench.spec.ts :: rapid setting changes never show a stale result
+webkit    passed       2.9s  sw-update.spec.ts :: a new deployment does not disturb open pages, then replaces the old cache
+webkit    passed       4.9s  offline-recovery.spec.ts :: offline: repeated cancel → recover → trace → export, with no network traffic
+webkit    passed       5.6s  workbench.spec.ts :: fixtures trace in a real browser and the SVG passes the element/attribute allowlist
+webkit    passed      16.5s  workbench.spec.ts :: repeated imports keep memory bounded
+webkit    skipped      0.0s  benchmark.spec.ts :: benchmark matrix
+webkit    skipped      0.0s  native-benchmark.spec.ts :: native corpus baseline
+webkit    skipped      0.0s  owner-bundle.spec.ts :: owner acceptance bundle
+{"startTime": "2026-11-24T04:26:34.127Z", "duration": 158843.81900000002, "expected": 48, "skipped": 9, "unexpected": 0, "flaky": 0}

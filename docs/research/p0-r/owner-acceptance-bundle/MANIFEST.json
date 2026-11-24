@@ -1,0 +1,434 @@
+[
+  {
+    "file": "01-bw-photo-talbot.svg",
+    "source": "external/talbot-scene-in-a-library-640.jpg",
+    "mode": "bw",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "bw",
+        "threshold": 128,
+        "invert": false,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "ink": "#000000",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": null,
+    "paths": 16,
+    "anchors": 3330,
+    "bytes": 109100,
+    "sha256": "3d793cbb1952a4998ff3058198abcbd311b3c0972418d6eb72eb45c9d96045c3",
+    "check": "B&W photo: closed paths, holes, no background"
+  },
+  {
+    "file": "01-bw-photo-talbot.pdf",
+    "source": "external/talbot-scene-in-a-library-640.jpg",
+    "mode": "bw",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "bw",
+        "threshold": 128,
+        "invert": false,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "ink": "#000000",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 16,
+    "anchors": 3330,
+    "bytes": 41866,
+    "sha256": "6d6ca56294518812064725952fea4d0ef25b4a9a2b7c08c53cfc5d487e31f5d2",
+    "check": "B&W photo: closed paths, holes, no background"
+  },
+  {
+    "file": "02-bw-transparent-ring.svg",
+    "source": "procedural/transparent_ring.png",
+    "mode": "bw",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "bw",
+        "threshold": 128,
+        "invert": false,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "ink": "#000000",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": null,
+    "paths": 1,
+    "anchors": 33,
+    "bytes": 1440,
+    "sha256": "340036b4aedcdb82ddb71f9ebaacfd090cc7bab159c35587ce7c68176d3ad39f",
+    "check": "B&W on a transparent source: ring hole and surroundings stay transparent"
+  },
+  {
+    "file": "02-bw-transparent-ring.pdf",
+    "source": "procedural/transparent_ring.png",
+    "mode": "bw",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "bw",
+        "threshold": 128,
+        "invert": false,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "ink": "#000000",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 1,
+    "anchors": 33,
+    "bytes": 1157,
+    "sha256": "a6e69b4eda7c3f8986424f006dff118529e1d2cc613efddefbfe270867d07ca9",
+    "check": "B&W on a transparent source: ring hole and surroundings stay transparent"
+  },
+  {
+    "file": "03-limited-hokusai.svg",
+    "source": "external/hokusai-great-wave-640.jpg",
+    "mode": "limited",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "limited",
+        "colors": 8,
+        "palette": null,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "compositing": "mosaic",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": null,
+    "paths": 1613,
+    "anchors": 29239,
+    "bytes": 914182,
+    "sha256": "44fe6165d4be1fcc89d294b0ed5b7df921ec43633ac1d19127667d53217b124f",
+    "check": "Limited colour (8): palette-only fills, seam-free mosaic"
+  },
+  {
+    "file": "03-limited-hokusai.pdf",
+    "source": "external/hokusai-great-wave-640.jpg",
+    "mode": "limited",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "limited",
+        "colors": 8,
+        "palette": null,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "compositing": "mosaic",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 1613,
+    "anchors": 29239,
+    "bytes": 288132,
+    "sha256": "9d990f256717a235bb4eba0b82c289f072180a719e426d736f0cdf2dcfc438b6",
+    "check": "Limited colour (8): palette-only fills, seam-free mosaic"
+  },
+  {
+    "file": "04-color-discs.svg",
+    "source": "procedural/antialiased_discs.png",
+    "mode": "color",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "color",
+        "colorPrecision": 6,
+        "layerDifference": 16,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "compositing": "stacked",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": null,
+    "paths": 4,
+    "anchors": 73,
+    "bytes": 3011,
+    "sha256": "43398fc9ade046f0bda588d0fd70de6b7cc9f77e98ea94012f1022d04a82865b",
+    "check": "Full colour: overlapping regions, exact colours"
+  },
+  {
+    "file": "04-color-discs.pdf",
+    "source": "procedural/antialiased_discs.png",
+    "mode": "color",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "color",
+        "colorPrecision": 6,
+        "layerDifference": 16,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "compositing": "stacked",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 4,
+    "anchors": 73,
+    "bytes": 1755,
+    "sha256": "a2ebb61125fc97d529434530da217a303dca9d83786fed182b4d3ee02a93440f",
+    "check": "Full colour: overlapping regions, exact colours"
+  },
+  {
+    "file": "05-color-transparent-hole.svg",
+    "source": "procedural/logo_transparent_hole.png",
+    "mode": "color",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "color",
+        "colorPrecision": 6,
+        "layerDifference": 16,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "compositing": "stacked",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": null,
+    "paths": 1,
+    "anchors": 13,
+    "bytes": 670,
+    "sha256": "f7a2e958448af8371e9b1217b1a3f7d5a408df84b90312c8bb7f08003b746c16",
+    "check": "Full colour with a transparent hole: hole is see-through"
+  },
+  {
+    "file": "05-color-transparent-hole.pdf",
+    "source": "procedural/logo_transparent_hole.png",
+    "mode": "color",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "color",
+        "colorPrecision": 6,
+        "layerDifference": 16,
+        "speckle": 16,
+        "alphaThreshold": 128,
+        "compositing": "stacked",
+        "fit": {
+          "mode": "spline",
+          "cornerThreshold": 60,
+          "lengthThreshold": 4,
+          "spliceThreshold": 45,
+          "simplify": 0
+        }
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 1,
+    "anchors": 13,
+    "bytes": 876,
+    "sha256": "fe32c4cb8ef52995f16f8c21e017b93e777087334b9f93b46da800d5287a02b3",
+    "check": "Full colour with a transparent hole: hole is see-through"
+  },
+  {
+    "file": "06-oldprint-talbot.svg",
+    "source": "external/talbot-scene-in-a-library-640.jpg",
+    "mode": "halftone",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "halftone",
+        "pitch": 10,
+        "angle": 45,
+        "ink": "#1d1d1b",
+        "paper": "#f3ead8",
+        "gamma": 1,
+        "contrast": 0,
+        "minCoverage": 0.02,
+        "dotPaths": "compound"
+      }
+    },
+    "pdfWidth": null,
+    "paths": 1,
+    "anchors": 17065,
+    "bytes": 597459,
+    "sha256": "37b2f3502ca2630dc3d7f97db5db6833eaa7a34205aa3b65bc2f6b2a802641dd",
+    "check": "Old Print halftone: vector dots on ivory paper rect, dots clipped to the artboard"
+  },
+  {
+    "file": "06-oldprint-talbot.pdf",
+    "source": "external/talbot-scene-in-a-library-640.jpg",
+    "mode": "halftone",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "halftone",
+        "pitch": 10,
+        "angle": 45,
+        "ink": "#1d1d1b",
+        "paper": "#f3ead8",
+        "gamma": 1,
+        "contrast": 0,
+        "minCoverage": 0.02,
+        "dotPaths": "compound"
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 1,
+    "anchors": 17065,
+    "bytes": 178591,
+    "sha256": "c36f96859666401d7496992bc7f08bffbd1706a3dd04d930f1da90bcc380248a",
+    "check": "Old Print halftone: vector dots on ivory paper rect, dots clipped to the artboard"
+  },
+  {
+    "file": "07-oldprint-transparent-gradient.svg",
+    "source": "procedural/gradient.png",
+    "mode": "halftone",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "halftone",
+        "pitch": 8,
+        "angle": 45,
+        "ink": "#1d1d1b",
+        "paper": null,
+        "gamma": 1,
+        "contrast": 0,
+        "minCoverage": 0.02,
+        "dotPaths": "compound"
+      }
+    },
+    "pdfWidth": null,
+    "paths": 1,
+    "anchors": 5560,
+    "bytes": 185449,
+    "sha256": "99ad45bd2b604326872967a161efb60c67f2b5adf6e0b0d8e33cdc047c958088",
+    "check": "Old Print without paper: transparent background; dot area follows tone"
+  },
+  {
+    "file": "07-oldprint-transparent-gradient.pdf",
+    "source": "procedural/gradient.png",
+    "mode": "halftone",
+    "settings": {
+      "presetVersion": 1,
+      "seed": 1,
+      "maxPixels": 12000000,
+      "maxAnchors": 1000000,
+      "settings": {
+        "mode": "halftone",
+        "pitch": 8,
+        "angle": 45,
+        "ink": "#1d1d1b",
+        "paper": null,
+        "gamma": 1,
+        "contrast": 0,
+        "minCoverage": 0.02,
+        "dotPaths": "compound"
+      }
+    },
+    "pdfWidth": "200 mm",
+    "paths": 1,
+    "anchors": 5560,
+    "bytes": 55943,
+    "sha256": "34d96b31225bd3d0d9507deab13e162082d57440ef7496ae91ec29c369f236f8",
+    "check": "Old Print without paper: transparent background; dot area follows tone"
+  }
+]
