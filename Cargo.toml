@@ -16,3 +16,8 @@ opt-level = "s"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+# Tests run the geometry metrics (dense sampling, 4× topology renders); unoptimised they take
+# minutes. Optimising test builds does not affect release or WASM output.
+[profile.test]
+opt-level = 2

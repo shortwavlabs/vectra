@@ -219,7 +219,8 @@ pub struct PrecisionInput<'a> {
     pub img: RgbaImage<'a>,
     pub luma: &'a Luma,
     pub policy: precision::EdgePolicy,
-    /// Precision fitting options; `None` keeps VTracer's fitting.
+    /// Engineering override of the precision options (evaluation tools only). `None` uses
+    /// VTracer's fitting, or the production precision options when `fit.mode = precision`.
     pub options: Option<precision::Options>,
 }
 
@@ -281,7 +282,7 @@ pub fn fit_segmentation(
             Compositing::Mosaic => vtracer::Hierarchical::Cutout,
         },
         mode: match fit.mode {
-            FitMode::Spline => vtracer::FitMode::Spline,
+            FitMode::Spline | FitMode::Precision => vtracer::FitMode::Spline,
             FitMode::Polygon => vtracer::FitMode::Polygon,
             FitMode::Pixel => vtracer::FitMode::Pixel,
         },
@@ -301,7 +302,12 @@ pub fn fit_segmentation(
         fitter.fit(&mut seg);
     }
     let t1 = clock();
-    let mut doc = match &input.options {
+    let precision = match (&input.options, fit.mode) {
+        (Some(o), _) => Some(*o),
+        (None, FitMode::Precision) => Some(precision::Options::production(fit.corner_threshold)),
+        (None, _) => None,
+    };
+    let mut doc = match &precision {
         Some(opts) => precision_compose(&seg, input, opts),
         None => pipeline.compositing.compose(&seg, &pipeline.curve_passes),
     };

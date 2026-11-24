@@ -56,9 +56,15 @@ impl Settings {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FitMode {
+    /// VTracer spline fitting: the approved artistic behaviour for photographs and organic art.
     Spline,
     Polygon,
     Pixel,
+    /// Vectra precision fitting for logos and geometric artwork: sub-pixel boundaries from the
+    /// antialiased source, G1-continuous cubics, rebuilt corners and conservative circle/arc
+    /// recognition (`precision.rs`, `PRECISION_FIT_VERSION`). Stacked compositing only;
+    /// `cornerThreshold` applies, `lengthThreshold` and `spliceThreshold` do not.
+    Precision,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -243,6 +249,17 @@ impl FitSettings {
         check(
             self.simplify.is_finite() && (0.0..=10.0).contains(&self.simplify),
             "fit.simplify must be 0–10",
+        )?;
+        check(
+            self.mode != FitMode::Precision || self.simplify == 0.0,
+            "fit.simplify is not used by precision fitting; it must be 0",
+        )
+    }
+
+    fn validate_compositing(&self, c: Compositing) -> Result<(), EngineError> {
+        check(
+            self.mode != FitMode::Precision || c == Compositing::Stacked,
+            "fit.mode precision requires compositing stacked",
         )
     }
 }
@@ -272,6 +289,7 @@ impl TraceRequest {
                 check((1..=8).contains(&s.color_precision), "colorPrecision must be 1–8")?;
                 check((0..=255).contains(&s.layer_difference), "layerDifference must be 0–255")?;
                 check(speckle_ok(s.speckle), "speckle must be ≤ 10000")?;
+                s.fit.validate_compositing(s.compositing)?;
                 s.fit.validate()
             }
             Settings::Limited(s) => {
@@ -281,6 +299,7 @@ impl TraceRequest {
                     check(p.iter().all(|c| c.a == 255), "palette colours must be opaque")?;
                 }
                 check(speckle_ok(s.speckle), "speckle must be ≤ 10000")?;
+                s.fit.validate_compositing(s.compositing)?;
                 s.fit.validate()
             }
             Settings::Halftone(s) => {
@@ -317,6 +336,13 @@ mod tests {
     #[test]
     fn parses_defaults_and_rejects_unknown_or_out_of_range() {
         let r = TraceRequest::from_json(r#"{"presetVersion":1,"settings":{"mode":"bw"}}"#).unwrap();
+        for ok in [
+            r#"{"presetVersion":1,"settings":{"mode":"bw","fit":{"mode":"precision"}}}"#,
+            r#"{"presetVersion":1,"settings":{"mode":"color","fit":{"mode":"precision"}}}"#,
+            r#"{"presetVersion":1,"settings":{"mode":"limited","compositing":"stacked","fit":{"mode":"precision"}}}"#,
+        ] {
+            TraceRequest::from_json(ok).unwrap();
+        }
         assert!(matches!(r.settings, Settings::Bw(BwSettings { threshold: 128, .. })));
         assert_eq!(r.max_pixels, DEFAULT_MAX_PIXELS);
         for bad in [
@@ -328,6 +354,9 @@ mod tests {
             r#"{"presetVersion":1,"settings":{"mode":"halftone","pitch":0.5}}"#,
             r#"{"presetVersion":1,"settings":{"mode":"color","fit":{"simplify":-1}}}"#,
             r#"{"presetVersion":1,"extra":0,"settings":{"mode":"bw"}}"#,
+            r#"{"presetVersion":1,"settings":{"mode":"limited","fit":{"mode":"precision"}}}"#,
+            r#"{"presetVersion":1,"settings":{"mode":"color","compositing":"mosaic","fit":{"mode":"precision"}}}"#,
+            r#"{"presetVersion":1,"settings":{"mode":"color","fit":{"mode":"precision","simplify":1}}}"#,
         ] {
             assert!(TraceRequest::from_json(bad).is_err(), "{bad}");
         }

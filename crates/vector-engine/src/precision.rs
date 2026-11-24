@@ -46,12 +46,11 @@ pub enum Subpixel {
     Off,
     /// Linear interpolation of the boundary field between the two pixel centres.
     Linear,
-    /// Area (coverage) estimate for colour/alpha edges, linear for luminance thresholds.
+    /// Coverage (area) estimate. Production choice.
+    ///
+    /// A variant that let crossings move past pixel centres was evaluated and rejected: it
+    /// created local crossings and kinks (ALGORITHM-EVALUATION, commit `f51e265`).
     Area,
-    /// `Area`, but a crossing may move up to one pixel past the centres when the region is at
-    /// least 3 px thick on that side. Corrects blend pixels that segmentation put on the wrong
-    /// side of the edge, without risking thin features.
-    AreaReach,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -81,7 +80,7 @@ impl Options {
             corner_threshold: f64::from(corner_threshold_deg),
             corner_scale: 2.0,
             subpixel: Subpixel::Area,
-            arcs: false,
+            arcs: true,
             smoothing: Smoothing::Taubin(2),
             sharpen: true,
         }
@@ -123,6 +122,8 @@ pub enum Seg {
 pub struct FittedLoop {
     pub start: P,
     pub segs: Vec<Seg>,
+    /// Sections replaced by a recognised circle or circular arc (diagnostics).
+    pub recognised: usize,
 }
 
 /// A refined boundary loop before fitting (exposed for diagnostics).
@@ -271,7 +272,7 @@ impl<'a> Field<'a> {
         let at = match self.policy {
             EdgePolicy::Luma { alpha_threshold, .. } | EdgePolicy::Color { alpha_threshold } => alpha_threshold,
         };
-        let area = matches!(self.subpixel, Subpixel::Area | Subpixel::AreaReach);
+        let area = self.subpixel == Subpixel::Area;
         let (ai, ao) = (self.img.data[i * 4 + 3], self.img.data[o * 4 + 3]);
         if ai >= at && ao < at {
             return if area {
@@ -295,7 +296,7 @@ impl<'a> Field<'a> {
                 if !(gi > 0.0 && go < 0.0) {
                     return 0.5;
                 }
-                if matches!(self.subpixel, Subpixel::Area | Subpixel::AreaReach) {
+                if self.subpixel == Subpixel::Area {
                     // Coverage of ink from local ink/paper luminance; the threshold level shifts
                     // the crossing off the 50 % edge by (level - 0.5) px.
                     let (lin, lout) = (self.local_luma(li, i), self.local_luma(lo, o));
@@ -434,8 +435,7 @@ fn refine(field: &Field, m: &Mask, edges: &[(i64, i64, usize)]) -> Contour {
         let (gx, gy) = (px + m.x0 as i64, py + m.y0 as i64);
         gx < 0 || gy < 0 || gx >= iw || gy >= ih
     };
-    for k in 0..n {
-        let (vx, vy, d) = edges[k];
+    for (k, &(vx, vy, d)) in edges.iter().enumerate() {
         let a = [vx as f64 + ox, vy as f64 + oy];
         if is_border(k) {
             points.push(a);
@@ -453,19 +453,7 @@ fn refine(field: &Field, m: &Mask, edges: &[(i64, i64, usize)]) -> Contour {
         let ((ix, iy), (px, py)) = crack_pixels(vx, vy, d);
         let gi = (iy + m.y0 as i64) as usize * field.w + (ix + m.x0 as i64) as usize;
         let go = (py + m.y0 as i64) as usize * field.w + (px + m.x0 as i64) as usize;
-        // Normal from inside to outside pixel, in pixel steps.
-        let (nx, ny) = (px - ix, py - iy);
-        let (lo, hi) = if field.subpixel == Subpixel::AreaReach {
-            let inward = m.at(ix - nx, iy - ny) && m.at(ix - 2 * nx, iy - 2 * ny);
-            let gx = |x: i64| x + m.x0 as i64;
-            let gy = |y: i64| y + m.y0 as i64;
-            let in_img = |x: i64, y: i64| gx(x) >= 0 && gy(y) >= 0 && gx(x) < iw && gy(y) < ih;
-            let outward =
-                in_img(px + 2 * nx, py + 2 * ny) && !m.at(px + nx, py + ny) && !m.at(px + 2 * nx, py + 2 * ny);
-            (if inward { -0.48 } else { 0.02 }, if outward { 1.48 } else { 0.98 })
-        } else {
-            (0.02, 0.98)
-        };
+        let (lo, hi) = (0.02, 0.98);
         let raw = field.crossing(gi, go);
         let t = raw.clamp(lo, hi);
         saturated.push(raw < lo || raw > hi);
@@ -499,18 +487,6 @@ fn refine(field: &Field, m: &Mask, edges: &[(i64, i64, usize)]) -> Contour {
         c.saturated.pop();
     }
     c
-}
-
-/// Fits every layer; returns one list of loops per layer, in layer order.
-pub fn fit_layers(field: &Field, layers: impl Iterator<Item = Mask>, opts: &Options) -> Vec<Vec<FittedLoop>> {
-    layers
-        .map(|m| {
-            contours(field, &m)
-                .iter()
-                .filter_map(|c| fit_contour(c, opts))
-                .collect()
-        })
-        .collect()
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -799,7 +775,11 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
         {
             let start = c.points[0];
             full_circle(&circle, start, signed_area(&c.points) > 0.0, &mut segs);
-            return Some(FittedLoop { start, segs });
+            return Some(FittedLoop {
+                start,
+                segs,
+                recognised: 1,
+            });
         }
         // Four pieces of equal arc length with shared tangents at the joins.
         let mut idx: Vec<usize> = (0..4)
@@ -812,6 +792,7 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
             return Some(FittedLoop {
                 start: c.points[0],
                 segs,
+                recognised: 0,
             });
         }
         let tan: Vec<P> = idx.iter().map(|&k| poly.tangent(k, opts.corner_scale)).collect();
@@ -824,6 +805,7 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
         return Some(FittedLoop {
             start: c.points[idx[0]],
             segs,
+            recognised: 0,
         })
         .filter(|l| !l.segs.is_empty());
     }
@@ -865,7 +847,7 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
             .s
             .partition_point(|&v| v < (poly.s[cs[0]] + poly.total / 2.0) % poly.total)
             .min(n - 1);
-        let mut v = vec![(cs[0], trim[0], sharp[0]), (half, 0.0, false)];
+        let mut v = [(cs[0], trim[0], sharp[0]), (half, 0.0, false)];
         v.sort_by_key(|x| x.0);
         (
             v.iter().map(|x| x.0).collect::<Vec<_>>(),
@@ -908,7 +890,7 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
             piece
         };
         let mut first = Vec::new();
-        fit_section(&body, opts, &mut first);
+        let _ = fit_section(&body, opts, &mut first);
         let (t0, t1) = chain_tangents(body[0], &first);
         secs.push(Sec {
             body,
@@ -928,6 +910,7 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
             corner_point(pe, prev.t1, ns, next.t0, c.points[cs[j]], 2.0 * opts.corner_scale).unwrap_or(c.points[cs[j]])
         })
         .collect();
+    let mut recognised = 0;
     for j in 0..m {
         let sec = &secs[j];
         let mut pts = Vec::with_capacity(sec.body.len() + 2);
@@ -939,7 +922,7 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
         if dist(end, sec.body[sec.body.len() - 1]) > 1e-9 {
             pts.push(end);
         }
-        fit_section(&pts, opts, &mut segs);
+        recognised += fit_section(&pts, opts, &mut segs);
     }
     if segs.is_empty() {
         // Degenerate sections: keep the refined outline as a polygon rather than dropping it.
@@ -947,9 +930,14 @@ pub fn fit_contour(c: &Contour, opts: &Options) -> Option<FittedLoop> {
         return Some(FittedLoop {
             start: c.points[0],
             segs,
+            recognised: 0,
         });
     }
-    Some(FittedLoop { start: joints[0], segs })
+    Some(FittedLoop {
+        start: joints[0],
+        segs,
+        recognised,
+    })
 }
 
 /// Points a..=b following the loop (wrapping); a == b gives the whole loop back to a.
@@ -959,8 +947,9 @@ fn slice_wrap(p: &[P], a: usize, b: usize) -> Vec<P> {
     (0..=len).map(|k| p[(a + k) % n]).collect()
 }
 
-/// Open section between two corners: line, recognised arc, or G1 cubic chain.
-fn fit_section(pts: &[P], opts: &Options, out: &mut Vec<Seg>) {
+/// Open section between two corners: line, recognised arc, or G1 cubic chain. Returns 1 when
+/// the section was replaced by a recognised circular arc.
+fn fit_section(pts: &[P], opts: &Options, out: &mut Vec<Seg>) -> usize {
     let (p0, p1) = (pts[0], pts[pts.len() - 1]);
     let chord = sub(p1, p0);
     let len = dist(p0, p1);
@@ -970,20 +959,21 @@ fn fit_section(pts: &[P], opts: &Options, out: &mut Vec<Seg>) {
             .all(|&q| (cross(chord, sub(q, p0)) / len).abs() <= opts.tolerance)
     {
         out.push(Seg::Line(p1));
-        return;
+        return 0;
     }
     if opts.arcs
         && let Some(circle) = fit_circle(pts)
         && circle_ok(pts, &circle, false)
     {
         arc(&circle, pts, out);
-        return;
+        return 1;
     }
     let poly = Poly::new(pts, false);
     let l = opts.corner_scale.min(poly.total / 3.0);
     let t1 = unit(sub(poly.at(l), p0));
     let t2 = unit(sub(poly.at(poly.total - l), p1));
     fit_open(pts, t1, t2, opts, out, 0);
+    0
 }
 
 fn bez(p: &[P; 4], u: f64) -> P {

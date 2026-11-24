@@ -52,6 +52,9 @@ pub struct Metrics {
     pub palette_size: usize,
     /// Halftone dots generated (halftone mode only).
     pub dots: u64,
+    /// `precision::PRECISION_FIT_VERSION` when precision fitting produced the geometry.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub precision_fit_version: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -394,6 +397,14 @@ fn vectorize_impl(
         });
     }
     let palette_size = scene.palette.len();
+    let fit_mode = match &req.settings {
+        Settings::Bw(s) => Some(s.fit.mode),
+        Settings::Color(s) => Some(s.fit.mode),
+        Settings::Limited(s) => Some(s.fit.mode),
+        Settings::Halftone(_) => None,
+    };
+    let precision_fit_version = (precision_options.is_some() || fit_mode == Some(params::FitMode::Precision))
+        .then_some(precision::PRECISION_FIT_VERSION);
     Ok(Output {
         scene,
         metrics: Metrics {
@@ -404,6 +415,7 @@ fn vectorize_impl(
             stats,
             palette_size,
             dots,
+            precision_fit_version,
         },
         warnings,
     })

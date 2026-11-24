@@ -1,7 +1,7 @@
 // TypeScript mirror of the engine's request/response schema (crates/vector-engine/src/params.rs,
 // lib.rs, scene.rs). The engine re-validates everything; these types only guide the UI.
 
-export type FitMode = "spline" | "polygon" | "pixel";
+export type FitMode = "spline" | "polygon" | "pixel" | "precision";
 export type Compositing = "stacked" | "mosaic";
 
 export interface FitSettings {
@@ -85,6 +85,8 @@ export interface EngineMetrics {
   stats: SceneStats;
   paletteSize: number;
   dots: number;
+  /** Set when precision fitting produced the geometry. */
+  precisionFitVersion?: number;
 }
 
 export interface EngineWarning {

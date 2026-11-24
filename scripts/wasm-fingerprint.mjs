@@ -63,11 +63,38 @@ const MODES = {
   limited: { mode: "limited", colors: 6 },
   halftone: { mode: "halftone" },
 };
+// P0-R-GEO precision fitting, reported as a separate digest so the 65-case digest above stays
+// comparable with earlier runs.
+const PRECISION_MODES = {
+  "bw-precision": { mode: "bw", fit: { mode: "precision" } },
+  "color-precision": { mode: "color", fit: { mode: "precision" } },
+};
+// Optional: directory of native `export_samples` output to compare precision SVGs byte-for-byte.
+const nativeDir = process.env.NATIVE_SAMPLES_DIR;
 const sha = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 const manifest = JSON.parse(readFileSync(join(root, "tests/fixtures/MANIFEST.json"), "utf8"));
 const rows = {};
+const precisionRows = {};
+let nativeCompared = 0;
+const nativeMismatch = [];
 for (const f of manifest.filter((m) => m.file.startsWith("procedural/"))) {
   const img = decodePng(readFileSync(join(root, "tests/fixtures", f.file)));
+  for (const [name, settings] of Object.entries(PRECISION_MODES)) {
+    const r = vectorize(
+      img.rgba,
+      img.width,
+      img.height,
+      JSON.stringify({ presetVersion: 1, seed: 1, settings }),
+    );
+    const pdf = sceneToPdf(r.scene, JSON.stringify({ width: 150, unit: "mm" }));
+    precisionRows[`${f.id}/${name}`] = { svg: sha(r.svg), pdf: sha(pdf), scene: sha(r.scene) };
+    if (nativeDir) {
+      const nativeSvg = readFileSync(join(nativeDir, `${f.id}-${name}.svg`), "utf8");
+      nativeCompared += 1;
+      if (nativeSvg !== r.svg) nativeMismatch.push(`${f.id}/${name}`);
+    }
+    r.free();
+  }
   for (const [name, settings] of Object.entries(MODES)) {
     const r = vectorize(
       img.rgba,
@@ -83,7 +110,22 @@ for (const f of manifest.filter((m) => m.file.startsWith("procedural/"))) {
 const wasm = createHash("sha256")
   .update(readFileSync(join(root, "packages/vector-engine-wasm/pkg/vector_engine_wasm_bg.wasm")))
   .digest("hex");
-const out = JSON.stringify({ wasmSha256: wasm, cases: rows }, null, 2);
+const out = JSON.stringify(
+  { wasmSha256: wasm, cases: rows, precisionCases: precisionRows },
+  null,
+  2,
+);
 if (process.argv[2]) writeFileSync(process.argv[2], out + "\n");
 const all = createHash("sha256").update(JSON.stringify(rows)).digest("hex");
+const prec = createHash("sha256").update(JSON.stringify(precisionRows)).digest("hex");
 console.log(`wasm ${wasm.slice(0, 16)}… ${Object.keys(rows).length} cases, output digest ${all}`);
+console.log(`precision: ${Object.keys(precisionRows).length} cases, output digest ${prec}`);
+if (nativeDir) {
+  console.log(
+    `native vs WASM precision SVG: ${nativeCompared - nativeMismatch.length}/${nativeCompared} identical`,
+  );
+  if (nativeMismatch.length) {
+    console.log(`  differ: ${nativeMismatch.join(", ")}`);
+    process.exitCode = 1;
+  }
+}

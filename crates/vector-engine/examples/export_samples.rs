@@ -8,13 +8,15 @@ use vector_engine::params::TraceRequest;
 use vector_engine::pdf::{PdfOptions, Unit, to_pdf};
 use vector_engine::svg::to_svg;
 
-const MODES: [(&str, &str); 6] = [
+const MODES: [(&str, &str); 8] = [
     ("bw", r#"{"mode":"bw"}"#),
     ("color", r#"{"mode":"color"}"#),
     ("mosaic", r#"{"mode":"color","compositing":"mosaic"}"#),
     ("limited", r#"{"mode":"limited","colors":6}"#),
     ("halftone", r#"{"mode":"halftone"}"#),
     ("halftone-transparent", r#"{"mode":"halftone","paper":null,"pitch":6}"#),
+    ("bw-precision", r#"{"mode":"bw","fit":{"mode":"precision"}}"#),
+    ("color-precision", r#"{"mode":"color","fit":{"mode":"precision"}}"#),
 ];
 
 fn main() {

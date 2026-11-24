@@ -8,10 +8,11 @@ interface NumProps {
   min: number;
   max: number;
   step?: number;
+  disabled?: boolean;
   onChange: (v: number) => void;
 }
 
-function Num({ label, value, min, max, step = 1, onChange }: NumProps) {
+function Num({ label, value, min, max, step = 1, disabled = false, onChange }: NumProps) {
   return (
     <label>
       <span>{label}</span>
@@ -21,6 +22,7 @@ function Num({ label, value, min, max, step = 1, onChange }: NumProps) {
         min={min}
         max={max}
         step={step}
+        disabled={disabled}
         onChange={(e) => {
           const v = e.currentTarget.valueAsNumber;
           if (Number.isFinite(v) && v >= min && v <= max) onChange(v);
@@ -96,8 +98,10 @@ function FitControls({ fit, onChange }: { fit: FitSettings; onChange: (f: FitSet
       <Select
         label="Fit"
         value={fit.mode}
-        options={["spline", "polygon", "pixel"] as const}
-        onChange={(mode) => onChange({ ...fit, mode })}
+        options={["spline", "polygon", "pixel", "precision"] as const}
+        onChange={(mode) =>
+          onChange({ ...fit, mode, simplify: mode === "precision" ? 0 : fit.simplify })
+        }
       />
       <Num
         label="Corner threshold (°)"
@@ -112,6 +116,7 @@ function FitControls({ fit, onChange }: { fit: FitSettings; onChange: (f: FitSet
         min={0}
         max={10}
         step={0.25}
+        disabled={fit.mode === "precision"}
         onChange={(simplify) => onChange({ ...fit, simplify })}
       />
     </fieldset>
@@ -192,9 +197,28 @@ export function SettingsPanel({
             label="Compositing"
             value={s.compositing}
             options={["stacked", "mosaic"] as const}
-            onChange={(compositing) => onChange({ ...s, compositing })}
+            onChange={(compositing) =>
+              // Precision fitting needs stacked compositing; mosaic falls back to spline.
+              onChange({
+                ...s,
+                compositing,
+                fit:
+                  compositing === "mosaic" && s.fit.mode === "precision"
+                    ? { ...s.fit, mode: "spline" }
+                    : s.fit,
+              })
+            }
           />
-          <FitControls fit={s.fit} onChange={(fit) => onChange({ ...s, fit })} />
+          <FitControls
+            fit={s.fit}
+            onChange={(fit) =>
+              onChange({
+                ...s,
+                fit,
+                compositing: fit.mode === "precision" ? "stacked" : s.compositing,
+              })
+            }
+          />
         </>
       );
       break;
@@ -219,9 +243,28 @@ export function SettingsPanel({
             label="Compositing"
             value={s.compositing}
             options={["stacked", "mosaic"] as const}
-            onChange={(compositing) => onChange({ ...s, compositing })}
+            onChange={(compositing) =>
+              // Precision fitting needs stacked compositing; mosaic falls back to spline.
+              onChange({
+                ...s,
+                compositing,
+                fit:
+                  compositing === "mosaic" && s.fit.mode === "precision"
+                    ? { ...s.fit, mode: "spline" }
+                    : s.fit,
+              })
+            }
           />
-          <FitControls fit={s.fit} onChange={(fit) => onChange({ ...s, fit })} />
+          <FitControls
+            fit={s.fit}
+            onChange={(fit) =>
+              onChange({
+                ...s,
+                fit,
+                compositing: fit.mode === "precision" ? "stacked" : s.compositing,
+              })
+            }
+          />
         </>
       );
       break;

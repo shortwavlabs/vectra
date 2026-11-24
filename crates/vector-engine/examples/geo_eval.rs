@@ -99,7 +99,6 @@ fn variants() -> Vec<(&'static str, &'static str, Kind)> {
         ),
         ("D2-linear", "D2", p(opts(Linear, false, 0.2, 2.0))),
         ("D2-area", "D2", p(opts(Area, false, 0.2, 2.0))),
-        ("D2-reach", "D2", p(opts(AreaReach, false, 0.2, 2.0))),
         ("D3-lattice-arcs", "D3", p(opts(Off, true, 0.2, 2.0))),
         ("D4-area-arcs", "D4", p(opts(Area, true, 0.2, 2.0))),
         (
@@ -141,6 +140,19 @@ fn variants() -> Vec<(&'static str, &'static str, Kind)> {
             "D4-area-t2-sharpen-arcs",
             "D4 (D2 refined + recognition)",
             p(r(Area, true, Smoothing::Taubin(2), true)),
+        ),
+        (
+            "selected",
+            "selected: Options::production(60)",
+            p(Options::production(60)),
+        ),
+        (
+            "selected-no-arcs",
+            "selected without recognition",
+            p(Options {
+                arcs: false,
+                ..Options::production(60)
+            }),
         ),
         ("D2-area-tol0.1", "D2 sensitivity", p(opts(Area, false, 0.1, 2.0))),
         ("D2-area-tol0.3", "D2 sensitivity", p(opts(Area, false, 0.3, 2.0))),

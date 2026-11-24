@@ -1,0 +1,6 @@
+1 px blob          bw    spline loops 0 · precision loops 1 · precision anchors 3
+1 px blob          color spline loops 1 · precision loops 2 · precision anchors 8
+2x2 blob           bw    spline loops 1 · precision loops 1 · precision anchors 3
+2x2 blob           color spline loops 2 · precision loops 2 · precision anchors 8
+1 px hole in 8x8   bw    spline loops 1 · precision loops 2 · precision anchors 9
+1 px hole in 8x8   color spline loops 2 · precision loops 3 · precision anchors 14
