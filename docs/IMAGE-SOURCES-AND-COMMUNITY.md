@@ -45,3 +45,6 @@ Submission validation: schema + size limits, compatible operations, deterministi
 
 ## Delivery order
 Design preset import/export and provider boundary early enough to avoid schema lock-in, without changing P0. After core editor and effects are stable: (A) local preset sharing, (B) static community gallery with PR submissions, (C) Unsplash provider spike and approval, (D) optional online integrations and direct submission form after evidence and owner approval. No provisioning, API registration, secret creation, live integration or deploy in this documentation PR.
+
+## Future optional paid collections
+The free community library remains separate from optional commercial packs. Both use the same declarative preset schema, local parser and safety/compatibility gates. Paid packs contain curated recipes, not exclusive engine operations, and must work offline without activation. No paid content enters the public community repository without an explicit distribution license; never repurpose contributor recipes without permission. See [Brand and business strategy](BRAND-AND-BUSINESS.md) for proposed licensing, fulfillment and later marketplace policy. No commerce in V1.
