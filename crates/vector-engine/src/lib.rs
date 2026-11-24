@@ -12,6 +12,7 @@ pub mod halftone;
 pub mod image;
 pub mod params;
 pub mod pdf;
+pub mod region;
 pub mod scene;
 pub mod svg;
 mod trace;
@@ -96,6 +97,55 @@ fn paths_with_palette(
             )
         })
         .collect()
+}
+
+/// Engineering diagnostics only (P0-R-GEO): the segmentation layers a B&W or colour request
+/// would fit, in paint order (bottom first), after colour fitting. Not used by the application.
+#[doc(hidden)]
+pub fn segment_layers(
+    data: &[u8],
+    width: u32,
+    height: u32,
+    req: &TraceRequest,
+) -> Result<Vec<(Rgba, region::Mask)>, EngineError> {
+    req.validate()?;
+    let img = RgbaImage::new(data, width, height, req.max_pixels)?;
+    let (w, h) = (width as usize, height as usize);
+    let luma = Luma::new();
+    let seg = match &req.settings {
+        Settings::Bw(s) => {
+            let mut mask = trace::bw_mask(&img, &luma, s.threshold, s.invert, s.alpha_threshold);
+            trace::fill_small_holes(&mut mask, w, h, s.speckle as usize);
+            let mut seg = trace::bw_segmentation(&mask, w, h, s.speckle as usize, s.ink);
+            trace::fit_colors(&mut seg, 0, &[])?;
+            seg
+        }
+        Settings::Color(s) => {
+            let (image, key, _) = trace::keyed_image(&img, s.alpha_threshold, |r, g, b| [r, g, b]);
+            let mut seg = trace::cluster_segmentation(
+                image,
+                key,
+                8 - s.color_precision,
+                s.layer_difference,
+                s.speckle as usize,
+            );
+            trace::fit_colors(&mut seg, s.layer_difference, &[])?;
+            seg
+        }
+        Settings::Limited(_) | Settings::Halftone(_) => {
+            return Err(EngineError::InvalidParams(
+                "segment_layers supports bw and color".into(),
+            ));
+        }
+    };
+    Ok(seg
+        .layers
+        .iter()
+        .map(|l| {
+            let c = l.paint.color();
+            (Rgba::rgb(c.r, c.g, c.b), trace::region_mask(&l.mask))
+        })
+        .collect())
 }
 
 pub fn vectorize(

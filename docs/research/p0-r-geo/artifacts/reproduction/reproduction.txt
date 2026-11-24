@@ -1,0 +1,34 @@
+05-color-transparent-hole: browser-decode model reproduces the bundle SVG: true
+04-color-discs: browser-decode model reproduces the bundle SVG: true
+
+## 05-color-transparent-hole
+bundle SVG identical: true · bundle PDF identical: true · replay == scene: true (max diff 0.0000) · SVG coords == scene: true · PDF coords == scene: true
+layers: #1e3bc7(64272 px)
+partial pixels 675 · misassigned 0
+| Stage | n | mean | RMS | max | bias |
+|---|---|---|---|---|---|
+| 1 lattice (pixel crack walk) | 1601 | 0.235 | 0.288 | 0.616 | -0.062 |
+| 2 polygon (staircase removed) | 1293 | 0.256 | 0.313 | 0.616 | -0.251 |
+| 3 smoothed (subdivision, outset 8) | 1305 | 0.382 | 0.412 | 0.637 | -0.382 |
+| 4 fitted cubics (splice ≤45°, tol 10 px) | 448 | 0.280 | 0.318 | 0.637 | -0.278 |
+anchors 7 (on integer lattice 3), joins 7, tangent breaks >2° 7 (max 12.7°), degenerate handles 0
+polygon-stage corners on visible contours 0 · visible segment length 16.0–21.0 px · quantisation max 0.0050 px
+circle c=(128,100) r=20 visible 1.00: centre err 0.034, radius err +0.273, radial RMS 0.315 max 0.640 bias +0.273, κr-1 RMS 0.269 max 0.669
+contour: mean 0.275 RMS 0.315 max 0.640 bias -0.273; missing max 0.636; smooth joins 7 breaks 7 max 12.8°; corners 0/0 found, pos mean 0.00 max 0.00
+
+## 04-color-discs
+bundle SVG identical: true · bundle PDF identical: true · replay == scene: true (max diff 0.0000) · SVG coords == scene: true · PDF coords == scene: true
+layers: #fefefe(65536 px), #f9bd1e(16750 px), #2978db(7266 px), #e53d33(5416 px)
+partial pixels 1062 · misassigned 62
+| Stage | n | mean | RMS | max | bias |
+|---|---|---|---|---|---|
+| 1 lattice (pixel crack walk) | 15363 | 0.245 | 0.303 | 0.828 | +0.050 |
+| 2 polygon (staircase removed) | 12130 | 0.340 | 0.416 | 1.000 | +0.107 |
+| 3 smoothed (subdivision, outset 8) | 12303 | 0.461 | 0.506 | 1.096 | +0.307 |
+| 4 fitted cubics (splice ≤45°, tol 10 px) | 4024 | 0.359 | 0.415 | 1.047 | +0.182 |
+anchors 63 (on integer lattice 22), joins 63, tangent breaks >2° 28 (max 10.9°), degenerate handles 0
+polygon-stage corners on visible contours 6 · visible segment length 1.9–61.0 px · quantisation max 0.0050 px
+circle c=(96,110) r=60 visible 0.51: centre err 0.031, radius err +0.444, radial RMS 0.470 max 0.712 bias +0.449, κr-1 RMS 0.276 max 2.945
+circle c=(160,110) r=60 visible 0.68: centre err 0.595, radius err +0.027, radial RMS 0.488 max 0.875 bias +0.236, κr-1 RMS 0.492 max 6.322
+circle c=(128,165) r=60 visible 1.00: centre err 0.598, radius err +0.013, radial RMS 0.530 max 1.048 bias +0.019, κr-1 RMS 0.445 max 6.806
+contour: mean 0.452 RMS 0.496 max 1.048 bias +0.206; missing max 1.049; smooth joins 37 breaks 19 max 10.3°; corners 4/4 found, pos mean 0.13 max 0.24

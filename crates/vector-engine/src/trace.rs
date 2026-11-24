@@ -15,6 +15,7 @@ use crate::color::{Luma, Rgba};
 use crate::error::EngineError;
 use crate::image::RgbaImage;
 use crate::params::{Compositing, FitMode, FitSettings};
+use crate::region::Mask;
 use crate::scene::PathBuilder;
 
 /// Binary ink mask for black & white tracing.
@@ -177,6 +178,39 @@ pub struct StageTimes {
     pub color_fit: f64,
     pub compose: f64,
     pub optimize: f64,
+}
+
+/// A VTracer region mask in Vectra's own type.
+pub fn region_mask(m: &RegionMask) -> Mask {
+    let (w, h) = (m.image.width, m.image.height);
+    let mut bits = vec![false; w * h];
+    for y in 0..h {
+        for x in 0..w {
+            bits[y * w + x] = m.image.get_pixel(x, y);
+        }
+    }
+    Mask {
+        x0: usize::try_from(m.offset.x).unwrap_or(0),
+        y0: usize::try_from(m.offset.y).unwrap_or(0),
+        w,
+        h,
+        bits,
+    }
+}
+
+/// Runs VTracer's colour fitters (palette snapping) on a segmentation in place; the same
+/// fitters `fit_segmentation` selects for this palette.
+pub fn fit_colors(seg: &mut Segmentation, layer_difference: i32, palette: &[Rgba]) -> Result<(), EngineError> {
+    let cfg = vtracer::Config {
+        layer_difference,
+        palette: palette.iter().map(|c| Color::new(c.r, c.g, c.b)).collect(),
+        ..vtracer::Config::default()
+    };
+    let pipeline = cfg.build().map_err(|e| EngineError::Tracer(e.to_string()))?;
+    for fitter in &pipeline.color_fitters {
+        fitter.fit(seg);
+    }
+    Ok(())
 }
 
 /// Colour fitting → compositing (curve fitting + simplification) → cleanup, via VTracer.

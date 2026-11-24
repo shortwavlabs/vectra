@@ -51,6 +51,8 @@ export default defineConfig({
       "experiments/**",
       "docs/research/p0/artifacts/**",
       "docs/research/p0-r/artifacts/**",
+      "docs/research/p0-r-geo/artifacts/**",
+      "docs/research/p0-r-geo/owner-acceptance-bundle-v2/**",
       "docs/mockups/**",
     ],
   },
