@@ -31,7 +31,7 @@ export default defineConfig({
   },
   lint: {
     plugins: ["react", "typescript", "oxc"],
-    ignorePatterns: ["packages/vector-engine-wasm/pkg/**", "experiments/**"],
+    ignorePatterns: ["packages/vector-engine-wasm/pkg/**", "experiments/**", ".wrangler/**"],
     rules: {
       "react/rules-of-hooks": "error",
       "react/only-export-components": ["warn", { allowConstantExport: true }],

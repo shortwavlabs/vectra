@@ -18,3 +18,5 @@ tests/output
 .vscode/*
 !.vscode/extensions.json
 experiments/**/pkg
+# wrangler pages dev local state
+.wrangler

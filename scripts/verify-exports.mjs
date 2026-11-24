@@ -77,7 +77,7 @@ for (const file of readdirSync(dir)
       .split(/\s+/)
       .filter((t) => /^[A-Za-z*]+$/.test(t)),
   );
-  row.operators = [...ops].sort().join(",");
+  row.operators = [...ops].sort((a, b) => a.localeCompare(b)).join(",");
   // Render comparison against the SVG sibling.
   const svg = pdf.replace(/\.pdf$/, ".svg");
   if (existsSync(svg) && existsSync(compareBin)) {
