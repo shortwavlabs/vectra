@@ -1,5 +1,20 @@
 # Validation and benchmark plan
-Targets are provisional. P0 executed the corpus, quality, export, privacy and desktop performance checks; results and proposed threshold revisions are in docs/research/p0 (BENCHMARKS.md, FINAL-REPORT.md). Not yet run: mobile and real Safari, Linux build, owner art review, Inkscape/viewer round-trips.
+Targets are provisional. Results are in docs/research/p0 and docs/research/p0-r.
+
+**Tested state (2026-11-24):**
+- **Executed:**
+  - Synthetic corpus and geometry quality, including an analytic 4× deviation probe.
+  - Export verification: qpdf, pdfimages, and poppler vs resvg renders.
+  - Privacy interception, offline workflow and offline cancellation recovery.
+  - Desktop performance on an upscaled corpus (P0) and on a native-resolution CC0/public-domain corpus (P0-R).
+  - Cross-host WASM output equivalence (macOS vs Linux).
+- **Platforms:** macOS arm64 and Ubuntu 24.04 arm64 (container); Chromium 159, Firefox 159, Playwright WebKit 27.2.
+- **Not yet run:**
+  - linux/amd64 (emulation crashes rustc).
+  - Real Safari, iOS and Android.
+  - Owner art review and Inkscape/Preview round-trips (bundle prepared).
+  - Real deployment (owner action).
+- **Open quality items:** the IoU ≥ 0.98 target is still **missed** by default spline fitting on the star (0.977) and rings (0.975). P0-R proposes measuring edge deviation against analytic shapes; see GEOMETRY-QUALITY-DISPOSITION. Thresholds are not changed until the maintainer decides.
 
 ## Corpus
 Create procedural fixtures: circle, nested rings, sharp corners, 1px strokes, transparent antialiased logo, adjacent color blocks, gradient, checkerboard, noise, rotated EXIF JPEG, malformed input and oversized header. Add licensed/public-domain photos, scans and botanical artwork with source/license/hash manifest. No private user artwork in public repo. Hold out a separate art set.
