@@ -1,0 +1,612 @@
+{
+  "tokens": {
+    "background": "#191a1c",
+    "panel": "#212224",
+    "elevated": "#292a2c",
+    "canvasSurround": "#303134",
+    "border": "#414347",
+    "foreground": "#eeeef0",
+    "muted": "#a9abad",
+    "primary": "#b9e87b",
+    "primaryForeground": "#20251a",
+    "paper": "#eee8d8",
+    "destructive": "#ff8f85",
+    "warning": "#f2c14e",
+    "controlBorder": "#787a7e"
+  },
+  "standard": "WCAG 2.x relative luminance; text 4.5:1 (normal), non-text 3:1 (1.4.11)",
+  "rows": [
+    {
+      "kind": "text",
+      "fg": "foreground",
+      "fgHex": "#eeeef0",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 15.03,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "muted",
+      "fgHex": "#a9abad",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 7.56,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "primary",
+      "fgHex": "#b9e87b",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 12.35,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "destructive",
+      "fgHex": "#ff8f85",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 7.89,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "warning",
+      "fgHex": "#f2c14e",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 10.38,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "foreground",
+      "fgHex": "#eeeef0",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 13.74,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "muted",
+      "fgHex": "#a9abad",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 6.91,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "primary",
+      "fgHex": "#b9e87b",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 11.29,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "destructive",
+      "fgHex": "#ff8f85",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 7.22,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "warning",
+      "fgHex": "#f2c14e",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 9.49,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "foreground",
+      "fgHex": "#eeeef0",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 12.4,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "muted",
+      "fgHex": "#a9abad",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 6.24,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "primary",
+      "fgHex": "#b9e87b",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 10.19,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "destructive",
+      "fgHex": "#ff8f85",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 6.51,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "warning",
+      "fgHex": "#f2c14e",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 8.56,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "foreground",
+      "fgHex": "#eeeef0",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 11.22,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "muted",
+      "fgHex": "#a9abad",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 5.65,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "primary",
+      "fgHex": "#b9e87b",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 9.22,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "destructive",
+      "fgHex": "#ff8f85",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 5.9,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "warning",
+      "fgHex": "#f2c14e",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 7.75,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "primaryForeground",
+      "fgHex": "#20251a",
+      "bg": "primary",
+      "bgHex": "#b9e87b",
+      "ratio": 11.11,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "background",
+      "fgHex": "#191a1c",
+      "bg": "primary",
+      "bgHex": "#b9e87b",
+      "ratio": 12.35,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "primaryForeground",
+      "fgHex": "#20251a",
+      "bg": "paper",
+      "bgHex": "#eee8d8",
+      "ratio": 12.8,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "background",
+      "fgHex": "#191a1c",
+      "bg": "paper",
+      "bgHex": "#eee8d8",
+      "ratio": 14.24,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "background",
+      "fgHex": "#191a1c",
+      "bg": "destructive",
+      "bgHex": "#ff8f85",
+      "ratio": 7.89,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "background",
+      "fgHex": "#191a1c",
+      "bg": "warning",
+      "bgHex": "#f2c14e",
+      "ratio": 10.38,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "destructive on destructive/10",
+      "fgHex": "#ff8f85",
+      "bg": "destructive/10 over background",
+      "bgHex": "#302627",
+      "ratio": 6.65,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "text",
+      "fg": "destructive on destructive/10",
+      "fgHex": "#ff8f85",
+      "bg": "destructive/10 over panel",
+      "bgHex": "#372d2e",
+      "ratio": 6.04,
+      "min": 4.5,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 1.76,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 1.61,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 1.45,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 1.31,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring (primary, opaque)",
+      "fgHex": "#b9e87b",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 12.35,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring (primary, opaque)",
+      "fgHex": "#b9e87b",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 11.29,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring (primary, opaque)",
+      "fgHex": "#b9e87b",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 10.19,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring (primary, opaque)",
+      "fgHex": "#b9e87b",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 9.22,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring (primary, opaque)",
+      "fgHex": "#b9e87b",
+      "bg": "paper",
+      "bgHex": "#eee8d8",
+      "ratio": 1.15,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "shadcn focus ring ring/50",
+      "fgHex": "#69814c",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 4.02,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "shadcn focus ring ring/50",
+      "fgHex": "#6d8550",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 3.88,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "shadcn focus ring ring/50",
+      "fgHex": "#718954",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 3.7,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "shadcn focus ring ring/50",
+      "fgHex": "#758d58",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 3.53,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring on primary fill (no offset)",
+      "fgHex": "#b9e87b",
+      "bg": "primary",
+      "bgHex": "#b9e87b",
+      "ratio": 1,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "selected tool fill (primary)",
+      "fgHex": "#b9e87b",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 11.29,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "selected tool icon (primaryForeground)",
+      "fgHex": "#20251a",
+      "bg": "primary",
+      "bgHex": "#b9e87b",
+      "ratio": 11.11,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "unselected tool icon (foreground)",
+      "fgHex": "#eeeef0",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 13.74,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "slider track bg-muted(elevated)",
+      "fgHex": "#292a2c",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 1.11,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "slider range (primary)",
+      "fgHex": "#b9e87b",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 11.29,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "proposed controlBorder",
+      "fgHex": "#787a7e",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 4.05,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "proposed controlBorder",
+      "fgHex": "#787a7e",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 3.7,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "proposed controlBorder",
+      "fgHex": "#787a7e",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 3.34,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "proposed controlBorder",
+      "fgHex": "#787a7e",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 3.02,
+      "min": 3,
+      "pass": true
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring dark inner (background) on paper",
+      "fgHex": "#191a1c",
+      "bg": "paper",
+      "bgHex": "#eee8d8",
+      "ratio": 14.24,
+      "min": 3,
+      "pass": true
+    }
+  ],
+  "failures": [
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "background",
+      "bgHex": "#191a1c",
+      "ratio": 1.76,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 1.61,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "elevated",
+      "bgHex": "#292a2c",
+      "ratio": 1.45,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "border",
+      "fgHex": "#414347",
+      "bg": "canvasSurround",
+      "bgHex": "#303134",
+      "ratio": 1.31,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring (primary, opaque)",
+      "fgHex": "#b9e87b",
+      "bg": "paper",
+      "bgHex": "#eee8d8",
+      "ratio": 1.15,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "focus ring on primary fill (no offset)",
+      "fgHex": "#b9e87b",
+      "bg": "primary",
+      "bgHex": "#b9e87b",
+      "ratio": 1,
+      "min": 3,
+      "pass": false
+    },
+    {
+      "kind": "non-text",
+      "fg": "slider track bg-muted(elevated)",
+      "fgHex": "#292a2c",
+      "bg": "panel",
+      "bgHex": "#212224",
+      "ratio": 1.11,
+      "min": 3,
+      "pass": false
+    }
+  ]
+}

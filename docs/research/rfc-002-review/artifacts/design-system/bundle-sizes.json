@@ -1,0 +1,128 @@
+{
+  "baseline": {
+    "js": {
+      "raw": 219578,
+      "gzip": 67749,
+      "brotli": 58391
+    },
+    "css": {
+      "raw": 0,
+      "gzip": 0,
+      "brotli": 0
+    },
+    "files": [
+      {
+        "file": "index.js",
+        "raw": 219578,
+        "gzip": 67749,
+        "brotli": 58391
+      }
+    ]
+  },
+  "app": {
+    "js": {
+      "raw": 602376,
+      "gzip": 192592,
+      "brotli": 163331
+    },
+    "css": {
+      "raw": 47734,
+      "gzip": 8535,
+      "brotli": 7522
+    },
+    "files": [
+      {
+        "file": "index.css",
+        "raw": 47734,
+        "gzip": 8535,
+        "brotli": 7522
+      },
+      {
+        "file": "index.js",
+        "raw": 602376,
+        "gzip": 192592,
+        "brotli": 163331
+      }
+    ]
+  },
+  "analyze": {
+    "js": {
+      "raw": 603479,
+      "gzip": 193945,
+      "brotli": 169444
+    },
+    "css": {
+      "raw": 47734,
+      "gzip": 8535,
+      "brotli": 7522
+    },
+    "files": [
+      {
+        "file": "base-ui.js",
+        "raw": 193620,
+        "gzip": 64322,
+        "brotli": 55903
+      },
+      {
+        "file": "cn-cva-clsx.js",
+        "raw": 26679,
+        "gzip": 11048,
+        "brotli": 9624
+      },
+      {
+        "file": "dnd-kit.js",
+        "raw": 45806,
+        "gzip": 14870,
+        "brotli": 13470
+      },
+      {
+        "file": "index.css",
+        "raw": 47734,
+        "gzip": 8535,
+        "brotli": 7522
+      },
+      {
+        "file": "index.js",
+        "raw": 63111,
+        "gzip": 17656,
+        "brotli": 15674
+      },
+      {
+        "file": "lucide-react.js",
+        "raw": 6660,
+        "gzip": 2881,
+        "brotli": 2550
+      },
+      {
+        "file": "react.js",
+        "raw": 218754,
+        "gzip": 67392,
+        "brotli": 58028
+      },
+      {
+        "file": "react-resizable-panels.js",
+        "raw": 48250,
+        "gzip": 15408,
+        "brotli": 13868
+      },
+      {
+        "file": "rolldown-runtime.js",
+        "raw": 599,
+        "gzip": 368,
+        "brotli": 327
+      }
+    ]
+  },
+  "delta": {
+    "js": {
+      "raw": 382798,
+      "gzip": 124843,
+      "brotli": 104940
+    },
+    "css": {
+      "raw": 47734,
+      "gzip": 8535,
+      "brotli": 7522
+    }
+  }
+}
