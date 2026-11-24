@@ -1,0 +1,18 @@
+== 04-color-discs
+4 paths, 4 layers
+554 flagged samples: under a higher outline (lower-layer duplicate) 396; top path at saturated run > 3: 28; top path at run 1–3: 0; top path, no saturation: 130
+worst: |κ|r-1=+19.85 at (187.55,155.83) path 1 under-higher true saturated-run 4
+worst: |κ|r-1=+16.12 at (86.73,50.46) path 1 under-higher true saturated-run 4
+worst: |κ|r-1=+15.31 at (62.67,159.87) path 1 under-higher true saturated-run 0
+== discs-two-deep
+3 paths, 3 layers
+258 flagged samples: under a higher outline (lower-layer duplicate) 105; top path at saturated run > 3: 0; top path at run 1–3: 0; top path, no saturation: 153
+worst: |κ|r-1=+29.64 at (125.42,176.85) path 2 under-higher false saturated-run 0
+worst: |κ|r-1=+27.19 at (125.60,79.21) path 1 under-higher true saturated-run 0
+worst: |κ|r-1=+7.74 at (133.44,78.92) path 1 under-higher false saturated-run 0
+== discs-x2
+4 paths, 4 layers
+453 flagged samples: under a higher outline (lower-layer duplicate) 309; top path at saturated run > 3: 29; top path at run 1–3: 6; top path, no saturation: 109
+worst: |κ|r-1=+33.47 at (375.54,316.73) path 1 under-higher true saturated-run 4
+worst: |κ|r-1=+30.56 at (72.47,206.63) path 1 under-higher true saturated-run 4
+worst: |κ|r-1=+30.56 at (242.63,449.53) path 1 under-higher false saturated-run 4
