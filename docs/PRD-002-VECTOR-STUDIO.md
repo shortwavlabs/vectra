@@ -54,6 +54,11 @@ Default to the Selection tool after a trace is committed. Left rail changes the 
 
 [Interactive HTML mockup](mockups/vectra-workspace.html) — download/open locally in a browser; GitHub does not execute HTML previews. Reconstructs the owner-liked dark charcoal workspace with lime accent, ivory artboard, narrow left icon rail, context-sensitive right inspector, layer list, and top export controls. Botanical artwork is an original schematic placeholder rather than the earlier chat's reference image; no tracing/rendering is implemented. The SVG is a static reference and HTML is an interaction prototype, not production code. No remote assets or libraries.
 
+### Optional image import and photo search
+![Photo search dialog concept](mockups/vectra-photo-search.svg)
+
+The interactive HTML mockup also includes an Import dialog with Local file, Clipboard and Unsplash tabs, searchable illustrative fixtures, selection and metadata preview, resolution options, and simulated handoff to Image Trace. No live API calls, credentials, actual photo credits or image processing are included. The static SVG illustrates the same dialog. See [image sources and community specification](IMAGE-SOURCES-AND-COMMUNITY.md) for production requirements.
+
 ### Layout
 Desktop target: 48–56 px left rail, flexible central canvas, 288–336 px right inspector, compact top bar and bottom status/zoom. Widths are proposals to test. Inspector scrolls independently; collapsible Layers and Effects sections; right panel collapses on smaller screens. Canvas should stay central. Prefer dark neutral surfaces (#191a1c / #212224), lime #b9e87b active accent, warm ivory #eee8d8 optional paper preview. Paper preview must not silently add a background to export. Focus rings, tooltips, aria-labels, keyboard shortcuts and numeric inputs required. No color-only statuses.
 
