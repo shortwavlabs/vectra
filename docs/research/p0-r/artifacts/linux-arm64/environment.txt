@@ -1,4 +1,4 @@
 uname: Linux 6.12.76-linuxkit aarch64
 PRETTY_NAME="Ubuntu 24.04.5 LTS"
 node v24.22.1, pnpm 12.23.0, rustc 1.96.0 (ac68faa20 2026-05-25), cargo 1.96.0 (30a34c682 2026-05-25), wasm-bindgen 0.2.130
-commit f85bad1ca3a6b3ed1147ef5e4c473927f44ad728 test(p0-r-g5): native-resolution CC0/public-domain photo corpus manifest and fetcher
+commit 01833ab7e061dc73562670370a67a20f1a4bb3dd docs(p0-r): licensing report, owner checklist; RFC-001 accepted vs outstanding; README/validation state

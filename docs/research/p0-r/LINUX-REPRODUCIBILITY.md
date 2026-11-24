@@ -21,20 +21,20 @@ The image build took about 45 s with cached apt and network: apt 7.2 s, Node 3.3
 
 No GitHub Actions minutes are used.
 
-## Results (final run, commit `f85bad1`)
+## Results (final run, commit `01833ab`; later commits change only docs and evidence)
 | Step | Result | Time |
 |---|---|---|
 | clean clone | PASS | 0.0 s |
-| `pnpm install --frozen-lockfile` (CI=1) | PASS | 3.0 s |
-| WASM build (`scripts/build-wasm.mjs`) | PASS | 6.1 s |
-| `vp check` (format, lint, types) | PASS | 1.1 s |
+| `pnpm install --frozen-lockfile` (CI=1) | PASS | 2.8 s |
+| WASM build (`scripts/build-wasm.mjs`) | PASS | 5.8 s |
+| `vp check` (format, lint, types) | PASS | 1.2 s |
 | `vp test` (14 TS tests) | PASS | 0.2 s |
 | `cargo fmt --check` | PASS | 0.0 s |
-| `cargo clippy -D warnings` | PASS | 3.2 s |
-| `cargo test --workspace` (26 tests) | PASS | 10.3 s |
+| `cargo clippy -D warnings` | PASS | 3.1 s |
+| `cargo test --workspace` (26 tests) | PASS | 9.7 s |
 | fixture manifest check | PASS | 0.0 s |
 | production build (WASM + vp build + notices + sw + dist check) | PASS | 0.4 s |
-| browser tests (smoke, CSP, privacy, offline-recovery × Chromium/Firefox/WebKit) | PASS, 21/21 | 40.7 s |
+| browser tests (smoke, CSP, privacy, offline-recovery × Chromium/Firefox/WebKit) | PASS, 21/21 | 41.3 s |
 | WASM output fingerprint | PASS | 0.5 s |
 
 Raw evidence: `artifacts/linux-arm64/` (environment, summary, browser test list, hashes, fingerprint).
