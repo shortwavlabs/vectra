@@ -1,0 +1,20 @@
+[
+  {
+    "id": "hokusai_great_wave",
+    "file": "external/hokusai-great-wave-640.jpg",
+    "description": "Katsushika Hokusai, Under the Wave off Kanagawa (The Great Wave), woodblock print, ca. 1830–32. Downscaled to 640 px wide (macOS sips, JPEG q85).",
+    "coverage": "illustrative artwork: limited colour, halftone tone mapping, line art",
+    "source": "https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg (credit: Metropolitan Museum of Art, object 45434, https://www.metmuseum.org/art/collection/search/45434)",
+    "license": "Public domain (Wikimedia Commons LicenseShortName 'Public domain'; Met API isPublicDomain=true; Met Open Access images are CC0)",
+    "attribution": "Not required. Courtesy note: The Metropolitan Museum of Art, H. O. Havemeyer Collection, Bequest of Mrs. H. O. Havemeyer, 1929."
+  },
+  {
+    "id": "talbot_scene_in_a_library",
+    "file": "external/talbot-scene-in-a-library-640.jpg",
+    "description": "William Henry Fox Talbot, A Scene in a Library, salted paper print, before 1844. Downscaled to 640 px wide (macOS sips, JPEG q85).",
+    "coverage": "photograph: full colour, halftone, grey ramps and texture",
+    "source": "https://commons.wikimedia.org/wiki/File:A_Scene_in_a_Library_MET_DP136270.jpg (Metropolitan Museum of Art, object 283066, https://www.metmuseum.org/art/collection/search/283066)",
+    "license": "CC0 1.0 (Wikimedia Commons LicenseShortName 'CC0'; donated by The Met under its Open Access policy, https://www.metmuseum.org/policies/image-resources)",
+    "attribution": "Not required. Courtesy note: The Metropolitan Museum of Art, Gilman Collection, Gift of The Howard Gilman Foundation, 2005."
+  }
+]

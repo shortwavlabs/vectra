@@ -1,0 +1,37 @@
+[
+  {
+    "phase": "load",
+    "url": "http://127.0.0.1:4173/",
+    "method": "GET",
+    "type": "document",
+    "bodyBytes": 0
+  },
+  {
+    "phase": "load",
+    "url": "http://127.0.0.1:4173/assets/index-D-5Grfyk.js",
+    "method": "GET",
+    "type": "script",
+    "bodyBytes": 0
+  },
+  {
+    "phase": "load",
+    "url": "http://127.0.0.1:4173/assets/index-D1lfzPAf.css",
+    "method": "GET",
+    "type": "stylesheet",
+    "bodyBytes": 0
+  },
+  {
+    "phase": "load",
+    "url": "http://127.0.0.1:4173/assets/vectorize.worker-CihwNSvZ.js",
+    "method": "GET",
+    "type": "script",
+    "bodyBytes": 0
+  },
+  {
+    "phase": "load",
+    "url": "http://127.0.0.1:4173/assets/vector_engine_wasm_bg-C-KQaMqF.wasm",
+    "method": "GET",
+    "type": "fetch",
+    "bodyBytes": 0
+  }
+]

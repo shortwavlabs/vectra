@@ -1,0 +1,38 @@
+[
+  {
+    "name": "nested_rings-bw",
+    "svg2pdfMs": 6,
+    "svg2pdfBytes": 4384,
+    "enginePdfBytes": 1480
+  },
+  {
+    "name": "transparent_ring-color",
+    "svg2pdfMs": 3,
+    "svg2pdfBytes": 3926,
+    "enginePdfBytes": 1174
+  },
+  {
+    "name": "adjacent_colors-limited",
+    "svg2pdfMs": 1,
+    "svg2pdfBytes": 3477,
+    "enginePdfBytes": 960
+  },
+  {
+    "name": "antialiased_discs-mosaic",
+    "svg2pdfMs": 3,
+    "svg2pdfBytes": 7429,
+    "enginePdfBytes": 3849
+  },
+  {
+    "name": "gradient-halftone",
+    "svg2pdfMs": 21,
+    "svg2pdfBytes": 71321,
+    "enginePdfBytes": 55972
+  },
+  {
+    "name": "gradient-halftone-transparent",
+    "svg2pdfMs": 33,
+    "svg2pdfBytes": 115861,
+    "enginePdfBytes": 91115
+  }
+]

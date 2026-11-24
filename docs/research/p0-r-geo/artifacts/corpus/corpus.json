@@ -1,0 +1,2275 @@
+[
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Black disc r=40 at (128.3,127.6)",
+    "height": 256,
+    "id": "circle-r40-frac",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              128.3,
+              127.6
+            ],
+            "r": 40.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Black disc r=100 at (128.5,128.5)",
+    "height": 256,
+    "id": "circle-r100",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              128.5,
+              128.5
+            ],
+            "r": 100.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Small black disc r=8 at (31.7,32.2)",
+    "height": 64,
+    "id": "circle-r8",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              31.7,
+              32.2
+            ],
+            "r": 8.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 64
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Tiny black disc r=3 at (16.4,15.8)",
+    "height": 32,
+    "id": "circle-r3",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              16.4,
+              15.8
+            ],
+            "r": 3.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw",
+      "speckle": 0
+    },
+    "width": 32
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Disc r=40 rendered without antialiasing (1 sample/px)",
+    "height": 128,
+    "id": "circle-hard-r40",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              64.3,
+              63.8
+            ],
+            "r": 40.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 128
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "Opaque red field with transparent circular hole r=30 at (100.4,140.7)",
+    "height": 256,
+    "id": "hole-alpha-r30",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          200,
+          50,
+          40,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Polygon": [
+                [
+                  0.0,
+                  0.0
+                ],
+                [
+                  256.0,
+                  0.0
+                ],
+                [
+                  256.0,
+                  256.0
+                ],
+                [
+                  0.0,
+                  256.0
+                ]
+              ]
+            },
+            {
+              "Circle": {
+                "c": [
+                  100.4,
+                  140.7
+                ],
+                "r": 30.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "05 geometry at half resolution: hole r=10",
+    "height": 128,
+    "id": "hole-x0.5",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          30,
+          60,
+          200,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Polygon": [
+                [
+                  0.0,
+                  0.0
+                ],
+                [
+                  128.0,
+                  0.0
+                ],
+                [
+                  128.0,
+                  128.0
+                ],
+                [
+                  0.0,
+                  128.0
+                ]
+              ]
+            },
+            {
+              "Circle": {
+                "c": [
+                  64.0,
+                  50.0
+                ],
+                "r": 10.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 128
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "05 geometry at double resolution: hole r=40",
+    "height": 512,
+    "id": "hole-x2",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          30,
+          60,
+          200,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Polygon": [
+                [
+                  0.0,
+                  0.0
+                ],
+                [
+                  512.0,
+                  0.0
+                ],
+                [
+                  512.0,
+                  512.0
+                ],
+                [
+                  0.0,
+                  512.0
+                ]
+              ]
+            },
+            {
+              "Circle": {
+                "c": [
+                  256.0,
+                  200.0
+                ],
+                "r": 40.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 512
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Black ring r 50–62",
+    "height": 256,
+    "id": "ring-bw",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Circle": {
+                "c": [
+                  128.0,
+                  128.0
+                ],
+                "r": 62.0
+              }
+            },
+            {
+              "Circle": {
+                "c": [
+                  128.0,
+                  128.0
+                ],
+                "r": 50.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "Green ring r 50–70 on transparency",
+    "height": 256,
+    "id": "ring-alpha",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          40,
+          160,
+          60,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Circle": {
+                "c": [
+                  127.6,
+                  128.4
+                ],
+                "r": 70.0
+              }
+            },
+            {
+              "Circle": {
+                "c": [
+                  127.6,
+                  128.4
+                ],
+                "r": 50.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Concentric discs r=90/70/50/30 in alternating colours",
+    "height": 256,
+    "id": "concentric",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          30,
+          40,
+          110,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 90.0
+          }
+        }
+      },
+      {
+        "color": [
+          240,
+          190,
+          40,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 70.0
+          }
+        }
+      },
+      {
+        "color": [
+          30,
+          40,
+          110,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 50.0
+          }
+        }
+      },
+      {
+        "color": [
+          210,
+          40,
+          40,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 30.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Two discs r=50, centres 70 apart",
+    "height": 256,
+    "id": "discs-two-wide",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          230,
+          60,
+          50,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              93.0,
+              128.0
+            ],
+            "r": 50.0
+          }
+        }
+      },
+      {
+        "color": [
+          40,
+          120,
+          220,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              163.0,
+              128.0
+            ],
+            "r": 50.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Two discs r=50, centres 30 apart",
+    "height": 256,
+    "id": "discs-two-deep",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          230,
+          60,
+          50,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              113.0,
+              128.0
+            ],
+            "r": 50.0
+          }
+        }
+      },
+      {
+        "color": [
+          40,
+          120,
+          220,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              143.0,
+              128.0
+            ],
+            "r": 50.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "04 geometry at double resolution (r=120)",
+    "height": 512,
+    "id": "discs-x2",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          230,
+          60,
+          50,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              192.0,
+              220.0
+            ],
+            "r": 120.0
+          }
+        }
+      },
+      {
+        "color": [
+          40,
+          120,
+          220,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              320.0,
+              220.0
+            ],
+            "r": 120.0
+          }
+        }
+      },
+      {
+        "color": [
+          250,
+          190,
+          30,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              256.0,
+              330.0
+            ],
+            "r": 120.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 512
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Ellipse a=80 b=40",
+    "height": 256,
+    "id": "ellipse-2to1",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Ellipse": {
+            "a": 80.0,
+            "b": 40.0,
+            "c": [
+              128.0,
+              128.0
+            ],
+            "rot": 0.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Ellipse a=90 b=22.5 rotated 30°",
+    "height": 256,
+    "id": "ellipse-4to1-rot30",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Ellipse": {
+            "a": 90.0,
+            "b": 22.5,
+            "c": [
+              128.2,
+              127.7
+            ],
+            "rot": 0.5235987755982988
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Axis-aligned square 100 px at fractional offset",
+    "height": 256,
+    "id": "square",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              78.30000000000001,
+              78.30000000000001
+            ],
+            [
+              178.3,
+              78.30000000000001
+            ],
+            [
+              178.3,
+              178.3
+            ],
+            [
+              78.30000000000001,
+              178.3
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Rectangle 140×70 rotated 20°",
+    "height": 256,
+    "id": "rect-rot20",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              74.19222156138483,
+              71.1693482396964
+            ],
+            [
+              205.749188471412,
+              119.05216830529
+            ],
+            [
+              181.8077784386152,
+              184.8306517603036
+            ],
+            [
+              50.25081152858801,
+              136.94783169470998
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Rounded rectangle 160×100, corner radius 20",
+    "height": 256,
+    "id": "roundrect",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "RoundRect": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "h": 100.0,
+            "r": 20.0,
+            "rot": 0.0,
+            "w": 160.0
+          }
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Triangle",
+    "height": 256,
+    "id": "triangle",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              40.3,
+              210.0
+            ],
+            [
+              215.7,
+              200.0
+            ],
+            [
+              120.0,
+              40.0
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Five-point star, outer 110, inner 45",
+    "height": 256,
+    "id": "star",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              128.0,
+              22.0
+            ],
+            [
+              154.45033635316128,
+              95.59423525312737
+            ],
+            [
+              232.6162167924669,
+              98.00813061875579
+            ],
+            [
+              170.7975432332819,
+              145.90576474687262
+            ],
+            [
+              192.65637775217203,
+              220.99186938124421
+            ],
+            [
+              128.0,
+              177.0
+            ],
+            [
+              63.343622247827966,
+              220.99186938124421
+            ],
+            [
+              85.20245676671809,
+              145.90576474687265
+            ],
+            [
+              23.3837832075331,
+              98.0081306187558
+            ],
+            [
+              101.5496636468387,
+              95.59423525312738
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Bars 2, 3 and 5 px wide at 0°, 30°, 45° and 60°",
+    "height": 256,
+    "id": "strokes",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              28.0,
+              29.0
+            ],
+            [
+              228.0,
+              29.0
+            ],
+            [
+              228.0,
+              31.0
+            ],
+            [
+              28.0,
+              31.0
+            ]
+          ]
+        }
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              18.78847577293368,
+              88.70096189432334
+            ],
+            [
+              122.71152422706632,
+              148.70096189432334
+            ],
+            [
+              121.21152422706632,
+              151.29903810567666
+            ],
+            [
+              17.28847577293368,
+              91.29903810567666
+            ]
+          ]
+        }
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              139.3413600817735,
+              75.80582617584078
+            ],
+            [
+              224.1941738241592,
+              160.65863991822647
+            ],
+            [
+              220.6586399182265,
+              164.19417382415924
+            ],
+            [
+              135.8058261758408,
+              79.34136008177352
+            ]
+          ]
+        }
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              104.29903810567666,
+              155.94872981077808
+            ],
+            [
+              154.29903810567666,
+              242.55127018922192
+            ],
+            [
+              151.70096189432334,
+              244.05127018922192
+            ],
+            [
+              101.70096189432334,
+              157.44872981077808
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Square with a circular and a triangular hole",
+    "height": 256,
+    "id": "compound-holes",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Diff": [
+                {
+                  "Polygon": [
+                    [
+                      38.0,
+                      38.0
+                    ],
+                    [
+                      218.0,
+                      38.0
+                    ],
+                    [
+                      218.0,
+                      218.0
+                    ],
+                    [
+                      38.0,
+                      218.0
+                    ]
+                  ]
+                },
+                {
+                  "Circle": {
+                    "c": [
+                      90.0,
+                      90.0
+                    ],
+                    "r": 30.0
+                  }
+                }
+              ]
+            },
+            {
+              "Polygon": [
+                [
+                  130.0,
+                  200.0
+                ],
+                [
+                  200.0,
+                  200.0
+                ],
+                [
+                  165.0,
+                  130.0
+                ]
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Red rectangle, blue disc overlapping it, green rotated square",
+    "height": 256,
+    "id": "adjacent-overlap",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          220,
+          40,
+          40,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              35.0,
+              70.0
+            ],
+            [
+              145.0,
+              70.0
+            ],
+            [
+              145.0,
+              150.0
+            ],
+            [
+              35.0,
+              150.0
+            ]
+          ]
+        }
+      },
+      {
+        "color": [
+          40,
+          70,
+          210,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              150.0,
+              140.0
+            ],
+            "r": 55.0
+          }
+        }
+      },
+      {
+        "color": [
+          40,
+          160,
+          60,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              168.78679656440357,
+              33.257653858252326
+            ],
+            [
+              226.74234614174765,
+              48.78679656440357
+            ],
+            [
+              211.21320343559643,
+              106.74234614174767
+            ],
+            [
+              153.25765385825235,
+              91.21320343559643
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "validation",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Near-circle r=60 with low-frequency wobble (2–3.5 % of r)",
+    "height": 256,
+    "id": "hand-drawn-circle",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polar": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 60.0,
+            "terms": [
+              [
+                2.0,
+                0.02,
+                0.3
+              ],
+              [
+                3.0,
+                0.035,
+                1.1
+              ],
+              [
+                5.0,
+                0.01,
+                2.0
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "set": "negative",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Ellipse-like outline with uneven sides",
+    "height": 256,
+    "id": "irregular-ellipse",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polar": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 70.0,
+            "terms": [
+              [
+                2.0,
+                0.22,
+                0.0
+              ],
+              [
+                3.0,
+                0.04,
+                0.7
+              ],
+              [
+                7.0,
+                0.012,
+                1.9
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "set": "negative",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Organic silhouette (harmonics 3, 5, 7)",
+    "height": 256,
+    "id": "organic-blob",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polar": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 65.0,
+            "terms": [
+              [
+                3.0,
+                0.12,
+                0.4
+              ],
+              [
+                5.0,
+                0.06,
+                2.2
+              ],
+              [
+                7.0,
+                0.04,
+                0.9
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "set": "negative",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Disc r=70 with high-frequency rough edge (≈1 px bumps)",
+    "height": 256,
+    "id": "rough-ink",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polar": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 70.0,
+            "terms": [
+              [
+                17.0,
+                0.015,
+                0.2
+              ],
+              [
+                23.0,
+                0.012,
+                1.3
+              ],
+              [
+                31.0,
+                0.01,
+                2.7
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "set": "negative",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Egg shape (harmonics 1 and 2)",
+    "height": 256,
+    "id": "asymmetric-egg",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polar": {
+            "c": [
+              128.0,
+              128.0
+            ],
+            "r": 70.0,
+            "terms": [
+              [
+                1.0,
+                0.08,
+                1.57
+              ],
+              [
+                2.0,
+                0.05,
+                0.0
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "set": "negative",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "Transparent hand-drawn hole in a coloured field",
+    "height": 256,
+    "id": "hand-drawn-hole",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          30,
+          60,
+          200,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Polygon": [
+                [
+                  0.0,
+                  0.0
+                ],
+                [
+                  256.0,
+                  0.0
+                ],
+                [
+                  256.0,
+                  256.0
+                ],
+                [
+                  0.0,
+                  256.0
+                ]
+              ]
+            },
+            {
+              "Polar": {
+                "c": [
+                  128.0,
+                  110.0
+                ],
+                "r": 35.0,
+                "terms": [
+                  [
+                    2.0,
+                    0.03,
+                    0.5
+                  ],
+                  [
+                    3.0,
+                    0.03,
+                    2.0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "negative",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Disc r=15.7 at (47.13,39.71), 16×16 supersampling",
+    "height": 80,
+    "id": "h-circle-r15.7",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              47.13,
+              39.71
+            ],
+            "r": 15.7
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 96
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Disc r=55 with coarse 2×2 antialiasing",
+    "height": 288,
+    "id": "h-circle-r55-coarse",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          20,
+          20,
+          20,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              160.6,
+              141.2
+            ],
+            "r": 55.0
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 320
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Small disc r=5 at (19.6,20.3)",
+    "height": 40,
+    "id": "h-circle-r5",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              19.6,
+              20.3
+            ],
+            "r": 5.0
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw",
+      "speckle": 0
+    },
+    "width": 40
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "Transparent hole r=33 at (90.3,70.9) in a green field",
+    "height": 160,
+    "id": "h-hole-r33",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          20,
+          140,
+          90,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Polygon": [
+                [
+                  0.0,
+                  0.0
+                ],
+                [
+                  200.0,
+                  0.0
+                ],
+                [
+                  200.0,
+                  160.0
+                ],
+                [
+                  0.0,
+                  160.0
+                ]
+              ]
+            },
+            {
+              "Circle": {
+                "c": [
+                  90.3,
+                  70.9
+                ],
+                "r": 33.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 200
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Ellipse a=75 b=25 rotated 63°",
+    "height": 200,
+    "id": "h-ellipse-3to1-rot63",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Ellipse": {
+            "a": 75.0,
+            "b": 25.0,
+            "c": [
+              130.4,
+              99.1
+            ],
+            "rot": 1.0995574287564276
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Rounded rectangle 150×90 r=28 rotated 12°",
+    "height": 200,
+    "id": "h-roundrect-rot12",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "RoundRect": {
+            "c": [
+              128.0,
+              100.0
+            ],
+            "h": 90.0,
+            "r": 28.0,
+            "rot": 0.20943951023931956,
+            "w": 150.0
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 256
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Five-point star outer 90 inner 38 rotated 17°",
+    "height": 220,
+    "id": "h-star-rot17",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              136.3134534250463,
+              25.932571963326808
+            ],
+            [
+              140.34814938179713,
+              89.13102912022217
+            ],
+            [
+              199.9862925640752,
+              110.42928342064448
+            ],
+            [
+              141.12777768298167,
+              133.79590458133976
+            ],
+            [
+              139.3011339011441,
+              197.0966718039385
+            ],
+            [
+              98.88987522053601,
+              148.33958072659536
+            ],
+            [
+              38.12280409574363,
+              166.16335208368434
+            ],
+            [
+              72.00578758405713,
+              112.66319144461677
+            ],
+            [
+              36.27631601399074,
+              60.37812072840585
+            ],
+            [
+              97.62841013062805,
+              76.07029412722596
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 220
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Three discs r=45/52/38 overlapping at other angles",
+    "height": 260,
+    "id": "h-discs-three",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          200,
+          30,
+          120,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              110.0,
+              120.0
+            ],
+            "r": 45.0
+          }
+        }
+      },
+      {
+        "color": [
+          30,
+          160,
+          170,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              175.0,
+              105.0
+            ],
+            "r": 52.0
+          }
+        }
+      },
+      {
+        "color": [
+          240,
+          140,
+          20,
+          255
+        ],
+        "shape": {
+          "Circle": {
+            "c": [
+              150.0,
+              170.0
+            ],
+            "r": 38.0
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 300
+  },
+  {
+    "background": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "description": "Thin ring r 40–44 on transparency",
+    "height": 128,
+    "id": "h-ring-thin-alpha",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          120,
+          40,
+          160,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Circle": {
+                "c": [
+                  63.7,
+                  64.2
+                ],
+                "r": 44.0
+              }
+            },
+            {
+              "Circle": {
+                "c": [
+                  63.7,
+                  64.2
+                ],
+                "r": 40.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 128
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Disc r=70 with two circular holes r=15 and r=22",
+    "height": 200,
+    "id": "h-compound-two-holes",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          60,
+          60,
+          60,
+          255
+        ],
+        "shape": {
+          "Diff": [
+            {
+              "Diff": [
+                {
+                  "Circle": {
+                    "c": [
+                      100.0,
+                      100.0
+                    ],
+                    "r": 70.0
+                  }
+                },
+                {
+                  "Circle": {
+                    "c": [
+                      70.0,
+                      85.0
+                    ],
+                    "r": 15.0
+                  }
+                }
+              ]
+            },
+            {
+              "Circle": {
+                "c": [
+                  125.0,
+                  120.0
+                ],
+                "r": 22.0
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "color"
+    },
+    "width": 200
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Rectangle 120×50 rotated 37°",
+    "height": 200,
+    "id": "h-rect-rot37",
+    "ideal": true,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polygon": [
+            [
+              67.42724497596363,
+              43.52521085969477
+            ],
+            [
+              163.26350618163877,
+              115.74301363794058
+            ],
+            [
+              133.17275502403635,
+              155.67478914030522
+            ],
+            [
+              37.33649381836122,
+              83.45698636205941
+            ]
+          ]
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 200
+  },
+  {
+    "background": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "description": "Held-out negative control: wobbly circle r=50",
+    "height": 200,
+    "id": "h-hand-drawn",
+    "ideal": false,
+    "layers": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
+        "shape": {
+          "Polar": {
+            "c": [
+              100.0,
+              100.0
+            ],
+            "r": 50.0,
+            "terms": [
+              [
+                2.0,
+                0.025,
+                1.7
+              ],
+              [
+                4.0,
+                0.02,
+                0.4
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "set": "heldout",
+    "settings": {
+      "mode": "bw"
+    },
+    "width": 200
+  }
+]

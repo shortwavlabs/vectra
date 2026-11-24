@@ -1,0 +1,14 @@
+[package]
+name = "wasm-check-v10"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[workspace]
+[lib]
+crate-type = ["cdylib"]
+[dependencies]
+vtracer = "=1.0.0-alpha.4"
+wasm-bindgen = "=0.2.130"
+[profile.release]
+opt-level = "s"
+lto = true

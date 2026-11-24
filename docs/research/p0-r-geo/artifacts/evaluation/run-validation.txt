@@ -1,0 +1,1057 @@
+   Compiling vector-engine v0.0.0 (/Users/shortwavlabs/Workspace/shortwavlabs/vectra/crates/vector-engine)
+    Finished `release` profile [optimized] target(s) in 13.52s
+     Running `target/release/examples/geo_eval docs/research/p0-r-geo/artifacts/evaluation rejected,validation,negative all`
+05-color-transparent-hole  spline               contour RMS 0.315; 7 tangent breaks (max 12.8°); circle r=20 radial RMS 0.315; circle r=20 curvature RMS 0.269; circle r=20 curvature max 0.669; loop area +0.0277
+05-color-transparent-hole  D1-len2              contour RMS 0.379; 7 tangent breaks (max 10.1°); circle r=20 radial RMS 0.378; circle r=20 curvature RMS 0.179; circle r=20 curvature max 0.552; loop area +0.0359
+05-color-transparent-hole  D1-len8              6 tangent breaks (max 23.2°); circle r=20 curvature RMS 0.400; circle r=20 curvature max 0.998
+05-color-transparent-hole  D1-splice20          contour RMS 0.373; 15 tangent breaks (max 12.8°); circle r=20 radial RMS 0.373; circle r=20 curvature RMS 0.505; circle r=20 curvature max 1.000; loop area +0.0334
+05-color-transparent-hole  D1-splice90          contour RMS 0.303; 4 tangent breaks (max 5.1°); circle r=20 radial RMS 0.303; loop area +0.0281
+05-color-transparent-hole  D1-len2-splice20     contour RMS 0.414; 15 tangent breaks (max 10.1°); circle r=20 radial RMS 0.414; circle r=20 curvature RMS 0.328; circle r=20 curvature max 0.650; loop area +0.0388
+05-color-transparent-hole  D1-len8-splice90     4 tangent breaks (max 14.0°); circle r=20 curvature RMS 0.284; circle r=20 curvature max 0.631
+05-color-transparent-hole  D1-corner30          contour RMS 0.315; 7 tangent breaks (max 12.8°); circle r=20 radial RMS 0.315; circle r=20 curvature RMS 0.269; circle r=20 curvature max 0.669; loop area +0.0277
+05-color-transparent-hole  D1-corner90          contour RMS 0.315; 7 tangent breaks (max 12.8°); circle r=20 radial RMS 0.315; circle r=20 curvature RMS 0.269; circle r=20 curvature max 0.669; loop area +0.0277
+05-color-transparent-hole  D1-polygon           contour RMS 0.313; 20 tangent breaks (max 23.2°); circle r=20 radial RMS 0.313; circle r=20 curvature RMS 1.000; circle r=20 curvature max 1.000; loop area +0.0250; anchors 24 > 21
+05-color-transparent-hole  D1g-lattice-G1       contour RMS 0.259; 34 tangent breaks (max 33.9°); circle r=20 radial RMS 0.259; circle r=20 curvature RMS 21.515; circle r=20 curvature max 267.587; anchors 63 > 21
+05-color-transparent-hole  D2-linear            PASS
+05-color-transparent-hole  D2-area              PASS
+05-color-transparent-hole  D3-lattice-arcs      contour RMS 0.259; 34 tangent breaks (max 33.9°); circle r=20 radial RMS 0.259; circle r=20 curvature RMS 21.515; circle r=20 curvature max 267.587; anchors 63 > 21
+05-color-transparent-hole  D4-area-arcs         PASS
+05-color-transparent-hole  D2-area-sharpen      PASS
+05-color-transparent-hole  D2-area-b1-sharpen   PASS
+05-color-transparent-hole  D2-area-b2-sharpen   PASS
+05-color-transparent-hole  D2-area-t1-sharpen   PASS
+05-color-transparent-hole  D2-area-t2-sharpen   PASS
+05-color-transparent-hole  D2-area-t4-sharpen   PASS
+05-color-transparent-hole  D2-linear-t2-sharpen PASS
+05-color-transparent-hole  D4-area-t2-sharpen-arcs PASS
+05-color-transparent-hole  selected             PASS
+05-color-transparent-hole  selected-no-arcs     PASS
+05-color-transparent-hole  D2-area-tol0.1       PASS
+05-color-transparent-hole  D2-area-tol0.3       PASS
+05-color-transparent-hole  D2-area-scale1.5     PASS
+05-color-transparent-hole  D2-area-scale3       PASS
+04-color-discs             spline               contour RMS 0.502; contour max 1.048; 19 tangent breaks (max 10.3°); circle r=60 radial RMS 0.467; circle r=60 curvature RMS 0.287; circle r=60 curvature max 1.122; circle r=60 centre 0.595; circle r=60 radial RMS 0.488; circle r=60 radial max 0.875; circle r=60 curvature RMS 0.492; circle r=60 curvature max 6.322; circle r=60 centre 0.598; circle r=60 radial RMS 0.530; circle r=60 radial max 1.048; circle r=60 curvature RMS 0.445; circle r=60 curvature max 6.806
+04-color-discs             D1-len2              topology; contour RMS 0.454; contour max 1.089; 3 tangent breaks (max 6.9°); circle r=60 radial RMS 0.500; circle r=60 curvature RMS 0.498; circle r=60 curvature max 10.718; circle r=60 radial RMS 0.372; circle r=60 radial max 0.882; circle r=60 curvature RMS 0.528; circle r=60 curvature max 7.401; circle r=60 centre 0.559; circle r=60 radial RMS 0.476; circle r=60 radial max 1.089; circle r=60 curvature RMS 0.455; circle r=60 curvature max 6.994
+04-color-discs             D1-len8              contour RMS 0.419; contour max 1.097; 21 tangent breaks (max 13.2°); circle r=60 radial RMS 0.372; circle r=60 radial max 0.859; circle r=60 curvature RMS 0.516; circle r=60 curvature max 7.921; circle r=60 centre 0.508; circle r=60 radial RMS 0.361; circle r=60 radial max 0.828; circle r=60 curvature RMS 0.344; circle r=60 curvature max 3.889; circle r=60 centre 0.552; circle r=60 radial RMS 0.476; circle r=60 radial max 1.097; circle r=60 curvature RMS 0.380; circle r=60 curvature max 3.894
+04-color-discs             D1-splice20          contour RMS 0.497; contour max 1.038; 28 tangent breaks (max 9.9°); circle r=60 radial RMS 0.499; circle r=60 radial max 0.893; circle r=60 curvature RMS 0.327; circle r=60 curvature max 1.122; circle r=60 centre 0.561; circle r=60 radial RMS 0.487; circle r=60 radial max 0.914; circle r=60 curvature RMS 0.559; circle r=60 curvature max 5.320; circle r=60 centre 0.600; circle r=60 radial RMS 0.503; circle r=60 radial max 1.038; circle r=60 curvature RMS 0.428; circle r=60 curvature max 1.799
+04-color-discs             D1-splice90          contour RMS 0.487; contour max 1.147; 8 tangent breaks (max 6.3°); circle r=60 radius +0.541; circle r=60 radial RMS 0.445; circle r=60 curvature RMS 0.534; circle r=60 curvature max 5.550; circle r=60 radial RMS 0.486; circle r=60 radial max 0.825; circle r=60 curvature RMS 0.502; circle r=60 curvature max 4.406; circle r=60 centre 0.557; circle r=60 radial RMS 0.507; circle r=60 radial max 1.146; circle r=60 curvature RMS 0.567; circle r=60 curvature max 4.987
+04-color-discs             D1-len2-splice20     topology; contour RMS 0.477; contour max 1.089; 7 tangent breaks (max 3.8°); circle r=60 radial RMS 0.491; circle r=60 radial max 0.841; circle r=60 curvature RMS 0.548; circle r=60 curvature max 10.718; circle r=60 centre 0.536; circle r=60 radial RMS 0.451; circle r=60 radial max 0.851; circle r=60 curvature RMS 0.504; circle r=60 curvature max 4.404; circle r=60 centre 0.579; circle r=60 radial RMS 0.486; circle r=60 radial max 1.089; circle r=60 curvature RMS 0.464; circle r=60 curvature max 2.882; anchors 124 > 110
+04-color-discs             D1-len8-splice90     topology; contour RMS 0.587; contour max 1.573; 11 tangent breaks (max 10.5°); circle r=60 radial RMS 0.279; circle r=60 curvature RMS 0.436; circle r=60 curvature max 4.968; circle r=60 centre 0.819; circle r=60 radial RMS 0.787; circle r=60 radial max 1.573; circle r=60 curvature RMS 0.279; circle r=60 curvature max 2.978; circle r=60 centre 0.579; circle r=60 radial RMS 0.553; circle r=60 radial max 1.246; circle r=60 curvature RMS 0.509; circle r=60 curvature max 4.311
+04-color-discs             D1-corner30          contour RMS 0.513; contour max 0.902; 16 tangent breaks (max 5.3°); circle r=60 radial RMS 0.453; circle r=60 curvature RMS 0.302; circle r=60 curvature max 1.122; circle r=60 centre 0.541; circle r=60 radial RMS 0.475; circle r=60 radial max 0.875; circle r=60 curvature RMS 0.302; circle r=60 curvature max 1.122; circle r=60 centre 0.627; circle r=60 radial RMS 0.565; circle r=60 radial max 0.902; circle r=60 curvature RMS 0.298; circle r=60 curvature max 1.430
+04-color-discs             D1-corner90          contour RMS 0.502; contour max 1.048; 19 tangent breaks (max 10.3°); circle r=60 radial RMS 0.467; circle r=60 curvature RMS 0.287; circle r=60 curvature max 1.122; circle r=60 centre 0.595; circle r=60 radial RMS 0.488; circle r=60 radial max 0.875; circle r=60 curvature RMS 0.492; circle r=60 curvature max 6.322; circle r=60 centre 0.598; circle r=60 radial RMS 0.530; circle r=60 radial max 1.048; circle r=60 curvature RMS 0.445; circle r=60 curvature max 6.806
+04-color-discs             D1-polygon           contour RMS 0.444; contour max 1.000; 58 tangent breaks (max 17.1°); circle r=60 radial RMS 0.352; circle r=60 radial max 0.828; circle r=60 curvature RMS 1.000; circle r=60 curvature max 1.000; circle r=60 radial RMS 0.399; circle r=60 radial max 0.835; circle r=60 curvature RMS 1.000; circle r=60 curvature max 1.000; circle r=60 centre 0.559; circle r=60 radial RMS 0.511; circle r=60 radial max 1.000; circle r=60 curvature RMS 1.000; circle r=60 curvature max 1.000
+04-color-discs             D1g-lattice-G1       topology; contour RMS 0.281; contour max 0.774; 225 tangent breaks (max 45.0°); circle r=60 radial RMS 0.278; circle r=60 radial max 0.774; circle r=60 curvature RMS 34.646; circle r=60 curvature max 165.576; circle r=60 radial RMS 0.281; circle r=60 radial max 0.765; circle r=60 curvature RMS 34.958; circle r=60 curvature max 209.929; circle r=60 radial RMS 0.282; circle r=60 radial max 0.765; circle r=60 curvature RMS 32.573; circle r=60 curvature max 114.290; anchors 586 > 110
+04-color-discs             D2-linear            circle r=60 curvature RMS 5.614; circle r=60 curvature max 82.463; circle r=60 curvature RMS 6.194; circle r=60 curvature max 85.307; circle r=60 curvature RMS 5.340; circle r=60 curvature max 82.463; anchors 121 > 110
+04-color-discs             D2-area              circle r=60 curvature RMS 1.224; circle r=60 curvature max 24.187; circle r=60 curvature RMS 3.526; circle r=60 curvature max 70.585; circle r=60 curvature RMS 3.723; circle r=60 curvature max 70.585
+04-color-discs             D3-lattice-arcs      topology; contour RMS 0.281; contour max 0.774; 225 tangent breaks (max 45.0°); circle r=60 radial RMS 0.278; circle r=60 radial max 0.774; circle r=60 curvature RMS 34.646; circle r=60 curvature max 165.576; circle r=60 radial RMS 0.281; circle r=60 radial max 0.765; circle r=60 curvature RMS 34.958; circle r=60 curvature max 209.929; circle r=60 radial RMS 0.282; circle r=60 radial max 0.765; circle r=60 curvature RMS 32.573; circle r=60 curvature max 114.290; anchors 586 > 110
+04-color-discs             D4-area-arcs         topology; circle r=60 curvature RMS 1.097; circle r=60 curvature max 24.187; circle r=60 curvature RMS 3.526; circle r=60 curvature max 70.585; circle r=60 curvature RMS 3.723; circle r=60 curvature max 70.585
+04-color-discs             D2-area-sharpen      circle r=60 curvature RMS 1.306; circle r=60 curvature max 24.187; circle r=60 curvature RMS 4.526; circle r=60 curvature max 70.585; circle r=60 curvature RMS 2.664; circle r=60 curvature max 61.404
+04-color-discs             D2-area-b1-sharpen   circle r=60 curvature RMS 0.595; circle r=60 curvature max 5.895; circle r=60 curvature RMS 0.484; circle r=60 curvature max 5.895; circle r=60 curvature RMS 0.727; circle r=60 curvature max 12.046
+04-color-discs             D2-area-b2-sharpen   circle r=60 curvature RMS 0.463; circle r=60 curvature max 4.316; circle r=60 curvature RMS 0.277; circle r=60 curvature max 3.773; circle r=60 curvature RMS 0.275; circle r=60 curvature max 6.876
+04-color-discs             D2-area-t1-sharpen   circle r=60 curvature RMS 1.328; circle r=60 curvature max 18.254; circle r=60 curvature RMS 1.838; circle r=60 curvature max 19.863; circle r=60 curvature RMS 1.778; circle r=60 curvature max 21.729
+04-color-discs             D2-area-t2-sharpen   circle r=60 curvature RMS 1.035; circle r=60 curvature max 16.116; circle r=60 curvature RMS 1.444; circle r=60 curvature max 19.851; circle r=60 curvature RMS 1.188; circle r=60 curvature max 16.116
+04-color-discs             D2-area-t4-sharpen   circle r=60 curvature RMS 0.704; circle r=60 curvature max 7.965; circle r=60 curvature RMS 0.682; circle r=60 curvature max 7.965; circle r=60 curvature RMS 0.900; circle r=60 curvature max 12.140
+04-color-discs             D2-linear-t2-sharpen circle r=60 curvature RMS 0.521; circle r=60 curvature max 5.426; circle r=60 curvature RMS 0.516; circle r=60 curvature max 5.605; circle r=60 curvature RMS 0.617; circle r=60 curvature max 8.685
+04-color-discs             D4-area-t2-sharpen-arcs circle r=60 curvature RMS 1.096; circle r=60 curvature max 16.116; circle r=60 curvature RMS 0.686; circle r=60 curvature max 14.541
+04-color-discs             selected             circle r=60 curvature RMS 1.096; circle r=60 curvature max 16.116; circle r=60 curvature RMS 0.686; circle r=60 curvature max 14.541
+04-color-discs             selected-no-arcs     circle r=60 curvature RMS 1.035; circle r=60 curvature max 16.116; circle r=60 curvature RMS 1.444; circle r=60 curvature max 19.851; circle r=60 curvature RMS 1.188; circle r=60 curvature max 16.116
+04-color-discs             D2-area-tol0.1       16 tangent breaks (max 8.0°); circle r=60 curvature RMS 4.687; circle r=60 curvature max 70.585; circle r=60 curvature RMS 5.082; circle r=60 curvature max 70.585; circle r=60 curvature RMS 4.700; circle r=60 curvature max 70.585; anchors 193 > 110
+04-color-discs             D2-area-tol0.3       circle r=60 curvature RMS 0.772; circle r=60 curvature max 10.116; circle r=60 curvature RMS 0.735; circle r=60 curvature max 10.116; circle r=60 curvature RMS 0.678; circle r=60 curvature max 9.278
+04-color-discs             D2-area-scale1.5     circle r=60 curvature RMS 3.879; circle r=60 curvature max 64.279; circle r=60 curvature RMS 4.161; circle r=60 curvature max 64.279; circle r=60 curvature RMS 4.072; circle r=60 curvature max 64.279
+04-color-discs             D2-area-scale3       topology; circle r=60 curvature RMS 3.667; circle r=60 curvature max 70.140; circle r=60 curvature RMS 3.623; circle r=60 curvature max 70.585; circle r=60 curvature RMS 3.888; circle r=60 curvature max 70.585
+circle-r40-frac            spline               contour RMS 0.325; 6 tangent breaks (max 6.0°); circle r=40 radial RMS 0.325; loop area +0.0154
+circle-r40-frac            D1-len2              contour RMS 0.416; 5 tangent breaks (max 3.1°); circle r=40 radial RMS 0.416; circle r=40 curvature max 1.000; loop area +0.0198
+circle-r40-frac            D1-len8              7 tangent breaks (max 9.8°); circle r=40 curvature RMS 0.208; circle r=40 curvature max 0.554
+circle-r40-frac            D1-splice20          contour RMS 0.385; 15 tangent breaks (max 7.6°); circle r=40 radial RMS 0.384; circle r=40 curvature RMS 0.263; circle r=40 curvature max 0.648; loop area +0.0182
+circle-r40-frac            D1-splice90          contour RMS 0.393; contour max 0.829; 3 tangent breaks (max 6.0°); circle r=40 radial RMS 0.393; circle r=40 radial max 0.829
+circle-r40-frac            D1-len2-splice20     contour RMS 0.435; 11 tangent breaks (max 3.1°); circle r=40 radial RMS 0.434; circle r=40 curvature RMS 0.230; circle r=40 curvature max 1.000; loop area +0.0209; IoU 0.9796; anchors 20 > 16
+circle-r40-frac            D1-len8-splice90     contour RMS 0.425; contour max 0.771; 3 tangent breaks (max 10.2°); circle r=40 radial RMS 0.425; circle r=40 radial max 0.771
+circle-r40-frac            D1-corner30          contour RMS 0.325; 6 tangent breaks (max 6.0°); circle r=40 radial RMS 0.325; loop area +0.0154
+circle-r40-frac            D1-corner90          contour RMS 0.325; 6 tangent breaks (max 6.0°); circle r=40 radial RMS 0.325; loop area +0.0154
+circle-r40-frac            D1-polygon           contour RMS 0.253; 21 tangent breaks (max 22.6°); circle r=40 radial RMS 0.252; circle r=40 curvature RMS 1.000; circle r=40 curvature max 1.000; anchors 21 > 16
+circle-r40-frac            D1g-lattice-G1       contour RMS 0.258; 70 tangent breaks (max 34.3°); circle r=40 radial RMS 0.257; circle r=40 curvature RMS 58.164; circle r=40 curvature max 2176.237; anchors 119 > 16
+circle-r40-frac            D2-linear            circle r=40 curvature RMS 0.268; circle r=40 curvature max 1.600
+circle-r40-frac            D2-area              PASS
+circle-r40-frac            D3-lattice-arcs      contour RMS 0.258; 70 tangent breaks (max 34.3°); circle r=40 radial RMS 0.257; circle r=40 curvature RMS 58.164; circle r=40 curvature max 2176.237; anchors 119 > 16
+circle-r40-frac            D4-area-arcs         PASS
+circle-r40-frac            D2-area-sharpen      PASS
+circle-r40-frac            D2-area-b1-sharpen   PASS
+circle-r40-frac            D2-area-b2-sharpen   PASS
+circle-r40-frac            D2-area-t1-sharpen   PASS
+circle-r40-frac            D2-area-t2-sharpen   PASS
+circle-r40-frac            D2-area-t4-sharpen   PASS
+circle-r40-frac            D2-linear-t2-sharpen circle r=40 curvature RMS 0.220; circle r=40 curvature max 1.435
+circle-r40-frac            D4-area-t2-sharpen-arcs PASS
+circle-r40-frac            selected             PASS
+circle-r40-frac            selected-no-arcs     PASS
+circle-r40-frac            D2-area-tol0.1       PASS
+circle-r40-frac            D2-area-tol0.3       PASS
+circle-r40-frac            D2-area-scale1.5     PASS
+circle-r40-frac            D2-area-scale3       PASS
+circle-r100                spline               contour RMS 0.330; contour max 0.788; 4 tangent breaks (max 2.4°); circle r=100 radial RMS 0.330; circle r=100 radial max 0.788
+circle-r100                D1-len2              contour RMS 0.539; contour max 0.803; circle r=100 radial RMS 0.539; circle r=100 radial max 0.803; circle r=100 curvature RMS 0.338; circle r=100 curvature max 6.765; anchors 21 > 16
+circle-r100                D1-len8              contour RMS 0.279; 6 tangent breaks (max 4.7°); circle r=100 radial RMS 0.279; circle r=100 curvature max 0.515
+circle-r100                D1-splice20          contour RMS 0.457; contour max 0.793; 6 tangent breaks (max 2.5°); circle r=100 radial RMS 0.457; circle r=100 radial max 0.793; circle r=100 curvature RMS 0.247; circle r=100 curvature max 0.912; anchors 18 > 16
+circle-r100                D1-splice90          contour RMS 1.241; contour max 2.734; 2 tangent breaks (max 2.4°); circle r=100 centre 0.810; circle r=100 radial RMS 1.241; circle r=100 radial max 2.734; loop axes/centre 0.743/+0.603/-1.176
+circle-r100                D1-len2-splice20     contour RMS 0.456; contour max 0.793; circle r=100 radial RMS 0.456; circle r=100 radial max 0.793; circle r=100 curvature RMS 0.403; circle r=100 curvature max 6.765; anchors 29 > 16
+circle-r100                D1-len8-splice90     contour RMS 1.721; contour max 3.746; 3 tangent breaks (max 4.6°); circle r=100 centre 1.363; circle r=100 radius -0.524; circle r=100 radial RMS 1.721; circle r=100 radial max 3.746; loop axes/centre 1.238/+0.855/-1.846; loop area -0.0104; IoU 0.9748
+circle-r100                D1-corner30          contour RMS 0.330; contour max 0.788; 4 tangent breaks (max 2.4°); circle r=100 radial RMS 0.330; circle r=100 radial max 0.788
+circle-r100                D1-corner90          contour RMS 0.330; contour max 0.788; 4 tangent breaks (max 2.4°); circle r=100 radial RMS 0.330; circle r=100 radial max 0.788
+circle-r100                D1-polygon           contour RMS 0.297; 36 tangent breaks (max 13.2°); circle r=100 radial RMS 0.296; circle r=100 curvature RMS 1.000; circle r=100 curvature max 1.000; anchors 36 > 16
+circle-r100                D1g-lattice-G1       contour RMS 0.263; 178 tangent breaks (max 45.0°); circle r=100 radial RMS 0.263; circle r=100 curvature RMS 74.451; circle r=100 curvature max 2738.292; anchors 296 > 16
+circle-r100                D2-linear            circle r=100 curvature RMS 0.476; circle r=100 curvature max 9.333; anchors 21 > 16
+circle-r100                D2-area              PASS
+circle-r100                D3-lattice-arcs      contour RMS 0.263; 178 tangent breaks (max 45.0°); circle r=100 radial RMS 0.263; circle r=100 curvature RMS 74.451; circle r=100 curvature max 2738.292; anchors 296 > 16
+circle-r100                D4-area-arcs         PASS
+circle-r100                D2-area-sharpen      PASS
+circle-r100                D2-area-b1-sharpen   PASS
+circle-r100                D2-area-b2-sharpen   PASS
+circle-r100                D2-area-t1-sharpen   PASS
+circle-r100                D2-area-t2-sharpen   PASS
+circle-r100                D2-area-t4-sharpen   PASS
+circle-r100                D2-linear-t2-sharpen circle r=100 curvature RMS 0.232; circle r=100 curvature max 1.296; anchors 17 > 16
+circle-r100                D4-area-t2-sharpen-arcs PASS
+circle-r100                selected             PASS
+circle-r100                selected-no-arcs     PASS
+circle-r100                D2-area-tol0.1       PASS
+circle-r100                D2-area-tol0.3       PASS
+circle-r100                D2-area-scale1.5     PASS
+circle-r100                D2-area-scale3       PASS
+circle-r8                  spline               contour RMS 0.300; 6 tangent breaks (max 29.0°); circle r=8 radial RMS 0.300; circle r=8 curvature RMS 0.509; circle r=8 curvature max 1.000; loop area +0.0638
+circle-r8                  D1-len2              contour RMS 0.385; 7 tangent breaks (max 25.3°); circle r=8 radial RMS 0.385; circle r=8 curvature RMS 0.366; circle r=8 curvature max 0.767; loop area +0.0892
+circle-r8                  D1-len8              6 tangent breaks (max 48.1°); circle r=8 curvature RMS 0.791; circle r=8 curvature max 1.000
+circle-r8                  D1-splice20          contour RMS 0.335; contour max 0.754; 11 tangent breaks (max 29.0°); circle r=8 radial RMS 0.335; circle r=8 radial max 0.754; circle r=8 curvature RMS 0.765; circle r=8 curvature max 1.000; loop area +0.0766
+circle-r8                  D1-splice90          3 tangent breaks (max 29.0°); circle r=8 curvature RMS 0.330; circle r=8 curvature max 0.803; loop area +0.0396
+circle-r8                  D1-len2-splice20     contour RMS 0.408; contour max 0.754; 14 tangent breaks (max 25.6°); circle r=8 radial RMS 0.408; circle r=8 radial max 0.754; circle r=8 curvature RMS 0.592; circle r=8 curvature max 1.000; loop area +0.0943
+circle-r8                  D1-len8-splice90     3 tangent breaks (max 48.1°); circle r=8 curvature RMS 0.514; circle r=8 curvature max 0.948
+circle-r8                  D1-corner30          6 tangent breaks (max 48.1°); circle r=8 curvature RMS 0.782; circle r=8 curvature max 1.000
+circle-r8                  D1-corner90          contour RMS 0.300; 6 tangent breaks (max 29.0°); circle r=8 radial RMS 0.300; circle r=8 curvature RMS 0.509; circle r=8 curvature max 1.000; loop area +0.0638
+circle-r8                  D1-polygon           9 tangent breaks (max 48.1°); circle r=8 curvature RMS 1.000; circle r=8 curvature max 1.000; loop area +0.0221
+circle-r8                  D1g-lattice-G1       14 tangent breaks (max 34.6°); circle r=8 curvature RMS 9.520; circle r=8 curvature max 182.236; loop area +0.0123; anchors 24 > 15
+circle-r8                  D2-linear            PASS
+circle-r8                  D2-area              PASS
+circle-r8                  D3-lattice-arcs      14 tangent breaks (max 34.6°); circle r=8 curvature RMS 9.520; circle r=8 curvature max 182.236; loop area +0.0123; anchors 24 > 15
+circle-r8                  D4-area-arcs         PASS
+circle-r8                  D2-area-sharpen      PASS
+circle-r8                  D2-area-b1-sharpen   loop area -0.0131
+circle-r8                  D2-area-b2-sharpen   loop area -0.0187
+circle-r8                  D2-area-t1-sharpen   PASS
+circle-r8                  D2-area-t2-sharpen   PASS
+circle-r8                  D2-area-t4-sharpen   PASS
+circle-r8                  D2-linear-t2-sharpen PASS
+circle-r8                  D4-area-t2-sharpen-arcs PASS
+circle-r8                  selected             PASS
+circle-r8                  selected-no-arcs     PASS
+circle-r8                  D2-area-tol0.1       PASS
+circle-r8                  D2-area-tol0.3       PASS
+circle-r8                  D2-area-scale1.5     PASS
+circle-r8                  D2-area-scale3       PASS
+circle-r3                  spline               contour RMS 0.414; 5 tangent breaks (max 90.0°); circle r=3 radial RMS 0.414
+circle-r3                  D1-len2              contour RMS 0.418; 5 tangent breaks (max 90.0°); circle r=3 radial RMS 0.417
+circle-r3                  D1-len8              contour RMS 0.419; 5 tangent breaks (max 92.7°); circle r=3 radial RMS 0.419
+circle-r3                  D1-splice20          contour RMS 0.414; 5 tangent breaks (max 90.0°); circle r=3 radial RMS 0.414
+circle-r3                  D1-splice90          contour RMS 0.351; 3 tangent breaks (max 90.0°); circle r=3 radial RMS 0.351
+circle-r3                  D1-len2-splice20     contour RMS 0.420; 6 tangent breaks (max 90.0°); circle r=3 radial RMS 0.420
+circle-r3                  D1-len8-splice90     contour RMS 0.395; 3 tangent breaks (max 92.7°); circle r=3 radial RMS 0.395
+circle-r3                  D1-corner30          contour RMS 0.419; 5 tangent breaks (max 92.7°); circle r=3 radial RMS 0.419
+circle-r3                  D1-corner90          contour RMS 0.405; 5 tangent breaks (max 87.8°); circle r=3 radial RMS 0.405
+circle-r3                  D1-polygon           contour RMS 0.419; 5 tangent breaks (max 92.7°); circle r=3 radial RMS 0.419
+circle-r3                  D1g-lattice-G1       9 tangent breaks (max 77.0°)
+circle-r3                  D2-linear            PASS
+circle-r3                  D2-area              PASS
+circle-r3                  D3-lattice-arcs      9 tangent breaks (max 77.0°)
+circle-r3                  D4-area-arcs         PASS
+circle-r3                  D2-area-sharpen      PASS
+circle-r3                  D2-area-b1-sharpen   PASS
+circle-r3                  D2-area-b2-sharpen   PASS
+circle-r3                  D2-area-t1-sharpen   PASS
+circle-r3                  D2-area-t2-sharpen   PASS
+circle-r3                  D2-area-t4-sharpen   PASS
+circle-r3                  D2-linear-t2-sharpen PASS
+circle-r3                  D4-area-t2-sharpen-arcs PASS
+circle-r3                  selected             PASS
+circle-r3                  selected-no-arcs     PASS
+circle-r3                  D2-area-tol0.1       PASS
+circle-r3                  D2-area-tol0.3       PASS
+circle-r3                  D2-area-scale1.5     PASS
+circle-r3                  D2-area-scale3       PASS
+circle-hard-r40            spline               7 tangent breaks (max 6.8°)
+circle-hard-r40            D1-len2              contour RMS 0.432; 5 tangent breaks (max 2.9°); circle r=40 radial RMS 0.432; IoU 0.9799
+circle-hard-r40            D1-len8              7 tangent breaks (max 10.9°)
+circle-hard-r40            D1-splice20          contour RMS 0.417; 15 tangent breaks (max 7.0°); circle r=40 radial RMS 0.416
+circle-hard-r40            D1-splice90          contour RMS 0.406; contour max 0.854; 3 tangent breaks (max 7.0°); circle r=40 radial RMS 0.406; circle r=40 radial max 0.854
+circle-hard-r40            D1-len2-splice20     contour RMS 0.468; 13 tangent breaks (max 3.9°); circle r=40 radial RMS 0.468; IoU 0.9780; anchors 20 > 16
+circle-hard-r40            D1-len8-splice90     contour RMS 0.405; 3 tangent breaks (max 9.8°); circle r=40 radial RMS 0.405
+circle-hard-r40            D1-corner30          7 tangent breaks (max 6.8°)
+circle-hard-r40            D1-corner90          7 tangent breaks (max 6.8°)
+circle-hard-r40            D1-polygon           23 tangent breaks (max 20.3°); anchors 23 > 16
+circle-hard-r40            D1g-lattice-G1       71 tangent breaks (max 45.0°); anchors 121 > 16
+circle-hard-r40            D2-linear            71 tangent breaks (max 45.0°); anchors 121 > 16
+circle-hard-r40            D2-area              103 tangent breaks (max 45.0°); anchors 121 > 16
+circle-hard-r40            D3-lattice-arcs      71 tangent breaks (max 45.0°); anchors 121 > 16
+circle-hard-r40            D4-area-arcs         103 tangent breaks (max 45.0°); anchors 121 > 16
+circle-hard-r40            D2-area-sharpen      103 tangent breaks (max 45.0°); anchors 121 > 16
+circle-hard-r40            D2-area-b1-sharpen   6 tangent breaks (max 14.8°); anchors 79 > 16
+circle-hard-r40            D2-area-b2-sharpen   anchors 56 > 16
+circle-hard-r40            D2-area-t1-sharpen   42 tangent breaks (max 35.8°); anchors 96 > 16
+circle-hard-r40            D2-area-t2-sharpen   10 tangent breaks (max 54.7°); anchors 81 > 16
+circle-hard-r40            D2-area-t4-sharpen   2 tangent breaks (max 36.0°); anchors 73 > 16
+circle-hard-r40            D2-linear-t2-sharpen 4 tangent breaks (max 6.8°); anchors 81 > 16
+circle-hard-r40            D4-area-t2-sharpen-arcs 10 tangent breaks (max 54.7°); anchors 81 > 16
+circle-hard-r40            selected             10 tangent breaks (max 54.7°); anchors 81 > 16
+circle-hard-r40            selected-no-arcs     10 tangent breaks (max 54.7°); anchors 81 > 16
+circle-hard-r40            D2-area-tol0.1       97 tangent breaks (max 45.0°); anchors 127 > 16
+circle-hard-r40            D2-area-tol0.3       81 tangent breaks (max 45.0°); anchors 108 > 16
+circle-hard-r40            D2-area-scale1.5     89 tangent breaks (max 45.0°); anchors 117 > 16
+circle-hard-r40            D2-area-scale3       97 tangent breaks (max 45.0°); anchors 121 > 16
+hole-alpha-r30             spline               contour RMS 0.352; 9 tangent breaks (max 14.1°); circle r=30 radial RMS 0.352; circle r=30 curvature RMS 0.229; circle r=30 curvature max 0.999; loop area +0.0216
+hole-alpha-r30             D1-len2              contour RMS 0.419; 9 tangent breaks (max 6.8°); circle r=30 radial RMS 0.419; circle r=30 curvature RMS 0.245; circle r=30 curvature max 1.228; loop area +0.0268
+hole-alpha-r30             D1-len8              6 tangent breaks (max 18.3°); circle r=30 curvature RMS 0.283; circle r=30 curvature max 0.692
+hole-alpha-r30             D1-splice20          contour RMS 0.380; 16 tangent breaks (max 14.0°); circle r=30 radial RMS 0.380; circle r=30 curvature RMS 0.381; circle r=30 curvature max 0.999; loop area +0.0241
+hole-alpha-r30             D1-splice90          contour RMS 0.254; 5 tangent breaks (max 14.1°); circle r=30 radial RMS 0.253; circle r=30 curvature RMS 0.174; circle r=30 curvature max 0.999; loop area +0.0104
+hole-alpha-r30             D1-len2-splice20     contour RMS 0.436; 15 tangent breaks (max 6.8°); circle r=30 radial RMS 0.436; circle r=30 curvature RMS 0.368; circle r=30 curvature max 1.378; loop area +0.0280; anchors 27 > 23
+hole-alpha-r30             D1-len8-splice90     contour RMS 0.366; 3 tangent breaks (max 17.6°); circle r=30 radial RMS 0.365; circle r=30 curvature RMS 0.171; circle r=30 curvature max 0.552
+hole-alpha-r30             D1-corner30          contour RMS 0.352; 9 tangent breaks (max 14.1°); circle r=30 radial RMS 0.352; circle r=30 curvature RMS 0.229; circle r=30 curvature max 0.999; loop area +0.0216
+hole-alpha-r30             D1-corner90          contour RMS 0.352; 9 tangent breaks (max 14.1°); circle r=30 radial RMS 0.352; circle r=30 curvature RMS 0.229; circle r=30 curvature max 0.999; loop area +0.0216
+hole-alpha-r30             D1-polygon           contour RMS 0.269; 20 tangent breaks (max 26.6°); circle r=30 radial RMS 0.268; circle r=30 curvature RMS 1.000; circle r=30 curvature max 1.000; loop area +0.0113; anchors 24 > 23
+hole-alpha-r30             D1g-lattice-G1       contour RMS 0.257; 52 tangent breaks (max 34.6°); circle r=30 radial RMS 0.256; circle r=30 curvature RMS 34.965; circle r=30 curvature max 1309.878; anchors 96 > 23
+hole-alpha-r30             D2-linear            PASS
+hole-alpha-r30             D2-area              PASS
+hole-alpha-r30             D3-lattice-arcs      contour RMS 0.257; 52 tangent breaks (max 34.6°); circle r=30 radial RMS 0.256; circle r=30 curvature RMS 34.965; circle r=30 curvature max 1309.878; anchors 96 > 23
+hole-alpha-r30             D4-area-arcs         PASS
+hole-alpha-r30             D2-area-sharpen      PASS
+hole-alpha-r30             D2-area-b1-sharpen   PASS
+hole-alpha-r30             D2-area-b2-sharpen   PASS
+hole-alpha-r30             D2-area-t1-sharpen   PASS
+hole-alpha-r30             D2-area-t2-sharpen   PASS
+hole-alpha-r30             D2-area-t4-sharpen   PASS
+hole-alpha-r30             D2-linear-t2-sharpen PASS
+hole-alpha-r30             D4-area-t2-sharpen-arcs PASS
+hole-alpha-r30             selected             PASS
+hole-alpha-r30             selected-no-arcs     PASS
+hole-alpha-r30             D2-area-tol0.1       PASS
+hole-alpha-r30             D2-area-tol0.3       PASS
+hole-alpha-r30             D2-area-scale1.5     PASS
+hole-alpha-r30             D2-area-scale3       PASS
+hole-x0.5                  spline               contour RMS 0.361; 6 tangent breaks (max 18.6°); circle r=10 radial RMS 0.361; circle r=10 curvature RMS 0.359; circle r=10 curvature max 0.841; loop area +0.0689
+hole-x0.5                  D1-len2              contour RMS 0.437; 7 tangent breaks (max 11.2°); circle r=10 radial RMS 0.436; circle r=10 curvature RMS 0.278; circle r=10 curvature max 0.669; loop area +0.0858
+hole-x0.5                  D1-len8              6 tangent breaks (max 32.5°); circle r=10 curvature RMS 0.630; circle r=10 curvature max 1.000; loop area +0.0364
+hole-x0.5                  D1-splice20          contour RMS 0.419; 12 tangent breaks (max 18.4°); circle r=10 radial RMS 0.419; circle r=10 curvature RMS 0.628; circle r=10 curvature max 1.000; loop area +0.0814
+hole-x0.5                  D1-splice90          3 tangent breaks (max 18.6°); circle r=10 curvature RMS 0.269; circle r=10 curvature max 0.725; loop area +0.0346
+hole-x0.5                  D1-len2-splice20     contour RMS 0.449; 14 tangent breaks (max 11.1°); circle r=10 radial RMS 0.449; circle r=10 curvature RMS 0.373; circle r=10 curvature max 0.755; loop area +0.0881
+hole-x0.5                  D1-len8-splice90     3 tangent breaks (max 31.0°); circle r=10 curvature RMS 0.437; circle r=10 curvature max 0.961
+hole-x0.5                  D1-corner30          contour RMS 0.266; 6 tangent breaks (max 28.3°); circle r=10 radial RMS 0.265; circle r=10 curvature RMS 0.588; circle r=10 curvature max 1.000; loop area +0.0445
+hole-x0.5                  D1-corner90          contour RMS 0.361; 6 tangent breaks (max 18.6°); circle r=10 radial RMS 0.361; circle r=10 curvature RMS 0.359; circle r=10 curvature max 0.841; loop area +0.0689
+hole-x0.5                  D1-polygon           contour RMS 0.295; 12 tangent breaks (max 32.5°); circle r=10 radial RMS 0.295; circle r=10 curvature RMS 1.000; circle r=10 curvature max 1.000; loop area +0.0504
+hole-x0.5                  D1g-lattice-G1       30 tangent breaks (max 45.0°); circle r=10 curvature RMS 11.990; circle r=10 curvature max 152.679; loop area +0.0104; anchors 45 > 20
+hole-x0.5                  D2-linear            PASS
+hole-x0.5                  D2-area              PASS
+hole-x0.5                  D3-lattice-arcs      30 tangent breaks (max 45.0°); circle r=10 curvature RMS 11.990; circle r=10 curvature max 152.679; loop area +0.0104; anchors 45 > 20
+hole-x0.5                  D4-area-arcs         PASS
+hole-x0.5                  D2-area-sharpen      PASS
+hole-x0.5                  D2-area-b1-sharpen   PASS
+hole-x0.5                  D2-area-b2-sharpen   loop area -0.0114
+hole-x0.5                  D2-area-t1-sharpen   PASS
+hole-x0.5                  D2-area-t2-sharpen   PASS
+hole-x0.5                  D2-area-t4-sharpen   PASS
+hole-x0.5                  D2-linear-t2-sharpen PASS
+hole-x0.5                  D4-area-t2-sharpen-arcs PASS
+hole-x0.5                  selected             PASS
+hole-x0.5                  selected-no-arcs     PASS
+hole-x0.5                  D2-area-tol0.1       PASS
+hole-x0.5                  D2-area-tol0.3       PASS
+hole-x0.5                  D2-area-scale1.5     PASS
+hole-x0.5                  D2-area-scale3       PASS
+hole-x2                    spline               contour RMS 0.285; 7 tangent breaks (max 6.2°); circle r=40 radial RMS 0.285; loop area +0.0135
+hole-x2                    D1-len2              contour RMS 0.350; 7 tangent breaks (max 3.6°); circle r=40 radial RMS 0.350; loop area +0.0168
+hole-x2                    D1-len8              7 tangent breaks (max 10.4°); circle r=40 curvature RMS 0.212; circle r=40 curvature max 0.594
+hole-x2                    D1-splice20          contour RMS 0.336; 15 tangent breaks (max 5.1°); circle r=40 radial RMS 0.336; circle r=40 curvature RMS 0.265; circle r=40 curvature max 0.780; loop area +0.0165; anchors 22 > 21
+hole-x2                    D1-splice90          contour RMS 0.545; contour max 1.098; 3 tangent breaks (max 3.2°); circle r=40 radial RMS 0.545; circle r=40 radial max 1.098
+hole-x2                    D1-len2-splice20     contour RMS 0.385; 11 tangent breaks (max 3.5°); circle r=40 radial RMS 0.385; circle r=40 curvature RMS 0.229; circle r=40 curvature max 0.765; loop area +0.0190; anchors 23 > 21
+hole-x2                    D1-len8-splice90     4 tangent breaks (max 4.8°)
+hole-x2                    D1-corner30          contour RMS 0.285; 7 tangent breaks (max 6.2°); circle r=40 radial RMS 0.285; loop area +0.0135
+hole-x2                    D1-corner90          contour RMS 0.285; 7 tangent breaks (max 6.2°); circle r=40 radial RMS 0.285; loop area +0.0135
+hole-x2                    D1-polygon           24 tangent breaks (max 17.4°); circle r=40 curvature RMS 1.000; circle r=40 curvature max 1.000; anchors 28 > 21
+hole-x2                    D1g-lattice-G1       82 tangent breaks (max 34.2°); circle r=40 curvature RMS 91.141; circle r=40 curvature max 1886.133; anchors 127 > 21
+hole-x2                    D2-linear            circle r=40 curvature RMS 0.185; circle r=40 curvature max 1.123
+hole-x2                    D2-area              PASS
+hole-x2                    D3-lattice-arcs      82 tangent breaks (max 34.2°); circle r=40 curvature RMS 91.141; circle r=40 curvature max 1886.133; anchors 127 > 21
+hole-x2                    D4-area-arcs         PASS
+hole-x2                    D2-area-sharpen      PASS
+hole-x2                    D2-area-b1-sharpen   PASS
+hole-x2                    D2-area-b2-sharpen   PASS
+hole-x2                    D2-area-t1-sharpen   PASS
+hole-x2                    D2-area-t2-sharpen   PASS
+hole-x2                    D2-area-t4-sharpen   PASS
+hole-x2                    D2-linear-t2-sharpen PASS
+hole-x2                    D4-area-t2-sharpen-arcs PASS
+hole-x2                    selected             PASS
+hole-x2                    selected-no-arcs     PASS
+hole-x2                    D2-area-tol0.1       PASS
+hole-x2                    D2-area-tol0.3       PASS
+hole-x2                    D2-area-scale1.5     PASS
+hole-x2                    D2-area-scale3       PASS
+ring-bw                    spline               contour RMS 0.365; contour max 0.766; 15 tangent breaks (max 6.0°); circle r=62 radial RMS 0.424; circle r=62 radial max 0.766; circle r=62 curvature RMS 0.191; circle r=62 curvature max 0.998; circle r=50 radial RMS 0.275; loop area +0.0117
+ring-bw                    D1-len2              contour RMS 0.437; contour max 0.844; 7 tangent breaks (max 2.5°); circle r=62 radial RMS 0.481; circle r=62 radial max 0.844; circle r=62 curvature RMS 0.208; circle r=62 curvature max 2.066; circle r=50 radial RMS 0.374; circle r=50 curvature max 0.974; loop area +0.0142; loop area +0.0146
+ring-bw                    D1-len8              14 tangent breaks (max 9.7°); circle r=62 curvature RMS 0.179; circle r=50 curvature RMS 0.190; circle r=50 curvature max 0.589
+ring-bw                    D1-splice20          contour RMS 0.394; 30 tangent breaks (max 5.4°); circle r=62 radial RMS 0.433; circle r=62 curvature RMS 0.286; circle r=62 curvature max 0.998; circle r=50 radial RMS 0.339; circle r=50 curvature RMS 0.226; circle r=50 curvature max 0.704; loop area +0.0135; loop area +0.0132; anchors 38 > 32
+ring-bw                    D1-splice90          contour RMS 0.602; contour max 1.500; 7 tangent breaks (max 2.8°); circle r=62 radial RMS 0.479; circle r=62 radial max 0.823; circle r=62 curvature max 0.998; circle r=50 centre 0.563; circle r=50 radial RMS 0.711; circle r=50 radial max 1.500; loop area +0.0120; loop axes/centre 0.491/+0.555/-0.634
+ring-bw                    D1-len2-splice20     contour RMS 0.452; 12 tangent breaks (max 3.2°); circle r=62 radial RMS 0.498; circle r=62 curvature RMS 0.261; circle r=62 curvature max 2.066; circle r=50 radial RMS 0.388; circle r=50 curvature RMS 0.248; circle r=50 curvature max 0.974; loop area +0.0158; loop area +0.0153; anchors 49 > 32
+ring-bw                    D1-len8-splice90     contour RMS 0.517; contour max 1.336; 6 tangent breaks (max 9.7°); circle r=62 radial RMS 0.533; circle r=62 radial max 1.336; circle r=50 radial RMS 0.494; circle r=50 radial max 1.131; loop axes/centre 0.280/+0.122/-0.584
+ring-bw                    D1-corner30          contour RMS 0.365; contour max 0.766; 15 tangent breaks (max 6.0°); circle r=62 radial RMS 0.424; circle r=62 radial max 0.766; circle r=62 curvature RMS 0.191; circle r=62 curvature max 0.998; circle r=50 radial RMS 0.275; loop area +0.0117
+ring-bw                    D1-corner90          contour RMS 0.365; contour max 0.766; 15 tangent breaks (max 6.0°); circle r=62 radial RMS 0.424; circle r=62 radial max 0.766; circle r=62 curvature RMS 0.191; circle r=62 curvature max 0.998; circle r=50 radial RMS 0.275; loop area +0.0117
+ring-bw                    D1-polygon           contour RMS 0.299; 60 tangent breaks (max 15.4°); circle r=62 radial RMS 0.337; circle r=62 curvature RMS 1.000; circle r=62 curvature max 1.000; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; anchors 60 > 32
+ring-bw                    D1g-lattice-G1       contour RMS 0.253; 184 tangent breaks (max 34.2°); circle r=62 radial RMS 0.259; circle r=62 curvature RMS 33.761; circle r=62 curvature max 118.133; circle r=50 curvature RMS 27.154; circle r=50 curvature max 132.502; anchors 318 > 32
+ring-bw                    D2-linear            circle r=62 curvature RMS 0.157; circle r=62 curvature max 0.640; circle r=50 curvature RMS 0.166; circle r=50 curvature max 0.910
+ring-bw                    D2-area              PASS
+ring-bw                    D3-lattice-arcs      contour RMS 0.253; 184 tangent breaks (max 34.2°); circle r=62 radial RMS 0.259; circle r=62 curvature RMS 33.761; circle r=62 curvature max 118.133; circle r=50 curvature RMS 27.154; circle r=50 curvature max 132.502; anchors 318 > 32
+ring-bw                    D4-area-arcs         PASS
+ring-bw                    D2-area-sharpen      PASS
+ring-bw                    D2-area-b1-sharpen   PASS
+ring-bw                    D2-area-b2-sharpen   PASS
+ring-bw                    D2-area-t1-sharpen   PASS
+ring-bw                    D2-area-t2-sharpen   PASS
+ring-bw                    D2-area-t4-sharpen   PASS
+ring-bw                    D2-linear-t2-sharpen circle r=62 curvature max 0.867
+ring-bw                    D4-area-t2-sharpen-arcs PASS
+ring-bw                    selected             PASS
+ring-bw                    selected-no-arcs     PASS
+ring-bw                    D2-area-tol0.1       circle r=62 curvature max 2.588
+ring-bw                    D2-area-tol0.3       PASS
+ring-bw                    D2-area-scale1.5     PASS
+ring-bw                    D2-area-scale3       PASS
+ring-alpha                 spline               contour RMS 0.388; contour max 0.756; 12 tangent breaks (max 5.6°); circle r=70 radial RMS 0.392; circle r=70 curvature RMS 0.220; circle r=70 curvature max 1.622; circle r=50 radial RMS 0.380; circle r=50 radial max 0.756; circle r=50 curvature max 0.512; loop area +0.0126; IoU 0.9671
+ring-alpha                 D1-len2              contour RMS 0.460; contour max 0.788; 7 tangent breaks (max 3.0°); circle r=70 radial RMS 0.439; circle r=70 curvature RMS 0.278; circle r=70 curvature max 3.950; circle r=50 radial RMS 0.487; circle r=50 radial max 0.787; circle r=50 curvature RMS 0.190; circle r=50 curvature max 1.063; loop area +0.0113; loop axes/centre 0.031/+0.506/+0.431; loop area +0.0188; IoU 0.9584; anchors 35 > 30
+ring-alpha                 D1-len8              contour RMS 0.264; contour max 0.882; 14 tangent breaks (max 11.0°); circle r=70 radial RMS 0.276; circle r=70 radial max 0.882; circle r=70 curvature RMS 0.206; circle r=70 curvature max 1.000; circle r=50 curvature RMS 0.198; circle r=50 curvature max 0.504; IoU 0.9789
+ring-alpha                 D1-splice20          contour RMS 0.437; contour max 0.798; 31 tangent breaks (max 6.2°); circle r=70 radial RMS 0.434; circle r=70 radial max 0.798; circle r=70 curvature RMS 0.321; circle r=70 curvature max 1.622; circle r=50 radial RMS 0.440; circle r=50 radial max 0.764; circle r=50 curvature RMS 0.302; circle r=50 curvature max 0.942; loop area +0.0117; loop area +0.0168; IoU 0.9599; anchors 38 > 30
+ring-alpha                 D1-splice90          contour RMS 0.476; contour max 1.131; 5 tangent breaks (max 2.9°); circle r=70 radial RMS 0.491; circle r=70 radial max 0.932; circle r=70 curvature RMS 0.167; circle r=70 curvature max 1.622; circle r=50 radial RMS 0.456; circle r=50 radial max 1.130; IoU 0.9631
+ring-alpha                 D1-len2-splice20     contour RMS 0.461; contour max 0.858; 6 tangent breaks (max 3.0°); circle r=70 radial RMS 0.449; circle r=70 radial max 0.858; circle r=70 curvature RMS 0.353; circle r=70 curvature max 3.950; circle r=50 radial RMS 0.477; circle r=50 radial max 0.764; circle r=50 curvature RMS 0.326; circle r=50 curvature max 1.063; loop area +0.0121; loop area +0.0184; IoU 0.9577; anchors 55 > 30
+ring-alpha                 D1-len8-splice90     contour RMS 0.565; contour max 1.551; 7 tangent breaks (max 8.5°); circle r=70 radial RMS 0.366; circle r=70 radial max 0.963; circle r=70 curvature RMS 0.151; circle r=70 curvature max 1.000; circle r=50 centre 0.521; circle r=50 radial RMS 0.740; circle r=50 radial max 1.551; loop axes/centre 0.439/+0.616/-0.768; IoU 0.9637
+ring-alpha                 D1-corner30          contour RMS 0.388; contour max 0.756; 12 tangent breaks (max 5.6°); circle r=70 radial RMS 0.392; circle r=70 curvature RMS 0.220; circle r=70 curvature max 1.622; circle r=50 radial RMS 0.380; circle r=50 radial max 0.756; circle r=50 curvature max 0.512; loop area +0.0126; IoU 0.9671
+ring-alpha                 D1-corner90          contour RMS 0.388; contour max 0.756; 12 tangent breaks (max 5.6°); circle r=70 radial RMS 0.392; circle r=70 curvature RMS 0.220; circle r=70 curvature max 1.622; circle r=50 radial RMS 0.380; circle r=50 radial max 0.756; circle r=50 curvature max 0.512; loop area +0.0126; IoU 0.9671
+ring-alpha                 D1-polygon           contour RMS 0.289; 56 tangent breaks (max 18.4°); circle r=70 radial RMS 0.294; circle r=70 curvature RMS 1.000; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.281; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; IoU 0.9749; anchors 56 > 30
+ring-alpha                 D1g-lattice-G1       contour RMS 0.260; 207 tangent breaks (max 34.4°); circle r=70 radial RMS 0.262; circle r=70 curvature RMS 86.936; circle r=70 curvature max 5112.144; circle r=50 radial RMS 0.255; circle r=50 curvature RMS 45.231; circle r=50 curvature max 1368.646; IoU 0.9777; anchors 346 > 30
+ring-alpha                 D2-linear            circle r=70 curvature RMS 0.152; circle r=70 curvature max 1.010; circle r=50 curvature max 0.787
+ring-alpha                 D2-area              PASS
+ring-alpha                 D3-lattice-arcs      contour RMS 0.260; 207 tangent breaks (max 34.4°); circle r=70 radial RMS 0.262; circle r=70 curvature RMS 86.936; circle r=70 curvature max 5112.144; circle r=50 radial RMS 0.255; circle r=50 curvature RMS 45.231; circle r=50 curvature max 1368.646; IoU 0.9777; anchors 346 > 30
+ring-alpha                 D4-area-arcs         PASS
+ring-alpha                 D2-area-sharpen      PASS
+ring-alpha                 D2-area-b1-sharpen   PASS
+ring-alpha                 D2-area-b2-sharpen   PASS
+ring-alpha                 D2-area-t1-sharpen   PASS
+ring-alpha                 D2-area-t2-sharpen   PASS
+ring-alpha                 D2-area-t4-sharpen   PASS
+ring-alpha                 D2-linear-t2-sharpen circle r=70 curvature max 0.887; circle r=50 curvature max 0.836
+ring-alpha                 D4-area-t2-sharpen-arcs PASS
+ring-alpha                 selected             PASS
+ring-alpha                 selected-no-arcs     PASS
+ring-alpha                 D2-area-tol0.1       PASS
+ring-alpha                 D2-area-tol0.3       PASS
+ring-alpha                 D2-area-scale1.5     PASS
+ring-alpha                 D2-area-scale3       PASS
+concentric                 spline               topology; contour RMS 0.407; contour max 0.815; 29 tangent breaks (max 9.2°); circle r=90 radial RMS 0.437; circle r=90 radial max 0.814; circle r=90 curvature max 0.978; circle r=70 radial RMS 0.430; circle r=70 curvature RMS 0.168; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.255; circle r=50 curvature RMS 0.178; circle r=50 curvature max 0.998; circle r=30 radial RMS 0.440; circle r=30 radial max 0.806; circle r=30 curvature RMS 0.167; loop axes/centre 0.017/+0.510/+0.344; loop area +0.0286; IoU 0.9780
+concentric                 D1-len2              topology; contour RMS 0.452; contour max 0.836; 8 tangent breaks (max 5.3°); circle r=90 radial RMS 0.476; circle r=90 radial max 0.835; circle r=90 curvature RMS 0.213; circle r=90 curvature max 5.444; circle r=70 radial RMS 0.457; circle r=70 curvature RMS 0.220; circle r=70 curvature max 5.294; circle r=50 radial RMS 0.341; circle r=50 curvature RMS 0.162; circle r=50 curvature max 1.482; circle r=30 radius +0.505; circle r=30 radial RMS 0.516; circle r=30 radial max 0.806; circle r=30 curvature RMS 0.154; circle r=30 curvature max 0.991; loop area +0.0109; loop area +0.0109; loop area +0.0126; loop axes/centre 0.057/+0.547/+0.465; loop area +0.0340; IoU 0.9756
+concentric                 D1-len8              topology; contour RMS 0.288; contour max 0.806; 35 tangent breaks (max 15.7°); circle r=90 radial RMS 0.324; circle r=90 curvature RMS 0.183; circle r=90 curvature max 0.999; circle r=70 radial RMS 0.277; circle r=70 curvature RMS 0.166; circle r=50 curvature RMS 0.170; circle r=30 radial RMS 0.331; circle r=30 radial max 0.806; circle r=30 curvature RMS 0.283; circle r=30 curvature max 0.731; loop area +0.0195
+concentric                 D1-splice20          topology; contour RMS 0.475; contour max 0.870; 59 tangent breaks (max 7.2°); circle r=90 radius +0.527; circle r=90 radial RMS 0.548; circle r=90 radial max 0.870; circle r=90 curvature RMS 0.200; circle r=90 curvature max 0.978; circle r=70 radial RMS 0.451; circle r=70 curvature RMS 0.264; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.356; circle r=50 curvature RMS 0.260; circle r=50 curvature max 0.998; circle r=30 radial RMS 0.481; circle r=30 radial max 0.765; circle r=30 curvature RMS 0.295; circle r=30 curvature max 0.784; loop axes/centre 0.064/+0.545/+0.510; loop area +0.0117; loop axes/centre 0.064/+0.545/+0.510; loop area +0.0117; loop area +0.0113; loop area +0.0116; loop area +0.0132; loop axes/centre 0.019/+0.511/+0.425; loop area +0.0314; IoU 0.9732; anchors 122 > 105
+concentric                 D1-splice90          topology; contour RMS 0.652; contour max 2.030; 12 tangent breaks (max 9.2°); circle r=90 centre 0.568; circle r=90 radial RMS 0.933; circle r=90 radial max 2.030; circle r=90 curvature max 0.978; circle r=70 radial RMS 0.444; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.289; circle r=50 curvature max 0.998; circle r=30 radial RMS 0.487; circle r=30 radial max 0.969; loop axes/centre 0.534/+0.532/-0.257; loop axes/centre 0.534/+0.532/-0.257; loop axes/centre 0.246/+0.639/-0.162; loop area +0.0155; IoU 0.9716
+concentric                 D1-len2-splice20     topology; contour RMS 0.505; contour max 0.861; 21 tangent breaks (max 5.3°); circle r=90 radius +0.542; circle r=90 radial RMS 0.564; circle r=90 radial max 0.861; circle r=90 curvature RMS 0.269; circle r=90 curvature max 5.444; circle r=70 radial RMS 0.483; circle r=70 curvature RMS 0.266; circle r=70 curvature max 5.294; circle r=50 radial RMS 0.399; circle r=50 curvature RMS 0.268; circle r=50 curvature max 1.482; circle r=30 radius +0.519; circle r=30 radial RMS 0.535; circle r=30 radial max 0.806; circle r=30 curvature RMS 0.240; circle r=30 curvature max 0.991; loop axes/centre 0.061/+0.581/+0.503; loop area +0.0121; loop axes/centre 0.061/+0.581/+0.503; loop area +0.0121; loop area +0.0127; loop area +0.0131; loop area +0.0151; loop axes/centre 0.042/+0.555/+0.485; loop area +0.0349; IoU 0.9709; anchors 157 > 105
+concentric                 D1-len8-splice90     contour RMS 0.646; contour max 1.766; 15 tangent breaks (max 15.7°); circle r=90 radial RMS 0.743; circle r=90 radial max 1.766; circle r=90 curvature max 0.999; circle r=70 centre 0.593; circle r=70 radial RMS 0.708; circle r=70 radial max 1.675; circle r=50 radial RMS 0.415; circle r=50 radial max 1.011; circle r=30 radial RMS 0.392; circle r=30 radial max 0.871; circle r=30 curvature RMS 0.167; loop axes/centre 0.432/+0.164/-0.865; loop area -0.0101; loop axes/centre 0.562/+0.125/-0.799; IoU 0.9733
+concentric                 D1-corner30          topology; contour RMS 0.407; contour max 0.815; 29 tangent breaks (max 9.2°); circle r=90 radial RMS 0.437; circle r=90 radial max 0.814; circle r=90 curvature max 0.978; circle r=70 radial RMS 0.430; circle r=70 curvature RMS 0.168; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.255; circle r=50 curvature RMS 0.178; circle r=50 curvature max 0.998; circle r=30 radial RMS 0.440; circle r=30 radial max 0.806; circle r=30 curvature RMS 0.167; loop axes/centre 0.017/+0.510/+0.344; loop area +0.0286; IoU 0.9780
+concentric                 D1-corner90          topology; contour RMS 0.407; contour max 0.815; 29 tangent breaks (max 9.2°); circle r=90 radial RMS 0.437; circle r=90 radial max 0.814; circle r=90 curvature max 0.978; circle r=70 radial RMS 0.430; circle r=70 curvature RMS 0.168; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.255; circle r=50 curvature RMS 0.178; circle r=50 curvature max 0.998; circle r=30 radial RMS 0.440; circle r=30 radial max 0.806; circle r=30 curvature RMS 0.167; loop axes/centre 0.017/+0.510/+0.344; loop area +0.0286; IoU 0.9780
+concentric                 D1-polygon           contour RMS 0.335; contour max 0.806; 135 tangent breaks (max 26.6°); circle r=90 radial RMS 0.388; circle r=90 radial max 0.802; circle r=90 curvature RMS 1.000; circle r=90 curvature max 1.000; circle r=70 radial RMS 0.328; circle r=70 curvature RMS 1.000; circle r=70 curvature max 1.000; circle r=50 radial RMS 0.262; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; circle r=30 radial RMS 0.291; circle r=30 radial max 0.806; circle r=30 curvature RMS 1.000; circle r=30 curvature max 1.000; loop area +0.0140; anchors 188 > 105
+concentric                 D1g-lattice-G1       topology; contour RMS 0.279; contour max 0.767; 445 tangent breaks (max 45.0°); circle r=90 radial RMS 0.289; circle r=90 radial max 0.767; circle r=90 curvature RMS 63.615; circle r=90 curvature max 2633.335; circle r=70 radial RMS 0.264; circle r=70 curvature RMS 41.026; circle r=70 curvature max 165.962; circle r=50 radial RMS 0.290; circle r=50 radial max 0.766; circle r=50 curvature RMS 99.630; circle r=50 curvature max 2797.513; circle r=30 radial RMS 0.263; circle r=30 curvature RMS 100.613; circle r=30 curvature max 2115.360; anchors 1179 > 105
+concentric                 D2-linear            topology; 4 tangent breaks (max 12.9°); circle r=90 curvature RMS 7.554; circle r=90 curvature max 116.005; circle r=70 curvature RMS 0.418; circle r=70 curvature max 5.356; circle r=50 curvature RMS 5.259; circle r=50 curvature max 58.963; circle r=30 curvature RMS 1.952; circle r=30 curvature max 32.816; anchors 179 > 105
+concentric                 D2-area              circle r=90 curvature RMS 0.166; circle r=90 curvature max 0.672
+concentric                 D3-lattice-arcs      topology; contour RMS 0.279; contour max 0.767; 445 tangent breaks (max 45.0°); circle r=90 radial RMS 0.289; circle r=90 radial max 0.767; circle r=90 curvature RMS 63.615; circle r=90 curvature max 2633.335; circle r=70 radial RMS 0.264; circle r=70 curvature RMS 41.026; circle r=70 curvature max 165.962; circle r=50 radial RMS 0.290; circle r=50 radial max 0.766; circle r=50 curvature RMS 99.630; circle r=50 curvature max 2797.513; circle r=30 radial RMS 0.263; circle r=30 curvature RMS 100.613; circle r=30 curvature max 2115.360; anchors 1179 > 105
+concentric                 D4-area-arcs         PASS
+concentric                 D2-area-sharpen      circle r=90 curvature RMS 0.166; circle r=90 curvature max 0.672
+concentric                 D2-area-b1-sharpen   circle r=90 curvature RMS 0.858; circle r=90 curvature max 18.416
+concentric                 D2-area-b2-sharpen   circle r=90 curvature max 0.834
+concentric                 D2-area-t1-sharpen   circle r=90 curvature RMS 1.312; circle r=90 curvature max 22.143
+concentric                 D2-area-t2-sharpen   circle r=90 curvature RMS 1.214; circle r=90 curvature max 20.428
+concentric                 D2-area-t4-sharpen   circle r=90 curvature RMS 0.903; circle r=90 curvature max 15.547
+concentric                 D2-linear-t2-sharpen topology; circle r=90 curvature RMS 0.956; circle r=90 curvature max 8.663; circle r=70 curvature RMS 0.166; circle r=70 curvature max 0.836; circle r=50 curvature RMS 0.408; circle r=50 curvature max 2.454; anchors 110 > 105
+concentric                 D4-area-t2-sharpen-arcs PASS
+concentric                 selected             PASS
+concentric                 selected-no-arcs     circle r=90 curvature RMS 1.214; circle r=90 curvature max 20.428
+concentric                 D2-area-tol0.1       25 tangent breaks (max 13.7°); circle r=90 curvature RMS 4.519; circle r=90 curvature max 91.999; circle r=70 curvature RMS 0.367; circle r=70 curvature max 4.689; circle r=50 curvature RMS 0.503; circle r=50 curvature max 5.897; anchors 176 > 105
+concentric                 D2-area-tol0.3       circle r=90 curvature RMS 0.202; circle r=90 curvature max 0.979
+concentric                 D2-area-scale1.5     circle r=90 curvature max 0.636
+concentric                 D2-area-scale3       circle r=90 curvature RMS 1.290; circle r=90 curvature max 27.320
+discs-two-wide             spline               topology; contour RMS 0.353; contour max 1.148; 15 tangent breaks (max 12.5°); circle r=50 radial RMS 0.336; circle r=50 radial max 1.148; circle r=50 curvature max 0.983; circle r=50 radial RMS 0.369; circle r=50 radial max 0.819; circle r=50 curvature RMS 0.204; circle r=50 curvature max 1.000
+discs-two-wide             D1-len2              topology; contour RMS 0.402; contour max 1.143; 2 tangent breaks (max 8.1°); circle r=50 radial RMS 0.363; circle r=50 radial max 1.142; circle r=50 curvature max 1.000; circle r=50 radial RMS 0.434; circle r=50 radial max 0.809; circle r=50 curvature RMS 0.196; circle r=50 curvature max 1.482
+discs-two-wide             D1-len8              topology; contour RMS 0.338; contour max 1.170; 18 tangent breaks (max 17.5°); circle r=50 radial RMS 0.265; circle r=50 radial max 1.170; circle r=50 curvature RMS 0.239; circle r=50 curvature max 1.000; circle r=50 radial RMS 0.400; circle r=50 radial max 0.966; circle r=50 curvature RMS 0.258; circle r=50 curvature max 0.999
+discs-two-wide             D1-splice20          contour RMS 0.406; contour max 1.148; 30 tangent breaks (max 12.5°); circle r=50 radial RMS 0.421; circle r=50 radial max 1.148; circle r=50 curvature RMS 0.282; circle r=50 curvature max 0.983; circle r=50 radial RMS 0.391; circle r=50 curvature RMS 0.303; circle r=50 curvature max 1.000; anchors 55 > 50
+discs-two-wide             D1-splice90          topology; contour RMS 0.389; contour max 1.332; 8 tangent breaks (max 3.5°); circle r=50 radial RMS 0.310; circle r=50 radial max 1.148; circle r=50 curvature RMS 0.255; circle r=50 curvature max 5.677; circle r=50 radial RMS 0.459; circle r=50 radial max 1.332; circle r=50 curvature RMS 1.232; circle r=50 curvature max 27.498
+discs-two-wide             D1-len2-splice20     contour RMS 0.440; contour max 1.143; 11 tangent breaks (max 4.5°); circle r=50 radial RMS 0.460; circle r=50 radial max 1.142; circle r=50 curvature RMS 0.328; circle r=50 curvature max 2.150; circle r=50 radial RMS 0.423; circle r=50 radial max 0.752; circle r=50 curvature RMS 0.282; circle r=50 curvature max 1.482; anchors 61 > 50
+discs-two-wide             D1-len8-splice90     topology; contour RMS 0.431; contour max 1.372; 10 tangent breaks (max 10.0°); circle r=50 radial RMS 0.350; circle r=50 radial max 1.372; circle r=50 curvature RMS 0.468; circle r=50 curvature max 10.815; circle r=50 radial RMS 0.500; circle r=50 radial max 1.356; circle r=50 curvature RMS 1.491; circle r=50 curvature max 21.546
+discs-two-wide             D1-corner30          topology; contour RMS 0.353; contour max 1.148; 15 tangent breaks (max 12.5°); circle r=50 radial RMS 0.336; circle r=50 radial max 1.148; circle r=50 curvature max 0.983; circle r=50 radial RMS 0.369; circle r=50 radial max 0.819; circle r=50 curvature RMS 0.204; circle r=50 curvature max 1.000
+discs-two-wide             D1-corner90          topology; contour RMS 0.348; contour max 0.999; 16 tangent breaks (max 16.5°); circle r=50 radial RMS 0.348; circle r=50 radial max 0.999; circle r=50 curvature RMS 0.242; circle r=50 curvature max 4.829; circle r=50 radial RMS 0.348; circle r=50 radial max 0.774; circle r=50 curvature RMS 0.366; circle r=50 curvature max 4.548
+discs-two-wide             D1-polygon           topology; contour RMS 0.373; contour max 1.164; 49 tangent breaks (max 20.7°); circle r=50 radial RMS 0.317; circle r=50 radial max 1.164; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; circle r=50 radial RMS 0.411; circle r=50 radial max 1.000; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; anchors 75 > 50
+discs-two-wide             D1g-lattice-G1       contour RMS 0.287; contour max 0.766; 146 tangent breaks (max 34.1°); circle r=50 radial RMS 0.281; circle r=50 curvature RMS 70.699; circle r=50 curvature max 2183.797; circle r=50 radial RMS 0.291; circle r=50 radial max 0.766; circle r=50 curvature RMS 85.105; circle r=50 curvature max 2797.513; anchors 353 > 50
+discs-two-wide             D2-linear            circle r=50 curvature RMS 4.015; circle r=50 curvature max 58.963; circle r=50 curvature RMS 4.957; circle r=50 curvature max 58.963; anchors 61 > 50
+discs-two-wide             D2-area              circle r=50 curvature RMS 0.175; circle r=50 curvature max 1.054; circle r=50 curvature RMS 0.454; circle r=50 curvature max 9.873
+discs-two-wide             D3-lattice-arcs      contour RMS 0.287; contour max 0.766; 146 tangent breaks (max 34.1°); circle r=50 radial RMS 0.281; circle r=50 curvature RMS 70.699; circle r=50 curvature max 2183.797; circle r=50 radial RMS 0.291; circle r=50 radial max 0.766; circle r=50 curvature RMS 85.105; circle r=50 curvature max 2797.513; anchors 353 > 50
+discs-two-wide             D4-area-arcs         circle r=50 curvature RMS 0.175; circle r=50 curvature max 1.054; circle r=50 curvature RMS 0.457; circle r=50 curvature max 9.873
+discs-two-wide             D2-area-sharpen      circle r=50 curvature max 0.704
+discs-two-wide             D2-area-b1-sharpen   circle r=50 curvature max 0.697
+discs-two-wide             D2-area-b2-sharpen   circle r=50 curvature max 0.717
+discs-two-wide             D2-area-t1-sharpen   circle r=50 curvature max 0.690
+discs-two-wide             D2-area-t2-sharpen   circle r=50 curvature max 0.691
+discs-two-wide             D2-area-t4-sharpen   circle r=50 curvature max 0.685
+discs-two-wide             D2-linear-t2-sharpen circle r=50 curvature RMS 0.600; circle r=50 curvature max 8.935; circle r=50 curvature RMS 0.912; circle r=50 curvature max 9.560
+discs-two-wide             D4-area-t2-sharpen-arcs PASS
+discs-two-wide             selected             PASS
+discs-two-wide             selected-no-arcs     circle r=50 curvature max 0.691
+discs-two-wide             D2-area-tol0.1       circle r=50 curvature RMS 0.502; circle r=50 curvature max 5.812; circle r=50 curvature RMS 0.574; circle r=50 curvature max 15.580
+discs-two-wide             D2-area-tol0.3       circle r=50 curvature RMS 0.173; circle r=50 curvature max 1.054; circle r=50 curvature RMS 0.391; circle r=50 curvature max 9.873
+discs-two-wide             D2-area-scale1.5     circle r=50 curvature RMS 0.237; circle r=50 curvature max 1.902; circle r=50 curvature RMS 0.421; circle r=50 curvature max 10.304
+discs-two-wide             D2-area-scale3       circle r=50 curvature RMS 0.233; circle r=50 curvature max 2.763; circle r=50 curvature RMS 0.417; circle r=50 curvature max 9.970
+discs-two-deep             spline               contour RMS 0.490; contour max 1.256; 12 tangent breaks (max 47.0°); circle r=50 radius +0.612; circle r=50 radial RMS 0.526; circle r=50 radial max 1.255; circle r=50 curvature RMS 0.208; circle r=50 curvature max 1.300; circle r=50 centre 0.508; circle r=50 radial RMS 0.461; circle r=50 radial max 1.106; circle r=50 curvature RMS 0.248; circle r=50 curvature max 1.000; corner 1.20 px; IoU 0.9790
+discs-two-deep             D1-len2              topology; contour RMS 0.490; contour max 1.214; 4 tangent breaks (max 13.6°); circle r=50 radius +0.547; circle r=50 radial RMS 0.542; circle r=50 radial max 1.214; circle r=50 curvature RMS 2.082; circle r=50 curvature max 37.577; circle r=50 radial RMS 0.445; circle r=50 radial max 1.049; circle r=50 curvature RMS 0.251; circle r=50 curvature max 1.482; corner 1.20 px; IoU 0.9782
+discs-two-deep             D1-len8              topology; contour RMS 0.423; contour max 1.219; 16 tangent breaks (max 52.1°); circle r=50 radial RMS 0.370; circle r=50 radial max 1.219; circle r=50 curvature RMS 0.294; circle r=50 curvature max 2.455; circle r=50 radial RMS 0.459; circle r=50 radial max 1.133; circle r=50 curvature RMS 0.276; circle r=50 curvature max 0.986; corner 1.20 px
+discs-two-deep             D1-splice20          topology; contour RMS 0.489; contour max 1.256; 28 tangent breaks (max 47.1°); circle r=50 radius +0.569; circle r=50 radial RMS 0.561; circle r=50 radial max 1.255; circle r=50 curvature RMS 0.341; circle r=50 curvature max 1.300; circle r=50 centre 0.501; circle r=50 radial RMS 0.430; circle r=50 radial max 1.106; circle r=50 curvature RMS 0.322; circle r=50 curvature max 1.000; corner 1.20 px; IoU 0.9787; anchors 45 > 42
+discs-two-deep             D1-splice90          topology; contour RMS 0.572; contour max 1.413; 4 tangent breaks (max 5.7°); circle r=50 radius +0.703; circle r=50 radial RMS 0.585; circle r=50 radial max 1.413; circle r=50 curvature RMS 0.863; circle r=50 curvature max 7.553; circle r=50 centre 0.570; circle r=50 radial RMS 0.563; circle r=50 radial max 1.106; circle r=50 curvature RMS 0.206; circle r=50 curvature max 1.000; corner 1.20 px; IoU 0.9762
+discs-two-deep             D1-len2-splice20     topology; contour RMS 0.517; contour max 1.218; 14 tangent breaks (max 34.8°); circle r=50 radius +0.595; circle r=50 radial RMS 0.609; circle r=50 radial max 1.218; circle r=50 curvature RMS 0.563; circle r=50 curvature max 5.038; circle r=50 centre 0.521; circle r=50 radial RMS 0.440; circle r=50 radial max 1.049; circle r=50 curvature RMS 0.322; circle r=50 curvature max 1.482; corner 1.20 px; IoU 0.9772; anchors 51 > 42
+discs-two-deep             D1-len8-splice90     topology; contour RMS 0.504; contour max 1.434; 9 tangent breaks (max 12.8°); circle r=50 radius +0.560; circle r=50 radial RMS 0.468; circle r=50 radial max 1.434; circle r=50 curvature RMS 0.856; circle r=50 curvature max 7.455; circle r=50 radial RMS 0.531; circle r=50 radial max 1.133; circle r=50 curvature RMS 0.262; circle r=50 curvature max 1.000; corner 1.20 px; IoU 0.9797
+discs-two-deep             D1-corner30          contour RMS 0.480; contour max 1.256; 12 tangent breaks (max 49.9°); circle r=50 radius +0.554; circle r=50 radial RMS 0.504; circle r=50 radial max 1.255; circle r=50 curvature RMS 0.207; circle r=50 curvature max 1.300; circle r=50 centre 0.508; circle r=50 radial RMS 0.461; circle r=50 radial max 1.106; circle r=50 curvature RMS 0.248; circle r=50 curvature max 1.000; corner 1.20 px; IoU 0.9794
+discs-two-deep             D1-corner90          contour RMS 0.490; contour max 1.256; 12 tangent breaks (max 47.0°); circle r=50 radius +0.612; circle r=50 radial RMS 0.526; circle r=50 radial max 1.255; circle r=50 curvature RMS 0.208; circle r=50 curvature max 1.300; circle r=50 centre 0.508; circle r=50 radial RMS 0.461; circle r=50 radial max 1.106; circle r=50 curvature RMS 0.248; circle r=50 curvature max 1.000; corner 1.20 px; IoU 0.9790
+discs-two-deep             D1-polygon           contour RMS 0.436; contour max 1.238; 44 tangent breaks (max 52.1°); circle r=50 radial RMS 0.400; circle r=50 radial max 1.238; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; circle r=50 radial RMS 0.457; circle r=50 radial max 1.149; circle r=50 curvature RMS 1.000; circle r=50 curvature max 1.000; corner 1.20 px; anchors 65 > 42
+discs-two-deep             D1g-lattice-G1       topology; contour RMS 0.294; contour max 0.766; 122 tangent breaks (max 34.1°); circle r=50 radial RMS 0.296; circle r=50 curvature RMS 28.713; circle r=50 curvature max 399.986; circle r=50 radial RMS 0.292; circle r=50 radial max 0.766; circle r=50 curvature RMS 74.032; circle r=50 curvature max 2797.513; anchors 297 > 42
+discs-two-deep             D2-linear            4 tangent breaks (max 33.4°); circle r=50 curvature RMS 5.467; circle r=50 curvature max 116.028; circle r=50 curvature RMS 2.985; circle r=50 curvature max 58.963; anchors 62 > 42
+discs-two-deep             D2-area              4 tangent breaks (max 35.8°); circle r=50 curvature RMS 3.258; circle r=50 curvature max 85.672; circle r=50 curvature RMS 0.396; circle r=50 curvature max 12.462
+discs-two-deep             D3-lattice-arcs      topology; contour RMS 0.294; contour max 0.766; 122 tangent breaks (max 34.1°); circle r=50 radial RMS 0.296; circle r=50 curvature RMS 28.713; circle r=50 curvature max 399.986; circle r=50 radial RMS 0.292; circle r=50 radial max 0.766; circle r=50 curvature RMS 74.032; circle r=50 curvature max 2797.513; anchors 297 > 42
+discs-two-deep             D4-area-arcs         4 tangent breaks (max 35.8°); circle r=50 curvature RMS 3.258; circle r=50 curvature max 85.672; circle r=50 curvature RMS 0.402; circle r=50 curvature max 12.462
+discs-two-deep             D2-area-sharpen      topology; 4 tangent breaks (max 35.7°); circle r=50 curvature RMS 2.178; circle r=50 curvature max 27.024; circle r=50 curvature RMS 0.394; circle r=50 curvature max 12.462
+discs-two-deep             D2-area-b1-sharpen   1 tangent breaks (max 15.0°); circle r=50 curvature RMS 2.284; circle r=50 curvature max 28.018; circle r=50 curvature RMS 0.297; circle r=50 curvature max 6.495
+discs-two-deep             D2-area-b2-sharpen   1 tangent breaks (max 12.6°); circle r=50 curvature RMS 1.689; circle r=50 curvature max 22.462; circle r=50 curvature RMS 0.280; circle r=50 curvature max 4.785
+discs-two-deep             D2-area-t1-sharpen   circle r=50 curvature RMS 7.609; circle r=50 curvature max 101.541; circle r=50 curvature RMS 0.338; circle r=50 curvature max 9.238
+discs-two-deep             D2-area-t2-sharpen   topology; 1 tangent breaks (max 16.5°); circle r=50 curvature RMS 2.626; circle r=50 curvature max 29.638; circle r=50 curvature RMS 0.329; circle r=50 curvature max 7.739
+discs-two-deep             D2-area-t4-sharpen   3 tangent breaks (max 15.1°); circle r=50 curvature RMS 398.823; circle r=50 curvature max 17813.164; circle r=50 curvature RMS 0.324; circle r=50 curvature max 7.064
+discs-two-deep             D2-linear-t2-sharpen 2 tangent breaks (max 16.7°); circle r=50 curvature RMS 2.279; circle r=50 curvature max 28.066; circle r=50 curvature RMS 0.470; circle r=50 curvature max 9.978
+discs-two-deep             D4-area-t2-sharpen-arcs topology; 1 tangent breaks (max 16.5°); circle r=50 curvature RMS 2.626; circle r=50 curvature max 29.638; circle r=50 curvature RMS 0.333; circle r=50 curvature max 7.739
+discs-two-deep             selected             topology; 1 tangent breaks (max 16.5°); circle r=50 curvature RMS 2.626; circle r=50 curvature max 29.638; circle r=50 curvature RMS 0.333; circle r=50 curvature max 7.739
+discs-two-deep             selected-no-arcs     topology; 1 tangent breaks (max 16.5°); circle r=50 curvature RMS 2.626; circle r=50 curvature max 29.638; circle r=50 curvature RMS 0.329; circle r=50 curvature max 7.739
+discs-two-deep             D2-area-tol0.1       4 tangent breaks (max 35.5°); circle r=50 curvature RMS 14.913; circle r=50 curvature max 615.582; circle r=50 curvature RMS 0.992; circle r=50 curvature max 15.758; anchors 58 > 42
+discs-two-deep             D2-area-tol0.3       topology; 3 tangent breaks (max 35.8°); circle r=50 curvature RMS 3.727; circle r=50 curvature max 85.672; circle r=50 curvature RMS 0.515; circle r=50 curvature max 15.758
+discs-two-deep             D2-area-scale1.5     4 tangent breaks (max 33.5°); circle r=50 curvature RMS 4.166; circle r=50 curvature max 138.377; circle r=50 curvature RMS 0.445; circle r=50 curvature max 13.639
+discs-two-deep             D2-area-scale3       4 tangent breaks (max 37.4°); circle r=50 curvature RMS 2.532; circle r=50 curvature max 26.242; circle r=50 curvature RMS 0.306; circle r=50 curvature max 8.672
+discs-x2                   spline               topology; contour RMS 0.572; contour max 1.251; 4 tangent breaks (max 2.4°); circle r=120 radius +0.570; circle r=120 radial RMS 0.536; circle r=120 radial max 0.985; circle r=120 curvature RMS 0.187; circle r=120 curvature max 1.107; circle r=120 centre 0.789; circle r=120 radial RMS 0.674; circle r=120 radial max 1.198; circle r=120 curvature RMS 0.840; circle r=120 curvature max 9.599; circle r=120 centre 0.528; circle r=120 radial RMS 0.515; circle r=120 radial max 1.251; circle r=120 curvature RMS 0.421; circle r=120 curvature max 3.107
+discs-x2                   D1-len2              contour RMS 0.556; contour max 1.401; 1 tangent breaks (max 9.3°); circle r=120 radius +0.588; circle r=120 radial RMS 0.583; circle r=120 radial max 1.086; circle r=120 curvature RMS 0.626; circle r=120 curvature max 21.315; circle r=120 centre 0.648; circle r=120 radial RMS 0.606; circle r=120 radial max 1.236; circle r=120 curvature RMS 0.901; circle r=120 curvature max 16.423; circle r=120 centre 0.597; circle r=120 radial RMS 0.503; circle r=120 radial max 1.401; circle r=120 curvature RMS 0.841; circle r=120 curvature max 15.176; anchors 109 > 100
+discs-x2                   D1-len8              topology; contour RMS 0.522; contour max 1.293; 23 tangent breaks (max 13.5°); circle r=120 radial RMS 0.390; circle r=120 radial max 0.761; circle r=120 curvature RMS 0.188; circle r=120 curvature max 0.953; circle r=120 centre 0.625; circle r=120 radial RMS 0.505; circle r=120 radial max 1.097; circle r=120 curvature RMS 0.615; circle r=120 curvature max 13.038; circle r=120 centre 0.667; circle r=120 radial RMS 0.599; circle r=120 radial max 1.293; circle r=120 curvature RMS 0.450; circle r=120 curvature max 6.979
+discs-x2                   D1-splice20          topology; contour RMS 0.530; contour max 1.251; 12 tangent breaks (max 3.4°); circle r=120 radial RMS 0.537; circle r=120 radial max 0.980; circle r=120 curvature RMS 0.249; circle r=120 curvature max 1.107; circle r=120 centre 0.654; circle r=120 radial RMS 0.536; circle r=120 radial max 1.089; circle r=120 curvature RMS 0.422; circle r=120 curvature max 2.471; circle r=120 centre 0.632; circle r=120 radial RMS 0.520; circle r=120 radial max 1.251; circle r=120 curvature RMS 0.466; circle r=120 curvature max 3.107
+discs-x2                   D1-splice90          topology; contour RMS 0.776; contour max 1.846; 3 tangent breaks (max 3.4°); circle r=120 centre 0.671; circle r=120 radius +0.872; circle r=120 radial RMS 0.614; circle r=120 radial max 1.805; circle r=120 curvature RMS 0.815; circle r=120 curvature max 8.903; circle r=120 centre 0.762; circle r=120 radial RMS 0.773; circle r=120 radial max 1.409; circle r=120 curvature RMS 0.690; circle r=120 curvature max 7.484; circle r=120 centre 0.712; circle r=120 radial RMS 0.867; circle r=120 radial max 1.846; circle r=120 curvature RMS 0.915; circle r=120 curvature max 8.763
+discs-x2                   D1-len2-splice20     contour RMS 0.516; contour max 1.401; 1 tangent breaks (max 9.2°); circle r=120 radial RMS 0.519; circle r=120 radial max 1.075; circle r=120 curvature RMS 0.638; circle r=120 curvature max 21.315; circle r=120 centre 0.659; circle r=120 radial RMS 0.542; circle r=120 radial max 1.220; circle r=120 curvature RMS 0.822; circle r=120 curvature max 8.806; circle r=120 centre 0.603; circle r=120 radial RMS 0.494; circle r=120 radial max 1.401; circle r=120 curvature RMS 0.769; circle r=120 curvature max 14.580; anchors 137 > 100
+discs-x2                   D1-len8-splice90     topology; contour RMS 0.622; contour max 1.530; 15 tangent breaks (max 10.6°); circle r=120 centre 0.534; circle r=120 radius +0.588; circle r=120 radial RMS 0.493; circle r=120 radial max 1.284; circle r=120 curvature RMS 0.671; circle r=120 curvature max 10.020; circle r=120 radial RMS 0.517; circle r=120 radial max 1.097; circle r=120 curvature RMS 0.632; circle r=120 curvature max 7.552; circle r=120 centre 0.627; circle r=120 radial RMS 0.751; circle r=120 radial max 1.529; circle r=120 curvature RMS 0.862; circle r=120 curvature max 8.851
+discs-x2                   D1-corner30          topology; contour RMS 0.578; contour max 1.094; 4 tangent breaks (max 2.4°); circle r=120 radius +0.558; circle r=120 radial RMS 0.544; circle r=120 radial max 0.985; circle r=120 curvature RMS 0.194; circle r=120 curvature max 1.107; circle r=120 centre 0.721; circle r=120 radial RMS 0.657; circle r=120 radial max 1.094; circle r=120 curvature RMS 0.214; circle r=120 curvature max 1.107; circle r=120 centre 0.601; circle r=120 radial RMS 0.540; circle r=120 radial max 1.022; circle r=120 curvature RMS 0.185; circle r=120 curvature max 0.997
+discs-x2                   D1-corner90          topology; contour RMS 0.572; contour max 1.251; 4 tangent breaks (max 2.4°); circle r=120 radius +0.570; circle r=120 radial RMS 0.536; circle r=120 radial max 0.985; circle r=120 curvature RMS 0.187; circle r=120 curvature max 1.107; circle r=120 centre 0.789; circle r=120 radial RMS 0.674; circle r=120 radial max 1.198; circle r=120 curvature RMS 0.840; circle r=120 curvature max 9.599; circle r=120 centre 0.528; circle r=120 radial RMS 0.515; circle r=120 radial max 1.251; circle r=120 curvature RMS 0.421; circle r=120 curvature max 3.107
+discs-x2                   D1-polygon           contour RMS 0.418; contour max 1.000; 87 tangent breaks (max 12.8°); circle r=120 radial RMS 0.329; circle r=120 radial max 0.814; circle r=120 curvature RMS 1.000; circle r=120 curvature max 1.000; circle r=120 radial RMS 0.377; circle r=120 radial max 0.815; circle r=120 curvature RMS 1.000; circle r=120 curvature max 1.000; circle r=120 centre 0.547; circle r=120 radial RMS 0.481; circle r=120 radial max 1.000; circle r=120 curvature RMS 1.000; circle r=120 curvature max 1.000; anchors 146 > 100
+discs-x2                   D1g-lattice-G1       topology; contour RMS 0.281; contour max 0.814; 420 tangent breaks (max 45.0°); circle r=120 radial RMS 0.277; circle r=120 radial max 0.789; circle r=120 curvature RMS 70.696; circle r=120 curvature max 586.459; circle r=120 radial RMS 0.276; circle r=120 radial max 0.814; circle r=120 curvature RMS 69.629; circle r=120 curvature max 604.933; circle r=120 radial RMS 0.285; circle r=120 radial max 0.792; circle r=120 curvature RMS 70.192; circle r=120 curvature max 411.442; anchors 1194 > 100
+discs-x2                   D2-linear            topology; circle r=120 curvature RMS 8.949; circle r=120 curvature max 160.791; circle r=120 curvature RMS 9.189; circle r=120 curvature max 160.791; circle r=120 curvature RMS 8.633; circle r=120 curvature max 139.117; anchors 166 > 100
+discs-x2                   D2-area              topology; circle r=120 curvature RMS 4.597; circle r=120 curvature max 124.801; circle r=120 curvature RMS 6.071; circle r=120 curvature max 124.801; circle r=120 curvature RMS 4.870; circle r=120 curvature max 110.915; anchors 120 > 100
+discs-x2                   D3-lattice-arcs      topology; contour RMS 0.281; contour max 0.814; 420 tangent breaks (max 45.0°); circle r=120 radial RMS 0.277; circle r=120 radial max 0.789; circle r=120 curvature RMS 70.696; circle r=120 curvature max 586.459; circle r=120 radial RMS 0.276; circle r=120 radial max 0.814; circle r=120 curvature RMS 69.629; circle r=120 curvature max 604.933; circle r=120 radial RMS 0.285; circle r=120 radial max 0.792; circle r=120 curvature RMS 70.192; circle r=120 curvature max 411.442; anchors 1194 > 100
+discs-x2                   D4-area-arcs         circle r=120 curvature RMS 4.452; circle r=120 curvature max 124.801; circle r=120 curvature RMS 6.071; circle r=120 curvature max 124.801; circle r=120 curvature RMS 4.870; circle r=120 curvature max 110.915; anchors 113 > 100
+discs-x2                   D2-area-sharpen      topology; circle r=120 curvature RMS 5.376; circle r=120 curvature max 124.801; circle r=120 curvature RMS 6.120; circle r=120 curvature max 124.801; circle r=120 curvature RMS 4.841; circle r=120 curvature max 110.915; anchors 118 > 100
+discs-x2                   D2-area-b1-sharpen   topology; circle r=120 curvature RMS 1.623; circle r=120 curvature max 26.449; circle r=120 curvature RMS 1.905; circle r=120 curvature max 26.449; circle r=120 curvature RMS 1.497; circle r=120 curvature max 24.406
+discs-x2                   D2-area-b2-sharpen   circle r=120 curvature RMS 0.777; circle r=120 curvature max 15.603; circle r=120 curvature RMS 0.668; circle r=120 curvature max 11.798; circle r=120 curvature RMS 0.499; circle r=120 curvature max 11.093
+discs-x2                   D2-area-t1-sharpen   topology; circle r=120 curvature RMS 2.326; circle r=120 curvature max 36.316; circle r=120 curvature RMS 2.664; circle r=120 curvature max 36.316; circle r=120 curvature RMS 2.131; circle r=120 curvature max 32.763
+discs-x2                   D2-area-t2-sharpen   topology; circle r=120 curvature RMS 2.049; circle r=120 curvature max 33.472; circle r=120 curvature RMS 2.350; circle r=120 curvature max 33.472; circle r=120 curvature RMS 1.837; circle r=120 curvature max 30.559
+discs-x2                   D2-area-t4-sharpen   topology; circle r=120 curvature RMS 1.634; circle r=120 curvature max 29.959; circle r=120 curvature RMS 1.960; circle r=120 curvature max 29.959; circle r=120 curvature RMS 1.681; circle r=120 curvature max 27.596
+discs-x2                   D2-linear-t2-sharpen circle r=120 curvature RMS 1.938; circle r=120 curvature max 29.252; circle r=120 curvature RMS 2.435; circle r=120 curvature max 32.086; circle r=120 curvature RMS 1.991; circle r=120 curvature max 29.515; anchors 111 > 100
+discs-x2                   D4-area-t2-sharpen-arcs topology; circle r=120 curvature RMS 1.010; circle r=120 curvature max 30.559; circle r=120 curvature RMS 1.126; circle r=120 curvature max 30.559
+discs-x2                   selected             topology; circle r=120 curvature RMS 1.010; circle r=120 curvature max 30.559; circle r=120 curvature RMS 1.126; circle r=120 curvature max 30.559
+discs-x2                   selected-no-arcs     topology; circle r=120 curvature RMS 2.049; circle r=120 curvature max 33.472; circle r=120 curvature RMS 2.350; circle r=120 curvature max 33.472; circle r=120 curvature RMS 1.837; circle r=120 curvature max 30.559
+discs-x2                   D2-area-tol0.1       37 tangent breaks (max 14.9°); circle r=120 curvature RMS 5.783; circle r=120 curvature max 124.801; circle r=120 curvature RMS 6.273; circle r=120 curvature max 124.801; circle r=120 curvature RMS 8.963; circle r=120 curvature max 640.455; anchors 238 > 100
+discs-x2                   D2-area-tol0.3       topology; circle r=120 curvature RMS 0.487; circle r=120 curvature max 18.283; circle r=120 curvature RMS 0.224; circle r=120 curvature max 2.996; circle r=120 curvature RMS 1.256; circle r=120 curvature max 34.181
+discs-x2                   D2-area-scale1.5     circle r=120 curvature RMS 4.838; circle r=120 curvature max 116.913; circle r=120 curvature RMS 5.904; circle r=120 curvature max 130.239; circle r=120 curvature RMS 4.442; circle r=120 curvature max 100.750; anchors 126 > 100
+discs-x2                   D2-area-scale3       circle r=120 curvature RMS 3.326; circle r=120 curvature max 121.848; circle r=120 curvature RMS 6.373; circle r=120 curvature max 137.039; circle r=120 curvature RMS 4.377; circle r=120 curvature max 122.352; anchors 106 > 100
+ellipse-2to1               spline               contour RMS 0.833; contour max 1.684; 6 tangent breaks (max 5.1°); loop axes/centre 0.323/+0.211/+1.007; loop area +0.0278; IoU 0.9734
+ellipse-2to1               D1-len2              contour RMS 0.813; contour max 1.700; 4 tangent breaks (max 4.6°); loop axes/centre 0.285/+0.408/+0.898; loop area +0.0275; IoU 0.9734
+ellipse-2to1               D1-len8              contour RMS 0.478; contour max 0.916; 7 tangent breaks (max 14.3°); loop axes/centre 0.103/+0.167/+0.581; loop area +0.0166
+ellipse-2to1               D1-splice20          contour RMS 0.454; 12 tangent breaks (max 14.3°); loop area +0.0172; anchors 17 > 16
+ellipse-2to1               D1-splice90          contour RMS 1.514; contour max 2.350; 2 tangent breaks (max 5.1°); loop axes/centre 0.742/+0.908/+1.562; loop area +0.0506; IoU 0.9520
+ellipse-2to1               D1-len2-splice20     contour RMS 0.496; 10 tangent breaks (max 4.6°); loop axes/centre 0.021/+0.475/+0.515; loop area +0.0189; anchors 23 > 16
+ellipse-2to1               D1-len8-splice90     contour RMS 1.354; contour max 2.434; 2 tangent breaks (max 14.3°); loop axes/centre 0.803/+0.195/+1.549; loop area +0.0411; IoU 0.9588
+ellipse-2to1               D1-corner30          contour RMS 0.833; contour max 1.684; 6 tangent breaks (max 5.1°); loop axes/centre 0.323/+0.211/+1.007; loop area +0.0278; IoU 0.9734
+ellipse-2to1               D1-corner90          contour RMS 0.833; contour max 1.684; 6 tangent breaks (max 5.1°); loop axes/centre 0.323/+0.211/+1.007; loop area +0.0278; IoU 0.9734
+ellipse-2to1               D1-polygon           contour RMS 0.290; 28 tangent breaks (max 21.1°); anchors 28 > 16
+ellipse-2to1               D1g-lattice-G1       contour RMS 0.262; 84 tangent breaks (max 34.1°); anchors 172 > 16
+ellipse-2to1               D2-linear            PASS
+ellipse-2to1               D2-area              PASS
+ellipse-2to1               D3-lattice-arcs      contour RMS 0.262; 84 tangent breaks (max 34.1°); anchors 172 > 16
+ellipse-2to1               D4-area-arcs         PASS
+ellipse-2to1               D2-area-sharpen      PASS
+ellipse-2to1               D2-area-b1-sharpen   PASS
+ellipse-2to1               D2-area-b2-sharpen   PASS
+ellipse-2to1               D2-area-t1-sharpen   PASS
+ellipse-2to1               D2-area-t2-sharpen   PASS
+ellipse-2to1               D2-area-t4-sharpen   PASS
+ellipse-2to1               D2-linear-t2-sharpen PASS
+ellipse-2to1               D4-area-t2-sharpen-arcs PASS
+ellipse-2to1               selected             PASS
+ellipse-2to1               selected-no-arcs     PASS
+ellipse-2to1               D2-area-tol0.1       PASS
+ellipse-2to1               D2-area-tol0.3       PASS
+ellipse-2to1               D2-area-scale1.5     PASS
+ellipse-2to1               D2-area-scale3       PASS
+ellipse-4to1-rot30         spline               contour RMS 1.094; contour max 2.318; 5 tangent breaks (max 21.2°); loop axes/centre 0.504/-0.085/+1.266; loop area +0.0547; IoU 0.9487
+ellipse-4to1-rot30         D1-len2              contour RMS 1.355; contour max 2.965; 6 tangent breaks (max 10.6°); loop axes/centre 0.595/+0.600/+1.359; loop area +0.0663; IoU 0.9381
+ellipse-4to1-rot30         D1-len8              contour RMS 1.381; contour max 2.486; 7 tangent breaks (max 51.6°); loop axes/centre 0.656/-0.785/+1.797; loop area +0.0695; IoU 0.9348
+ellipse-4to1-rot30         D1-splice20          contour RMS 0.574; contour max 0.899; 10 tangent breaks (max 33.9°); loop axes/centre 0.117/+0.164/+0.696; loop area +0.0328; IoU 0.9688
+ellipse-4to1-rot30         D1-splice90          contour RMS 1.904; contour max 4.000; 3 tangent breaks (max 21.2°); loop axes/centre 0.653/+0.278/+3.120; loop area +0.1402; orientation 1.90°; IoU 0.8771
+ellipse-4to1-rot30         D1-len2-splice20     contour RMS 0.562; contour max 0.807; 15 tangent breaks (max 20.8°); loop axes/centre 0.078/+0.326/+0.656; loop area +0.0328; IoU 0.9687; anchors 22 > 18
+ellipse-4to1-rot30         D1-len8-splice90     contour RMS 1.762; contour max 3.998; 3 tangent breaks (max 31.0°); loop axes/centre 1.957/+0.387/+2.116; loop area +0.0954; IoU 0.8953
+ellipse-4to1-rot30         D1-corner30          contour RMS 1.356; contour max 2.916; 5 tangent breaks (max 54.4°); loop axes/centre 0.696/-0.527/+1.627; loop area +0.0653; IoU 0.9380
+ellipse-4to1-rot30         D1-corner90          contour RMS 1.094; contour max 2.318; 5 tangent breaks (max 21.2°); loop axes/centre 0.504/-0.085/+1.266; loop area +0.0547; IoU 0.9487
+ellipse-4to1-rot30         D1-polygon           contour RMS 0.341; 24 tangent breaks (max 59.0°); loop area +0.0175; anchors 24 > 18
+ellipse-4to1-rot30         D1g-lattice-G1       139 tangent breaks (max 45.0°); anchors 207 > 18
+ellipse-4to1-rot30         D2-linear            PASS
+ellipse-4to1-rot30         D2-area              PASS
+ellipse-4to1-rot30         D3-lattice-arcs      139 tangent breaks (max 45.0°); anchors 207 > 18
+ellipse-4to1-rot30         D4-area-arcs         PASS
+ellipse-4to1-rot30         D2-area-sharpen      PASS
+ellipse-4to1-rot30         D2-area-b1-sharpen   PASS
+ellipse-4to1-rot30         D2-area-b2-sharpen   PASS
+ellipse-4to1-rot30         D2-area-t1-sharpen   PASS
+ellipse-4to1-rot30         D2-area-t2-sharpen   PASS
+ellipse-4to1-rot30         D2-area-t4-sharpen   PASS
+ellipse-4to1-rot30         D2-linear-t2-sharpen PASS
+ellipse-4to1-rot30         D4-area-t2-sharpen-arcs PASS
+ellipse-4to1-rot30         selected             PASS
+ellipse-4to1-rot30         selected-no-arcs     PASS
+ellipse-4to1-rot30         D2-area-tol0.1       PASS
+ellipse-4to1-rot30         D2-area-tol0.3       PASS
+ellipse-4to1-rot30         D2-area-scale1.5     PASS
+ellipse-4to1-rot30         D2-area-scale3       PASS
+square                     spline               contour RMS 0.300; line RMS 0.300
+square                     D1-len2              contour RMS 0.300; line RMS 0.300
+square                     D1-len8              contour RMS 0.300; line RMS 0.300
+square                     D1-splice20          contour RMS 0.300; line RMS 0.300
+square                     D1-splice90          contour RMS 0.300; line RMS 0.300
+square                     D1-len2-splice20     contour RMS 0.300; line RMS 0.300
+square                     D1-len8-splice90     contour RMS 0.300; line RMS 0.300
+square                     D1-corner30          contour RMS 0.300; line RMS 0.300
+square                     D1-corner90          contour RMS 0.300; line RMS 0.300
+square                     D1-polygon           contour RMS 0.300; line RMS 0.300
+square                     D1g-lattice-G1       contour RMS 0.300; line RMS 0.300; line curvature 0.1754; anchors 17 > 13
+square                     D2-linear            line curvature 0.1007; anchors 19 > 13
+square                     D2-area              line curvature 0.1134; anchors 18 > 13
+square                     D3-lattice-arcs      contour RMS 0.300; line RMS 0.300; line curvature 0.1754; anchors 17 > 13
+square                     D4-area-arcs         line curvature 0.1134; anchors 18 > 13
+square                     D2-area-sharpen      PASS
+square                     D2-area-b1-sharpen   PASS
+square                     D2-area-b2-sharpen   PASS
+square                     D2-area-t1-sharpen   PASS
+square                     D2-area-t2-sharpen   PASS
+square                     D2-area-t4-sharpen   PASS
+square                     D2-linear-t2-sharpen PASS
+square                     D4-area-t2-sharpen-arcs PASS
+square                     selected             PASS
+square                     selected-no-arcs     PASS
+square                     D2-area-tol0.1       line curvature 0.3967; anchors 31 > 13
+square                     D2-area-tol0.3       line curvature 0.1322
+square                     D2-area-scale1.5     line curvature 0.1866; anchors 19 > 13
+square                     D2-area-scale3       line curvature 0.1037; anchors 22 > 13
+rect-rot20                 spline               contour RMS 0.473; line RMS 0.473; line max 0.625; line curvature 0.0090
+rect-rot20                 D1-len2              contour RMS 0.485; line RMS 0.485; line max 0.626; line curvature 0.0696
+rect-rot20                 D1-len8              contour RMS 0.472; line RMS 0.472; line max 0.625; line curvature 0.0132
+rect-rot20                 D1-splice20          contour RMS 0.473; line RMS 0.473; line max 0.625; line curvature 0.0090
+rect-rot20                 D1-splice90          contour RMS 1.201; contour max 3.992; line RMS 1.201; line max 3.992; line curvature 0.0974; corner 4.00 px; IoU 0.9594
+rect-rot20                 D1-len2-splice20     contour RMS 0.485; line RMS 0.485; line max 0.626; line curvature 0.0696
+rect-rot20                 D1-len8-splice90     contour RMS 1.245; contour max 3.974; line RMS 1.245; line max 3.974; line curvature 0.0904; corner 4.00 px; IoU 0.9572
+rect-rot20                 D1-corner30          contour RMS 0.473; line RMS 0.473; line max 0.625; line curvature 0.0090
+rect-rot20                 D1-corner90          contour RMS 0.956; contour max 2.649; 1 tangent breaks (max 11.7°); line RMS 0.956; line max 2.649; line curvature 0.3492; corner 3.59 px; IoU 0.9660; anchors 41 > 21
+rect-rot20                 D1-polygon           contour RMS 0.463; line RMS 0.463; line max 0.632
+rect-rot20                 D1g-lattice-G1       100 tangent breaks (max 29.3°); line RMS 0.221; line curvature 2.3852; anchors 289 > 21
+rect-rot20                 D2-linear            line curvature 0.0437
+rect-rot20                 D2-area              line curvature 0.0421
+rect-rot20                 D3-lattice-arcs      100 tangent breaks (max 29.3°); line RMS 0.221; line curvature 2.3852; anchors 289 > 21
+rect-rot20                 D4-area-arcs         line curvature 0.0421
+rect-rot20                 D2-area-sharpen      PASS
+rect-rot20                 D2-area-b1-sharpen   PASS
+rect-rot20                 D2-area-b2-sharpen   PASS
+rect-rot20                 D2-area-t1-sharpen   PASS
+rect-rot20                 D2-area-t2-sharpen   PASS
+rect-rot20                 D2-area-t4-sharpen   PASS
+rect-rot20                 D2-linear-t2-sharpen PASS
+rect-rot20                 D4-area-t2-sharpen-arcs PASS
+rect-rot20                 selected             PASS
+rect-rot20                 selected-no-arcs     PASS
+rect-rot20                 D2-area-tol0.1       line curvature 0.1363
+rect-rot20                 D2-area-tol0.3       line curvature 0.0400
+rect-rot20                 D2-area-scale1.5     line curvature 0.0593
+rect-rot20                 D2-area-scale3       line curvature 0.1363
+roundrect                  spline               contour RMS 0.276; 6 tangent breaks (max 11.7°); circle r=20 centre 1.005; circle r=20 radius -0.645; circle r=20 radial RMS 0.306; circle r=20 curvature RMS 0.228; circle r=20 centre 1.614; circle r=20 radius -1.247; circle r=20 radial RMS 0.281; circle r=20 curvature RMS 0.220; circle r=20 centre 1.005; circle r=20 radius -0.645; circle r=20 radial RMS 0.306; circle r=20 curvature RMS 0.228; circle r=20 centre 1.614; circle r=20 radius -1.247; circle r=20 radial RMS 0.281; circle r=20 curvature RMS 0.220; line RMS 0.275; line curvature 0.0183
+roundrect                  D1-len2              contour RMS 0.289; 4 tangent breaks (max 5.3°); circle r=20 centre 1.297; circle r=20 radius -0.860; circle r=20 radial RMS 0.355; circle r=20 curvature RMS 0.198; circle r=20 centre 1.801; circle r=20 radius -1.358; circle r=20 radial RMS 0.333; circle r=20 curvature RMS 0.208; circle r=20 centre 1.297; circle r=20 radius -0.860; circle r=20 radial RMS 0.355; circle r=20 curvature RMS 0.198; circle r=20 centre 1.801; circle r=20 radius -1.358; circle r=20 radial RMS 0.333; circle r=20 curvature RMS 0.208; line RMS 0.274; line curvature 0.0237
+roundrect                  D1-len8              contour RMS 0.258; 6 tangent breaks (max 20.4°); circle r=20 centre 1.797; circle r=20 radius -1.636; circle r=20 radial RMS 0.263; circle r=20 curvature RMS 0.340; circle r=20 curvature max 0.631; circle r=20 centre 1.500; circle r=20 radius -1.339; circle r=20 curvature RMS 0.364; circle r=20 curvature max 0.768; circle r=20 centre 1.797; circle r=20 radius -1.636; circle r=20 radial RMS 0.263; circle r=20 curvature RMS 0.340; circle r=20 curvature max 0.631; circle r=20 centre 1.500; circle r=20 radius -1.339; circle r=20 curvature RMS 0.364; circle r=20 curvature max 0.768; line RMS 0.273; line curvature 0.0194
+roundrect                  D1-splice20          contour RMS 0.303; 16 tangent breaks (max 11.8°); circle r=20 centre 0.603; circle r=20 radial RMS 0.364; circle r=20 curvature RMS 0.334; circle r=20 curvature max 0.712; circle r=20 radial RMS 0.401; circle r=20 curvature RMS 0.540; circle r=20 curvature max 1.000; circle r=20 centre 0.603; circle r=20 radial RMS 0.364; circle r=20 curvature RMS 0.334; circle r=20 curvature max 0.712; circle r=20 radial RMS 0.401; circle r=20 curvature RMS 0.539; circle r=20 curvature max 1.000; line RMS 0.275; line curvature 0.0144
+roundrect                  D1-splice90          2 tangent breaks (max 6.6°); circle r=20 curvature RMS 0.176; circle r=20 curvature RMS 0.176; line RMS 0.275; line curvature 0.0264
+roundrect                  D1-len2-splice20     contour RMS 0.315; 15 tangent breaks (max 6.8°); circle r=20 centre 0.705; circle r=20 radial RMS 0.409; circle r=20 curvature RMS 0.303; circle r=20 curvature max 0.815; circle r=20 radial RMS 0.434; circle r=20 curvature RMS 0.378; circle r=20 curvature max 1.000; circle r=20 centre 0.901; circle r=20 radial RMS 0.396; circle r=20 curvature RMS 0.282; circle r=20 curvature max 0.623; circle r=20 radial RMS 0.434; circle r=20 curvature RMS 0.378; circle r=20 curvature max 1.000; line RMS 0.274; line curvature 0.0237
+roundrect                  D1-len8-splice90     contour RMS 0.319; 2 tangent breaks (max 4.0°); circle r=20 radius -0.756; circle r=20 radial RMS 0.532; circle r=20 curvature RMS 0.224; circle r=20 centre 1.462; circle r=20 radius -1.414; circle r=20 radial RMS 0.283; circle r=20 curvature RMS 0.247; circle r=20 curvature max 0.535; circle r=20 radius -0.756; circle r=20 radial RMS 0.532; circle r=20 curvature RMS 0.224; circle r=20 centre 1.462; circle r=20 radius -1.414; circle r=20 radial RMS 0.283; circle r=20 curvature RMS 0.247; circle r=20 curvature max 0.535; line RMS 0.270; line curvature 0.0205
+roundrect                  D1-corner30          contour RMS 0.276; 6 tangent breaks (max 11.7°); circle r=20 centre 1.005; circle r=20 radius -0.645; circle r=20 radial RMS 0.306; circle r=20 curvature RMS 0.228; circle r=20 centre 1.614; circle r=20 radius -1.247; circle r=20 radial RMS 0.281; circle r=20 curvature RMS 0.220; circle r=20 centre 1.005; circle r=20 radius -0.645; circle r=20 radial RMS 0.306; circle r=20 curvature RMS 0.228; circle r=20 centre 1.614; circle r=20 radius -1.247; circle r=20 radial RMS 0.281; circle r=20 curvature RMS 0.220; line RMS 0.275; line curvature 0.0183
+roundrect                  D1-corner90          contour RMS 0.276; 6 tangent breaks (max 11.7°); circle r=20 centre 1.005; circle r=20 radius -0.645; circle r=20 radial RMS 0.306; circle r=20 curvature RMS 0.228; circle r=20 centre 1.614; circle r=20 radius -1.247; circle r=20 radial RMS 0.281; circle r=20 curvature RMS 0.220; circle r=20 centre 1.005; circle r=20 radius -0.645; circle r=20 radial RMS 0.306; circle r=20 curvature RMS 0.228; circle r=20 centre 1.614; circle r=20 radius -1.247; circle r=20 radial RMS 0.281; circle r=20 curvature RMS 0.220; line RMS 0.275; line curvature 0.0183
+roundrect                  D1-polygon           20 tangent breaks (max 23.2°); circle r=20 radial RMS 0.333; circle r=20 curvature RMS 1.000; circle r=20 curvature max 1.000; circle r=20 radial RMS 0.333; circle r=20 curvature RMS 1.000; circle r=20 curvature max 1.000; circle r=20 radial RMS 0.333; circle r=20 curvature RMS 1.000; circle r=20 curvature max 1.000; circle r=20 radial RMS 0.333; circle r=20 curvature RMS 1.000; circle r=20 curvature max 1.000
+roundrect                  D1g-lattice-G1       32 tangent breaks (max 33.9°); circle r=20 radial RMS 0.271; circle r=20 curvature RMS 19.673; circle r=20 curvature max 267.587; circle r=20 radial RMS 0.270; circle r=20 curvature RMS 19.299; circle r=20 curvature max 267.587; circle r=20 radial RMS 0.271; circle r=20 curvature RMS 19.673; circle r=20 curvature max 267.587; circle r=20 radial RMS 0.270; circle r=20 curvature RMS 19.299; circle r=20 curvature max 267.587; line curvature 0.1498
+roundrect                  D2-linear            circle r=20 centre 0.603; circle r=20 radius +0.566; circle r=20 curvature max 0.636; circle r=20 centre 0.744; circle r=20 radius +0.686; circle r=20 curvature max 0.636; line curvature 0.0269
+roundrect                  D2-area              circle r=20 curvature max 0.770; circle r=20 centre 0.522; circle r=20 curvature max 0.770; circle r=20 centre 0.522; line curvature 0.0183
+roundrect                  D3-lattice-arcs      32 tangent breaks (max 33.9°); circle r=20 radial RMS 0.271; circle r=20 curvature RMS 19.673; circle r=20 curvature max 267.587; circle r=20 radial RMS 0.270; circle r=20 curvature RMS 19.299; circle r=20 curvature max 267.587; circle r=20 radial RMS 0.271; circle r=20 curvature RMS 19.673; circle r=20 curvature max 267.587; circle r=20 radial RMS 0.270; circle r=20 curvature RMS 19.299; circle r=20 curvature max 267.587; line curvature 0.1498
+roundrect                  D4-area-arcs         circle r=20 curvature max 0.770; circle r=20 centre 0.522; circle r=20 curvature max 0.770; circle r=20 centre 0.522; line curvature 0.0183
+roundrect                  D2-area-sharpen      circle r=20 curvature max 0.770; circle r=20 centre 0.522; circle r=20 curvature max 0.770; circle r=20 centre 0.522; line curvature 0.0183
+roundrect                  D2-area-b1-sharpen   circle r=20 curvature max 0.556; circle r=20 curvature max 0.556; line curvature 0.0183
+roundrect                  D2-area-b2-sharpen   line curvature 0.0182
+roundrect                  D2-area-t1-sharpen   circle r=20 curvature max 0.589; circle r=20 curvature max 0.589; line curvature 0.0182
+roundrect                  D2-area-t2-sharpen   circle r=20 curvature max 0.542; circle r=20 curvature max 0.542; line curvature 0.0180
+roundrect                  D2-area-t4-sharpen   circle r=20 curvature max 0.531; line curvature 0.0183
+roundrect                  D2-linear-t2-sharpen circle r=20 centre 0.529; circle r=20 centre 0.529; line curvature 0.0207
+roundrect                  D4-area-t2-sharpen-arcs circle r=20 curvature max 0.542; circle r=20 curvature max 0.542; line curvature 0.0180
+roundrect                  selected             circle r=20 curvature max 0.542; circle r=20 curvature max 0.542; line curvature 0.0180
+roundrect                  selected-no-arcs     circle r=20 curvature max 0.542; circle r=20 curvature max 0.542; line curvature 0.0180
+roundrect                  D2-area-tol0.1       line curvature 0.0122
+roundrect                  D2-area-tol0.3       line curvature 0.0180
+roundrect                  D2-area-scale1.5     circle r=20 curvature max 0.581; circle r=20 centre 0.623; circle r=20 radius -0.577; circle r=20 curvature max 0.581; circle r=20 centre 0.623; circle r=20 radius -0.577; line curvature 0.0182
+roundrect                  D2-area-scale3       circle r=20 curvature RMS 0.169; circle r=20 curvature max 0.955; circle r=20 centre 0.599; circle r=20 radius -0.558; circle r=20 curvature RMS 0.169; circle r=20 curvature max 0.955; circle r=20 centre 0.599; circle r=20 radius -0.558; line curvature 0.0181
+triangle                   spline               contour RMS 0.397; line RMS 0.397; line max 0.644; line curvature 0.2605
+triangle                   D1-len2              contour RMS 0.398; 1 tangent breaks (max 4.6°); line RMS 0.398; line max 0.650; line curvature 0.3850
+triangle                   D1-len8              contour RMS 0.394; line RMS 0.394; line max 0.601; line curvature 0.2951
+triangle                   D1-splice20          contour RMS 0.398; 1 tangent breaks (max 30.0°); line RMS 0.398; line max 0.644; line curvature 0.0327
+triangle                   D1-splice90          contour RMS 0.395; line RMS 0.395; line max 0.644; line curvature 0.2605
+triangle                   D1-len2-splice20     contour RMS 0.398; 2 tangent breaks (max 27.1°); line RMS 0.398; line max 0.650; line curvature 0.1467
+triangle                   D1-len8-splice90     contour RMS 0.392; line RMS 0.392; line max 0.601; line curvature 0.2951
+triangle                   D1-corner30          contour RMS 0.391; 1 tangent breaks (max 31.7°); line RMS 0.391; line max 0.644; line curvature 0.0327
+triangle                   D1-corner90          contour RMS 0.404; 1 tangent breaks (max 2.4°); line RMS 0.404; line max 0.644; line curvature 0.2605
+triangle                   D1-polygon           contour RMS 0.373; 3 tangent breaks (max 31.4°); line RMS 0.373; line max 0.583
+triangle                   D1g-lattice-G1       contour RMS 0.276; 246 tangent breaks (max 45.0°); line RMS 0.276; line max 0.618; line curvature 5.4530; corner 1.20 px; anchors 312 > 54
+triangle                   D2-linear            line curvature 0.2530
+triangle                   D2-area              line curvature 0.1886
+triangle                   D3-lattice-arcs      contour RMS 0.276; 246 tangent breaks (max 45.0°); line RMS 0.276; line max 0.618; line curvature 5.4530; corner 1.20 px; anchors 312 > 54
+triangle                   D4-area-arcs         line curvature 0.1886
+triangle                   D2-area-sharpen      PASS
+triangle                   D2-area-b1-sharpen   PASS
+triangle                   D2-area-b2-sharpen   PASS
+triangle                   D2-area-t1-sharpen   PASS
+triangle                   D2-area-t2-sharpen   PASS
+triangle                   D2-area-t4-sharpen   PASS
+triangle                   D2-linear-t2-sharpen PASS
+triangle                   D4-area-t2-sharpen-arcs PASS
+triangle                   selected             PASS
+triangle                   selected-no-arcs     PASS
+triangle                   D2-area-tol0.1       line curvature 0.1450
+triangle                   D2-area-tol0.3       line curvature 0.0633
+triangle                   D2-area-scale1.5     line curvature 0.3947
+triangle                   D2-area-scale3       line curvature 0.2477
+star                       spline               contour RMS 0.474; 5 tangent breaks (max 11.6°); line RMS 0.474; line max 0.742; line curvature 0.4168; corner 2.22 px; IoU 0.9763
+star                       D1-len2              contour RMS 0.475; 7 tangent breaks (max 24.5°); line RMS 0.475; line max 0.732; line curvature 0.5600; corner 2.71 px; IoU 0.9762
+star                       D1-len8              contour RMS 0.484; contour max 0.992; 3 tangent breaks (max 38.7°); line RMS 0.484; line max 0.992; line curvature 0.0902; corner 1.41 px; IoU 0.9759
+star                       D1-splice20          contour RMS 0.475; contour max 0.831; 5 tangent breaks (max 36.9°); line RMS 0.475; line max 0.831; line curvature 0.1156; corner 1.41 px; IoU 0.9763
+star                       D1-splice90          contour RMS 0.453; contour max 0.980; 4 tangent breaks (max 11.7°); line RMS 0.453; line max 0.980; line curvature 0.5075; corner 4.00 px; IoU 0.9776
+star                       D1-len2-splice20     contour RMS 0.476; 8 tangent breaks (max 32.9°); line RMS 0.476; line max 0.733; line curvature 0.0976; corner 1.41 px; IoU 0.9762
+star                       D1-len8-splice90     contour RMS 0.511; contour max 1.930; 3 tangent breaks (max 38.7°); line RMS 0.511; line max 1.930; line curvature 0.2554; corner 4.00 px; IoU 0.9766
+star                       D1-corner30          contour RMS 0.477; contour max 0.921; 2 tangent breaks (max 38.9°); line RMS 0.477; line max 0.921; line curvature 0.1156; corner 1.41 px; IoU 0.9761
+star                       D1-corner90          contour RMS 0.803; contour max 3.001; 6 tangent breaks (max 17.7°); line RMS 0.803; line max 3.001; line curvature 0.4168; corner 4.00 px; IoU 0.9692
+star                       D1-polygon           contour RMS 0.461; contour max 0.939; 8 tangent breaks (max 38.7°); line RMS 0.461; line max 0.939; corner 1.41 px; IoU 0.9769
+star                       D1g-lattice-G1       contour RMS 0.260; 163 tangent breaks (max 34.4°); line RMS 0.260; line max 0.644; line curvature 7.9360; corner 1.13 px; acute corner 1.52 px; anchors 350 > 110
+star                       D2-linear            line curvature 0.3433
+star                       D2-area              line curvature 0.5791
+star                       D3-lattice-arcs      contour RMS 0.260; 163 tangent breaks (max 34.4°); line RMS 0.260; line max 0.644; line curvature 7.9360; corner 1.13 px; acute corner 1.52 px; anchors 350 > 110
+star                       D4-area-arcs         line curvature 0.5791
+star                       D2-area-sharpen      line curvature 0.2653
+star                       D2-area-b1-sharpen   line curvature 0.1675
+star                       D2-area-b2-sharpen   line curvature 0.1512
+star                       D2-area-t1-sharpen   line curvature 0.2328
+star                       D2-area-t2-sharpen   line curvature 0.2192
+star                       D2-area-t4-sharpen   line curvature 0.2222
+star                       D2-linear-t2-sharpen 2 tangent breaks (max 15.2°); line curvature 0.7241
+star                       D4-area-t2-sharpen-arcs line curvature 0.2192
+star                       selected             line curvature 0.2192
+star                       selected-no-arcs     line curvature 0.2192
+star                       D2-area-tol0.1       line curvature 1.2295
+star                       D2-area-tol0.3       line curvature 0.3200
+star                       D2-area-scale1.5     line curvature 0.3874
+star                       D2-area-scale3       line curvature 0.3874
+strokes                    spline               contour RMS 0.341; 2 tangent breaks (max 9.6°); line RMS 0.341; line max 0.712; line curvature 0.0279; corner 1.58 px
+strokes                    D1-len2              contour RMS 0.343; contour max 0.768; 2 tangent breaks (max 10.8°); line RMS 0.343; line max 0.768; line curvature 0.3269
+strokes                    D1-len8              contour RMS 0.341; 4 tangent breaks (max 5.1°); line RMS 0.341; line max 0.716; line curvature 0.0169; corner 1.58 px
+strokes                    D1-splice20          contour RMS 0.341; 2 tangent breaks (max 9.6°); line RMS 0.341; line max 0.712; line curvature 0.0279; corner 1.58 px
+strokes                    D1-splice90          contour RMS 0.416; contour max 1.866; 2 tangent breaks (max 9.5°); line RMS 0.416; line max 1.866; line curvature 0.4776; corner 4.00 px
+strokes                    D1-len2-splice20     contour RMS 0.344; contour max 0.768; 2 tangent breaks (max 10.5°); line RMS 0.344; line max 0.768; line curvature 0.1044; corner 1.58 px
+strokes                    D1-len8-splice90     contour RMS 0.416; contour max 1.866; 4 tangent breaks (max 4.9°); line RMS 0.416; line max 1.866; line curvature 0.4776; corner 4.00 px
+strokes                    D1-corner30          contour RMS 0.324; line RMS 0.324; line max 0.712; line curvature 0.0279; corner 1.58 px
+strokes                    D1-corner90          contour RMS 0.403; contour max 0.944; 3 tangent breaks (max 17.3°); line RMS 0.403; line max 0.944; line curvature 0.1206; corner 1.58 px
+strokes                    D1-polygon           contour RMS 0.320; 3 tangent breaks (max 11.8°); line RMS 0.320; line max 0.615; corner 1.58 px
+strokes                    D1g-lattice-G1       306 tangent breaks (max 45.0°); line curvature 1.6133; corner 1.93 px; anchors 350 > 96
+strokes                    D2-linear            line curvature 0.1600
+strokes                    D2-area              line curvature 0.1600
+strokes                    D3-lattice-arcs      306 tangent breaks (max 45.0°); line curvature 1.6133; corner 1.93 px; anchors 350 > 96
+strokes                    D4-area-arcs         line curvature 0.1600
+strokes                    D2-area-sharpen      2 tangent breaks (max 3.2°); line curvature 0.0848; corner 2.32 px
+strokes                    D2-area-b1-sharpen   2 tangent breaks (max 3.0°); line curvature 0.0866; corner 2.32 px
+strokes                    D2-area-b2-sharpen   2 tangent breaks (max 3.0°); line curvature 0.1117; corner 2.33 px
+strokes                    D2-area-t1-sharpen   2 tangent breaks (max 3.2°); line curvature 0.0855; corner 2.32 px
+strokes                    D2-area-t2-sharpen   2 tangent breaks (max 3.2°); line curvature 0.0867; corner 2.32 px
+strokes                    D2-area-t4-sharpen   2 tangent breaks (max 3.2°); line curvature 0.0914; corner 2.33 px
+strokes                    D2-linear-t2-sharpen line curvature 0.0867; corner 2.34 px
+strokes                    D4-area-t2-sharpen-arcs 2 tangent breaks (max 3.2°); line curvature 0.0867; corner 2.32 px
+strokes                    selected             2 tangent breaks (max 3.2°); line curvature 0.0867; corner 2.32 px
+strokes                    selected-no-arcs     2 tangent breaks (max 3.2°); line curvature 0.0867; corner 2.32 px
+strokes                    D2-area-tol0.1       line curvature 0.6510
+strokes                    D2-area-tol0.3       line curvature 0.0989
+strokes                    D2-area-scale1.5     line curvature 0.1041
+strokes                    D2-area-scale3       line curvature 0.4267
+compound-holes             spline               7 tangent breaks (max 8.1°); circle r=30 radial RMS 0.304; circle r=30 curvature RMS 0.172; circle r=30 curvature max 0.542; loop area +0.0194; line RMS 0.185; line max 0.501; line curvature 0.0481
+compound-holes             D1-len2              6 tangent breaks (max 4.7°); circle r=30 radial RMS 0.371; circle r=30 curvature RMS 0.158; loop area +0.0234; line RMS 0.186; line max 0.505; line curvature 0.0089
+compound-holes             D1-len8              7 tangent breaks (max 13.6°); circle r=30 curvature RMS 0.264; circle r=30 curvature max 0.689; loop area +0.0108; line RMS 0.183; line max 0.501; line curvature 0.0421
+compound-holes             D1-splice20          16 tangent breaks (max 6.7°); circle r=30 radial RMS 0.380; circle r=30 curvature RMS 0.306; circle r=30 curvature max 0.680; loop area +0.0244; line RMS 0.186; line max 0.501; line curvature 0.0086
+compound-holes             D1-splice90          contour RMS 0.273; contour max 2.197; 3 tangent breaks (max 7.4°); line RMS 0.281; line max 2.197; line curvature 0.3708; corner 4.00 px
+compound-holes             D1-len2-splice20     14 tangent breaks (max 4.8°); circle r=30 radial RMS 0.419; circle r=30 curvature RMS 0.231; circle r=30 curvature max 0.755; loop area +0.0271; line RMS 0.186; line max 0.505; line curvature 0.0195
+compound-holes             D1-len8-splice90     contour RMS 0.295; contour max 2.203; 4 tangent breaks (max 7.2°); line RMS 0.318; line max 2.203; line curvature 0.3471; corner 4.00 px
+compound-holes             D1-corner30          7 tangent breaks (max 8.1°); circle r=30 radial RMS 0.304; circle r=30 curvature RMS 0.172; circle r=30 curvature max 0.542; loop area +0.0194; line RMS 0.185; line max 0.501; line curvature 0.0481
+compound-holes             D1-corner90          8 tangent breaks (max 8.1°); circle r=30 radial RMS 0.304; circle r=30 curvature RMS 0.172; circle r=30 curvature max 0.542; loop area +0.0194; line RMS 0.228; line max 0.667; line curvature 0.0479
+compound-holes             D1-polygon           20 tangent breaks (max 22.2°); circle r=30 curvature RMS 1.000; circle r=30 curvature max 1.000; loop area +0.0115; line RMS 0.172
+compound-holes             D1g-lattice-G1       164 tangent breaks (max 45.0°); circle r=30 curvature RMS 110.977; circle r=30 curvature max 2115.360; line curvature 1.6133; anchors 254 > 42
+compound-holes             D2-linear            line curvature 0.3399
+compound-holes             D2-area              line curvature 0.3776
+compound-holes             D3-lattice-arcs      164 tangent breaks (max 45.0°); circle r=30 curvature RMS 110.977; circle r=30 curvature max 2115.360; line curvature 1.6133; anchors 254 > 42
+compound-holes             D4-area-arcs         line curvature 0.3776
+compound-holes             D2-area-sharpen      PASS
+compound-holes             D2-area-b1-sharpen   PASS
+compound-holes             D2-area-b2-sharpen   PASS
+compound-holes             D2-area-t1-sharpen   PASS
+compound-holes             D2-area-t2-sharpen   PASS
+compound-holes             D2-area-t4-sharpen   PASS
+compound-holes             D2-linear-t2-sharpen PASS
+compound-holes             D4-area-t2-sharpen-arcs PASS
+compound-holes             selected             PASS
+compound-holes             selected-no-arcs     PASS
+compound-holes             D2-area-tol0.1       line curvature 3.6279
+compound-holes             D2-area-tol0.3       line curvature 0.3776
+compound-holes             D2-area-scale1.5     line curvature 0.3776
+compound-holes             D2-area-scale3       line curvature 0.2120
+adjacent-overlap           spline               contour RMS 0.411; contour max 1.081; 7 tangent breaks (max 149.3°); circle r=55 centre 0.550; circle r=55 radial RMS 0.491; circle r=55 radial max 1.081; circle r=55 curvature RMS 0.289; circle r=55 curvature max 1.000; line RMS 0.351; line max 0.906; line curvature 0.0188; corner 2.07 px
+adjacent-overlap           D1-len2              contour RMS 0.393; contour max 0.909; 2 tangent breaks (max 151.0°); circle r=55 centre 0.508; circle r=55 radial RMS 0.448; circle r=55 radial max 0.868; circle r=55 curvature RMS 0.328; circle r=55 curvature max 4.461; line RMS 0.355; line max 0.909; line curvature 0.0773; corner 2.07 px; anchors 73 > 72
+adjacent-overlap           D1-len8              contour RMS 0.402; contour max 1.124; 8 tangent breaks (max 149.1°); circle r=55 radial RMS 0.464; circle r=55 radial max 1.124; circle r=55 curvature RMS 0.315; circle r=55 curvature max 1.000; line RMS 0.358; line max 0.901; line curvature 0.0334; corner 1.80 px
+adjacent-overlap           D1-splice20          contour RMS 0.402; contour max 0.937; 13 tangent breaks (max 149.3°); circle r=55 centre 0.523; circle r=55 radial RMS 0.473; circle r=55 radial max 0.937; circle r=55 curvature RMS 0.351; circle r=55 curvature max 1.000; line RMS 0.351; line max 0.906; line curvature 0.0188; corner 2.07 px
+adjacent-overlap           D1-splice90          contour RMS 0.522; contour max 1.865; 7 tangent breaks (max 149.4°); circle r=55 centre 0.661; circle r=55 radial RMS 0.664; circle r=55 radial max 1.860; circle r=55 curvature RMS 1.023; circle r=55 curvature max 13.574; line RMS 0.403; line max 1.865; line curvature 0.2511; corner 4.00 px
+adjacent-overlap           D1-len2-splice20     contour RMS 0.402; contour max 0.909; 6 tangent breaks (max 151.0°); circle r=55 centre 0.505; circle r=55 radial RMS 0.468; circle r=55 radial max 0.868; circle r=55 curvature RMS 0.390; circle r=55 curvature max 4.461; line RMS 0.355; line max 0.909; line curvature 0.0773; corner 2.07 px; anchors 80 > 72
+adjacent-overlap           D1-len8-splice90     contour RMS 0.514; contour max 1.855; 8 tangent breaks (max 149.1°); circle r=55 centre 0.561; circle r=55 radial RMS 0.636; circle r=55 radial max 1.855; circle r=55 curvature RMS 1.026; circle r=55 curvature max 13.574; line RMS 0.419; line max 1.646; line curvature 0.2703; corner 4.00 px
+adjacent-overlap           D1-corner30          contour RMS 0.411; contour max 1.081; 7 tangent breaks (max 149.3°); circle r=55 centre 0.550; circle r=55 radial RMS 0.491; circle r=55 radial max 1.081; circle r=55 curvature RMS 0.289; circle r=55 curvature max 1.000; line RMS 0.351; line max 0.906; line curvature 0.0188; corner 2.07 px
+adjacent-overlap           D1-corner90          topology; contour RMS 0.479; contour max 1.471; 12 tangent breaks (max 149.3°); circle r=55 centre 0.583; circle r=55 radial RMS 0.537; circle r=55 radial max 1.203; circle r=55 curvature RMS 0.431; circle r=55 curvature max 2.762; line RMS 0.439; line max 1.471; line curvature 0.1981; corner 2.07 px; anchors 73 > 72
+adjacent-overlap           D1-polygon           contour RMS 0.378; contour max 1.000; 31 tangent breaks (max 144.6°); circle r=55 radial RMS 0.414; circle r=55 radial max 1.000; circle r=55 curvature RMS 1.000; circle r=55 curvature max 1.000; line RMS 0.354; line max 0.886; corner 2.07 px
+adjacent-overlap           D1g-lattice-G1       topology; 108 tangent breaks (max 34.2°); circle r=55 radial RMS 0.259; circle r=55 curvature RMS 32.734; circle r=55 curvature max 227.726; line RMS 0.231; line max 0.615; line curvature 3.1612; corner 1.03 px; anchors 386 > 72
+adjacent-overlap           D2-linear            topology; circle r=55 curvature RMS 0.325; circle r=55 curvature max 9.141; line curvature 0.7669; anchors 117 > 72
+adjacent-overlap           D2-area              topology; circle r=55 curvature RMS 0.442; circle r=55 curvature max 12.998; line curvature 0.2677; corner 1.01 px; anchors 78 > 72
+adjacent-overlap           D3-lattice-arcs      topology; 108 tangent breaks (max 34.2°); circle r=55 radial RMS 0.259; circle r=55 curvature RMS 32.734; circle r=55 curvature max 227.726; line RMS 0.231; line max 0.615; line curvature 3.1612; corner 1.03 px; anchors 386 > 72
+adjacent-overlap           D4-area-arcs         topology; circle r=55 curvature RMS 0.442; circle r=55 curvature max 12.998; line curvature 0.2677; corner 1.01 px; anchors 78 > 72
+adjacent-overlap           D2-area-sharpen      circle r=55 curvature RMS 0.204; circle r=55 curvature max 1.537
+adjacent-overlap           D2-area-b1-sharpen   circle r=55 curvature RMS 0.181; circle r=55 curvature max 1.000
+adjacent-overlap           D2-area-b2-sharpen   circle r=55 curvature RMS 0.182; circle r=55 curvature max 1.000
+adjacent-overlap           D2-area-t1-sharpen   circle r=55 curvature RMS 0.179; circle r=55 curvature max 1.000
+adjacent-overlap           D2-area-t2-sharpen   circle r=55 curvature RMS 0.174; circle r=55 curvature max 1.000
+adjacent-overlap           D2-area-t4-sharpen   circle r=55 curvature RMS 0.171; circle r=55 curvature max 1.000
+adjacent-overlap           D2-linear-t2-sharpen circle r=55 curvature RMS 0.220; circle r=55 curvature max 1.000; line curvature 0.1026
+adjacent-overlap           D4-area-t2-sharpen-arcs circle r=55 curvature max 1.000
+adjacent-overlap           selected             circle r=55 curvature max 1.000
+adjacent-overlap           selected-no-arcs     circle r=55 curvature RMS 0.174; circle r=55 curvature max 1.000
+adjacent-overlap           D2-area-tol0.1       4 tangent breaks (max 11.2°); circle r=55 curvature RMS 0.659; circle r=55 curvature max 24.907; line curvature 0.5425; anchors 126 > 72
+adjacent-overlap           D2-area-tol0.3       topology; circle r=55 curvature RMS 0.338; circle r=55 curvature max 10.219; line curvature 0.1481; corner 1.01 px
+adjacent-overlap           D2-area-scale1.5     topology; circle r=55 curvature RMS 0.464; circle r=55 curvature max 13.101; line curvature 0.2677; corner 1.01 px; anchors 79 > 72
+adjacent-overlap           D2-area-scale3       topology; circle r=55 curvature RMS 0.491; circle r=55 curvature max 13.151; line curvature 0.2677; anchors 76 > 72
+hand-drawn-circle          spline               organic RMS 0.310
+hand-drawn-circle          D1-len2              organic RMS 0.367
+hand-drawn-circle          D1-len8              organic RMS 0.280
+hand-drawn-circle          D1-splice20          organic RMS 0.399
+hand-drawn-circle          D1-splice90          organic RMS 0.478; organic max 1.190
+hand-drawn-circle          D1-len2-splice20     organic RMS 0.434
+hand-drawn-circle          D1-len8-splice90     organic RMS 0.385; organic max 0.871
+hand-drawn-circle          D1-corner30          organic RMS 0.310
+hand-drawn-circle          D1-corner90          organic RMS 0.310
+hand-drawn-circle          D1-polygon           organic RMS 0.273
+hand-drawn-circle          D1g-lattice-G1       organic RMS 0.255
+hand-drawn-circle          D2-linear            PASS
+hand-drawn-circle          D2-area              PASS
+hand-drawn-circle          D3-lattice-arcs      organic RMS 0.255
+hand-drawn-circle          D4-area-arcs         PASS
+hand-drawn-circle          D2-area-sharpen      PASS
+hand-drawn-circle          D2-area-b1-sharpen   PASS
+hand-drawn-circle          D2-area-b2-sharpen   PASS
+hand-drawn-circle          D2-area-t1-sharpen   PASS
+hand-drawn-circle          D2-area-t2-sharpen   PASS
+hand-drawn-circle          D2-area-t4-sharpen   PASS
+hand-drawn-circle          D2-linear-t2-sharpen PASS
+hand-drawn-circle          D4-area-t2-sharpen-arcs PASS
+hand-drawn-circle          selected             PASS
+hand-drawn-circle          selected-no-arcs     PASS
+hand-drawn-circle          D2-area-tol0.1       PASS
+hand-drawn-circle          D2-area-tol0.3       PASS
+hand-drawn-circle          D2-area-scale1.5     PASS
+hand-drawn-circle          D2-area-scale3       PASS
+irregular-ellipse          spline               organic RMS 0.430; organic max 1.158
+irregular-ellipse          D1-len2              organic RMS 0.392; organic max 0.864
+irregular-ellipse          D1-len8              organic RMS 0.400; organic max 1.269
+irregular-ellipse          D1-splice20          organic RMS 0.417; organic max 0.839
+irregular-ellipse          D1-splice90          organic RMS 0.648; organic max 1.544
+irregular-ellipse          D1-len2-splice20     organic RMS 0.432; organic max 0.864
+irregular-ellipse          D1-len8-splice90     organic RMS 0.631; organic max 1.796
+irregular-ellipse          D1-corner30          organic RMS 0.428; organic max 1.158
+irregular-ellipse          D1-corner90          organic RMS 0.430; organic max 1.158
+irregular-ellipse          D1-polygon           organic RMS 0.296
+irregular-ellipse          D1g-lattice-G1       organic RMS 0.265
+irregular-ellipse          D2-linear            PASS
+irregular-ellipse          D2-area              PASS
+irregular-ellipse          D3-lattice-arcs      organic RMS 0.265
+irregular-ellipse          D4-area-arcs         PASS
+irregular-ellipse          D2-area-sharpen      PASS
+irregular-ellipse          D2-area-b1-sharpen   PASS
+irregular-ellipse          D2-area-b2-sharpen   PASS
+irregular-ellipse          D2-area-t1-sharpen   PASS
+irregular-ellipse          D2-area-t2-sharpen   PASS
+irregular-ellipse          D2-area-t4-sharpen   PASS
+irregular-ellipse          D2-linear-t2-sharpen PASS
+irregular-ellipse          D4-area-t2-sharpen-arcs PASS
+irregular-ellipse          selected             PASS
+irregular-ellipse          selected-no-arcs     PASS
+irregular-ellipse          D2-area-tol0.1       PASS
+irregular-ellipse          D2-area-tol0.3       PASS
+irregular-ellipse          D2-area-scale1.5     PASS
+irregular-ellipse          D2-area-scale3       PASS
+organic-blob               spline               organic RMS 0.440; organic max 1.207
+organic-blob               D1-len2              organic RMS 0.438; organic max 1.213
+organic-blob               D1-len8              organic RMS 0.414; organic max 1.137
+organic-blob               D1-splice20          organic RMS 0.433; organic max 0.868
+organic-blob               D1-splice90          organic RMS 0.469; organic max 1.207
+organic-blob               D1-len2-splice20     organic RMS 0.430; organic max 0.792
+organic-blob               D1-len8-splice90     organic RMS 0.436; organic max 1.137
+organic-blob               D1-corner30          organic RMS 0.440; organic max 1.207
+organic-blob               D1-corner90          organic RMS 0.440; organic max 1.207
+organic-blob               D1-polygon           organic RMS 0.401; organic max 1.285
+organic-blob               D1g-lattice-G1       PASS
+organic-blob               D2-linear            PASS
+organic-blob               D2-area              PASS
+organic-blob               D3-lattice-arcs      PASS
+organic-blob               D4-area-arcs         PASS
+organic-blob               D2-area-sharpen      PASS
+organic-blob               D2-area-b1-sharpen   PASS
+organic-blob               D2-area-b2-sharpen   PASS
+organic-blob               D2-area-t1-sharpen   PASS
+organic-blob               D2-area-t2-sharpen   PASS
+organic-blob               D2-area-t4-sharpen   PASS
+organic-blob               D2-linear-t2-sharpen PASS
+organic-blob               D4-area-t2-sharpen-arcs PASS
+organic-blob               selected             PASS
+organic-blob               selected-no-arcs     PASS
+organic-blob               D2-area-tol0.1       PASS
+organic-blob               D2-area-tol0.3       PASS
+organic-blob               D2-area-scale1.5     PASS
+organic-blob               D2-area-scale3       PASS
+rough-ink                  spline               organic RMS 0.543; organic max 1.242
+rough-ink                  D1-len2              organic RMS 0.533; organic max 1.185
+rough-ink                  D1-len8              organic RMS 0.548; organic max 1.402
+rough-ink                  D1-splice20          organic RMS 0.536; organic max 1.242
+rough-ink                  D1-splice90          organic RMS 0.543; organic max 1.196
+rough-ink                  D1-len2-splice20     organic RMS 0.534; organic max 1.185
+rough-ink                  D1-len8-splice90     organic RMS 0.560; organic max 1.402
+rough-ink                  D1-corner30          organic RMS 0.534; organic max 1.402
+rough-ink                  D1-corner90          organic RMS 0.542; organic max 1.242
+rough-ink                  D1-polygon           organic RMS 0.525; organic max 1.401
+rough-ink                  D1g-lattice-G1       PASS
+rough-ink                  D2-linear            PASS
+rough-ink                  D2-area              PASS
+rough-ink                  D3-lattice-arcs      PASS
+rough-ink                  D4-area-arcs         PASS
+rough-ink                  D2-area-sharpen      PASS
+rough-ink                  D2-area-b1-sharpen   PASS
+rough-ink                  D2-area-b2-sharpen   PASS
+rough-ink                  D2-area-t1-sharpen   PASS
+rough-ink                  D2-area-t2-sharpen   PASS
+rough-ink                  D2-area-t4-sharpen   PASS
+rough-ink                  D2-linear-t2-sharpen PASS
+rough-ink                  D4-area-t2-sharpen-arcs PASS
+rough-ink                  selected             PASS
+rough-ink                  selected-no-arcs     PASS
+rough-ink                  D2-area-tol0.1       PASS
+rough-ink                  D2-area-tol0.3       PASS
+rough-ink                  D2-area-scale1.5     PASS
+rough-ink                  D2-area-scale3       PASS
+asymmetric-egg             spline               organic RMS 0.379
+asymmetric-egg             D1-len2              organic RMS 0.424
+asymmetric-egg             D1-len8              PASS
+asymmetric-egg             D1-splice20          organic RMS 0.418
+asymmetric-egg             D1-splice90          organic RMS 0.332
+asymmetric-egg             D1-len2-splice20     organic RMS 0.466
+asymmetric-egg             D1-len8-splice90     organic RMS 0.855; organic max 2.037
+asymmetric-egg             D1-corner30          organic RMS 0.379
+asymmetric-egg             D1-corner90          organic RMS 0.379
+asymmetric-egg             D1-polygon           organic RMS 0.267
+asymmetric-egg             D1g-lattice-G1       PASS
+asymmetric-egg             D2-linear            PASS
+asymmetric-egg             D2-area              PASS
+asymmetric-egg             D3-lattice-arcs      PASS
+asymmetric-egg             D4-area-arcs         PASS
+asymmetric-egg             D2-area-sharpen      PASS
+asymmetric-egg             D2-area-b1-sharpen   PASS
+asymmetric-egg             D2-area-b2-sharpen   PASS
+asymmetric-egg             D2-area-t1-sharpen   PASS
+asymmetric-egg             D2-area-t2-sharpen   PASS
+asymmetric-egg             D2-area-t4-sharpen   PASS
+asymmetric-egg             D2-linear-t2-sharpen PASS
+asymmetric-egg             D4-area-t2-sharpen-arcs PASS
+asymmetric-egg             selected             PASS
+asymmetric-egg             selected-no-arcs     PASS
+asymmetric-egg             D2-area-tol0.1       PASS
+asymmetric-egg             D2-area-tol0.3       PASS
+asymmetric-egg             D2-area-scale1.5     PASS
+asymmetric-egg             D2-area-scale3       PASS
+hand-drawn-hole            spline               organic RMS 0.382; organic max 0.767
+hand-drawn-hole            D1-len2              organic RMS 0.452; organic max 0.901
+hand-drawn-hole            D1-len8              organic max 0.767
+hand-drawn-hole            D1-splice20          organic RMS 0.414; organic max 0.767
+hand-drawn-hole            D1-splice90          organic RMS 0.383; organic max 0.798
+hand-drawn-hole            D1-len2-splice20     organic RMS 0.455
+hand-drawn-hole            D1-len8-splice90     organic RMS 0.384; organic max 0.854
+hand-drawn-hole            D1-corner30          organic RMS 0.382; organic max 0.767
+hand-drawn-hole            D1-corner90          organic RMS 0.382; organic max 0.767
+hand-drawn-hole            D1-polygon           organic RMS 0.284
+hand-drawn-hole            D1g-lattice-G1       PASS
+hand-drawn-hole            D2-linear            PASS
+hand-drawn-hole            D2-area              PASS
+hand-drawn-hole            D3-lattice-arcs      PASS
+hand-drawn-hole            D4-area-arcs         PASS
+hand-drawn-hole            D2-area-sharpen      PASS
+hand-drawn-hole            D2-area-b1-sharpen   PASS
+hand-drawn-hole            D2-area-b2-sharpen   PASS
+hand-drawn-hole            D2-area-t1-sharpen   PASS
+hand-drawn-hole            D2-area-t2-sharpen   PASS
+hand-drawn-hole            D2-area-t4-sharpen   PASS
+hand-drawn-hole            D2-linear-t2-sharpen PASS
+hand-drawn-hole            D4-area-t2-sharpen-arcs PASS
+hand-drawn-hole            selected             PASS
+hand-drawn-hole            selected-no-arcs     PASS
+hand-drawn-hole            D2-area-tol0.1       PASS
+hand-drawn-hole            D2-area-tol0.3       PASS
+hand-drawn-hole            D2-area-scale1.5     PASS
+hand-drawn-hole            D2-area-scale3       PASS
+### Sets: rejected,validation,negative
+
+| Variant | Family | Fixtures passing | Rejected cases passing | Negative controls passing | Mean contour RMS (ideal) | Worst contour max (ideal) | Tangent breaks | Anchors (total) | Time (ms, total) |
+|---|---|---|---|---|---|---|---|---|---|
+| spline | baseline | 0/32 | 0/2 | 0/6 | 0.420 | 2.318 | 277 | 868 | 120.1 |
+| D1-len2 | D1 | 0/32 | 0/2 | 0/6 | 0.466 | 2.965 | 179 | 1149 | 120.1 |
+| D1-len8 | D1 | 1/32 | 0/2 | 1/6 | 0.361 | 2.486 | 323 | 717 | 121.7 |
+| D1-splice20 | D1 | 0/32 | 0/2 | 0/6 | 0.411 | 1.256 | 553 | 1237 | 122.6 |
+| D1-splice90 | D1 | 0/32 | 0/2 | 0/6 | 0.581 | 4.000 | 148 | 684 | 121.2 |
+| D1-len2-splice20 | D1 | 0/32 | 0/2 | 0/6 | 0.433 | 1.401 | 369 | 1548 | 122.0 |
+| D1-len8-splice90 | D1 | 0/32 | 0/2 | 0/6 | 0.579 | 3.998 | 187 | 545 | 121.1 |
+| D1-corner30 | D1 | 0/32 | 0/2 | 0/6 | 0.423 | 2.916 | 261 | 835 | 121.1 |
+| D1-corner90 | D1 | 0/32 | 0/2 | 0/6 | 0.457 | 3.001 | 288 | 971 | 120.6 |
+| D1-polygon | D1 | 0/32 | 0/2 | 0/6 | 0.326 | 1.238 | 1003 | 1355 | 120.4 |
+| D1g-lattice-G1 | D1 (Vectra G1 fit, no sub-pixel) | 4/32 | 0/2 | 4/6 | 0.243 | 0.814 | 4277 | 8659 | 136.1 |
+| D2-linear | D2 | 13/32 | 1/2 | 6/6 | 0.075 | 0.569 | 79 | 1342 | 126.7 |
+| D2-area | D2 | 18/32 | 1/2 | 6/6 | 0.066 | 0.569 | 107 | 929 | 123.6 |
+| D3-lattice-arcs | D3 | 4/32 | 0/2 | 4/6 | 0.243 | 0.814 | 4277 | 8659 | 138.2 |
+| D4-area-arcs | D4 | 19/32 | 1/2 | 6/6 | 0.050 | 0.569 | 107 | 899 | 128.3 |
+| D2-area-sharpen | D2 + corner rebuild | 22/32 | 1/2 | 6/6 | 0.064 | 0.569 | 109 | 798 | 124.1 |
+| D2-area-b1-sharpen | D2 + smoothing + corner rebuild | 21/32 | 1/2 | 6/6 | 0.068 | 0.464 | 9 | 702 | 123.6 |
+| D2-area-b2-sharpen | D2 + smoothing + corner rebuild | 20/32 | 1/2 | 6/6 | 0.073 | 0.456 | 3 | 632 | 123.4 |
+| D2-area-t1-sharpen | D2 + smoothing + corner rebuild | 22/32 | 1/2 | 6/6 | 0.065 | 0.440 | 44 | 758 | 125.9 |
+| D2-area-t2-sharpen | D2 + smoothing + corner rebuild | 22/32 | 1/2 | 6/6 | 0.066 | 0.489 | 13 | 720 | 123.7 |
+| D2-area-t4-sharpen | D2 + smoothing + corner rebuild | 22/32 | 1/2 | 6/6 | 0.062 | 0.489 | 7 | 699 | 125.1 |
+| D2-linear-t2-sharpen | D2 + smoothing + corner rebuild | 18/32 | 1/2 | 6/6 | 0.070 | 0.489 | 8 | 896 | 123.3 |
+| D4-area-t2-sharpen-arcs | D4 (D2 refined + recognition) | 24/32 | 1/2 | 6/6 | 0.046 | 0.489 | 13 | 611 | 122.1 |
+| selected | selected: Options::production(60) | 24/32 | 1/2 | 6/6 | 0.046 | 0.489 | 13 | 611 | 125.0 |
+| selected-no-arcs | selected without recognition | 22/32 | 1/2 | 6/6 | 0.066 | 0.489 | 13 | 720 | 123.0 |
+| D2-area-tol0.1 | D2 sensitivity | 17/32 | 1/2 | 6/6 | 0.048 | 0.569 | 183 | 1458 | 127.5 |
+| D2-area-tol0.3 | D2 sensitivity | 18/32 | 1/2 | 6/6 | 0.095 | 0.569 | 84 | 741 | 124.9 |
+| D2-area-scale1.5 | D2 sensitivity | 18/32 | 1/2 | 6/6 | 0.069 | 0.569 | 93 | 945 | 124.6 |
+| D2-area-scale3 | D2 sensitivity | 18/32 | 1/2 | 6/6 | 0.066 | 0.569 | 101 | 941 | 124.7 |
+
+### P0 IoU metric (render 1×, coverage ≥ 0.5 mask), target ≥ 0.98
+
+| Fixture | Variant | IoU |
+|---|---|---|
+| circle | spline | 0.9936 |
+| circle | D1-len2 | 0.9932 |
+| circle | D1-len8 | 0.9956 |
+| circle | D1-splice20 | 0.9941 |
+| circle | D1-splice90 | 0.9873 |
+| circle | D1-len2-splice20 | 0.9932 |
+| circle | D1-len8-splice90 | 0.9840 |
+| circle | D1-corner30 | 0.9936 |
+| circle | D1-corner90 | 0.9936 |
+| circle | D1-polygon | 0.9952 |
+| circle | D1g-lattice-G1 | 0.9984 |
+| circle | D2-linear | 0.9976 |
+| circle | D2-area | 0.9976 |
+| circle | D3-lattice-arcs | 0.9984 |
+| circle | D4-area-arcs | 0.9990 |
+| circle | D2-area-sharpen | 0.9976 |
+| circle | D2-area-b1-sharpen | 0.9976 |
+| circle | D2-area-b2-sharpen | 0.9968 |
+| circle | D2-area-t1-sharpen | 0.9978 |
+| circle | D2-area-t2-sharpen | 0.9974 |
+| circle | D2-area-t4-sharpen | 0.9968 |
+| circle | D2-linear-t2-sharpen | 0.9974 |
+| circle | D4-area-t2-sharpen-arcs | 0.9990 |
+| circle | selected | 0.9990 |
+| circle | selected-no-arcs | 0.9974 |
+| circle | D2-area-tol0.1 | 0.9986 |
+| circle | D2-area-tol0.3 | 0.9968 |
+| circle | D2-area-scale1.5 | 0.9975 |
+| circle | D2-area-scale3 | 0.9973 |
+| sharp_corners | spline | 0.9771 |
+| sharp_corners | D1-len2 | 0.9775 |
+| sharp_corners | D1-len8 | 0.9772 |
+| sharp_corners | D1-splice20 | 0.9771 |
+| sharp_corners | D1-splice90 | 0.9776 |
+| sharp_corners | D1-len2-splice20 | 0.9775 |
+| sharp_corners | D1-len8-splice90 | 0.9775 |
+| sharp_corners | D1-corner30 | 0.9777 |
+| sharp_corners | D1-corner90 | 0.9621 |
+| sharp_corners | D1-polygon | 0.9781 |
+| sharp_corners | D1g-lattice-G1 | 0.9945 |
+| sharp_corners | D2-linear | 0.9951 |
+| sharp_corners | D2-area | 0.9942 |
+| sharp_corners | D3-lattice-arcs | 0.9945 |
+| sharp_corners | D4-area-arcs | 0.9942 |
+| sharp_corners | D2-area-sharpen | 0.9945 |
+| sharp_corners | D2-area-b1-sharpen | 0.9965 |
+| sharp_corners | D2-area-b2-sharpen | 0.9969 |
+| sharp_corners | D2-area-t1-sharpen | 0.9962 |
+| sharp_corners | D2-area-t2-sharpen | 0.9958 |
+| sharp_corners | D2-area-t4-sharpen | 0.9957 |
+| sharp_corners | D2-linear-t2-sharpen | 0.9942 |
+| sharp_corners | D4-area-t2-sharpen-arcs | 0.9958 |
+| sharp_corners | selected | 0.9958 |
+| sharp_corners | selected-no-arcs | 0.9958 |
+| sharp_corners | D2-area-tol0.1 | 0.9954 |
+| sharp_corners | D2-area-tol0.3 | 0.9927 |
+| sharp_corners | D2-area-scale1.5 | 0.9940 |
+| sharp_corners | D2-area-scale3 | 0.9929 |
+| nested_rings | spline | 0.9752 |
+| nested_rings | D1-len2 | 0.9672 |
+| nested_rings | D1-len8 | 0.9852 |
+| nested_rings | D1-splice20 | 0.9689 |
+| nested_rings | D1-splice90 | 0.9523 |
+| nested_rings | D1-len2-splice20 | 0.9654 |
+| nested_rings | D1-len8-splice90 | 0.9655 |
+| nested_rings | D1-corner30 | 0.9752 |
+| nested_rings | D1-corner90 | 0.9752 |
+| nested_rings | D1-polygon | 0.9808 |
+| nested_rings | D1g-lattice-G1 | 0.9930 |
+| nested_rings | D2-linear | 0.9938 |
+| nested_rings | D2-area | 0.9902 |
+| nested_rings | D3-lattice-arcs | 0.9930 |
+| nested_rings | D4-area-arcs | 0.9962 |
+| nested_rings | D2-area-sharpen | 0.9902 |
+| nested_rings | D2-area-b1-sharpen | 0.9919 |
+| nested_rings | D2-area-b2-sharpen | 0.9921 |
+| nested_rings | D2-area-t1-sharpen | 0.9905 |
+| nested_rings | D2-area-t2-sharpen | 0.9916 |
+| nested_rings | D2-area-t4-sharpen | 0.9923 |
+| nested_rings | D2-linear-t2-sharpen | 0.9918 |
+| nested_rings | D4-area-t2-sharpen-arcs | 0.9960 |
+| nested_rings | selected | 0.9960 |
+| nested_rings | selected-no-arcs | 0.9916 |
+| nested_rings | D2-area-tol0.1 | 0.9939 |
+| nested_rings | D2-area-tol0.3 | 0.9880 |
+| nested_rings | D2-area-scale1.5 | 0.9916 |
+| nested_rings | D2-area-scale3 | 0.9924 |
+

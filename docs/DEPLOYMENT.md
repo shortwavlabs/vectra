@@ -1,5 +1,11 @@
 # Cloudflare Pages and Vite+
-Proposed static deployment, not yet provisioned.
+**Maintainer decision (P0-R-GEO, 2026-11-24):**
+- **Approved:** Cloudflare Workers Static Assets, assets-only, as the hosting target. Optional future API endpoints may serve image discovery or community features; artwork processing always stays local.
+- **Deferred:** the actual deployment, until a suitable application UI exists. Tentative domains `vectrapress.ink` and `vectrapress.com` are recorded only: none is registered, and no DNS is configured.
+
+Earlier: proposed static deployment, not yet provisioned. **P0-R update (2026-11-24):** Workers Static Assets (assets-only) is recommended over Pages: static requests are free and unlimited, `_headers` is supported, and an optional `/api/*` Worker can be added later. `wrangler.jsonc`, `scripts/verify-deployment.sh` and the owner checklist are in docs/research/p0-r/DEPLOYMENT-READINESS.md. The build also emits a versioned service worker (`sw.js`) for offline worker recovery; serve it with `Cache-Control: no-cache`. P0 validated the static build and local Pages emulation; a real deploy is OWNER TEST PENDING (docs/research/p0/P0-G4-CLOUDFLARE-PAGES.md).
+
+P0 recommendation: Pages v3 Git builds lack Rust, wasm-bindgen and pnpm 12, so build with the pinned toolchain locally or in one pinned CI job (`pnpm install && pnpm run build`). Verify with `node scripts/check-dist.mjs` and optionally `wrangler pages dev dist`. Then the maintainer uploads with `wrangler pages deploy dist --project-name <name>` (credentials stay with the maintainer). Workers Static Assets is an equivalent target for the same `dist/`. `public/_headers` sets the CSP (`'wasm-unsafe-eval'` is required), security headers and `immutable` caching for `/assets/*`.
 
 Use Vite+ commands vp install, vp dev, vp check, vp test, vp build; consult official CI guide for exact pinned bootstrap. Lock Node, package manager, Rust and wasm-bindgen versions. Build WASM before web bundling; ensure generated artifacts are included in dist. Do not assume Pages has Rust or vp preinstalled. P0 test clean Pages Git build; if unsupported, build locally or in pinned CI/container and use Wrangler Pages direct upload in a separately configured project. Never commit Cloudflare credentials.
 

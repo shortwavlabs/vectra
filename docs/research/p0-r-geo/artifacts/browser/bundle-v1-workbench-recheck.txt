@@ -1,0 +1,14 @@
+identical 01-bw-photo-talbot.svg
+identical 02-bw-transparent-ring.svg
+identical 03-limited-hokusai.svg
+identical 04-color-discs.svg
+identical 05-color-transparent-hole.svg
+identical 06-oldprint-talbot.svg
+identical 07-oldprint-transparent-gradient.svg
+identical 01-bw-photo-talbot.pdf
+identical 02-bw-transparent-ring.pdf
+identical 03-limited-hokusai.pdf
+identical 04-color-discs.pdf
+identical 05-color-transparent-hole.pdf
+identical 06-oldprint-talbot.pdf
+identical 07-oldprint-transparent-gradient.pdf

@@ -1,0 +1,47 @@
+{
+  "name": "vectra",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local-first browser vectorization and artistic print studio (P0 feasibility workbench)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "wasm": "node scripts/build-wasm.mjs",
+    "dev": "vp dev",
+    "check": "vp check",
+    "test": "vp test",
+    "test:rust": "cargo test --locked --workspace",
+    "build": "node scripts/build-wasm.mjs && vp build && node scripts/generate-notices.mjs --check && node scripts/generate-sw.mjs && node scripts/check-dist.mjs",
+    "notices": "node scripts/generate-notices.mjs",
+    "preview": "vp preview --port 4173 --strictPort",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "jspdf": "4.2.1",
+    "svg2pdf.js": "2.9.0",
+    "typescript": "7.0.2",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.23.0",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "24.22.1",
+      "onFail": "error"
+    }
+  }
+}

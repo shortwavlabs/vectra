@@ -1,0 +1,5 @@
+file	bytes	objects	pdfimages	mediaBox	meanAbsDiff	maxDiff	pctPxOver32	block32MeanAbsDiff	operators	problems
+hokusai-great-wave-640-limited.pdf	280129	6	0	0.00 0.00 425.20 285.68	1.5185	204	1.8888	0.6233	c,cm,end,endobj,f,f*,h,l,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+nested_rings-bw.pdf	1480	6	0	0.00 0.00 425.20 425.20	0.2126	151	0.2531	0.2072	c,cm,end,endobj,f,f*,h,m,n,obj,q,Q,R,rg,startxref,trailer,xref	
+talbot-scene-in-a-library-640-halftone.pdf	285079	6	0	0.00 0.00 425.20 349.46	7.9771	214	9.1452	0.8160	c,cm,end,endobj,f,h,m,n,obj,q,Q,R,re,rg,startxref,trailer,W,xref	
+transparent_ring-color.pdf	1173	6	0	0.00 0.00 425.20 425.20	0.0627	122	0.1082	0.0613	c,cm,end,endobj,f,f*,h,m,n,obj,q,Q,R,rg,startxref,trailer,xref	

@@ -1,0 +1,4 @@
+transparent_ring       spline    leak=0.0062 (281/45364 px) max_leak_distance_px=0.81
+transparent_ring       precision leak=0.0000 (0/45364 px) max_leak_distance_px=0.00
+logo_transparent_hole  spline    leak=0.0008 (1/1264 px) max_leak_distance_px=0.06
+logo_transparent_hole  precision leak=0.0087 (11/1264 px) max_leak_distance_px=0.12

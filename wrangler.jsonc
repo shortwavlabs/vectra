@@ -1,0 +1,18 @@
+// Cloudflare Workers Static Assets configuration for a maintainer-approved PREVIEW deployment.
+// Assets only: no Worker script, so every request is a free static-asset request.
+// No account id, routes, custom domains or secrets are configured here (see
+// docs/research/p0-r/DEPLOYMENT-READINESS.md). Build first: `pnpm run build`.
+{
+  "name": "vectra-preview",
+  "compatibility_date": "2026-11-19",
+  "assets": {
+    "directory": "./dist",
+    // The app has no client-side routes; unknown paths return 404 instead of index.html
+    // (index.html uses relative asset URLs, which would break under deep paths).
+    "not_found_handling": "none",
+    "html_handling": "auto-trailing-slash",
+  },
+  // A workers.dev hostname and Version URLs are needed for a preview without a custom domain.
+  "workers_dev": true,
+  "preview_urls": true,
+}

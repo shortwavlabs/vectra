@@ -1,0 +1,55 @@
+== /
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: public, max-age=0, must-revalidate
+ETag: "a59e9b8e1c4a26233145cac0716f9eee"
+content-security-policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+cross-origin-opener-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-frame-options: DENY
+== /assets/vector_engine_wasm_bg-DJLL3a9y.wasm
+HTTP/1.1 200 OK
+Content-Type: application/wasm
+Cache-Control: public, max-age=31536000, immutable
+ETag: "ba09bdb9f85b9b779f770a795272326e"
+content-security-policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+cross-origin-opener-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-frame-options: DENY
+== /assets/vectorize.worker-PV4VIgYR.js
+HTTP/1.1 200 OK
+Content-Type: application/javascript
+Cache-Control: public, max-age=31536000, immutable
+ETag: "a208e5e1d0fff66cda006ac73fb45fd7"
+content-security-policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+cross-origin-opener-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-frame-options: DENY
+== /assets/index-BoMiDV1k.js
+HTTP/1.1 200 OK
+Content-Type: application/javascript
+Cache-Control: public, max-age=31536000, immutable
+ETag: "6d529118ad3bbfe1e10462cd9e39c6f8"
+content-security-policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+cross-origin-opener-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-frame-options: DENY
+== /some/spa/route
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: public, max-age=0, must-revalidate
+ETag: "a59e9b8e1c4a26233145cac0716f9eee"
+content-security-policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+cross-origin-opener-policy: same-origin
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-frame-options: DENY

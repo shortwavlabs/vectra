@@ -1,0 +1,8 @@
+# Experiment (reverted): ink clusters 8-connected, background 4-connected (trace.rs lines 47/60).
+# cargo run --release -p vector-engine --example quality_probe  (thin-stroke section)
+{"mode":"bw"}                                        paths=8 diagonal_truth_px=56 diagonal_rendered_px=0
+{"mode":"bw","speckle":0}                            paths=8 diagonal_truth_px=56 diagonal_rendered_px=0
+{"mode":"bw","speckle":0,"fit":{"mode":"pixel"}}     paths=9 diagonal_truth_px=56 diagonal_rendered_px=56
+# engine integration tests with the change: 15 passed
+# Conclusion: 8-connectivity merges the diagonal into one component, but spline/polygon fitting
+# collapses the zero-width pixel chain; only pixel fit keeps it. Not adopted.

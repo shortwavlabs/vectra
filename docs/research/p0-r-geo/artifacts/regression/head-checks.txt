@@ -1,0 +1,34 @@
+# Checks at 758c42a0490e94a602414fa20facbfb5f399cda1 (+ uncommitted changes limited to examples/geo_inspect.rs and docs; engine/app sources unchanged since a4cf172)
+Tue Nov 24 21:43:45 UTC 2026
+ M crates/vector-engine/examples/geo_inspect.rs
+?? docs/research/p0-r-geo/artifacts/regression/head-checks.txt
+## rustc / node
+rustc 1.96.0 (ac68faa20 2026-05-25)
+v24.22.1
+## cargo fmt --all --check
+PASS
+## cargo clippy --workspace --all-targets --locked -- -D warnings
+    Checking vector-engine v0.0.0 (/Users/shortwavlabs/Workspace/shortwavlabs/vectra/crates/vector-engine)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
+## cargo test --workspace --locked
+     Running unittests src/lib.rs (target/debug/deps/vector_engine-c3ffcc524886574c)
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/engine.rs (target/debug/deps/engine-5fb21e4377f49b61)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+     Running tests/geometry_metrics.rs (target/debug/deps/geometry_metrics-bd9d4b5669571cc6)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.74s
+     Running tests/precision.rs (target/debug/deps/precision-8351eccfdcecb344)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.21s
+     Running unittests src/lib.rs (target/debug/deps/vector_engine_wasm-abb739e7fbe7c027)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+## pnpm exec vp check
+pass: All 57 files are correctly formatted (89ms, 18 threads)
+pass: Found no warnings, lint errors, or type errors in 38 files (232ms, 18 threads)
+## pnpm exec vp test
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+## pnpm run build
+       510  index.html
+8 files, 1021786 bytes total
+dist check passed

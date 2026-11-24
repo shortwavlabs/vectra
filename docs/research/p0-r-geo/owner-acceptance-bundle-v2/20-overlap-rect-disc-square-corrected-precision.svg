@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="256" height="256" viewBox="0 0 256 256">
+<desc>Vectra vector-engine 0.0.0 · scene v1 · mode color</desc>
+<g id="color">
+<path d="M0 0L256 0L256 256L0 256L0 0Z" fill="#fefefe" fill-rule="evenodd" class="c0"/>
+<path d="M168.73 33.24L226.74 48.79L211.21 106.75L188.25 100.48C205.33 117 209.85 142.63 199.48 164.01C189.11 185.39 166.18 197.69 142.63 194.5C119.09 191.32 100.27 173.37 95.95 150L34.97 150L35 69.97L145.04 70L144.95 85.05L154.91 85.06L168.73 33.24Z" fill="#2846d1" fill-rule="evenodd" class="c1"/>
+<path d="M34.97 70L145.03 70L145.04 85.15C129.63 86.55 115.53 94.44 106.18 106.76C96.83 119.09 93.08 134.79 95.88 150L34.97 150L34.97 70Z" fill="#db2828" fill-rule="evenodd" class="c2"/>
+<path d="M168.73 33.24L226.74 48.79L211.21 106.74L153.26 91.21L168.73 33.24Z" fill="#29a03d" fill-rule="evenodd" class="c3"/>
+</g>
+</svg>

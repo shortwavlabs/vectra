@@ -1,0 +1,5 @@
+{"mode":"bw"}                                            paths=8 diagonal_truth_px=56 diagonal_rendered_px=0
+{"mode":"bw","speckle":0}                                paths=8 diagonal_truth_px=56 diagonal_rendered_px=0
+{"mode":"bw","speckle":0,"fit":{"mode":"pixel"}}         paths=64 diagonal_truth_px=56 diagonal_rendered_px=56
+{"mode":"bw","fit":{"mode":"precision"}}                 paths=8 diagonal_truth_px=56 diagonal_rendered_px=0
+{"mode":"bw","speckle":0,"fit":{"mode":"precision"}}     paths=64 diagonal_truth_px=56 diagonal_rendered_px=56

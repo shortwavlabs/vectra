@@ -1,0 +1,12 @@
+{
+  "vtracer 1.0.0-alpha.4": {
+    "file": "vtracer-1.0.0-alpha.4.LICENSE",
+    "source": "https://github.com/visioncortex/vtracer/blob/2500df76b5aea0ac22d15296b22722442f825c5b/LICENSE",
+    "note": "the published crate (crates/vtracer in a Cargo workspace) omits the repository's root LICENSE; this is that file at the 1.0.0-alpha.4 release tag, verbatim"
+  },
+  "flo_curves 0.3.1": {
+    "file": "flo_curves-0.3.1.LICENSE",
+    "source": "https://github.com/Logicalshift/flo_curves/blob/2c814eef2df34a9eb0dec694d196d2726bd140e4/LICENSE",
+    "note": "neither the published 0.3.1 crate nor the repository at the 0.3.1 tag (fccd9339) contains a license file and the crate metadata declares Apache-2.0; the author added this LICENSE on 2021-01-10 (commit 2c814eef: 'didn't add the LICENSE file when this was split from FlowBetween: add it now'), reproduced verbatim"
+  }
+}

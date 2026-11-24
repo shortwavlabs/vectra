@@ -1,0 +1,13 @@
+clone                PASS       0.0s
+pnpm-install         PASS       2.8s
+wasm-build           PASS       5.8s
+vp-check             PASS       1.2s
+vp-test              PASS       0.2s
+cargo-fmt            PASS       0.0s
+cargo-clippy         PASS       3.1s
+cargo-test           PASS       9.7s
+fixture-manifest     PASS       0.0s
+production-build     PASS       0.4s
+browser-tests        PASS      41.3s
+wasm-fingerprint     PASS       0.5s
+exit status 0

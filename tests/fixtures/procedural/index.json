@@ -1,0 +1,80 @@
+[
+  {
+    "id": "circle",
+    "file": "procedural/circle.png",
+    "description": "Antialiased black disc r=80 on white",
+    "coverage": "bw IoU, curve fitting"
+  },
+  {
+    "id": "rectangles",
+    "file": "procedural/rectangles.png",
+    "description": "Axis-aligned rectangle and a 45° rotated square",
+    "coverage": "straight edges, corners"
+  },
+  {
+    "id": "sharp_corners",
+    "file": "procedural/sharp_corners.png",
+    "description": "Five-point star with 36° acute tips",
+    "coverage": "corner preservation"
+  },
+  {
+    "id": "nested_rings",
+    "file": "procedural/nested_rings.png",
+    "description": "Two concentric rings around a disc: 3 components, 2 holes",
+    "coverage": "hole preservation, topology"
+  },
+  {
+    "id": "thin_strokes",
+    "file": "procedural/thin_strokes.png",
+    "description": "Horizontal/vertical/diagonal strokes 1, 2, 3 and 4 px wide",
+    "coverage": "thin feature retention"
+  },
+  {
+    "id": "transparent_ring",
+    "file": "procedural/transparent_ring.png",
+    "description": "Red antialiased-alpha ring on transparent background",
+    "coverage": "transparency, hole in alpha"
+  },
+  {
+    "id": "logo_transparent_hole",
+    "file": "procedural/logo_transparent_hole.png",
+    "description": "Opaque blue field with one transparent hole off VTracer's keying rows",
+    "coverage": "transparency policy"
+  },
+  {
+    "id": "adjacent_colors",
+    "file": "procedural/adjacent_colors.png",
+    "description": "Four colour quadrants and a centred dark square",
+    "coverage": "adjacent regions, seams, palette fidelity"
+  },
+  {
+    "id": "antialiased_discs",
+    "file": "procedural/antialiased_discs.png",
+    "description": "Three overlapping antialiased colour discs on white",
+    "coverage": "antialiased colour edges"
+  },
+  {
+    "id": "noise",
+    "file": "procedural/noise.png",
+    "description": "Square with 1-px salt-and-pepper noise inside and outside",
+    "coverage": "speckle removal both ways"
+  },
+  {
+    "id": "gradient",
+    "file": "procedural/gradient.png",
+    "description": "Horizontal grey ramp, black to white",
+    "coverage": "tone mapping, banding, halftone"
+  },
+  {
+    "id": "color_gradient",
+    "file": "procedural/color_gradient.png",
+    "description": "Red–green–blue horizontal ramp",
+    "coverage": "colour quantisation, banding"
+  },
+  {
+    "id": "checkerboard",
+    "file": "procedural/checkerboard.png",
+    "description": "16 px checkerboard (diagonal-touching squares)",
+    "coverage": "connectivity ambiguity"
+  }
+]

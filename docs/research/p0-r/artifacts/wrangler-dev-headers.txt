@@ -1,0 +1,43 @@
+ok   index: ^content-type: text/html
+ok   index: content-security-policy: .*script-src 'self' 'wasm-unsafe-eval'
+ok   index: x-content-type-options: nosniff
+ok   index: referrer-policy: no-referrer
+ok   index: cross-origin-opener-policy: same-origin
+ok   index: x-frame-options: DENY
+ok   main js: ^content-type: (application|text)/javascript
+ok   main js: cache-control: .*immutable
+ok   worker: ^content-type: (application|text)/javascript
+ok   worker: content-security-policy: .*script-src 'self' 'wasm-unsafe-eval'
+ok   worker: cache-control: .*immutable
+ok   wasm: ^content-type: application/wasm
+ok   wasm: cache-control: .*immutable
+ok   service worker: ^content-type: (application|text)/javascript
+ok   service worker: cache-control: no-cache
+ok   notices: ^content-type: text/plain
+unknown path: 404
+4.166.0
+ok   service worker: ^content-type: (application|text)/javascript
+ok   service worker: cache-control: no-cache
+ok   notices: ^content-type: text/plain
+  ✓   1 [chromium] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked (414ms)
+  ✓   2 [chromium] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic (6.2s)
+  ✓   3 [chromium] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job (1.5s)
+  ✓   4 [chromium] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working (2.0s)
+  ✓   5 [chromium] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted (612ms)
+  ✓   6 [chromium] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded (1.2s)
+  ✓   7 [chromium] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP (382ms)
+  ✓   8 [firefox] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked (811ms)
+  ✓   9 [firefox] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic (6.5s)
+  ✓  10 [firefox] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job (1.7s)
+  ✓  11 [firefox] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working (2.0s)
+  ✓  12 [firefox] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted (710ms)
+  ✓  13 [firefox] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded (1.3s)
+  ✓  14 [firefox] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP (445ms)
+  ✓  15 [webkit] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked (552ms)
+  ✓  16 [webkit] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic (5.0s)
+  ✓  17 [webkit] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job (1.8s)
+  ✓  18 [webkit] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working (2.2s)
+  ✓  19 [webkit] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted (757ms)
+  ✓  20 [webkit] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded (1.4s)
+  ✓  21 [webkit] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP (551ms)
+  21 passed (39.3s)

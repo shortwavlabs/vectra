@@ -19,6 +19,11 @@ Status: proposed. Every preset outputs vector paths or vector primitives, never 
 | blueprint | edge extraction -> recolor | ink/background, width | P3 |
 | stencil | binary tracing -> explicit topology bridges | minimum bridge width, hole policy | P3 |
 
+## P0 notes (2026-11-23)
+- **Luminance (all presets).** Linearise sRGB, compute Rec.709 relative luminance, re-encode with the sRGB curve to 0–255. Neutral greys map to themselves, so the `bw` threshold of 128 is mid-grey. This resolves the "linear" vs "perceptual" wording conflict between the bw and Old Print sections.
+- **`bw` speckle** removes small ink components and fills small enclosed holes (area in source px²). The 4-connected ink model drops 1-px diagonal strokes; see P0-G1.
+- **Old Print spike.** Overlapping dots beyond π/4 coverage use the exact circle-in-square area inverse, with nonzero fill. See OLD-PRINT-FEASIBILITY.md.
+
 ## Old Print implementation
 Use perceptual luminance with documented color conversion. Sample darkness on a rotated grid; map darkness to area coverage (for circular dots radius proportional to sqrt(coverage), not coverage). Bound radius by pitch; handle near-solid areas as traced ink regions or alternate dot geometry to avoid unintended gaps. Clip to subject alpha and desired artwork bounds using vector clip paths or boolean geometry. Optional deterministic edge irregularity on contours must preserve winding, holes and minimum feature size. Paper is optional solid vector fill; transparent output must stay transparent. Aged paper is a palette choice, not an embedded texture. Offer warm ivory/black and monochrome defaults. No random unseeded noise.
 

@@ -1,0 +1,127 @@
+:root {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  color: #1d1d1b;
+  background: #f6f4ee;
+}
+body {
+  margin: 0;
+}
+.app {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-areas: "head head" "side main";
+  gap: 12px;
+  padding: 12px;
+}
+header {
+  grid-area: head;
+}
+header h1 {
+  font-size: 18px;
+  margin: 0;
+}
+.note {
+  margin: 4px 0 0;
+  color: #555;
+}
+aside {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+main {
+  grid-area: main;
+  min-width: 0;
+}
+.panel,
+.drop {
+  background: #fff;
+  border: 1px solid #d6d2c4;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.drop.over {
+  outline: 2px dashed #1d1d1b;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+label.check {
+  flex-direction: row;
+  align-items: center;
+}
+fieldset {
+  border: 1px solid #e3dfd2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.row {
+  display: flex;
+  gap: 8px;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #0b5fff;
+  outline-offset: 1px;
+}
+.previews {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+figure {
+  margin: 0;
+  background: repeating-conic-gradient(#e9e6dc 0 25%, #fff 0 50%) 0 0 / 16px 16px;
+  border: 1px solid #d6d2c4;
+  border-radius: 6px;
+  min-height: 240px;
+}
+figure.stale img {
+  opacity: 0.35;
+}
+figcaption {
+  background: #fff;
+  padding: 6px 8px;
+  border-bottom: 1px solid #d6d2c4;
+}
+figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: #777;
+}
+.warnings {
+  background: #fff7e0;
+  border: 1px solid #e6c76a;
+  border-radius: 6px;
+  padding: 8px 8px 8px 24px;
+}
+.metrics {
+  margin-top: 12px;
+  border-collapse: collapse;
+  background: #fff;
+  width: 100%;
+}
+.metrics th,
+.metrics td {
+  border: 1px solid #e3dfd2;
+  padding: 4px 8px;
+  text-align: left;
+}
+.metrics th {
+  font-weight: 500;
+  color: #555;
+}

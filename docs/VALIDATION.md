@@ -1,5 +1,42 @@
 # Validation and benchmark plan
-All gates unexecuted. Targets are provisional and must be ratified with P0 evidence.
+Targets are provisional. Results are in docs/research/p0, docs/research/p0-r and docs/research/p0-r-geo.
+
+**Geometric fidelity (P0-R-GEO, 2026-11-24).** An analytic geometry corpus of 42 fixtures (validation, held-out, negative controls) is scored with validated metrics:
+- centre, radius, radial and curvature deviation;
+- tangent continuity, corners, topology and complexity.
+
+Thresholds were pre-registered in docs/research/p0-r-geo/GEOMETRIC-FIDELITY-METRICS.md. Precision fit passes 34 of 44 fixtures (spline: 0). Per-fixture results and every miss are in GEOMETRY-VALIDATION.md. Default (spline) outputs are byte-identical across a 114-case regression corpus.
+
+**P0 closure (2026-11-24).** P0 is accepted as an engineering baseline.
+- Results that were PARTIAL, NOT RUN or OWNER TEST PENDING stay as recorded in the phase reports.
+- Open items and their dispositions are in docs/TECHNICAL-DEBT.md; the decisions are in docs/research/P0-ACCEPTANCE.md.
+- Maintainer acceptance of a limitation does not mean it is fixed.
+
+**Tested state (2026-11-24):**
+- **Executed:**
+  - Synthetic corpus and geometry quality, including an analytic 4× deviation probe.
+  - Export verification: qpdf, pdfimages, and poppler vs resvg renders.
+  - Privacy interception, offline workflow and offline cancellation recovery.
+  - Desktop performance on an upscaled corpus (P0) and on a native-resolution CC0/public-domain corpus (P0-R).
+  - Cross-host WASM output equivalence (macOS vs Linux).
+- **Platforms:** macOS arm64 and Ubuntu 24.04 arm64 (container); Chromium 159, Firefox 159, Playwright WebKit 27.2.
+- **Not yet run:**
+  - linux/amd64 (emulation crashes rustc).
+  - Real Safari, iOS and Android.
+  - Real deployment: deferred until a suitable UI exists (TD-PLATFORM-004).
+  - Lower-end desktop hardware (TD-PLATFORM-003).
+  - Linux-built precision WASM comparison (TD-PLATFORM-005).
+- **Owner acceptance** (P0-ACCEPTANCE), limited to what was confirmed:
+  - photographic quality and responsiveness approved;
+  - SVG files open and are editable;
+  - PDF dimensions and sharpness approved;
+  - corrected precision geometry reviewed and approved for the P0 baseline.
+  
+  Individual Inkscape/Preview checklist items were not recorded.
+- **Open quality items:**
+  - The IoU ≥ 0.98 target is still **missed** by default spline (Artistic) fitting on the star (0.977) and rings (0.975). It is **met in precision mode** (0.996 / 0.996).
+  - Spline is the approved artistic behaviour and unchanged by design.
+  - Remaining precision limitations are tracked as TD-GEO-001 to TD-GEO-009. Thresholds were not lowered.
 
 ## Corpus
 Create procedural fixtures: circle, nested rings, sharp corners, 1px strokes, transparent antialiased logo, adjacent color blocks, gradient, checkerboard, noise, rotated EXIF JPEG, malformed input and oversized header. Add licensed/public-domain photos, scans and botanical artwork with source/license/hash manifest. No private user artwork in public repo. Hold out a separate art set.

@@ -1,5 +1,18 @@
 # Roadmap
-Documentation review precedes implementation. No gates passed yet.
+Documentation review precedes implementation.
+
+**P0 is accepted and complete** (2026-11-24) as an engineering baseline: P0, P0-R and P0-R-GEO were merged via PR #3. Records: docs/research/P0-ACCEPTANCE.md, docs/TECHNICAL-DEBT.md, docs/P1-HANDOFF.md.
+
+**Next:**
+1. RFC-002 — Vector Studio architecture.
+2. P1-A — editable document, layers, selection, transforms, history.
+3. P1-B — production workspace and rendering.
+4. P1-C — core vector editing and tracing tools (Artistic and Precision tracing).
+5. Later effects and printmaking phases.
+
+The sequence is subject to RFC-002 approval.
+
+Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Linux NOT RUN), G1 PASS, G2 PASS, G3 PASS (owner viewer checks pending), G4 PARTIAL (deploy OWNER TEST PENDING), G5 PARTIAL (WebKit offline cancel-recovery defect; mobile and Safari NOT RUN). See docs/research/p0/FINAL-REPORT.md. P0-R engineering closure (2026-11-24): see docs/research/p0-r/FINAL-REPORT.md for the updated gate matrix (Linux arm64 PASS, offline worker recovery PASS, notices PASS, deployment and LICENSE holder pending owner).
 
 | Phase | Deliverables | Exit |
 |---|---|---|

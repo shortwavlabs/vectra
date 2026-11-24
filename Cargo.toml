@@ -1,0 +1,23 @@
+[workspace]
+resolver = "3"
+members = ["crates/vector-engine", "packages/vector-engine-wasm"]
+# experiments/* are standalone workspaces with their own lockfiles; never shipped.
+exclude = ["experiments"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.96"
+license = "MIT"
+publish = false
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+# Tests run the geometry metrics (dense sampling, 4× topology renders); unoptimised they take
+# minutes. Optimising test builds does not affect release or WASM output.
+[profile.test]
+opt-level = 2

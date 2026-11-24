@@ -1,0 +1,46 @@
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target/release/examples/geo_eval tests/output/geo-eval heldout spline,selected,selected-no-arcs`
+h-circle-r15.7             spline               contour RMS 0.331; 7 tangent breaks (max 16.0°); circle r=15.7 radial RMS 0.330; circle r=15.7 curvature RMS 0.297; circle r=15.7 curvature max 0.790; loop area +0.0378; IoU 0.9642
+h-circle-r15.7             selected             PASS
+h-circle-r15.7             selected-no-arcs     PASS
+h-circle-r55-coarse        spline               contour RMS 0.305; 6 tangent breaks (max 4.5°); circle r=55 radial RMS 0.305; circle r=55 curvature max 1.000
+h-circle-r55-coarse        selected             PASS
+h-circle-r55-coarse        selected-no-arcs     circle r=55 curvature RMS 1.635; circle r=55 curvature max 42.806; anchors 19 > 17
+h-circle-r5                spline               6 tangent breaks (max 50.4°)
+h-circle-r5                selected             PASS
+h-circle-r5                selected-no-arcs     PASS
+h-hole-r33                 spline               contour RMS 0.328; 7 tangent breaks (max 6.7°); circle r=33 radial RMS 0.327; circle r=33 curvature RMS 0.194; circle r=33 curvature max 0.998; loop area +0.0181
+h-hole-r33                 selected             PASS
+h-hole-r33                 selected-no-arcs     PASS
+h-ellipse-3to1-rot63       spline               contour RMS 0.692; contour max 1.509; 5 tangent breaks (max 22.2°); loop axes/centre 0.304/+0.116/+0.788; loop area +0.0329; IoU 0.9680
+h-ellipse-3to1-rot63       selected             PASS
+h-ellipse-3to1-rot63       selected-no-arcs     PASS
+h-roundrect-rot12          spline               contour RMS 0.632; contour max 1.053; 4 tangent breaks (max 6.9°); circle r=28 centre 0.742; circle r=28 curvature RMS 0.238; circle r=28 centre 1.195; circle r=28 radius -0.851; circle r=28 radial RMS 0.282; circle r=28 curvature RMS 0.233; circle r=28 curvature max 0.512; circle r=28 centre 0.717; circle r=28 curvature RMS 0.238; circle r=28 centre 1.195; circle r=28 radius -0.851; circle r=28 radial RMS 0.282; circle r=28 curvature RMS 0.233; circle r=28 curvature max 0.512; line RMS 0.810; line max 1.053; line curvature 0.0183
+h-roundrect-rot12          selected             line curvature 0.0145
+h-roundrect-rot12          selected-no-arcs     line curvature 0.0145
+h-star-rot17               spline               contour RMS 0.498; contour max 0.875; 4 tangent breaks (max 24.5°); line RMS 0.498; line max 0.875; line curvature 0.1784; corner 2.48 px; acute corner 1.69 px; IoU 0.9713
+h-star-rot17               selected             line curvature 0.3168
+h-star-rot17               selected-no-arcs     line curvature 0.3168
+h-discs-three              spline               topology; contour RMS 0.481; contour max 0.809; 18 tangent breaks (max 17.2°); circle r=45 radial RMS 0.427; circle r=45 radial max 0.809; circle r=45 curvature RMS 0.176; circle r=45 curvature max 1.000; circle r=52 radial RMS 0.472; circle r=52 radial max 0.800; circle r=52 curvature RMS 0.202; circle r=52 curvature max 1.000; circle r=38 centre 0.639; circle r=38 radial RMS 0.529; circle r=38 radial max 0.796; circle r=38 curvature RMS 0.248; circle r=38 curvature max 1.370
+h-discs-three              selected             PASS
+h-discs-three              selected-no-arcs     circle r=38 curvature RMS 0.158; circle r=38 curvature max 0.739
+h-ring-thin-alpha          spline               contour RMS 0.336; 13 tangent breaks (max 9.1°); circle r=44 radial RMS 0.332; circle r=44 curvature RMS 0.191; circle r=44 curvature max 0.995; circle r=40 radial RMS 0.341; circle r=40 curvature RMS 0.165; circle r=40 curvature max 0.566; loop area +0.0128; loop area +0.0152
+h-ring-thin-alpha          selected             PASS
+h-ring-thin-alpha          selected-no-arcs     PASS
+h-compound-two-holes       spline               contour RMS 0.431; contour max 0.812; 21 tangent breaks (max 19.7°); circle r=70 radial RMS 0.422; circle r=70 curvature RMS 0.174; circle r=70 curvature max 1.000; circle r=15 radial RMS 0.440; circle r=15 radial max 0.811; circle r=15 curvature RMS 0.290; circle r=15 curvature max 0.745; circle r=22 radial RMS 0.452; circle r=22 radial max 0.804; circle r=22 curvature RMS 0.272; circle r=22 curvature max 0.876; loop area +0.0104; loop area +0.0392; loop area +0.0551
+h-compound-two-holes       selected             PASS
+h-compound-two-holes       selected-no-arcs     PASS
+h-rect-rot37               spline               contour RMS 0.348; contour max 0.758; 2 tangent breaks (max 46.2°); line RMS 0.348; line max 0.758; line curvature 0.1745; corner 2.27 px
+h-rect-rot37               selected             PASS
+h-rect-rot37               selected-no-arcs     PASS
+h-hand-drawn               spline               organic RMS 0.388
+h-hand-drawn               selected             PASS
+h-hand-drawn               selected-no-arcs     PASS
+### Sets: heldout
+
+| Variant | Family | Fixtures passing | Rejected cases passing | Negative controls passing | Mean contour RMS (ideal) | Worst contour max (ideal) | Tangent breaks | Anchors (total) | Time (ms, total) |
+|---|---|---|---|---|---|---|---|---|---|
+| spline | baseline | 0/12 | 0/0 | 0/1 | 0.416 | 1.509 | 101 | 292 | 25.9 |
+| selected | selected: Options::production(60) | 10/12 | 0/0 | 1/1 | 0.036 | 0.194 | 0 | 158 | 28.3 |
+| selected-no-arcs | selected without recognition | 8/12 | 0/0 | 1/1 | 0.057 | 0.283 | 0 | 179 | 29.0 |
+
