@@ -77,9 +77,9 @@ npm and crates.io versions were re-verified on 2026-11-23.
 
 | Set | PDFs | qpdf --check | Forbidden objects | pdfimages | MediaBox | Render diff (block-32 mean, /255) |
 |---|---|---|---|---|---|---|
-| Engine, native build (`export_samples`, 13 fixtures × 6 modes), 300 dpi | 78 | 78 OK | 0 | 0 images in all | all within 0.1 pt | median 0.08, **max 0.93**: all pass |
-| Same set, 150 dpi | 78 | – | – | – | – | median 0.10. **1 above 2**: `gradient-halftone-transparent` at 4.9. Its ~10 px dots are dominated by renderer anti-aliasing; the same file is 0.8 at 300 dpi. |
-| Browser downloads (Chromium, Firefox, WebKit; 4 files each, 150 mm) | 12 | checked by Playwright: `%PDF-`, no `/Image`, `/XObject`, `/Font` or `/JavaScript`; MediaBox ±0.1 pt | | | | |
+| Engine, native build (`export_samples`: 13 fixtures × 6 modes + 1 translucent-paint scene), 300 dpi | 79 | 79 OK | 0 | 0 images in all | all within 0.1 pt | median 0.08, **max 0.93**: all pass |
+| Same set, 150 dpi | 79 | – | – | – | – | median 0.10. **1 above 2**: `gradient-halftone-transparent` at 4.9. Its ~10 px dots are dominated by renderer anti-aliasing; the same file is 0.8 at 300 dpi. |
+| **Browser downloads from the WASM build** (Chromium, Firefox, WebKit; 4 files each, 150 mm), 300 dpi | 12 | 12 OK | 0 | 0 images | all within 0.1 pt | all pass (`artifacts/export-verification-browser-*-300dpi.tsv`) |
 | jsPDF + svg2pdf.js (6 samples × 3 browsers), 300 dpi | 18 | OK | **`/XObject` (empty dict) and `/Font` (14 standard fonts) present** | 0 images | OK | 0.21–1.02 |
 
 Raw reports:
@@ -88,13 +88,17 @@ Raw reports:
 - `artifacts/export-verification-svg2pdfjs-{chromium,firefox,webkit}-300dpi.tsv`
 - `artifacts/pdf-eval/*-summary.json`
 
-Engine content-stream operators observed across all 78 files: `q Q cm rg re W n m l c h f f*`. The inventory also lists PDF structure tokens such as `obj` and `endobj`, which come from the qdf dump.
+Engine content-stream operators **observed** across the 79 files: `q Q cm gs rg RG w re W n m l c h f f* S`. The **allowed** set, which the Rust test enforces, also includes `B B*`; those are emitted only for paths with both fill and stroke, which no sample has. The inventory also lists PDF structure tokens such as `obj` and `endobj`, which come from the qdf dump.
 
 Why per-pixel diffs differ: poppler and tiny-skia anti-alias differently. On dense overlapping halftone dots, the per-pixel mean difference reaches 1.4–9/255 depending on resolution, while tone in 1/10-image bands matches within about 0.3/255. Investigation: `render_compare` at 72/150/300/600 dpi, plus band profiles.
 
+**Native vs WASM.** The SVG and PDF downloaded from the browser WASM build are byte-identical to the native build's output for the same decoded input: `nested_rings` in all three engines, and `transparent_ring` in Firefox. Chromium and WebKit decode the semi-transparent pixels differently (see G1).
+
+**Defect found and fixed during P0.** The source review flagged that a translucent background's ExtGState was set outside any `q`/`Q` pair, so it leaked its alpha into later opaque fills. A content-stream interpreter test (`translucent_fill_background_and_stroke_are_exported_without_alpha_leaks`) reproduced the leak, and the background is now wrapped in `q … Q`. The translucent-paint scene (translucent background, translucent fill, translucent stroke) is exported by `export_samples`. It passes qpdf and pdfimages, and poppler vs resvg give a block diff of 0.20/255 at 300 dpi. Before the fix, no shipped preset produced a translucent background; halftone `paper` accepts alpha, so it was reachable from the engine API.
+
 **Transparency behaviour:**
 - Transparent backgrounds stay transparent in both formats: no background rect unless the scene has one.
-- `fill-opacity` / `/ca` is implemented and unit-covered.
+- `fill-opacity` and `stroke-opacity` / `/ca` and `/CA` are covered by the translucent-paint test and sample. Fill, stroke and background alpha render the same in poppler and resvg.
 - Partially transparent *source* pixels are binarised at the alpha threshold (see G1), so no current preset emits alpha < 255.
 - How different PDF viewers treat `/ca` was **not** compared beyond poppler.
 
@@ -103,6 +107,19 @@ Why per-pixel diffs differ: poppler and tiny-skia anti-alias differently. On den
 - PDF `CreationDate`, title and XMP metadata are intentionally absent. Add them only with a privacy review.
 - No PDF/A, PDF/X, CMYK, ICC output intents or spot colours.
 - Inkscape round-trip, Acrobat and Preview viewing, and print-provider preflight: **OWNER TEST PENDING**.
+
+## Exact versions and environment
+pdf-writer 0.15.0, miniz_oxide 0.9.1, resvg 0.50.0 (dev), jspdf 4.2.1 and svg2pdf.js 2.9.0 (dev, evaluation only), qpdf 12.4.2, poppler 26.11.0. Environment as in P0-G0.
+
+## Commands executed
+See Reproduction. Also run: `node scripts/verify-exports.mjs tests/output/exports/<browser> --width-mm 150 --dpi 300`, and `cmp` of native vs browser SVG/PDF pairs.
+
+## Relevant artifacts
+`artifacts/export-verification-*.tsv`, `artifacts/pdf-eval/*-summary.json`, `crates/vector-engine/examples/{export_samples,render_compare}.rs`, `scripts/verify-exports.mjs`.
+
+## Unresolved questions
+- Should `B`/`B*` (fill + stroke) be exercised by a preset in P1, or should strokes stay out of the product presets entirely?
+- Which PDF viewers matter to the maintainer for an owner test (Acrobat, Preview, Chrome PDFium, print RIPs)?
 
 ## Reproduction
 ```text

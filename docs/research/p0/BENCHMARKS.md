@@ -17,9 +17,9 @@ Status: **measured** on one machine. These numbers are not a support claim. Thre
 - **Raw data:** `artifacts/bench/{chromium,firefox,webkit}.jsonl`.
 
 ## Results
-"wasm ms" is the time inside the worker's `vectorize` call: preprocess, segment, colour fit, curve fitting and compose, optimize, scene build and validation, plus SVG serialisation. Decode covers signature sniffing, `createImageBitmap` and `getImageData` on the main thread. PDF is the worker's `sceneToPdf` time. Frame gap is the largest `requestAnimationFrame` interval on the main thread while the job was in flight.
+"wasm ms" is the time inside the worker's `vectorize` call: preprocess, segment, colour fit, curve fitting and compose, optimize, scene build and validation, plus SVG serialisation. Decode covers signature sniffing, `createImageBitmap` and `getImageData` on the main thread. PDF is the worker's `sceneToPdf` time. Frame gap is the largest `requestAnimationFrame` interval on the main thread while the job was in flight. WASM memory is the worker instance's linear-memory size after the job. It is a **cumulative high-water mark** for that worker, because memory never shrinks. Later cells inherit earlier peaks; for example, 24 MP halftone shows 913 MiB from the preceding limited-colour job.
 
-| MP | Mode | Chromium wasm ms | Firefox wasm ms | WebKit wasm ms | Decode ms (C/F/W) | SVG ms (C) | PDF ms (C) | Paths (C) | Anchors (C) | SVG bytes (C) | PDF bytes (C) | WASM mem MiB (C/F/W) | Max frame gap ms (C/F/W) |
+| MP | Mode | Chromium wasm ms | Firefox wasm ms | WebKit wasm ms | Decode ms (C/F/W) | SVG ms (C) | PDF ms (C) | Paths (C) | Anchors (C) | SVG bytes (C) | PDF bytes (C) | Worker WASM memory high-water MiB (C/F/W) | Max frame gap ms (C/F/W) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | bw | 103 (n=3) | 83 | 51 | 4/4/11 | 3 | 20 | 37 | 5810 | 198,657 | 77,472 | 25/25/25 | 16.7/16.7/18.0 |
 | 1 | color | 558 (n=3) | 518 | 412 | 4/5/8 | 35 | 131 | 3589 | 56322 | 2,065,090 | 754,425 | 60/60/60 | 16.8/17.6/18.0 |
@@ -73,7 +73,9 @@ Long Tasks API (Chromium only): **0** long tasks during processing in every run.
 - **Engines.** All three are within roughly 1.5× of each other. WebKit was fastest for most cells on this machine; Chromium was slowest for bw at 24 MP.
 
 ## Threshold assessment (VALIDATION.md proposals)
-| Proposal | Measured (worst engine, this machine) | Assessment |
+The proposals are p95 targets. P0 has only 3 runs per cell at 1 and 4 MP, and 1 run at 12 and 24 MP, so the medians and single runs below are **not** p95 estimates.
+
+| Proposal | Measured (worst engine, this machine; median of 3 or single run) | Assessment |
 |---|---|---|
 | 1 MP preview ≤ 2 s p95 | ≤ 0.56 s (colour, median of 3) | Met with margin. Keep. |
 | 4 MP final ≤ 10 s p95 | ≤ 1.5 s | Met. Consider ≤ 5 s on reference desktop, but re-measure with native-detail photographs first. |

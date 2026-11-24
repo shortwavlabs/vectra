@@ -85,9 +85,20 @@ Main-thread responsiveness during processing is covered in G5 / BENCHMARKS:
 ## Known limitations and risks
 - Cancellation cost is a WASM re-instantiation; `initMs` is reported in the debug snapshot and BENCHMARKS. The 16 MiB palette memo and the RGBA copy are paid again per job.
 - After a result arrives, the main thread decodes and paints the SVG preview through `<img>`. That cost is not covered by the processing probe. Multi-MB SVGs (photographs in colour mode, halftones) may jank the first paint. A P1 canvas/tiling preview should be measured.
-- Recovering from a cancel while offline needs the worker script and WASM re-fetched. Chromium and WebKit fail; Firefox succeeds (G5). Fix options for P1: a service-worker precache (PWA), or a pre-spawned standby worker.
+- Recovering from a cancel while offline needs the worker script and WASM re-fetched. With production `immutable` asset caching (`wrangler pages dev`), Chromium and Firefox recover from the HTTP cache but WebKit does not. Without those cache headers (`vp preview`), Chromium fails too (G5). Fix options for P1: a service-worker precache (PWA), or a pre-spawned standby worker.
 - Decoding runs on the main thread. `getImageData` on 24 MP is synchronous; see BENCHMARKS for measured decode times.
 - `SharedArrayBuffer` and threads were not needed at measured sizes. They remain deferred.
+
+## Exact versions, environment and commands
+- **Versions:** TypeScript 7.0.2, React 19.3.1, Vitest 5.1.0 (via Vite+ 1.7.0), Playwright 1.65.1. Environment as in P0-G0.
+- **Commands:** `pnpm exec vp test` (14 passed); `pnpm exec playwright test tests/browser/workbench.spec.ts` (final run: all workbench tests passed in Chromium, Firefox and WebKit).
+
+## Relevant artifacts
+`artifacts/browser/*-cancel.json`, `artifacts/browser/*-memory.json`, `artifacts/playwright-final-run.txt`.
+
+## Unresolved questions
+- Keep "latest wins" (terminate on every newer job), or let short jobs finish and coalesce? Each termination costs a WASM re-instantiation of 3–8 ms plus worker start-up.
+- Should decoding move into the worker (OffscreenCanvas) or into WASM, to remove main-thread `getImageData` at 24 MP?
 
 ## Reproduction
 `pnpm exec vp test`; then `pnpm run build && pnpm exec playwright test tests/browser/workbench.spec.ts`.

@@ -88,7 +88,7 @@ Not done in P0: candidate C (an independent contour extractor), and Potrace as a
 - **Path simplification.** `fit.simplify` (Schneider re-fit tolerance in px), VTracer's `CleanupPass`, and 2-decimal coordinate quantisation.
 
 ## Tests and results
-`cargo test --workspace --locked`: **25 passed** (11 unit, 14 integration). Raw metrics: `artifacts/engine-test-metrics.txt`.
+`cargo test --workspace --locked`: **26 passed** (11 unit, 15 integration; the 15th test covers translucent paint export, see G3). Raw metrics: `artifacts/engine-test-metrics.txt`.
 
 | Fixture | Result |
 |---|---|
@@ -134,6 +134,25 @@ Selected wasm-call times in ms (Chromium / Firefox / WebKit):
 - Full Color on photographs produces many paths. For example, the 640×526 Talbot photograph gives 2,241 paths, 33k anchors and 1.2 MB of SVG.
 - Phase timings inside the vectorize call exclude JSON/SVG work, which is reported separately.
 - No progress percentages. The UI shows an explicit indeterminate status (see G2).
+
+**Native vs browser WASM.** Using the same PNG input decoded identically, the browser-built WASM and the native build produce **byte-identical SVG and PDF**: `nested_rings` in all three engines, and `transparent_ring` in Firefox. Chromium and WebKit decode the semi-transparent pixels differently (above), so their `transparent_ring` output differs.
+
+## Exact versions
+vtracer 1.0.0-alpha.4, visioncortex 0.9.3, flo_curves 0.8.1 and 0.3.1, serde 1.0.229, serde_json 1.0.154. Dev: resvg 0.50.0, png 0.18.1. Comparison experiment: vtracer 0.6.5 (visioncortex 0.8.8) in its own lockfile.
+
+## Environment
+As in P0-G0: Apple M5 Max, macOS 26.6.2, Rust 1.96.0, wasm-bindgen 0.2.130. Browsers: Playwright 1.65.1 Chromium 159.0.8154.6 (headless shell), Firefox 159.0, WebKit 27.2.
+
+## Commands executed
+`cargo test --workspace --locked`; `cargo test --release -p vector-engine --test engine -- --nocapture`; `cargo run --release --locked -- 7` in `experiments/vtracer-compare` (twice, for cross-process determinism); `cargo build --release --target wasm32-unknown-unknown` plus `wasm-bindgen --target web` for both probe crates; `pnpm exec playwright test tests/browser/workbench.spec.ts`; the decode-hash probe recorded in `artifacts/browser-decode-hashes.txt`.
+
+## Relevant artifacts
+`artifacts/vtracer-compare.tsv`, `artifacts/engine-test-metrics.txt`, `artifacts/browser/*-fixtures.json`, `artifacts/browser-decode-hashes.txt`, `tests/fixtures/MANIFEST.json`.
+
+## Unresolved questions
+- Is an alpha dependency acceptable to the maintainer until VTracer 1.0 is stable?
+- Should cross-browser byte-identical output be a product requirement? If so, decoding has to move into WASM.
+- What quality metric should gate P1: edge deviation, or IoU with perimeter normalisation?
 
 ## Reproduction
 ```text

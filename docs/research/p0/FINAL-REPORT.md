@@ -11,6 +11,8 @@ Every output path goes through one validated, versioned scene, and both exports 
 
 No network traffic happens after start-up, and the full workflow runs offline. Desktop performance is well inside the proposed thresholds up to 24 MP.
 
+G0 is PARTIAL only because the Linux build was not run.
+
 Five decisions deviate from the baseline. Each is evidenced and recorded in RFC-001:
 1. VTracer **1.0.0-alpha.4** instead of 0.6.5.
 2. A direct PDF writer instead of jsPDF + svg2pdf.js.
@@ -24,10 +26,10 @@ Five decisions deviate from the baseline. Each is evidenced and recorded in RFC-
 | Gate | Status | Basis |
 |---|---|---|
 | Documentation review | Done | DOCUMENTATION-REVIEW.md (12 findings, recorded before code) |
-| P0-G0 Toolchain | **PASS** (macOS). Linux **NOT RUN**. | Clean clone, `vp install`, `vp dev`, `vp check`, `vp test`, `vp build`. WASM byte-identical across checkout paths (SHA-256 `9bc2cd9e…`). |
-| P0-G1 Vectorization | **PASS** | 25 Rust tests. Real-browser tracing of 13 fixture/mode cases in 3 engines. IoU target missed on 2 shapes; diagonal 1-px strokes lost (both documented). |
+| P0-G0 Toolchain | **PARTIAL** (macOS PASS; Linux **NOT RUN**) | Clean clone, `vp install`, `vp dev` (final workbench), `vp check`, `vp test`, `vp build`. WASM byte-identical across checkout paths (SHA-256 `40b43967…`). |
+| P0-G1 Vectorization | **PASS** | 26 Rust tests. Native and WASM output byte-identical for identical input. Real-browser tracing of 13 fixture/mode cases in 3 engines. IoU target missed on 2 shapes; diagonal 1-px strokes lost (both documented). |
 | P0-G2 Worker | **PASS** | Typed protocol; cancel ≤ 53 ms visible; stale results dropped; crash/abort recovery; memory flat over 20 imports |
-| P0-G3 Export | **PASS**. Viewer and Inkscape round-trips **OWNER TEST PENDING**. | 78 native + 12 browser PDFs: 0 images or XObjects or fonts; MediaBox ±0.1 pt; render diff ≤ 0.93/255 at 300 dpi |
+| P0-G3 Export | **PASS**. Viewer and Inkscape round-trips **OWNER TEST PENDING**. | 79 native + 12 browser-WASM PDFs through qpdf, pdfimages and poppler: 0 images, XObjects or fonts; MediaBox ±0.1 pt; render diff ≤ 0.93/255 at 300 dpi. Translucent-paint alpha-leak defect found and fixed. |
 | Old Print spike | **PASS** (feasibility) | Tone→area error ≤ 2.5 %; overlap-correct nonzero fill; raster-free exports |
 | P0-G4 Cloudflare Pages | **PARTIAL**. Deploy **OWNER TEST PENDING**. | Static build + `wrangler pages dev`: headers, `application/wasm`, CSP enforced (negative control) |
 | P0-G5 Privacy/perf | **PARTIAL** | 0 requests during the session in 3 engines; offline workflow passes. WebKit cannot recover from an offline cancellation. Safari, iOS and mobile **NOT RUN**. |
@@ -66,7 +68,7 @@ Five decisions deviate from the baseline. Each is evidenced and recorded in RFC-
 - `qpdf --check` clean.
 - A `qpdf --json` scan of every object found no `/Image`, `/XObject`, `/Font`, `/Pattern`, `/Shading` or JS.
 - `pdfimages -list` empty.
-- Operators limited to `q Q cm gs rg RG w m l c h re W n f f* S B B*`.
+- Operators observed: `q Q cm gs rg RG w m l c h re W n f f* S`. The allowed set additionally includes `B B*`, which the test enforces but no sample emits.
 - MediaBox matches mm/in/pt/px conversions to ±0.1 pt.
 - Poppler render vs resvg render of the SVG: 32-px block mean ≤ 0.93/255 at 300 dpi on all 78 samples.
 
@@ -146,7 +148,7 @@ Details: P0-G5.
 6. WASM memory never shrinks. The worker is recycled above 1 GiB. Mobile memory limits are unknown.
 7. Linux build, real Safari, iOS and Android, Inkscape and viewer round-trips, and a real Pages deploy were **not run**.
 8. `base: "./"` breaks deep links if routes are added.
-9. Some unrelated maintenance on this machine: Homebrew `qpdf` and `poppler`, the Rust 1.96.0 wasm32 target, `wasm-bindgen-cli` 0.2.130 and Playwright browsers were installed. No global Vite+ was installed.
+9. Machine changes made for P0: Homebrew `qpdf` and `poppler`, the Rust 1.96.0 wasm32 target, `wasm-bindgen-cli` 0.2.130 and Playwright browsers were installed. No global Vite+ was installed.
 
 ## 12. Run the engineering workbench locally
 ```bash

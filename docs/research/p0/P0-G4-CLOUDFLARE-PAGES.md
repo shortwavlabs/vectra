@@ -23,7 +23,7 @@ Produce a static `dist/` suitable for Cloudflare Pages: no server runtime, corre
     - CSP: `default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`.
     - Also `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, a restrictive `Permissions-Policy`, `Cross-Origin-Opener-Policy: same-origin` and `X-Frame-Options: DENY`.
   - For `/assets/*`: `Cache-Control: public, max-age=31536000, immutable` (hashed filenames).
-  - `vp preview` reads the same file, so local previews serve production headers.
+  - `vp preview` applies the `/*` rule from the same file (CSP and security headers), but not the `/assets/*` cache rule. That affected offline cache behaviour (G5); `wrangler pages dev` applies both rules.
 - **Asset paths:** Vite `base: "./"` gives relative asset URLs and no hard-coded origin or path. The WASM URL is resolved from `import.meta.url` inside the hashed worker chunk.
 - **Build guard:** `scripts/check-dist.mjs` runs as part of `pnpm run build`. It fails if:
   - any file is over 25 MiB, or there are more than 20,000 files;
@@ -60,6 +60,17 @@ Before choosing, the maintainer should consider Workers Static Assets, which Clo
 3. No `404.html`, by design, for SPA fallback.
 4. Offline use after a cancellation depends on the browser cache (G5). A service worker is not in P0.
 5. `wrangler pages dev` printed a compatibility-date warning and was run with `--compatibility-date=2026-11-19`. It only emulates Pages; it does not reproduce edge caching.
+
+## Exact versions, environment and commands
+wrangler 4.166.0 (local workerd; no login), Vite+ 1.7.0, Playwright 1.65.1. Environment as in P0-G0. Commands: see Validation and Reproduction. A pre-existing local workerd already occupied port 8788, so port 8791 was used.
+
+## Relevant artifacts
+`artifacts/wrangler-pages-dev-headers.txt`, `artifacts/wrangler-pages-dev-playwright.txt` (12/12 passed against `wrangler pages dev`), `public/_headers`, `scripts/check-dist.mjs`.
+
+## Unresolved questions
+- Cloudflare Pages or Workers Static Assets?
+- Production domain and branch strategy, and who holds the deploy token?
+- Should HSTS be added via `_headers` or managed at the zone?
 
 ## Reproduction
 ```text

@@ -1,6 +1,6 @@
 # P0-G0: Vite+ toolchain and repository foundations
 
-**Gate status: PASS** for the local macOS toolchain, including a clean clone and a byte-identical WASM build across checkout paths. **NOT RUN** on Linux: the Docker daemon was not running and no Linux host was used.
+**Gate status: PARTIAL.** The macOS toolchain passes end to end: clean clone, `vp install`, `vp dev`, `vp check`, `vp test`, `vp build`, and a byte-identical WASM build across checkout paths. The ROADMAP exit also requires Linux, and the Linux build was **NOT RUN** (Docker daemon not running, no Linux host).
 
 ## Objective
 Set up a reproducible React/TypeScript/Rust/WASM workspace that uses the official Vite+ workflow (`vp install`, `vp dev`, `vp check`, `vp test`, `vp build`), with pinned toolchains, committed lockfiles and documented setup.
@@ -27,7 +27,7 @@ Set up a reproducible React/TypeScript/Rust/WASM workspace that uses the officia
 |---|---|
 | Package manager | pnpm **12.23.0**, selected by `devEngines.packageManager` with `onFail: download` (the scaffold's default). pnpm-workspace catalog pins `vite-plus: 1.7.0` and aliases `vite` to `@voidzero-dev/vite-plus-core@8.3.8000`, as the Vite+ docs require. |
 | Node | **24.22.1** via `.node-version` and `devEngines.runtime` |
-| Dependency pins | Exact versions only, no carets: `pnpm-lock.yaml` and `Cargo.lock` are committed. Crates with API-stability risk use `=` (vtracer, visioncortex, pdf-writer, wasm-bindgen, resvg). |
+| Dependency pins | `package.json` uses exact versions only. In Cargo manifests, `=` is used for crates with API-stability risk; the others (serde, serde_json, miniz_oxide, png) are caret requirements, pinned only by the committed `Cargo.lock`. Both `pnpm-lock.yaml` and `Cargo.lock` are committed. Crates with API-stability risk use `=` (vtracer, visioncortex, pdf-writer, wasm-bindgen, resvg). |
 | TypeScript | **7.0.2** (scaffold default). `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `erasableSyntaxOnly` and `verbatimModuleSyntax`. Type checking runs inside `vp check` (type-aware Oxlint). |
 | Rust | `rust-toolchain.toml` pins **1.96.0** with rustfmt, clippy and the `wasm32-unknown-unknown` target. Workspace edition 2024, resolver 3, release profile `opt-level="s"`, LTO, `codegen-units=1`, `panic="abort"`. |
 | WASM build | `scripts/build-wasm.mjs` (`pnpm run wasm`): fails unless the wasm-bindgen CLI version equals the `Cargo.lock` version; runs `cargo build --locked --release --target wasm32-unknown-unknown`; applies `--remap-path-prefix` for checkout and cargo-home paths; runs `wasm-bindgen --target web`; prints SHA-256 values. Output goes to `packages/vector-engine-wasm/pkg/`, which is gitignored because it is reproducible. |
@@ -48,7 +48,7 @@ pnpm exec vp dev --port 5199                   # served index (200), worker modu
                                                # Firefox and WebKit through Playwright
 cargo fmt --all --check && cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo clippy --target wasm32-unknown-unknown -p vector-engine-wasm --locked -- -D warnings
-cargo test --workspace --locked                # 25 Rust tests
+cargo test --workspace --locked                # 26 Rust tests (final)
 ```
 Clean-clone bootstrap, in a scratch directory with no `node_modules`:
 ```text
@@ -58,7 +58,7 @@ npx --package=vite-plus@1.7.0 vp install       # FAILS: npm refuses (EBADDEVENGI
                                                # names pnpm. Documented; use pnpm dlx or a global vp.
 node scripts/build-wasm.mjs
 ```
-The `.wasm` SHA-256 was identical in the original checkout and the clone at a different absolute path (`a69a8b32…` for the G0 stub engine). The check was repeated for the final engine (see FINAL-REPORT). Path remapping is what makes this hold.
+The `.wasm` SHA-256 was identical in the original checkout and the clone at a different absolute path (`a69a8b32…` for the G0 stub engine). The check was repeated for the final engine, which gave `40b43967…` (484,497 B) in both checkouts; see FINAL-REPORT. Path remapping is what makes this hold.
 
 ## Environment
 Apple M5 Max, 128 GiB RAM, macOS 26.6.2 (25G83), arm64. Node 24.22.1, pnpm 12.23.0, rustc/cargo 1.96.0 (2026-05-25), wasm-bindgen-cli 0.2.130 (installed with `cargo install --locked`). Playwright 1.65.1: Chrome Headless Shell 159.0.8154.6, Firefox 159.0, WebKit 27.2.
@@ -78,6 +78,10 @@ Apple M5 Max, 128 GiB RAM, macOS 26.6.2 (25G83), arm64. Node 24.22.1, pnpm 12.23
 - Bootstrapping requires a Rust toolchain plus `cargo install wasm-bindgen-cli --version 0.2.130 --locked`. A Node-only contributor cannot build the WASM, because the generated artefacts are deliberately not committed.
 - TypeScript 7.0.2 and `tsrs` are very new. `vp check` handled this code base without issues.
 - `pnpm install` reported that core-js's postinstall script was ignored. core-js is pulled in by the evaluation-only jsPDF and never ships; it is left un-approved.
+
+## Relevant artifacts
+- `scripts/build-wasm.mjs`, `scripts/check-dist.mjs`, `rust-toolchain.toml`, `.node-version`, `pnpm-workspace.yaml`.
+- `artifacts/vp-dev-check.txt`: final workbench under `vp dev` in three engines. Under React StrictMode's dev double-mount, one extra worker is created and terminated, which is expected.
 
 ## Unresolved questions
 - Should CI exist at all, and if so which minimal job? (Suggested in FINAL-REPORT.)

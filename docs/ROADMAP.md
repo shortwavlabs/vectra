@@ -1,5 +1,5 @@
 # Roadmap
-Documentation review precedes implementation. P0 status (2026-11-23, branch `p0/technical-feasibility`, awaiting maintainer review): G0 PASS (macOS; Linux NOT RUN), G1 PASS, G2 PASS, G3 PASS (owner viewer checks pending), G4 PARTIAL (deploy OWNER TEST PENDING), G5 PARTIAL (WebKit offline cancel-recovery defect; mobile and Safari NOT RUN). See docs/research/p0/FINAL-REPORT.md.
+Documentation review precedes implementation. P0 status (2026-11-23, branch `p0/technical-feasibility`, awaiting maintainer review): G0 PARTIAL (macOS PASS; Linux NOT RUN), G1 PASS, G2 PASS, G3 PASS (owner viewer checks pending), G4 PARTIAL (deploy OWNER TEST PENDING), G5 PARTIAL (WebKit offline cancel-recovery defect; mobile and Safari NOT RUN). See docs/research/p0/FINAL-REPORT.md.
 
 | Phase | Deliverables | Exit |
 |---|---|---|

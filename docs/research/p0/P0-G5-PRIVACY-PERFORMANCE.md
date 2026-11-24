@@ -10,6 +10,9 @@ PARTIAL because:
 2. Only one desktop machine was measured. Real Safari, iOS, Android and low-memory devices: **NOT RUN**.
 3. High-resolution benchmarks used an upscaled photograph (optimistic).
 
+## Objective
+Show that processing stays in the browser (no artwork, filename, settings or exports leave the device), that the workflow runs offline once loaded, and measure performance, memory, responsiveness and cancellation on representative sizes.
+
 ## Privacy verification (`tests/browser/privacy.spec.ts`)
 **Method.**
 - Playwright `BrowserContext.on("request")` captures every request from the page **and its workers**. `page.on("websocket")` captures WebSockets.
@@ -86,6 +89,19 @@ Determinism:
 ## Browsers
 - Chromium 159.0.8154.6 (headless shell), Firefox 159.0 and WebKit 27.2: Playwright 1.65.1 builds on macOS arm64. **PASS** as tested.
 - **Playwright WebKit is not Safari.** Safari (macOS), iOS Safari, Chrome Android and Firefox Android: **NOT RUN**.
+
+## Exact versions and environment
+Playwright 1.65.1 (Chromium 159.0.8154.6 headless shell, Firefox 159.0, WebKit 27.2), wrangler 4.166.0. Machine and toolchain as in P0-G0.
+
+## Commands executed
+`pnpm exec playwright test tests/browser/privacy.spec.ts` (under `vp preview`); `PW_BASE_URL=http://127.0.0.1:8791 pnpm exec playwright test tests/browser/{smoke,csp,privacy}.spec.ts` (under `wrangler pages dev`); `BENCH=1 pnpm exec playwright test tests/browser/benchmark.spec.ts`.
+
+## Relevant artifacts
+`artifacts/privacy/*`, `artifacts/bench/*.jsonl`, `artifacts/playwright-final-run.txt`.
+
+## Unresolved questions
+- What are the target devices for mobile, and which memory caps? This needs real devices.
+- Is offline-after-load a product requirement (then a service worker is in scope for P1), or best-effort?
 
 ## Reproduction
 ```text
