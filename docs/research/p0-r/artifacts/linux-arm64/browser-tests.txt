@@ -1,0 +1,27 @@
+✓ Lockfile passes supply-chain policies (212/212 entries in 2.8s)
+ [32m✓[39m tests/unit/wasm-node-smoke.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/intake.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/client.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+✓ 23 modules transformed.
+[32m✓ built in 60ms[39m
+  ✓   1 [chromium] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked (407ms)
+  ✓   2 [chromium] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic (7.4s)
+  ✓   3 [chromium] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job (1.5s)
+  ✓   4 [chromium] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working (2.0s)
+  ✓   5 [chromium] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted (578ms)
+  ✓   6 [chromium] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded (1.2s)
+  ✓   7 [chromium] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP (355ms)
+  ✓   8 [firefox] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked (726ms)
+  ✓   9 [firefox] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic (6.4s)
+  ✓  10 [firefox] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job (1.6s)
+  ✓  11 [firefox] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working (2.1s)
+  ✓  12 [firefox] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted (689ms)
+  ✓  13 [firefox] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded (1.3s)
+  ✓  14 [firefox] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP (435ms)
+  ✓  15 [webkit] › tests/browser/csp.spec.ts:9:1 › without 'wasm-unsafe-eval' the WASM engine is blocked (713ms)
+  ✓  16 [webkit] › tests/browser/offline-recovery.spec.ts:79:1 › offline: repeated cancel → recover → trace → export, with no network traffic (5.4s)
+  ✓  17 [webkit] › tests/browser/offline-recovery.spec.ts:136:1 › offline: an injected worker crash recovers on the next job (1.6s)
+  ✓  18 [webkit] › tests/browser/offline-recovery.spec.ts:157:1 › offline: worker recycling after every job keeps working (2.0s)
+  ✓  19 [webkit] › tests/browser/privacy.spec.ts:38:1 › no artwork bytes, filename, settings or exports are transmitted (666ms)
+  ✓  20 [webkit] › tests/browser/privacy.spec.ts:89:1 › the complete workflow works offline once the application has loaded (1.6s)
+  ✓  21 [webkit] › tests/browser/smoke.spec.ts:4:1 › production build traces in a module worker under the production CSP (452ms)
