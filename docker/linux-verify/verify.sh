@@ -39,6 +39,7 @@ if [ "${SKIP_BROWSERS:-0}" != "1" ]; then
     tests/browser/privacy.spec.ts tests/browser/offline-recovery.spec.ts --reporter=list
   cp tests/output/playwright-results.json "$OUT/playwright-results.json" 2>/dev/null || true
 fi
+step wasm-fingerprint node scripts/wasm-fingerprint.mjs "$OUT/wasm-fingerprint.json"
 ( cd packages/vector-engine-wasm/pkg && sha256sum * ) > "$OUT/wasm-pkg.sha256"
 ( cd dist && find . -type f -print0 | sort -z | xargs -0 sha256sum ) > "$OUT/dist.sha256"
 echo "exit status $status" | tee -a "$OUT/summary.txt"
