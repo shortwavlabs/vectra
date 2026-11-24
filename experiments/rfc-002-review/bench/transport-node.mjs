@@ -130,7 +130,10 @@ function child(mode, kind, name) {
   process.stdout.write(JSON.stringify(out));
 }
 
-if (process.argv[2] === "--child") child(process.argv[3], process.argv[4], process.argv[5]);
+const isMain = import.meta.url === `file://${process.argv[1]}`;
+if (!isMain) {
+  // Imported for SCENES only (run-transport.mjs): no side effects.
+} else if (process.argv[2] === "--child") child(process.argv[3], process.argv[4], process.argv[5]);
 else if (process.argv[2] === "--encode") {
   // Encode extra scenes (renderer workloads): --encode kind:name kind:name ...
   for (const spec of process.argv.slice(3)) {

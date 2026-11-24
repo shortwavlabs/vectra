@@ -127,6 +127,11 @@ export class CanvasRenderer extends Base {
     }
     return drawn;
   }
+  /** Full redraw + 1-px readback: blocks until the raster is complete (upper bound). */
+  syncRedraw() {
+    this.draw();
+    this.ctx.getImageData(0, 0, 1, 1);
+  }
   memory() {
     return { backingStoreBytes: this.canvas.width * this.canvas.height * 4 };
   }
@@ -421,6 +426,10 @@ export class WebGLRenderer extends Base {
       for (let k = 0; k < o.length; k += 2) gl.drawArrays(gl.LINE_LOOP, o[k], o[k + 1]);
     }
     return drawn;
+  }
+  syncRedraw() {
+    this.draw();
+    this.gl.readPixels(0, 0, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array(4));
   }
   setStyleColor(si, css) {
     // css is "#rrggbb": store as RGBA8888 override

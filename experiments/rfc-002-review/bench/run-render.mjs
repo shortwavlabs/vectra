@@ -45,12 +45,17 @@ for (const engine of engines.split(",")) {
       }
       const row = { engine, version: browser.version(), renderer, kind, name, zoom: Number(z), wallMs: Date.now() - t0, errors, ...done };
       out.push(row);
+      if (process.env.OUT) writeFileSync(process.env.OUT, JSON.stringify(out)); // incremental
       console.error(engine, renderer, name, z, done.ok ? "ok" : done.error, `${((Date.now() - t0) / 1000).toFixed(1)}s`);
       await ctx.close();
     }
   }
-  await browser.close();
+  // Headed Chromium can hang in close() after a page used WEBGL_lose_context: bound it.
+  const closed = await Promise.race([browser.close().then(() => true), new Promise((r) => setTimeout(() => r(false), 15_000))]);
+  if (!closed) {
+    console.error(`${engine}: browser.close() timed out; killing the browser process`);
+    browser.process?.()?.kill("SIGKILL");
+  }
 }
-const file = process.env.OUT;
-if (file) writeFileSync(file, JSON.stringify(out));
-else console.log(JSON.stringify(out));
+if (!process.env.OUT) console.log(JSON.stringify(out));
+process.exit(0);

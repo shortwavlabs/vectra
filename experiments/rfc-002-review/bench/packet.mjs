@@ -135,6 +135,7 @@ export function validatePacket(p, limits = LIMITS) {
     // otherwise rejected only indirectly, after reading past the array).
     if (v1 > verbs.length || c1 > coords.length) fail("offsets", `path ${i}: offset beyond array`);
     if (styleIndex[i] >= nStyles || groupIndex[i] >= nGroups) fail("ref", `path ${i}: style/group ref`);
+    if (i > 0 && groupIndex[i] < groupIndex[i - 1]) fail("ref", `path ${i}: group order not contiguous`);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     let open = false;
     for (let k = v0; k < v1; k++) {

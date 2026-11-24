@@ -30,6 +30,7 @@ const cases = [
   }],
   ["style index out of range", "ref", (p) => ((p.styleIndex[0] = 999), p)],
   ["group index out of range", "ref", (p) => ((p.groupIndex[0] = 999), p)],
+  ["groups not contiguous in paint order", "ref", (p) => ((p.groupIndex[p.groupIndex.length - 1] = 0), p)],
   ["wrong array type (Float32 coords)", "type", (p) => ((p.coords = Float32Array.from(p.coords)), p)],
   ["wrong array type (plain array offsets)", "type", (p) => ((p.verbOffsets = Array.from(p.verbOffsets)), p)],
   ["detached buffer (transferred away)", "length", (p) => {

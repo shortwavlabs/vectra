@@ -1,6 +1,6 @@
 {
  "node": "v24.22.1",
- "cases": 26,
+ "cases": 27,
  "failures": 0,
  "results": [
   {
@@ -107,6 +107,13 @@
    "got": "ref",
    "ok": true,
    "message": "path 0: style/group ref"
+  },
+  {
+   "case": "groups not contiguous in paint order",
+   "expected": "ref",
+   "got": "ref",
+   "ok": true,
+   "message": "path 31: group order not contiguous"
   },
   {
    "case": "wrong array type (Float32 coords)",

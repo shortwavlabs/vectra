@@ -1,5 +1,5 @@
 // Shared browser helpers for the review harnesses (main thread).
-import { C, L, M, Z } from "./packet.mjs";
+import { C, L, M } from "./packet.mjs";
 
 export const now = () => performance.timeOrigin + performance.now();
 export const nextFrame = () => new Promise((r) => requestAnimationFrame(r));
@@ -48,47 +48,44 @@ export const pct = (xs, p) => {
   return s[Math.min(s.length - 1, Math.floor((p / 100) * s.length))];
 };
 
-/** Path2D per path from a parsed scene-v1 object (verbs string + coords array). */
+/** Path2D per path from a parsed scene-v1 object, via SVG path data: the incremental
+ *  moveTo/bezierCurveTo API is quadratic per path in Chromium 159 (path2d-scaling.json). */
 export function pathsFromScene(scene) {
   const out = [];
   for (const g of scene.groups)
     for (const p of g.paths) {
-      const path = new Path2D(), v = p.verbs, c = p.coords;
-      let ci = 0;
+      const v = p.verbs, c = p.coords;
+      let d = "", ci = 0;
       for (let k = 0; k < v.length; k++) {
         switch (v.charCodeAt(k)) {
-          case 77: path.moveTo(c[ci], c[ci + 1]); ci += 2; break;
-          case 76: path.lineTo(c[ci], c[ci + 1]); ci += 2; break;
-          case 67: path.bezierCurveTo(c[ci], c[ci + 1], c[ci + 2], c[ci + 3], c[ci + 4], c[ci + 5]); ci += 6; break;
-          default: path.closePath();
+          case 77: d += "M" + c[ci] + " " + c[ci + 1]; ci += 2; break;
+          case 76: d += "L" + c[ci] + " " + c[ci + 1]; ci += 2; break;
+          case 67: d += "C" + c[ci] + " " + c[ci + 1] + " " + c[ci + 2] + " " + c[ci + 3] + " " + c[ci + 4] + " " + c[ci + 5]; ci += 6; break;
+          default: d += "Z";
         }
       }
-      out.push(path);
+      out.push(new Path2D(d));
     }
   return out;
 }
 
-/** Path2D for path i (or verb range) of a GeometryPacket. */
-export function pathFromPacket(p, i, path = new Path2D(), v0 = p.verbOffsets[i], v1 = p.verbOffsets[i + 1], ci = null) {
-  const verbs = p.verbs, c = p.coords;
-  if (ci === null) {
-    ci = p.coordOffsets[i];
-    // Advance coordinate cursor to v0 when a sub-range is requested.
-    for (let k = p.verbOffsets[i]; k < v0; k++) ci += verbs[k] === C ? 6 : verbs[k] === Z ? 0 : 2;
+/** SVG path data for path i of a GeometryPacket. */
+export function packetPathData(p, i) {
+  const c = p.coords, v = p.verbs;
+  let s = "", ci = p.coordOffsets[i];
+  for (let k = p.verbOffsets[i]; k < p.verbOffsets[i + 1]; k++) {
+    const op = v[k];
+    if (op === M) { s += "M" + c[ci] + " " + c[ci + 1]; ci += 2; }
+    else if (op === L) { s += "L" + c[ci] + " " + c[ci + 1]; ci += 2; }
+    else if (op === C) { s += "C" + c[ci] + " " + c[ci + 1] + " " + c[ci + 2] + " " + c[ci + 3] + " " + c[ci + 4] + " " + c[ci + 5]; ci += 6; }
+    else s += "Z";
   }
-  for (let k = v0; k < v1; k++) {
-    const op = verbs[k];
-    if (op === M) { path.moveTo(c[ci], c[ci + 1]); ci += 2; }
-    else if (op === L) { path.lineTo(c[ci], c[ci + 1]); ci += 2; }
-    else if (op === C) { path.bezierCurveTo(c[ci], c[ci + 1], c[ci + 2], c[ci + 3], c[ci + 4], c[ci + 5]); ci += 6; }
-    else path.closePath();
-  }
-  return path;
+  return s;
 }
 
 export function pathsFromPacket(p) {
   const out = new Array(p.manifest.pathCount);
-  for (let i = 0; i < out.length; i++) out[i] = pathFromPacket(p, i);
+  for (let i = 0; i < out.length; i++) out[i] = new Path2D(packetPathData(p, i));
   return out;
 }
 

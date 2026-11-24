@@ -15,7 +15,7 @@ const reps = Number(q.get("reps") ?? 6), frames = Number(q.get("frames") ?? 30);
 const mode = q.get("mode") ?? "bench", zoom = Number(q.get("zoom") ?? 1), indexKind = q.get("index") ?? "grid";
 const stage = document.getElementById("stage");
 const dpr = devicePixelRatio;
-const SERIES_CAP_MS = 8000;
+const SERIES_CAP_MS = 5000;
 
 const base = { real: "/scenes/real/", synth: "/scenes/synth/", native: "/scenes/native/" }[kind];
 
@@ -220,6 +220,17 @@ async function interactions(sc, rep) {
   });
   r.resize(r.w + 200, r.h, dpr);
   redraw();
+  if (sc.r.syncRedraw) {
+    // Raster-complete cost of a full redraw at the fitted camera (forced 1-px readback).
+    const xs = [];
+    for (let k = 0; k < 10; k++) {
+      const t = performance.now();
+      sc.r.syncRedraw();
+      xs.push(performance.now() - t);
+      await nextFrame();
+    }
+    out.syncRedraw = { p50: pct(xs, 50), p95: pct(xs, 95), max: Math.max(...xs) };
+  }
   if (R === "svgimg") for (const k of ["selectLatencyMs", "translate", "scale", "paletteLatencyMs", "visibilityLatencyMs"]) out[k] = "N/A (static image)";
   return out;
 }

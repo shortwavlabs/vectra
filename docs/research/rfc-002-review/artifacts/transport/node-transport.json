@@ -1,0 +1,883 @@
+{
+ "node": "v24.22.1",
+ "platform": "darwin-arm64",
+ "reps": 6,
+ "results": [
+  {
+   "kind": "real",
+   "name": "concert-small-venue-bw",
+   "encode": {
+    "mode": "encode",
+    "name": "concert-small-venue-bw",
+    "encodeMs": {
+     "cold": 0.85,
+     "p50": 0.23,
+     "max": 1.26
+    },
+    "packetBytes": 791069,
+    "binBytes": 791080,
+    "jsonBytes": 746316,
+    "jsonDeflate": 231280,
+    "binDeflate": 248110,
+    "manifestBytes": 199,
+    "paths": 184,
+    "verbs": 17973,
+    "coords": 96268
+   },
+   "json": {
+    "mode": "json",
+    "name": "concert-small-venue-bw",
+    "decodeMs": {
+     "cold": 0.2,
+     "p50": 0.14,
+     "max": 0.16
+    },
+    "cloneMs": {
+     "cold": 0.43,
+     "p50": 0.1,
+     "max": 0.16
+    },
+    "parseMs": {
+     "cold": 2.21,
+     "p50": 2.03,
+     "max": 2.32
+    },
+    "residentHeap": 918104,
+    "residentRss": 4947968,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "concert-small-venue-bw",
+    "loadMs": {
+     "cold": 0.1,
+     "p50": 0.04,
+     "max": 0.07
+    },
+    "wasmCopyOutMs": {
+     "cold": 0.08,
+     "p50": 0.03,
+     "max": 0.06
+    },
+    "cloneNoTransferMs": {
+     "cold": 0.15,
+     "p50": 0.05,
+     "max": 0.09
+    },
+    "validateMs": {
+     "cold": 1.83,
+     "p50": 2,
+     "max": 2.33
+    },
+    "anchors": 16816,
+    "subpaths": 1157,
+    "residentArrayBuffers": 801596,
+    "residentHeap": 162440,
+    "derivedBytes": 10516
+   }
+  },
+  {
+   "kind": "real",
+   "name": "concert-small-venue-1280-halftone",
+   "encode": {
+    "mode": "encode",
+    "name": "concert-small-venue-1280-halftone",
+    "encodeMs": {
+     "cold": 1.39,
+     "p50": 0.87,
+     "max": 1.86
+    },
+    "packetBytes": 4153550,
+    "binBytes": 4153556,
+    "jsonBytes": 3604329,
+    "jsonDeflate": 921861,
+    "binDeflate": 983133,
+    "manifestBytes": 246,
+    "paths": 1,
+    "verbs": 116454,
+    "coords": 504634
+   },
+   "json": {
+    "mode": "json",
+    "name": "concert-small-venue-1280-halftone",
+    "decodeMs": {
+     "cold": 0.43,
+     "p50": 0.14,
+     "max": 0.22
+    },
+    "cloneMs": {
+     "cold": 0.6,
+     "p50": 0.4,
+     "max": 0.47
+    },
+    "parseMs": {
+     "cold": 10.41,
+     "p50": 9.15,
+     "max": 9.24
+    },
+    "residentHeap": 4252856,
+    "residentRss": 26755072,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "concert-small-venue-1280-halftone",
+    "loadMs": {
+     "cold": 0.35,
+     "p50": 0.11,
+     "max": 0.15
+    },
+    "wasmCopyOutMs": {
+     "cold": 0.28,
+     "p50": 0.1,
+     "max": 0.12
+    },
+    "cloneNoTransferMs": {
+     "cold": 0.58,
+     "p50": 0.16,
+     "max": 0.17
+    },
+    "validateMs": {
+     "cold": 4.43,
+     "p50": 1.98,
+     "max": 4.45
+    },
+    "anchors": 97045,
+    "subpaths": 19409,
+    "residentArrayBuffers": 4231192,
+    "residentHeap": 162440,
+    "derivedBytes": 77668
+   }
+  },
+  {
+   "kind": "real",
+   "name": "architecture-street-bw",
+   "encode": {
+    "mode": "encode",
+    "name": "architecture-street-bw",
+    "encodeMs": {
+     "cold": 3.33,
+     "p50": 1.9,
+     "max": 2.51
+    },
+    "packetBytes": 6010200,
+    "binBytes": 6010208,
+    "jsonBytes": 5947740,
+    "jsonDeflate": 1525216,
+    "binDeflate": 1689330,
+    "manifestBytes": 202,
+    "paths": 4130,
+    "verbs": 141088,
+    "coords": 725378
+   },
+   "json": {
+    "mode": "json",
+    "name": "architecture-street-bw",
+    "decodeMs": {
+     "cold": 0.55,
+     "p50": 0.22,
+     "max": 0.28
+    },
+    "cloneMs": {
+     "cold": 0.96,
+     "p50": 0.63,
+     "max": 0.67
+    },
+    "parseMs": {
+     "cold": 19.9,
+     "p50": 17.61,
+     "max": 18.66
+    },
+    "residentHeap": 6726176,
+    "residentRss": 46186496,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "architecture-street-bw",
+    "loadMs": {
+     "cold": 0.51,
+     "p50": 0.17,
+     "max": 0.32
+    },
+    "wasmCopyOutMs": {
+     "cold": 0.45,
+     "p50": 0.13,
+     "max": 0.24
+    },
+    "cloneNoTransferMs": {
+     "cold": 0.87,
+     "p50": 0.22,
+     "max": 0.38
+    },
+    "validateMs": {
+     "cold": 6.44,
+     "p50": 3.26,
+     "max": 4.81
+    },
+    "anchors": 128973,
+    "subpaths": 12115,
+    "residentArrayBuffers": 6190828,
+    "residentHeap": 141080,
+    "derivedBytes": 180620
+   }
+  },
+  {
+   "kind": "real",
+   "name": "architecture-street-limited",
+   "encode": {
+    "mode": "encode",
+    "name": "architecture-street-limited",
+    "encodeMs": {
+     "cold": 11.54,
+     "p50": 4.53,
+     "max": 5.08
+    },
+    "packetBytes": 14316349,
+    "binBytes": 14316356,
+    "jsonBytes": 13764339,
+    "jsonDeflate": 3554345,
+    "binDeflate": 3903121,
+    "manifestBytes": 675,
+    "paths": 9793,
+    "verbs": 317141,
+    "coords": 1730314
+   },
+   "json": {
+    "mode": "json",
+    "name": "architecture-street-limited",
+    "decodeMs": {
+     "cold": 1.73,
+     "p50": 0.46,
+     "max": 0.53
+    },
+    "cloneMs": {
+     "cold": 3.09,
+     "p50": 1.59,
+     "max": 1.71
+    },
+    "parseMs": {
+     "cold": 43.81,
+     "p50": 40.78,
+     "max": 47.52
+    },
+    "residentHeap": 15917232,
+    "residentRss": 110460928,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "architecture-street-limited",
+    "loadMs": {
+     "cold": 1.59,
+     "p50": 0.36,
+     "max": 0.45
+    },
+    "wasmCopyOutMs": {
+     "cold": 1.42,
+     "p50": 0.34,
+     "max": 0.47
+    },
+    "cloneNoTransferMs": {
+     "cold": 2.77,
+     "p50": 0.56,
+     "max": 0.87
+    },
+    "validateMs": {
+     "cold": 9.71,
+     "p50": 7.33,
+     "max": 8.93
+    },
+    "anchors": 303869,
+    "subpaths": 13272,
+    "residentArrayBuffers": 14682820,
+    "residentHeap": 122600,
+    "derivedBytes": 366464
+   }
+  },
+  {
+   "kind": "real",
+   "name": "portrait-large-color",
+   "encode": {
+    "mode": "encode",
+    "name": "portrait-large-color",
+    "encodeMs": {
+     "cold": 26.55,
+     "p50": 14.15,
+     "max": 20.22
+    },
+    "packetBytes": 20589448,
+    "binBytes": 20589456,
+    "jsonBytes": 22548271,
+    "jsonDeflate": 6145667,
+    "binDeflate": 6354078,
+    "manifestBytes": 1412680,
+    "paths": 29944,
+    "verbs": 461264,
+    "coords": 2456134
+   },
+   "json": {
+    "mode": "json",
+    "name": "portrait-large-color",
+    "decodeMs": {
+     "cold": 2.83,
+     "p50": 1.38,
+     "max": 1.8
+    },
+    "cloneMs": {
+     "cold": 4.19,
+     "p50": 3.09,
+     "max": 3.86
+    },
+    "parseMs": {
+     "cold": 85.33,
+     "p50": 73.17,
+     "max": 75.2
+    },
+    "residentHeap": 27138256,
+    "residentRss": 166117376,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "portrait-large-color",
+    "loadMs": {
+     "cold": 1.54,
+     "p50": 0.54,
+     "max": 0.69
+    },
+    "wasmCopyOutMs": {
+     "cold": 1.64,
+     "p50": 0.5,
+     "max": 1.16
+    },
+    "cloneNoTransferMs": {
+     "cold": 4.58,
+     "p50": 1.22,
+     "max": 1.69
+    },
+    "validateMs": {
+     "cold": 15.11,
+     "p50": 12.04,
+     "max": 14.59
+    },
+    "anchors": 430119,
+    "subpaths": 31145,
+    "residentArrayBuffers": 21672244,
+    "residentHeap": -1270976,
+    "derivedBytes": 1082788
+   }
+  },
+  {
+   "kind": "real",
+   "name": "portrait-face-limited",
+   "encode": {
+    "mode": "encode",
+    "name": "portrait-face-limited",
+    "encodeMs": {
+     "cold": 15.96,
+     "p50": 9.48,
+     "max": 14.3
+    },
+    "packetBytes": 31862857,
+    "binBytes": 31862872,
+    "jsonBytes": 30542560,
+    "jsonDeflate": 7614118,
+    "binDeflate": 8350228,
+    "manifestBytes": 676,
+    "paths": 18584,
+    "verbs": 702241,
+    "coords": 3857908
+   },
+   "json": {
+    "mode": "json",
+    "name": "portrait-face-limited",
+    "decodeMs": {
+     "cold": 3.96,
+     "p50": 1.33,
+     "max": 2.07
+    },
+    "cloneMs": {
+     "cold": 5.05,
+     "p50": 3.8,
+     "max": 3.95
+    },
+    "parseMs": {
+     "cold": 96.36,
+     "p50": 89.04,
+     "max": 96.13
+    },
+    "residentHeap": 34783616,
+    "residentRss": 215875584,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "portrait-face-limited",
+    "loadMs": {
+     "cold": 3.21,
+     "p50": 0.85,
+     "max": 1.57
+    },
+    "wasmCopyOutMs": {
+     "cold": 2.69,
+     "p50": 0.77,
+     "max": 1.36
+    },
+    "cloneNoTransferMs": {
+     "cold": 5.22,
+     "p50": 1.46,
+     "max": 1.89
+    },
+    "validateMs": {
+     "cold": 17.7,
+     "p50": 16.28,
+     "max": 18.17
+    },
+    "anchors": 670486,
+    "subpaths": 31755,
+    "residentArrayBuffers": 32584580,
+    "residentHeap": -853032,
+    "derivedBytes": 721708
+   }
+  },
+  {
+   "kind": "real",
+   "name": "architecture-street-halftone",
+   "encode": {
+    "mode": "encode",
+    "name": "architecture-street-halftone",
+    "encodeMs": {
+     "cold": 8.05,
+     "p50": 7.78,
+     "max": 10.03
+    },
+    "packetBytes": 41837238,
+    "binBytes": 41837244,
+    "jsonBytes": 39711766,
+    "jsonDeflate": 9855331,
+    "binDeflate": 10038023,
+    "manifestBytes": 250,
+    "paths": 1,
+    "verbs": 1173006,
+    "coords": 5083026
+   },
+   "json": {
+    "mode": "json",
+    "name": "architecture-street-halftone",
+    "decodeMs": {
+     "cold": 3.26,
+     "p50": 1.86,
+     "max": 2.47
+    },
+    "cloneMs": {
+     "cold": 9.72,
+     "p50": 5,
+     "max": 5.28
+    },
+    "parseMs": {
+     "cold": 111.23,
+     "p50": 103.83,
+     "max": 106.87
+    },
+    "residentHeap": 41936544,
+    "residentRss": 216989696,
+    "paths": 1
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "architecture-street-halftone",
+    "loadMs": {
+     "cold": 4.46,
+     "p50": 1.16,
+     "max": 1.5
+    },
+    "wasmCopyOutMs": {
+     "cold": 3.29,
+     "p50": 1.5,
+     "max": 1.96
+    },
+    "cloneNoTransferMs": {
+     "cold": 7.77,
+     "p50": 2.28,
+     "max": 3.27
+    },
+    "validateMs": {
+     "cold": 19.68,
+     "p50": 19.83,
+     "max": 21.91
+    },
+    "anchors": 977505,
+    "subpaths": 195501,
+    "residentArrayBuffers": 42619248,
+    "residentHeap": -872064,
+    "derivedBytes": 782036
+   }
+  },
+  {
+   "kind": "synth",
+   "name": "synthetic-many-10k",
+   "encode": {
+    "mode": "encode",
+    "name": "synthetic-many-10k",
+    "encodeMs": {
+     "cold": 1.17,
+     "p50": 0.6,
+     "max": 0.87
+    },
+    "packetBytes": 454488,
+    "binBytes": 454492,
+    "jsonBytes": 577692,
+    "jsonDeflate": 111978,
+    "binDeflate": 118522,
+    "manifestBytes": 1374,
+    "paths": 1655,
+    "verbs": 12000,
+    "coords": 52000
+   },
+   "json": {
+    "mode": "json",
+    "name": "synthetic-many-10k",
+    "decodeMs": {
+     "cold": 0.09,
+     "p50": 0.1,
+     "max": 0.14
+    },
+    "cloneMs": {
+     "cold": 0.25,
+     "p50": 0.1,
+     "max": 0.14
+    },
+    "parseMs": {
+     "cold": 1.53,
+     "p50": 1.52,
+     "max": 1.58
+    },
+    "residentHeap": 791160,
+    "residentRss": 4964352,
+    "paths": 8
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "synthetic-many-10k",
+    "loadMs": {
+     "cold": 0.13,
+     "p50": 0.04,
+     "max": 0.04
+    },
+    "wasmCopyOutMs": {
+     "cold": 0.07,
+     "p50": 0.02,
+     "max": 0.03
+    },
+    "cloneNoTransferMs": {
+     "cold": 0.15,
+     "p50": 0.04,
+     "max": 0.05
+    },
+    "validateMs": {
+     "cold": 1.53,
+     "p50": 1.27,
+     "max": 1.44
+    },
+    "anchors": 10000,
+    "subpaths": 2000,
+    "residentArrayBuffers": 515452,
+    "residentHeap": 122952,
+    "derivedBytes": 60960
+   }
+  },
+  {
+   "kind": "synth",
+   "name": "synthetic-many-100k",
+   "encode": {
+    "mode": "encode",
+    "name": "synthetic-many-100k",
+    "encodeMs": {
+     "cold": 6.69,
+     "p50": 3.6,
+     "max": 4.14
+    },
+    "packetBytes": 4546936,
+    "binBytes": 4546940,
+    "jsonBytes": 5780482,
+    "jsonDeflate": 1109399,
+    "binDeflate": 1180522,
+    "manifestBytes": 1377,
+    "paths": 16683,
+    "verbs": 120000,
+    "coords": 520000
+   },
+   "json": {
+    "mode": "json",
+    "name": "synthetic-many-100k",
+    "decodeMs": {
+     "cold": 0.57,
+     "p50": 0.29,
+     "max": 0.42
+    },
+    "cloneMs": {
+     "cold": 0.97,
+     "p50": 0.64,
+     "max": 0.94
+    },
+    "parseMs": {
+     "cold": 18.85,
+     "p50": 15.68,
+     "max": 16.1
+    },
+    "residentHeap": 7034744,
+    "residentRss": 44793856,
+    "paths": 8
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "synthetic-many-100k",
+    "loadMs": {
+     "cold": 0.41,
+     "p50": 0.16,
+     "max": 0.18
+    },
+    "wasmCopyOutMs": {
+     "cold": 0.32,
+     "p50": 0.1,
+     "max": 0.12
+    },
+    "cloneNoTransferMs": {
+     "cold": 0.68,
+     "p50": 0.17,
+     "max": 0.21
+    },
+    "validateMs": {
+     "cold": 5.82,
+     "p50": 2.47,
+     "max": 4.08
+    },
+    "anchors": 100000,
+    "subpaths": 20000,
+    "residentArrayBuffers": 5160796,
+    "residentHeap": 162688,
+    "derivedBytes": 613856
+   }
+  },
+  {
+   "kind": "synth",
+   "name": "synthetic-many-250k",
+   "encode": {
+    "mode": "encode",
+    "name": "synthetic-many-250k",
+    "encodeMs": {
+     "cold": 13.36,
+     "p50": 8.52,
+     "max": 9.74
+    },
+    "packetBytes": 11369656,
+    "binBytes": 11369660,
+    "jsonBytes": 14457070,
+    "jsonDeflate": 2771523,
+    "binDeflate": 2955924,
+    "manifestBytes": 1378,
+    "paths": 41853,
+    "verbs": 300000,
+    "coords": 1300000
+   },
+   "json": {
+    "mode": "json",
+    "name": "synthetic-many-250k",
+    "decodeMs": {
+     "cold": 1.53,
+     "p50": 0.74,
+     "max": 0.9
+    },
+    "cloneMs": {
+     "cold": 2.97,
+     "p50": 1.81,
+     "max": 1.86
+    },
+    "parseMs": {
+     "cold": 44.61,
+     "p50": 40.54,
+     "max": 43.31
+    },
+    "residentHeap": 17456504,
+    "residentRss": 134070272,
+    "paths": 8
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "synthetic-many-250k",
+    "loadMs": {
+     "cold": 0.99,
+     "p50": 0.37,
+     "max": 0.49
+    },
+    "wasmCopyOutMs": {
+     "cold": 1.19,
+     "p50": 0.27,
+     "max": 0.52
+    },
+    "cloneNoTransferMs": {
+     "cold": 2.28,
+     "p50": 0.49,
+     "max": 0.92
+    },
+    "validateMs": {
+     "cold": 8.48,
+     "p50": 6.27,
+     "max": 6.49
+    },
+    "anchors": 250000,
+    "subpaths": 50000,
+    "residentArrayBuffers": 12908956,
+    "residentHeap": 122576,
+    "derivedBytes": 1539296
+   }
+  },
+  {
+   "kind": "synth",
+   "name": "synthetic-many-500k",
+   "encode": {
+    "mode": "encode",
+    "name": "synthetic-many-500k",
+    "encodeMs": {
+     "cold": 22.76,
+     "p50": 17.55,
+     "max": 25.15
+    },
+    "packetBytes": 22733166,
+    "binBytes": 22733172,
+    "jsonBytes": 28877972,
+    "jsonDeflate": 5538103,
+    "binDeflate": 5905121,
+    "manifestBytes": 1378,
+    "paths": 83309,
+    "verbs": 600006,
+    "coords": 2600026
+   },
+   "json": {
+    "mode": "json",
+    "name": "synthetic-many-500k",
+    "decodeMs": {
+     "cold": 4.55,
+     "p50": 1.43,
+     "max": 1.73
+    },
+    "cloneMs": {
+     "cold": 5.68,
+     "p50": 3.02,
+     "max": 4.42
+    },
+    "parseMs": {
+     "cold": 88.16,
+     "p50": 80.39,
+     "max": 84.89
+    },
+    "residentHeap": 34763112,
+    "residentRss": 242401280,
+    "paths": 8
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "synthetic-many-500k",
+    "loadMs": {
+     "cold": 1.89,
+     "p50": 0.52,
+     "max": 1.14
+    },
+    "wasmCopyOutMs": {
+     "cold": 1.96,
+     "p50": 0.6,
+     "max": 1.04
+    },
+    "cloneNoTransferMs": {
+     "cold": 4.12,
+     "p50": 0.91,
+     "max": 2.4
+    },
+    "validateMs": {
+     "cold": 11.28,
+     "p50": 10.48,
+     "max": 10.66
+    },
+    "anchors": 500005,
+    "subpaths": 100001,
+    "residentArrayBuffers": 25799064,
+    "residentHeap": -873208,
+    "derivedBytes": 3065892
+   }
+  },
+  {
+   "kind": "synth",
+   "name": "synthetic-many-1m",
+   "encode": {
+    "mode": "encode",
+    "name": "synthetic-many-1m",
+    "encodeMs": {
+     "cold": 41.92,
+     "p50": 45.55,
+     "max": 50.35
+    },
+    "packetBytes": 45465576,
+    "binBytes": 45465584,
+    "jsonBytes": 57734665,
+    "jsonDeflate": 11074512,
+    "binDeflate": 11811917,
+    "manifestBytes": 1380,
+    "paths": 166598,
+    "verbs": 1200000,
+    "coords": 5200000
+   },
+   "json": {
+    "mode": "json",
+    "name": "synthetic-many-1m",
+    "decodeMs": {
+     "cold": 4.82,
+     "p50": 2.93,
+     "max": 3.4
+    },
+    "cloneMs": {
+     "cold": 11.93,
+     "p50": 7.27,
+     "max": 8.51
+    },
+    "parseMs": {
+     "cold": 170.77,
+     "p50": 168.67,
+     "max": 181.3
+    },
+    "residentHeap": 69423864,
+    "residentRss": 400228352,
+    "paths": 8
+   },
+   "packet": {
+    "mode": "packet",
+    "name": "synthetic-many-1m",
+    "loadMs": {
+     "cold": 8.98,
+     "p50": 1.58,
+     "max": 1.79
+    },
+    "wasmCopyOutMs": {
+     "cold": 3.63,
+     "p50": 1.62,
+     "max": 1.67
+    },
+    "cloneNoTransferMs": {
+     "cold": 7.69,
+     "p50": 2.66,
+     "max": 3.99
+    },
+    "validateMs": {
+     "cold": 18.67,
+     "p50": 16.81,
+     "max": 17.27
+    },
+    "anchors": 1000000,
+    "subpaths": 200000,
+    "residentArrayBuffers": 51596720,
+    "residentHeap": -872872,
+    "derivedBytes": 6131136
+   }
+  }
+ ]
+}
