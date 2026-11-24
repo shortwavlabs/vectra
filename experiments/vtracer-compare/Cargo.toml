@@ -1,0 +1,19 @@
+# P0-G1 candidate comparison: VTracer 0.6.5 (stable) vs 1.0.0-alpha.4.
+# Standalone workspace with its own lockfile; never shipped, never part of the app build.
+[package]
+name = "vtracer-compare"
+version = "0.0.0"
+edition = "2021"
+publish = false
+license = "MIT"
+
+[workspace]
+
+[dependencies]
+vt06 = { package = "vtracer", version = "=0.6.5" }
+vt10 = { package = "vtracer", version = "=1.0.0-alpha.4" }
+# Independent SVG renderer used to score both candidates' SVG output.
+resvg = { version = "=0.50.0", default-features = false }
+
+[profile.release]
+debug = false

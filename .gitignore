@@ -1,0 +1,20 @@
+# JS
+node_modules
+dist
+*.local
+*.log
+.vite
+# Rust
+target
+# Generated WASM bindings (reproducible from source: `pnpm run wasm`)
+packages/vector-engine-wasm/pkg
+# Test/benchmark output (evidence that matters is copied into docs/research/p0)
+test-results
+playwright-report
+tests/output
+# OS / editors
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+experiments/**/pkg

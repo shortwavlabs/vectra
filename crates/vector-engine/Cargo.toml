@@ -1,0 +1,10 @@
+[package]
+name = "vector-engine"
+description = "Vectra vectorization core: input validation, tracing, halftone synthesis, canonical scene, SVG and PDF export. No browser or UI dependencies."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
