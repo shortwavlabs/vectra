@@ -4,6 +4,7 @@
 //! - `max_dev_px`: largest distance (source px) from a mismatched 4× sample to the true edge;
 //! - for the diagonal-stroke and transparency fixtures, whether the feature survives and how
 //!   far leaked pixels lie from the true boundary.
+//!
 //! Usage: cargo run --release -p vector-engine --example quality_probe
 #[path = "../tests/common/fixtures.rs"]
 mod fixtures;

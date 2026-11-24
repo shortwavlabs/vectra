@@ -92,7 +92,13 @@ export function App() {
         <SettingsPanel settings={wb.settings} onChange={wb.setSettings} />
 
         <section className="panel" aria-label="Status">
-          <p role="status" aria-live="polite" data-testid="status" data-state={status.kind}>
+          <p
+            role="status"
+            aria-live="polite"
+            data-testid="status"
+            data-state={status.kind}
+            data-revision={status.kind === "processing" ? status.revision : undefined}
+          >
             {status.kind === "idle" && "Idle — choose an image."}
             {status.kind === "decoding" && "Decoding image…"}
             {status.kind === "processing" && (
@@ -162,7 +168,12 @@ export function App() {
               Original {source && `· ${source.width}×${source.height} ${source.format}`}
             </figcaption>
             {source ? (
-              <img src={source.url} alt="Original raster input" data-testid="original" />
+              <img
+                src={source.url}
+                alt="Original raster input"
+                data-testid="original"
+                data-revision={source.revision}
+              />
             ) : (
               <div className="empty">No image</div>
             )}

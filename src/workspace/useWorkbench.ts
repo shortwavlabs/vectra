@@ -34,7 +34,7 @@ export interface Result extends TraceOutcome {
 export type Status =
   | { kind: "idle" }
   | { kind: "decoding" }
-  | { kind: "processing"; since: number }
+  | { kind: "processing"; since: number; revision: number }
   | { kind: "done" }
   | { kind: "cancelled"; ackMs: number }
   | { kind: "error"; code: string; message: string };
@@ -134,7 +134,7 @@ export function useWorkbench() {
   const trace = useCallback(
     (src: Source, s: Settings) => {
       const stop = startProbe();
-      setStatus({ kind: "processing", since: performance.now() });
+      setStatus({ kind: "processing", since: performance.now(), revision: src.revision });
       const request = makeRequest(s, maxPixels);
       // Copy: the buffer is transferred (detached) and the source stays available for re-tracing.
       const rgba = src.rgba.slice().buffer;

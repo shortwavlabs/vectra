@@ -17,9 +17,16 @@ export async function waitForState(page: Page, state: string, timeout = 120_000)
   await expect(page.getByTestId("status")).toHaveAttribute("data-state", state, { timeout });
 }
 
-/** Waits until the workbench shows a source of the given size (so later states belong to it). */
+/**
+ * Waits until the workbench shows a source of the given size and is processing *that* source
+ * (not a still-running re-trace of the previous image), so a following cancel targets it.
+ */
 export async function waitForSource(page: Page, width: number, height: number) {
   await expect(page.getByText(`Original · ${width}×${height}`)).toBeVisible({ timeout: 60_000 });
+  const revision = await page.getByTestId("original").getAttribute("data-revision");
+  await expect(page.getByTestId("status")).toHaveAttribute("data-revision", revision!, {
+    timeout: 60_000,
+  });
 }
 
 export async function upload(page: Page, file: string) {
