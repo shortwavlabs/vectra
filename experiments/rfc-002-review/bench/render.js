@@ -15,7 +15,7 @@ const reps = Number(q.get("reps") ?? 6), frames = Number(q.get("frames") ?? 30);
 const mode = q.get("mode") ?? "bench", zoom = Number(q.get("zoom") ?? 1), indexKind = q.get("index") ?? "grid";
 const stage = document.getElementById("stage");
 const dpr = devicePixelRatio;
-const SERIES_CAP_MS = 5000;
+const SERIES_CAP_MS = mode === "pan" ? 20000 : 5000;
 
 const base = { real: "/scenes/real/", synth: "/scenes/synth/", native: "/scenes/native/" }[kind];
 
@@ -242,6 +242,19 @@ async function run() {
   const H = mode === "correctness" ? Math.round(inp.man.height * zoom) : innerHeight;
   stage.style.width = `${W}px`;
   stage.style.height = `${H}px`;
+  if (mode === "pan") {
+    // Frame-presentation check: pan 120 frames between user-timing marks (traced by the driver).
+    const sc = await loadScene(inp, W, H);
+    await twoFrames();
+    await new Promise((r) => setTimeout(r, 500));
+    performance.mark("pan-start");
+    const pan = await series(120, () => {
+      sc.r.cam.tx -= 6;
+      sc.r.draw();
+    });
+    performance.mark("pan-end");
+    return { W, H, dpr, pan };
+  }
   if (mode === "correctness") {
     stage.classList.add("white");
     const sc = await loadScene(inp, W, H);
