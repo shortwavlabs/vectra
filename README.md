@@ -2,11 +2,17 @@
 
 **From pixels to paths.** An open-source, local-first browser studio for raster tracing and artistic vector print effects.
 
-Status: P0 feasibility, P0-R engineering closure and P0-R-GEO geometric fidelity. A temporary engineering workbench runs locally; there is no product UI and no public deployment. See the final reports: [P0](docs/research/p0/FINAL-REPORT.md), [P0-R](docs/research/p0-r/FINAL-REPORT.md), [P0-R-GEO](docs/research/p0-r-geo/FINAL-REPORT.md).
+**Status: P0 accepted and complete** as an engineering baseline (P0, P0-R, P0-R-GEO), not a production release. **Next: RFC-002, the Vector Studio architecture.**
+- A temporary engineering workbench runs locally. There is no product UI and no public deployment.
+- Start at the [P1 handoff](docs/P1-HANDOFF.md). See also the [acceptance record](docs/research/P0-ACCEPTANCE.md), the [technical debt register](docs/TECHNICAL-DEBT.md) and the [P0 postmortem](docs/research/P0-POSTMORTEM.md).
 
 Tracing has two fit modes:
-- `spline` (default) is the approved artistic behaviour for photographs and organic artwork.
-- `precision` (opt-in, "Fit: precision" in the workbench) is for logos and geometric artwork. It produces sub-pixel boundaries from the antialiased source, smooth G1 curves, straight lines, crisp corners and exact circles where the evidence proves them.
+- **Artistic** (`spline`, the default): the approved behaviour for photographs and organic artwork.
+- **Precision** (`precision`, opt-in; "Fit: precision" in the workbench): for logos and geometric artwork. It recovers sub-pixel boundaries from the antialiased source and produces smooth G1 curves, straight lines, crisp corners, and exact circles where the evidence proves them.
+
+Known limitations are tracked as technical debt.
+
+**Principles:** local-first processing, no AI in the creative runtime, and genuine vector SVG/PDF export with no raster fallback.
 
 Import an image, choose a tracing or artistic preset, compare the result, tune its palette and geometry, and export editable SVG or genuine vector PDF. Artwork is processed on-device; no account or backend required.
 
@@ -19,7 +25,9 @@ Import an image, choose a tracing or artistic preset, compare the result, tune i
 - [Roadmap](docs/ROADMAP.md)
 - [Design](docs/DESIGN.md)
 - [Vector Studio PRD (proposed)](docs/PRD-002-VECTOR-STUDIO.md), [tools](docs/VECTOR-STUDIO-TOOLS.md), [Creative Lab](docs/CREATIVE-LAB.md), [image sources and community](docs/IMAGE-SOURCES-AND-COMMUNITY.md), [brand and business](docs/BRAND-AND-BUSINESS.md)
-- [Deployment](docs/DEPLOYMENT.md)
+- [Deployment](docs/DEPLOYMENT.md): Cloudflare Workers Static Assets, assets-only, approved; deployment deferred until a suitable UI exists.
+- [P1 handoff](docs/P1-HANDOFF.md) · [Technical debt register](docs/TECHNICAL-DEBT.md) · [P0 acceptance record](docs/research/P0-ACCEPTANCE.md) · [P0 postmortem](docs/research/P0-POSTMORTEM.md)
+- Phase reports: [P0](docs/research/p0/FINAL-REPORT.md), [P0-R](docs/research/p0-r/FINAL-REPORT.md), [P0-R-GEO](docs/research/p0-r-geo/FINAL-REPORT.md)
 - [Contributing](CONTRIBUTING.md)
 - [Agent instructions](AGENTS.md)
 

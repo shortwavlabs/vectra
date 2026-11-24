@@ -10,6 +10,11 @@ Decisions and visual checks that only the maintainer can make. The earlier check
 
 Record results in PR #3.
 
+> **P0 closure (2026-11-24).** The maintainer reviewed the corrected geometric output and is satisfied with the improvements.
+> - **Approved:** the corrected circular geometry, for the P0 baseline; precision as an explicit opt-in mode, with spline as the default; the future terms Artistic and Precision.
+> - **Accepted as technical debt, not fixed:** the remaining limitations.
+> - The individual visual checks below were not recorded item by item, so their boxes stay unticked. See [P0-ACCEPTANCE](../P0-ACCEPTANCE.md).
+
 ## A. Visual geometry in Inkscape and macOS Preview (bundle v2)
 Bundle: [`owner-acceptance-bundle-v2/`](owner-acceptance-bundle-v2/).
 - **Per case:** `<case>-p0-spline.{svg,pdf}`, as bundle v1, and `<case>-corrected-precision.{svg,pdf}`, plus the source PNG in `sources/`.
@@ -35,15 +40,15 @@ Bundle: [`owner-acceptance-bundle-v2/`](owner-acceptance-bundle-v2/).
 - [ ] Record the Inkscape version, the Preview / macOS version, and any case that still looks wrong.
 
 ## B. Decisions
-- [ ] **Precision as an explicit, opt-in fit mode.** Named `precision` in the settings and "Fit: precision" in the workbench. It requires stacked compositing. The artistic default (`spline`) is unchanged. Accept the naming and the opt-in design (SELECTED-CORRECTION).
-- [ ] **Remaining geometric deviations** (GEOMETRY-VALIDATION, "What is still missed"). Accept each for P0, or reject:
+- [x] **Precision as an explicit, opt-in fit mode** (APPROVED at P0 closure; future user-facing terms: Artistic / Precision). Named `precision` in the settings and "Fit: precision" in the workbench. It requires stacked compositing. The artistic default (`spline`) is unchanged. Accept the naming and the opt-in design (SELECTED-CORRECTION).
+- [x] **Remaining geometric deviations** (ACCEPTED FOR P0 as documented technical debt, TD-GEO-001 to TD-GEO-004 and TD-GEO-009; not as final behaviour) (GEOMETRY-VALIDATION, "What is still missed"). Accept each for P0, or reject:
   - curvature uniformity within 2–6 px of three-colour junctions, plus 2 lower-layer specks (the P1 fix is a shared junction graph or label-level blend correction);
   - binary (non-antialiased) edges: position limit only (tier C);
   - thin bars (2–3 px) and acute tips: corner position 1.5–2.3 px; slight curvature on straight edges near rebuilt corners.
-- [ ] **Metric amendments and tiers** (GEOMETRIC-FIDELITY-METRICS):
+- [ ] **Metric amendments and tiers** (recorded; not explicitly approved at P0 closure) (GEOMETRIC-FIDELITY-METRICS):
   - three measurement corrections made during evaluation;
   - the tier B/C and acute-corner allowances.
-- [ ] **Earlier P0-R geometry items**, revisited:
+- [x] **Earlier P0-R geometry items**, revisited (accepted for P0 as technical debt: TD-GEO-005 to TD-GEO-008):
   - Star/ring IoU: ≥ 0.98 in precision mode (0.996/0.996). Spline unchanged (0.977/0.975) as the artistic mode.
   - 1-px diagonal strokes (measured):
     - precision with speckle 0 keeps 56/56 diagonal pixels, as separate tiny shapes, like the `pixel` workaround;
@@ -54,4 +59,4 @@ Bundle: [`owner-acceptance-bundle-v2/`](owner-acceptance-bundle-v2/).
   - Browser decoding differences: unchanged; in-WASM decoding stays a P1 candidate.
 
 ## C. Merge
-- [ ] Review FINAL-REPORT's gate matrix. Merge PR #3 only if satisfied; there is no release tag. RFC-002 and P1 have not been started.
+- [x] Review FINAL-REPORT's gate matrix. Merge PR #3 only if satisfied; there is no release tag. RFC-002 and P1 have not been started. (Merge authorised by the maintainer at P0 closure.)

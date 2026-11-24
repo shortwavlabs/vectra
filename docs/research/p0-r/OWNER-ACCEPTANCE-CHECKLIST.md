@@ -15,9 +15,18 @@ Items that need the maintainer's hands, eyes, credentials or decisions. Engineer
   - the actual deployment, until a suitable application UI exists (tentative domains `vectrapress.ink`, `vectrapress.com`; none registered);
   - Linux amd64, real Safari and mobile devices.
 
+> **P0 closure (2026-11-24).** P0 is accepted and merged as an engineering baseline ([P0-ACCEPTANCE](../P0-ACCEPTANCE.md)).
+> - Boxes are ticked only for what the maintainer explicitly confirmed.
+> - Unticked items stay open, deferred or not run, as recorded in the [technical debt register](../../TECHNICAL-DEBT.md).
+
 ## A. Decisions
 - [x] **Copyright holder** (confirmed: `Copyright (c) 2026 Stephane Pericat`; `LICENSE` added) for the MIT `LICENSE`: the exact line, e.g. `Copyright (c) 2026 <holder>`, choosing between the organisation "Shortwav Labs" (if it is a legal entity) and the individual maintainer. The file is added as soon as this is confirmed ([LICENSING-AND-DISTRIBUTION](LICENSING-AND-DISTRIBUTION.md)).
-- [ ] **Geometry dispositions** (not accepted: circle geometry rejected; star/ring IoU not unconditionally accepted; re-evaluated in P0-R-GEO) ([GEOMETRY-QUALITY-DISPOSITION](GEOMETRY-QUALITY-DISPOSITION.md)): accept or reject each item.
+- [x] **Geometry dispositions.** Resolved at P0 closure:
+  - circle geometry corrected by precision mode and approved;
+  - star/ring IoU met in precision mode;
+  - remaining items accepted for P0 as technical debt (TD-GEO-001 to TD-GEO-009).
+  
+  History: not accepted at P0-R (circle geometry rejected; star/ring IoU not unconditionally accepted; re-evaluated in P0-R-GEO). ([GEOMETRY-QUALITY-DISPOSITION](GEOMETRY-QUALITY-DISPOSITION.md)): accept or reject each item.
   - Star/ring IoU below 0.98: proposed for acceptance, plus a P1 sub-pixel contour stage and a deviation-based metric.
   - Partial alpha binarised: proposed for acceptance.
   - Residual edge leak ≤ 0.87 % within 0.81 px: proposed for acceptance.
@@ -25,8 +34,8 @@ Items that need the maintainer's hands, eyes, credentials or decisions. Engineer
   - Browser decoding differences: deferred to the P1 WASM-decode evaluation.
 - [x] **Offline mechanism** (approved): accept the versioned service worker ([OFFLINE-WORKER-RECOVERY](OFFLINE-WORKER-RECOVERY.md)).
 - [x] **Hosting target** (approved: Workers Static Assets, assets-only; deployment deferred until a suitable UI exists): ([DEPLOYMENT-READINESS](DEPLOYMENT-READINESS.md)).
-- [ ] **Performance budget** for P1 and the lower-end validation target ([PERFORMANCE-BASELINE](PERFORMANCE-BASELINE.md)).
-- [ ] Optional: make the Linux container the canonical builder for published hashes ([LINUX-REPRODUCIBILITY](LINUX-REPRODUCIBILITY.md)).
+- [ ] **Performance budget** (still open at P0 closure; TD-PLATFORM-003) for P1 and the lower-end validation target ([PERFORMANCE-BASELINE](PERFORMANCE-BASELINE.md)).
+- [ ] Optional (still open at P0 closure): make the Linux container the canonical builder for published hashes ([LINUX-REPRODUCIBILITY](LINUX-REPRODUCIBILITY.md)).
 
 ## B. Visual compatibility (Inkscape and macOS Preview)
 Bundle: [`owner-acceptance-bundle/`](owner-acceptance-bundle/), generated through the workbench UI. `MANIFEST.json` lists source, settings, counts and SHA-256 per file. Every PDF in it passed qpdf, pdfimages and the poppler-vs-resvg render comparison ([EXPORT-COMPATIBILITY](EXPORT-COMPATIBILITY.md)). Inkscape is not installed on the engineering machine, so no GUI test was performed.
@@ -42,7 +51,7 @@ Maintainer result (P0-R-GEO brief): SVG files open and are editable; PDF dimensi
 - [ ] Colours look the same in SVG and PDF. Limited colour (`03`) uses only the 8 palette colours.
 - [x] Preview: zooming in stays sharp (vector), with no pixelation.
 
-## C. Real Safari (not Playwright WebKit)
+## C. Real Safari (not Playwright WebKit). NOT RUN at P0 closure (TD-PLATFORM-002)
 Safari 26.6.2 is installed but was not automated. That would need `safaridriver --enable` and "Allow Remote Automation", which the maintainer has to authorise.
 - [ ] Run `pnpm run build && pnpm exec vp preview`, open http://localhost:4173 in Safari, and record the Safari version.
 - [ ] Import `tests/fixtures/external/talbot-scene-in-a-library-640.jpg` → B&W result; download SVG and PDF.
@@ -55,4 +64,4 @@ Safari 26.6.2 is installed but was not automated. That would need `safaridriver 
 - [ ] Run `scripts/verify-deployment.sh <preview-url>` and attach the output to PR #3.
 
 ## E. Merge
-- [ ] Review the P0-R final report gate matrix; merge PR #3 only if satisfied. There is no release tag.
+- [x] Review the P0-R final report gate matrix; merge PR #3 only if satisfied. There is no release tag. (Merge authorised by the maintainer at P0 closure, after P0-R-GEO.)

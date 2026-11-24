@@ -7,6 +7,11 @@ Targets are provisional. Results are in docs/research/p0, docs/research/p0-r and
 
 Thresholds were pre-registered in docs/research/p0-r-geo/GEOMETRIC-FIDELITY-METRICS.md. Precision fit passes 34 of 44 fixtures (spline: 0). Per-fixture results and every miss are in GEOMETRY-VALIDATION.md. Default (spline) outputs are byte-identical across a 114-case regression corpus.
 
+**P0 closure (2026-11-24).** P0 is accepted as an engineering baseline.
+- Results that were PARTIAL, NOT RUN or OWNER TEST PENDING stay as recorded in the phase reports.
+- Open items and their dispositions are in docs/TECHNICAL-DEBT.md; the decisions are in docs/research/P0-ACCEPTANCE.md.
+- Maintainer acceptance of a limitation does not mean it is fixed.
+
 **Tested state (2026-11-24):**
 - **Executed:**
   - Synthetic corpus and geometry quality, including an analytic 4× deviation probe.
@@ -18,9 +23,20 @@ Thresholds were pre-registered in docs/research/p0-r-geo/GEOMETRIC-FIDELITY-METR
 - **Not yet run:**
   - linux/amd64 (emulation crashes rustc).
   - Real Safari, iOS and Android.
-  - Owner art review and Inkscape/Preview round-trips (bundle prepared).
-  - Real deployment (owner action).
-- **Open quality items:** the IoU ≥ 0.98 target is still **missed** by default spline fitting on the star (0.977) and rings (0.975). P0-R proposes measuring edge deviation against analytic shapes; see GEOMETRY-QUALITY-DISPOSITION. Thresholds are not changed until the maintainer decides.
+  - Real deployment: deferred until a suitable UI exists (TD-PLATFORM-004).
+  - Lower-end desktop hardware (TD-PLATFORM-003).
+  - Linux-built precision WASM comparison (TD-PLATFORM-005).
+- **Owner acceptance** (P0-ACCEPTANCE), limited to what was confirmed:
+  - photographic quality and responsiveness approved;
+  - SVG files open and are editable;
+  - PDF dimensions and sharpness approved;
+  - corrected precision geometry reviewed and approved for the P0 baseline.
+  
+  Individual Inkscape/Preview checklist items were not recorded.
+- **Open quality items:**
+  - The IoU ≥ 0.98 target is still **missed** by default spline (Artistic) fitting on the star (0.977) and rings (0.975). It is **met in precision mode** (0.996 / 0.996).
+  - Spline is the approved artistic behaviour and unchanged by design.
+  - Remaining precision limitations are tracked as TD-GEO-001 to TD-GEO-009. Thresholds were not lowered.
 
 ## Corpus
 Create procedural fixtures: circle, nested rings, sharp corners, 1px strokes, transparent antialiased logo, adjacent color blocks, gradient, checkerboard, noise, rotated EXIF JPEG, malformed input and oversized header. Add licensed/public-domain photos, scans and botanical artwork with source/license/hash manifest. No private user artwork in public repo. Hold out a separate art set.
