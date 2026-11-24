@@ -189,3 +189,10 @@ describe("VectorizerClient", () => {
     client.dispose();
   });
 });
+
+test("warmup starts the worker once and resolves when the engine is ready", async () => {
+  const { client, workers } = setup();
+  await expect(client.warmup()).resolves.toMatchObject({ engineVersion: "0.0.0" });
+  await client.warmup();
+  expect(workers).toHaveLength(1);
+});

@@ -70,6 +70,10 @@ export function useWorkbench() {
 
   useEffect(() => {
     window.__vectra = debug.current;
+    client.warmup().then(
+      (ready) => (debug.current.ready = ready),
+      () => {},
+    );
     return () => client.dispose();
   }, [client]);
 

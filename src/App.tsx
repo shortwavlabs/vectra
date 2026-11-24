@@ -35,7 +35,7 @@ export function App() {
         <h1>Vectra · P0 engineering workbench</h1>
         <p className="note">
           Temporary evaluation harness. Images are processed locally in a Web Worker; nothing is
-          uploaded. Engine {result ? "" : "loads on first use."}
+          uploaded.
         </p>
       </header>
 

@@ -227,6 +227,11 @@ export class VectorizerClient {
     return result;
   }
 
+  /** Starts the worker and WASM instance ahead of the first job (also loads them for offline use). */
+  warmup(): Promise<ReadyInfo> {
+    return this.spawn().ready;
+  }
+
   /** Starts a trace, cancelling any in-flight job. `rgba` is transferred and becomes detached. */
   trace(
     input: { rgba: ArrayBuffer; width: number; height: number; revision: number },
