@@ -40,7 +40,10 @@ export function App() {
             {wb.offlineReady
               ? "Offline-ready."
               : "Offline support not active (development build or first load)."}
-          </span>
+          </span>{" "}
+          <a href="./THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">
+            Third-party licenses
+          </a>
         </p>
       </header>
 

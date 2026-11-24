@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Local-first browser vectorization and artistic print studio (P0 feasibility workbench)",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "wasm": "node scripts/build-wasm.mjs",
@@ -10,7 +11,8 @@
     "check": "vp check",
     "test": "vp test",
     "test:rust": "cargo test --locked --workspace",
-    "build": "node scripts/build-wasm.mjs && vp build && node scripts/generate-sw.mjs && node scripts/check-dist.mjs",
+    "build": "node scripts/build-wasm.mjs && vp build && node scripts/generate-notices.mjs --check && node scripts/generate-sw.mjs && node scripts/check-dist.mjs",
+    "notices": "node scripts/generate-notices.mjs",
     "preview": "vp preview --port 4173 --strictPort",
     "test:browser": "playwright test"
   },

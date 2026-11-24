@@ -27,6 +27,8 @@ for (const f of files)
 const has = (re) => files.some((f) => re.test(f.path));
 if (!has(/^index\.html$/)) errors.push("missing index.html");
 if (!has(/^_headers$/)) errors.push("missing _headers");
+if (!has(/^THIRD-PARTY-NOTICES\.txt$/))
+  errors.push("missing THIRD-PARTY-NOTICES.txt (run pnpm run notices)");
 if (!has(/\.wasm$/)) errors.push("missing .wasm asset");
 if (!has(/worker.*\.js$/)) errors.push("missing worker bundle");
 if (!has(/^sw\.js$/)) errors.push("missing sw.js (run scripts/generate-sw.mjs)");
