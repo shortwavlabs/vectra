@@ -1,0 +1,2719 @@
+{
+ "cases": 68,
+ "budget": 1000000,
+ "warn": 250000,
+ "predictors": [
+  {
+   "mode": "bw",
+   "predictor": "post: perimeter",
+   "margin": 0.0,
+   "positives": 0,
+   "negatives": 34,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 0,
+   "warnFN": 0,
+   "medianAbsErrPct": 20.4,
+   "p90AbsErrPct": 29.0
+  },
+  {
+   "mode": "bw",
+   "predictor": "post: perimeter",
+   "margin": 0.1,
+   "positives": 0,
+   "negatives": 34,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 0,
+   "warnFN": 0,
+   "medianAbsErrPct": 20.4,
+   "p90AbsErrPct": 29.0,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 128973,
+     "predConservative": 148955
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 81231,
+     "predConservative": 95286
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 36965,
+     "predConservative": 47546
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 16543,
+     "predConservative": 23496
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 7778,
+     "predConservative": 12598
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 16816,
+     "predConservative": 29104
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 13367,
+     "predConservative": 22103
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 8555,
+     "predConservative": 14071
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 5208,
+     "predConservative": 8640
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 3028,
+     "predConservative": 5001
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 3645,
+     "predConservative": 5929
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 3108,
+     "predConservative": 5022
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 46100,
+     "predConservative": 53930
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 20275,
+     "predConservative": 28555
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 9710,
+     "predConservative": 15848
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 5330,
+     "predConservative": 9360
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 3364,
+     "predConservative": 5762
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 2118,
+     "predConservative": 3316
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 59426,
+     "predConservative": 66077
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 26786,
+     "predConservative": 31991
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 13304,
+     "predConservative": 16810
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 6875,
+     "predConservative": 8943
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 3639,
+     "predConservative": 4944
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 32921,
+     "predConservative": 44976
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 12957,
+     "predConservative": 18955
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 6858,
+     "predConservative": 10868
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 3559,
+     "predConservative": 6135
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 1957,
+     "predConservative": 3683
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 3334,
+     "predConservative": 4404
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 139746,
+     "predConservative": 152072
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 61290,
+     "predConservative": 67459
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 35669,
+     "predConservative": 39741
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 20367,
+     "predConservative": 22511
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 11364,
+     "predConservative": 12416
+    }
+   ]
+  },
+  {
+   "mode": "bw",
+   "predictor": "post: perimeter",
+   "margin": 0.25,
+   "positives": 0,
+   "negatives": 34,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 0,
+   "warnFN": 0,
+   "medianAbsErrPct": 20.4,
+   "p90AbsErrPct": 29.0
+  },
+  {
+   "mode": "bw",
+   "predictor": "pre: luma transitions",
+   "margin": 0.0,
+   "positives": 0,
+   "negatives": 34,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 0,
+   "warnFN": 0,
+   "medianAbsErrPct": 11.4,
+   "p90AbsErrPct": 30.3
+  },
+  {
+   "mode": "bw",
+   "predictor": "pre: luma transitions",
+   "margin": 0.1,
+   "positives": 0,
+   "negatives": 34,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 0,
+   "warnFN": 0,
+   "medianAbsErrPct": 11.4,
+   "p90AbsErrPct": 30.3,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 128973,
+     "predConservative": 137795
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 81231,
+     "predConservative": 94994
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 36965,
+     "predConservative": 52317
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 16543,
+     "predConservative": 28167
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 7778,
+     "predConservative": 14931
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 16816,
+     "predConservative": 23443
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 13367,
+     "predConservative": 18347
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 8555,
+     "predConservative": 12193
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 5208,
+     "predConservative": 7812
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 3028,
+     "predConservative": 4836
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 3645,
+     "predConservative": 5512
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 3108,
+     "predConservative": 4743
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 46100,
+     "predConservative": 98973
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 20275,
+     "predConservative": 45522
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 9710,
+     "predConservative": 19134
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 5330,
+     "predConservative": 8963
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 3364,
+     "predConservative": 4859
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 2118,
+     "predConservative": 6571
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 59426,
+     "predConservative": 91895
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 26786,
+     "predConservative": 44282
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 13304,
+     "predConservative": 22563
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 6875,
+     "predConservative": 11437
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 3639,
+     "predConservative": 6045
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 32921,
+     "predConservative": 44405
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 12957,
+     "predConservative": 19473
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 6858,
+     "predConservative": 11006
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 3559,
+     "predConservative": 6162
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 1957,
+     "predConservative": 3433
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 3334,
+     "predConservative": 5126
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 139746,
+     "predConservative": 158267
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 61290,
+     "predConservative": 73071
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 35669,
+     "predConservative": 43272
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 20367,
+     "predConservative": 25310
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 11364,
+     "predConservative": 14746
+    }
+   ]
+  },
+  {
+   "mode": "bw",
+   "predictor": "pre: luma transitions",
+   "margin": 0.25,
+   "positives": 0,
+   "negatives": 34,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 0,
+   "warnFN": 0,
+   "medianAbsErrPct": 11.4,
+   "p90AbsErrPct": 30.3
+  },
+  {
+   "mode": "color",
+   "predictor": "post: perimeter",
+   "margin": 0.0,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 0,
+   "budgetFN": 1,
+   "warnFP": 2,
+   "warnFN": 0,
+   "medianAbsErrPct": 11.2,
+   "p90AbsErrPct": 20.7
+  },
+  {
+   "mode": "color",
+   "predictor": "post: perimeter",
+   "margin": 0.1,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 3,
+   "warnFN": 0,
+   "medianAbsErrPct": 11.2,
+   "p90AbsErrPct": 20.7,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 389717,
+     "predConservative": 611573
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 274568,
+     "predConservative": 421655
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 142727,
+     "predConservative": 225309
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 76589,
+     "predConservative": 125675
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 40411,
+     "predConservative": 68425
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 397952,
+     "predConservative": 579822
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 313512,
+     "predConservative": 448202
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 193295,
+     "predConservative": 284892
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 113583,
+     "predConservative": 172249
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 70225,
+     "predConservative": 106526
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 83400,
+     "predConservative": 125819
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 72386,
+     "predConservative": 108947
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 1306944,
+     "predConservative": 1605926
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 526656,
+     "predConservative": 715923
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 191322,
+     "predConservative": 273107
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 90522,
+     "predConservative": 134031
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 56907,
+     "predConservative": 87796
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 54573,
+     "predConservative": 74051
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 1145297,
+     "predConservative": 1349326
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 516472,
+     "predConservative": 629683
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 258026,
+     "predConservative": 317744
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 142969,
+     "predConservative": 178767
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 77145,
+     "predConservative": 98273
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 430119,
+     "predConservative": 561041
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 217603,
+     "predConservative": 291476
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 116082,
+     "predConservative": 161646
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 68003,
+     "predConservative": 97114
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 41007,
+     "predConservative": 59887
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 33123,
+     "predConservative": 46151
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 3639627,
+     "predConservative": 3804368
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 1901728,
+     "predConservative": 1953148
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 1003609,
+     "predConservative": 1068049
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 518988,
+     "predConservative": 568204
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 269025,
+     "predConservative": 295304
+    }
+   ]
+  },
+  {
+   "mode": "color",
+   "predictor": "post: perimeter",
+   "margin": 0.25,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "warnFP": 4,
+   "warnFN": 0,
+   "medianAbsErrPct": 11.2,
+   "p90AbsErrPct": 20.7
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q3",
+   "margin": 0.0,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 7,
+   "budgetFN": 1,
+   "warnFP": 9,
+   "warnFN": 1,
+   "medianAbsErrPct": 52.5,
+   "p90AbsErrPct": 125.9
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q3",
+   "margin": 0.1,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 7,
+   "budgetFN": 1,
+   "warnFP": 10,
+   "warnFN": 1,
+   "medianAbsErrPct": 52.5,
+   "p90AbsErrPct": 125.9,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 389717,
+     "predConservative": 2282049
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 274568,
+     "predConservative": 1485613
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 142727,
+     "predConservative": 741853
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 76589,
+     "predConservative": 355289
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 40411,
+     "predConservative": 170040
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 397952,
+     "predConservative": 1137016
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 313512,
+     "predConservative": 804935
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 193295,
+     "predConservative": 456843
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 113583,
+     "predConservative": 254272
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 70225,
+     "predConservative": 138894
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 83400,
+     "predConservative": 173748
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 72386,
+     "predConservative": 144305
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 1306944,
+     "predConservative": 4410165
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 526656,
+     "predConservative": 2110476
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 191322,
+     "predConservative": 954152
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 90522,
+     "predConservative": 422386
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 56907,
+     "predConservative": 190506
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 54573,
+     "predConservative": 86305
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 1145297,
+     "predConservative": 3747912
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 516472,
+     "predConservative": 1644134
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 258026,
+     "predConservative": 766445
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 142969,
+     "predConservative": 353825
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 77145,
+     "predConservative": 171832
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 430119,
+     "predConservative": 3797414
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 217603,
+     "predConservative": 1403976
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 116082,
+     "predConservative": 714390
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 68003,
+     "predConservative": 357694
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 41007,
+     "predConservative": 178829
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 33123,
+     "predConservative": 85842
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 3639627,
+     "predConservative": 4259076
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 1901728,
+     "predConservative": 1558126
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 1003609,
+     "predConservative": 804503
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 518988,
+     "predConservative": 408440
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 269025,
+     "predConservative": 205835
+    }
+   ]
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q3",
+   "margin": 0.25,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 8,
+   "budgetFN": 1,
+   "warnFP": 10,
+   "warnFN": 1,
+   "medianAbsErrPct": 52.5,
+   "p90AbsErrPct": 125.9
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q4",
+   "margin": 0.0,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 8,
+   "warnFN": 1,
+   "medianAbsErrPct": 45.4,
+   "p90AbsErrPct": 98.0
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q4",
+   "margin": 0.1,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 6,
+   "budgetFN": 1,
+   "warnFP": 9,
+   "warnFN": 1,
+   "medianAbsErrPct": 45.4,
+   "p90AbsErrPct": 98.0,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 389717,
+     "predConservative": 1864672
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 274568,
+     "predConservative": 1223401
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 142727,
+     "predConservative": 617608
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 76589,
+     "predConservative": 299469
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 40411,
+     "predConservative": 146013
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 397952,
+     "predConservative": 929950
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 313512,
+     "predConservative": 666710
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 193295,
+     "predConservative": 386320
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 113583,
+     "predConservative": 219333
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 70225,
+     "predConservative": 122274
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 83400,
+     "predConservative": 150961
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 72386,
+     "predConservative": 126005
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 1306944,
+     "predConservative": 3991539
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 526656,
+     "predConservative": 1866783
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 191322,
+     "predConservative": 801193
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 90522,
+     "predConservative": 342411
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 56907,
+     "predConservative": 155095
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 54573,
+     "predConservative": 84028
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 1145297,
+     "predConservative": 3178338
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 516472,
+     "predConservative": 1412415
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 258026,
+     "predConservative": 658050
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 142969,
+     "predConservative": 303388
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 77145,
+     "predConservative": 148971
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 430119,
+     "predConservative": 2698392
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 217603,
+     "predConservative": 1034130
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 116082,
+     "predConservative": 537200
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 68003,
+     "predConservative": 274009
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 41007,
+     "predConservative": 139251
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 33123,
+     "predConservative": 88446
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 3639627,
+     "predConservative": 3929371
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 1901728,
+     "predConservative": 1529424
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 1003609,
+     "predConservative": 808433
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 518988,
+     "predConservative": 414817
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 269025,
+     "predConservative": 211412
+    }
+   ]
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q4",
+   "margin": 0.25,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 7,
+   "budgetFN": 1,
+   "warnFP": 9,
+   "warnFN": 1,
+   "medianAbsErrPct": 45.4,
+   "p90AbsErrPct": 98.0
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q5",
+   "margin": 0.0,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 7,
+   "warnFN": 1,
+   "medianAbsErrPct": 48.4,
+   "p90AbsErrPct": 117.3
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q5",
+   "margin": 0.1,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 8,
+   "warnFN": 1,
+   "medianAbsErrPct": 48.4,
+   "p90AbsErrPct": 117.3,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 389717,
+     "predConservative": 1898142
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 274568,
+     "predConservative": 1258185
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 142727,
+     "predConservative": 644541
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 76589,
+     "predConservative": 317135
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 40411,
+     "predConservative": 156884
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 397952,
+     "predConservative": 827089
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 313512,
+     "predConservative": 603698
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 193295,
+     "predConservative": 359320
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 113583,
+     "predConservative": 208789
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 70225,
+     "predConservative": 118941
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 83400,
+     "predConservative": 144200
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 72386,
+     "predConservative": 121003
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 1306944,
+     "predConservative": 3652767
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 526656,
+     "predConservative": 1672386
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 191322,
+     "predConservative": 689257
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 90522,
+     "predConservative": 291923
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 56907,
+     "predConservative": 136527
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 54573,
+     "predConservative": 89558
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 1145297,
+     "predConservative": 2769671
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 516472,
+     "predConservative": 1237080
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 258026,
+     "predConservative": 575181
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 142969,
+     "predConservative": 269173
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 77145,
+     "predConservative": 134924
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 430119,
+     "predConservative": 2147930
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 217603,
+     "predConservative": 857408
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 116082,
+     "predConservative": 458977
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 68003,
+     "predConservative": 240678
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 41007,
+     "predConservative": 125020
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 33123,
+     "predConservative": 93193
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 3639627,
+     "predConservative": 3399709
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 1901728,
+     "predConservative": 1402194
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 1003609,
+     "predConservative": 760344
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 518988,
+     "predConservative": 397753
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 269025,
+     "predConservative": 206477
+    }
+   ]
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q5",
+   "margin": 0.25,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 9,
+   "warnFN": 1,
+   "medianAbsErrPct": 48.4,
+   "p90AbsErrPct": 117.3
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q6",
+   "margin": 0.0,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 8,
+   "warnFN": 1,
+   "medianAbsErrPct": 41.9,
+   "p90AbsErrPct": 110.7
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q6",
+   "margin": 0.1,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 8,
+   "warnFN": 1,
+   "medianAbsErrPct": 41.9,
+   "p90AbsErrPct": 110.7,
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 389717,
+     "predConservative": 2219360
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 274568,
+     "predConservative": 1493445
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 142727,
+     "predConservative": 788365
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 76589,
+     "predConservative": 401913
+    },
+    {
+     "image": "architecture-street",
+     "mp": 0.999,
+     "actual": 40411,
+     "predConservative": 204405
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 397952,
+     "predConservative": 830243
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 313512,
+     "predConservative": 619395
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 193295,
+     "predConservative": 381024
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 113583,
+     "predConservative": 227456
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 0.999,
+     "actual": 70225,
+     "predConservative": 131521
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 83400,
+     "predConservative": 156495
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 0.999,
+     "actual": 72386,
+     "predConservative": 131932
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 1306944,
+     "predConservative": 4338901
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 526656,
+     "predConservative": 1970827
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 191322,
+     "predConservative": 797659
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 90522,
+     "predConservative": 335719
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 0.998,
+     "actual": 56907,
+     "predConservative": 159445
+    },
+    {
+     "image": "hokusai-great-wave-640",
+     "mp": 0.275,
+     "actual": 54573,
+     "predConservative": 108073
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 1145297,
+     "predConservative": 3774002
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 516472,
+     "predConservative": 1681700
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 258026,
+     "predConservative": 773176
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 142969,
+     "predConservative": 356033
+    },
+    {
+     "image": "portrait-face",
+     "mp": 0.999,
+     "actual": 77145,
+     "predConservative": 176041
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 430119,
+     "predConservative": 1899732
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 217603,
+     "predConservative": 771096
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 116082,
+     "predConservative": 419203
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 68003,
+     "predConservative": 224781
+    },
+    {
+     "image": "portrait-large",
+     "mp": 0.999,
+     "actual": 41007,
+     "predConservative": 120093
+    },
+    {
+     "image": "talbot-scene-in-a-library-640",
+     "mp": 0.337,
+     "actual": 33123,
+     "predConservative": 117623
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 3639627,
+     "predConservative": 2968894
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 1901728,
+     "predConservative": 1262517
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 1003609,
+     "predConservative": 698217
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 518988,
+     "predConservative": 372139
+    },
+    {
+     "image": "texture-bark",
+     "mp": 0.999,
+     "actual": 269025,
+     "predConservative": 197072
+    }
+   ]
+  },
+  {
+   "mode": "color",
+   "predictor": "pre: quantized edges q6",
+   "margin": 0.25,
+   "positives": 5,
+   "negatives": 29,
+   "budgetFP": 5,
+   "budgetFN": 1,
+   "warnFP": 10,
+   "warnFN": 1,
+   "medianAbsErrPct": 41.9,
+   "p90AbsErrPct": 110.7
+  }
+ ],
+ "timing": [
+  {
+   "image": "architecture-street",
+   "mode": "bw",
+   "mp": 12.485,
+   "preMs": 244.0,
+   "segMs": 345.6,
+   "traceMs": 705.5,
+   "segShareOfTrace": 0.49
+  },
+  {
+   "image": "architecture-street",
+   "mode": "color",
+   "mp": 12.485,
+   "preMs": 244.0,
+   "segMs": 8065.9,
+   "traceMs": 10016.5,
+   "segShareOfTrace": 0.805
+  },
+  {
+   "image": "architecture-street",
+   "mode": "bw",
+   "mp": 7.996,
+   "preMs": 159.0,
+   "segMs": 219.8,
+   "traceMs": 436.7,
+   "segShareOfTrace": 0.503
+  },
+  {
+   "image": "architecture-street",
+   "mode": "color",
+   "mp": 7.996,
+   "preMs": 159.0,
+   "segMs": 4546.3,
+   "traceMs": 5355.1,
+   "segShareOfTrace": 0.849
+  },
+  {
+   "image": "architecture-street",
+   "mode": "bw",
+   "mp": 3.999,
+   "preMs": 81.9,
+   "segMs": 117.3,
+   "traceMs": 202.4,
+   "segShareOfTrace": 0.58
+  },
+  {
+   "image": "architecture-street",
+   "mode": "color",
+   "mp": 3.999,
+   "preMs": 81.9,
+   "segMs": 1878.8,
+   "traceMs": 2313.2,
+   "segShareOfTrace": 0.812
+  },
+  {
+   "image": "architecture-street",
+   "mode": "bw",
+   "mp": 1.998,
+   "preMs": 41.6,
+   "segMs": 55.4,
+   "traceMs": 98.7,
+   "segShareOfTrace": 0.561
+  },
+  {
+   "image": "architecture-street",
+   "mode": "color",
+   "mp": 1.998,
+   "preMs": 41.6,
+   "segMs": 751.9,
+   "traceMs": 956.6,
+   "segShareOfTrace": 0.786
+  },
+  {
+   "image": "architecture-street",
+   "mode": "bw",
+   "mp": 0.999,
+   "preMs": 19.6,
+   "segMs": 26.8,
+   "traceMs": 48.4,
+   "segShareOfTrace": 0.554
+  },
+  {
+   "image": "architecture-street",
+   "mode": "color",
+   "mp": 0.999,
+   "preMs": 19.6,
+   "segMs": 302.9,
+   "traceMs": 420.7,
+   "segShareOfTrace": 0.72
+  },
+  {
+   "image": "concert-small-venue-1280",
+   "mode": "bw",
+   "mp": 1.229,
+   "preMs": 22.8,
+   "segMs": 32.1,
+   "traceMs": 61.3,
+   "segShareOfTrace": 0.524
+  },
+  {
+   "image": "concert-small-venue-1280",
+   "mode": "color",
+   "mp": 1.229,
+   "preMs": 22.8,
+   "segMs": 590.2,
+   "traceMs": 783.6,
+   "segShareOfTrace": 0.753
+  },
+  {
+   "image": "concert-small-venue-1280",
+   "mode": "bw",
+   "mp": 0.999,
+   "preMs": 19.1,
+   "segMs": 24.9,
+   "traceMs": 49.2,
+   "segShareOfTrace": 0.506
+  },
+  {
+   "image": "concert-small-venue-1280",
+   "mode": "color",
+   "mp": 0.999,
+   "preMs": 19.1,
+   "segMs": 465.5,
+   "traceMs": 600.6,
+   "segShareOfTrace": 0.775
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "bw",
+   "mp": 12.193,
+   "preMs": 251.9,
+   "segMs": 302.5,
+   "traceMs": 567.0,
+   "segShareOfTrace": 0.534
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "color",
+   "mp": 12.193,
+   "preMs": 251.9,
+   "segMs": 6140.8,
+   "traceMs": 7447.0,
+   "segShareOfTrace": 0.825
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "bw",
+   "mp": 7.996,
+   "preMs": 161.8,
+   "segMs": 201.6,
+   "traceMs": 366.8,
+   "segShareOfTrace": 0.55
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "color",
+   "mp": 7.996,
+   "preMs": 161.8,
+   "segMs": 4493.8,
+   "traceMs": 6070.9,
+   "segShareOfTrace": 0.74
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "bw",
+   "mp": 3.999,
+   "preMs": 80.9,
+   "segMs": 108.6,
+   "traceMs": 204.8,
+   "segShareOfTrace": 0.53
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "color",
+   "mp": 3.999,
+   "preMs": 80.9,
+   "segMs": 2423.6,
+   "traceMs": 2944.0,
+   "segShareOfTrace": 0.823
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "bw",
+   "mp": 1.998,
+   "preMs": 40.3,
+   "segMs": 57.3,
+   "traceMs": 103.8,
+   "segShareOfTrace": 0.552
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "color",
+   "mp": 1.998,
+   "preMs": 40.3,
+   "segMs": 1134.9,
+   "traceMs": 1441.7,
+   "segShareOfTrace": 0.787
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "bw",
+   "mp": 0.999,
+   "preMs": 19.7,
+   "segMs": 28.1,
+   "traceMs": 51.8,
+   "segShareOfTrace": 0.542
+  },
+  {
+   "image": "concert-small-venue",
+   "mode": "color",
+   "mp": 0.999,
+   "preMs": 19.7,
+   "segMs": 522.0,
+   "traceMs": 667.0,
+   "segShareOfTrace": 0.783
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "bw",
+   "mp": 16.085,
+   "preMs": 315.0,
+   "segMs": 447.8,
+   "traceMs": 802.8,
+   "segShareOfTrace": 0.558
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "color",
+   "mp": 16.085,
+   "preMs": 315.0,
+   "segMs": 73602.0,
+   "traceMs": 73746.9,
+   "segShareOfTrace": 0.998
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "bw",
+   "mp": 7.996,
+   "preMs": 163.0,
+   "segMs": 213.7,
+   "traceMs": 380.4,
+   "segShareOfTrace": 0.562
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "color",
+   "mp": 7.996,
+   "preMs": 163.0,
+   "segMs": 19888.6,
+   "traceMs": 21952.8,
+   "segShareOfTrace": 0.906
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "bw",
+   "mp": 3.998,
+   "preMs": 78.1,
+   "segMs": 115.4,
+   "traceMs": 197.6,
+   "segShareOfTrace": 0.584
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "color",
+   "mp": 3.998,
+   "preMs": 78.1,
+   "segMs": 3900.5,
+   "traceMs": 4573.4,
+   "segShareOfTrace": 0.853
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "bw",
+   "mp": 1.998,
+   "preMs": 42.1,
+   "segMs": 55.8,
+   "traceMs": 100.3,
+   "segShareOfTrace": 0.556
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "color",
+   "mp": 1.998,
+   "preMs": 42.1,
+   "segMs": 796.5,
+   "traceMs": 1052.2,
+   "segShareOfTrace": 0.757
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "bw",
+   "mp": 0.998,
+   "preMs": 19.7,
+   "segMs": 27.6,
+   "traceMs": 50.7,
+   "segShareOfTrace": 0.544
+  },
+  {
+   "image": "concert-stage-light",
+   "mode": "color",
+   "mp": 0.998,
+   "preMs": 19.7,
+   "segMs": 323.0,
+   "traceMs": 488.5,
+   "segShareOfTrace": 0.661
+  },
+  {
+   "image": "hokusai-great-wave-640",
+   "mode": "bw",
+   "mp": 0.275,
+   "preMs": 6.2,
+   "segMs": 7.4,
+   "traceMs": 12.6,
+   "segShareOfTrace": 0.587
+  },
+  {
+   "image": "hokusai-great-wave-640",
+   "mode": "color",
+   "mp": 0.275,
+   "preMs": 6.2,
+   "segMs": 299.4,
+   "traceMs": 398.8,
+   "segShareOfTrace": 0.751
+  },
+  {
+   "image": "portrait-face",
+   "mode": "bw",
+   "mp": 17.916,
+   "preMs": 382.2,
+   "segMs": 476.5,
+   "traceMs": 881.4,
+   "segShareOfTrace": 0.541
+  },
+  {
+   "image": "portrait-face",
+   "mode": "color",
+   "mp": 17.916,
+   "preMs": 382.2,
+   "segMs": 26574.3,
+   "traceMs": 29925.8,
+   "segShareOfTrace": 0.888
+  },
+  {
+   "image": "portrait-face",
+   "mode": "bw",
+   "mp": 7.998,
+   "preMs": 160.7,
+   "segMs": 203.3,
+   "traceMs": 391.0,
+   "segShareOfTrace": 0.52
+  },
+  {
+   "image": "portrait-face",
+   "mode": "color",
+   "mp": 7.998,
+   "preMs": 160.7,
+   "segMs": 8076.1,
+   "traceMs": 9401.8,
+   "segShareOfTrace": 0.859
+  },
+  {
+   "image": "portrait-face",
+   "mode": "bw",
+   "mp": 3.997,
+   "preMs": 81.7,
+   "segMs": 104.0,
+   "traceMs": 197.0,
+   "segShareOfTrace": 0.528
+  },
+  {
+   "image": "portrait-face",
+   "mode": "color",
+   "mp": 3.997,
+   "preMs": 81.7,
+   "segMs": 2664.6,
+   "traceMs": 3182.2,
+   "segShareOfTrace": 0.837
+  },
+  {
+   "image": "portrait-face",
+   "mode": "bw",
+   "mp": 1.999,
+   "preMs": 37.8,
+   "segMs": 52.7,
+   "traceMs": 99.0,
+   "segShareOfTrace": 0.532
+  },
+  {
+   "image": "portrait-face",
+   "mode": "color",
+   "mp": 1.999,
+   "preMs": 37.8,
+   "segMs": 967.8,
+   "traceMs": 1270.5,
+   "segShareOfTrace": 0.762
+  },
+  {
+   "image": "portrait-face",
+   "mode": "bw",
+   "mp": 0.999,
+   "preMs": 21.8,
+   "segMs": 25.9,
+   "traceMs": 47.6,
+   "segShareOfTrace": 0.544
+  },
+  {
+   "image": "portrait-face",
+   "mode": "color",
+   "mp": 0.999,
+   "preMs": 21.8,
+   "segMs": 424.4,
+   "traceMs": 587.1,
+   "segShareOfTrace": 0.723
+  },
+  {
+   "image": "portrait-large",
+   "mode": "bw",
+   "mp": 23.458,
+   "preMs": 479.1,
+   "segMs": 605.7,
+   "traceMs": 1159.8,
+   "segShareOfTrace": 0.522
+  },
+  {
+   "image": "portrait-large",
+   "mode": "color",
+   "mp": 23.458,
+   "preMs": 479.1,
+   "segMs": 8894.2,
+   "traceMs": 10334.1,
+   "segShareOfTrace": 0.861
+  },
+  {
+   "image": "portrait-large",
+   "mode": "bw",
+   "mp": 7.997,
+   "preMs": 163.8,
+   "segMs": 210.2,
+   "traceMs": 382.0,
+   "segShareOfTrace": 0.55
+  },
+  {
+   "image": "portrait-large",
+   "mode": "color",
+   "mp": 7.997,
+   "preMs": 163.8,
+   "segMs": 3530.5,
+   "traceMs": 4220.2,
+   "segShareOfTrace": 0.837
+  },
+  {
+   "image": "portrait-large",
+   "mode": "bw",
+   "mp": 3.998,
+   "preMs": 80.2,
+   "segMs": 109.0,
+   "traceMs": 204.5,
+   "segShareOfTrace": 0.533
+  },
+  {
+   "image": "portrait-large",
+   "mode": "color",
+   "mp": 3.998,
+   "preMs": 80.2,
+   "segMs": 1667.3,
+   "traceMs": 1977.8,
+   "segShareOfTrace": 0.843
+  },
+  {
+   "image": "portrait-large",
+   "mode": "bw",
+   "mp": 1.998,
+   "preMs": 39.0,
+   "segMs": 52.3,
+   "traceMs": 105.9,
+   "segShareOfTrace": 0.494
+  },
+  {
+   "image": "portrait-large",
+   "mode": "color",
+   "mp": 1.998,
+   "preMs": 39.0,
+   "segMs": 688.2,
+   "traceMs": 887.1,
+   "segShareOfTrace": 0.776
+  },
+  {
+   "image": "portrait-large",
+   "mode": "bw",
+   "mp": 0.999,
+   "preMs": 20.3,
+   "segMs": 25.9,
+   "traceMs": 49.6,
+   "segShareOfTrace": 0.522
+  },
+  {
+   "image": "portrait-large",
+   "mode": "color",
+   "mp": 0.999,
+   "preMs": 20.3,
+   "segMs": 304.2,
+   "traceMs": 416.4,
+   "segShareOfTrace": 0.731
+  },
+  {
+   "image": "talbot-scene-in-a-library-640",
+   "mode": "bw",
+   "mp": 0.337,
+   "preMs": 7.6,
+   "segMs": 9.5,
+   "traceMs": 18.4,
+   "segShareOfTrace": 0.516
+  },
+  {
+   "image": "talbot-scene-in-a-library-640",
+   "mode": "color",
+   "mp": 0.337,
+   "preMs": 7.6,
+   "segMs": 198.6,
+   "traceMs": 276.6,
+   "segShareOfTrace": 0.718
+  },
+  {
+   "image": "texture-bark",
+   "mode": "bw",
+   "mp": 24.0,
+   "preMs": 488.6,
+   "segMs": 644.2,
+   "traceMs": 1263.5,
+   "segShareOfTrace": 0.51
+  },
+  {
+   "image": "texture-bark",
+   "mode": "color",
+   "mp": 24.0,
+   "preMs": 488.6,
+   "segMs": 112755.6,
+   "traceMs": 131223.2,
+   "segShareOfTrace": 0.859
+  },
+  {
+   "image": "texture-bark",
+   "mode": "bw",
+   "mp": 7.998,
+   "preMs": 156.5,
+   "segMs": 223.0,
+   "traceMs": 444.4,
+   "segShareOfTrace": 0.502
+  },
+  {
+   "image": "texture-bark",
+   "mode": "color",
+   "mp": 7.998,
+   "preMs": 156.5,
+   "segMs": 36134.7,
+   "traceMs": 37743.6,
+   "segShareOfTrace": 0.957
+  },
+  {
+   "image": "texture-bark",
+   "mode": "bw",
+   "mp": 3.997,
+   "preMs": 83.8,
+   "segMs": 100.6,
+   "traceMs": 199.6,
+   "segShareOfTrace": 0.504
+  },
+  {
+   "image": "texture-bark",
+   "mode": "color",
+   "mp": 3.997,
+   "preMs": 83.8,
+   "segMs": 11067.0,
+   "traceMs": 13260.0,
+   "segShareOfTrace": 0.835
+  },
+  {
+   "image": "texture-bark",
+   "mode": "bw",
+   "mp": 1.999,
+   "preMs": 43.2,
+   "segMs": 50.7,
+   "traceMs": 102.3,
+   "segShareOfTrace": 0.496
+  },
+  {
+   "image": "texture-bark",
+   "mode": "color",
+   "mp": 1.999,
+   "preMs": 43.2,
+   "segMs": 4315.6,
+   "traceMs": 5392.5,
+   "segShareOfTrace": 0.8
+  },
+  {
+   "image": "texture-bark",
+   "mode": "bw",
+   "mp": 0.999,
+   "preMs": 19.9,
+   "segMs": 27.2,
+   "traceMs": 55.1,
+   "segShareOfTrace": 0.494
+  },
+  {
+   "image": "texture-bark",
+   "mode": "color",
+   "mp": 0.999,
+   "preMs": 19.9,
+   "segMs": 1629.4,
+   "traceMs": 2059.4,
+   "segShareOfTrace": 0.791
+  }
+ ],
+ "timingSummary": {
+  "colorSegShareMedian": 0.8025,
+  "colorSegShareMin": 0.661,
+  "preMsMax": 488.6,
+  "preMsAt12MP": [
+   244.0,
+   251.9
+  ]
+ },
+ "previewExtrapolation": [
+  {
+   "mode": "color",
+   "predictor": "preview 1 MP trace, scale law",
+   "margin": 0.0,
+   "cases": 25,
+   "positives": 5,
+   "budgetFP": 2,
+   "budgetFN": 1,
+   "medianAbsErrPct": 17.8,
+   "p90AbsErrPct": 51.0,
+   "previewTraceMsMax": 2059.4,
+   "previewTraceMsMedian": 587.1,
+   "betaRange": [
+    0.669,
+    1.127
+   ]
+  },
+  {
+   "mode": "color",
+   "predictor": "preview 1 MP trace, scale law",
+   "margin": 0.1,
+   "cases": 25,
+   "positives": 5,
+   "budgetFP": 2,
+   "budgetFN": 1,
+   "medianAbsErrPct": 17.8,
+   "p90AbsErrPct": 51.0,
+   "previewTraceMsMax": 2059.4,
+   "previewTraceMsMedian": 587.1,
+   "betaRange": [
+    0.669,
+    1.127
+   ],
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 389717,
+     "predConservative": 766378
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 274568,
+     "predConservative": 463740
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 142727,
+     "predConservative": 212333
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 76589,
+     "predConservative": 97112
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 83400,
+     "predConservative": 100577
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 397952,
+     "predConservative": 1296726
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 313512,
+     "predConservative": 805874
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 193295,
+     "predConservative": 368986
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 113583,
+     "predConservative": 168758
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 1306944,
+     "predConservative": 876812
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 526656,
+     "predConservative": 451524
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 191322,
+     "predConservative": 233801
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 90522,
+     "predConservative": 121006
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 1145297,
+     "predConservative": 2198295
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 516472,
+     "predConservative": 885535
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 258026,
+     "predConservative": 405118
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 142969,
+     "predConservative": 185492
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 430119,
+     "predConservative": 1583425
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 217603,
+     "predConservative": 470646
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 116082,
+     "predConservative": 215404
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 68003,
+     "predConservative": 98544
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 3639627,
+     "predConservative": 10658992
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 1901728,
+     "predConservative": 3088093
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 1003609,
+     "predConservative": 1412753
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 518988,
+     "predConservative": 646859
+    }
+   ]
+  },
+  {
+   "mode": "bw",
+   "predictor": "preview 1 MP trace, scale law",
+   "margin": 0.0,
+   "cases": 25,
+   "positives": 0,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "medianAbsErrPct": 15.8,
+   "p90AbsErrPct": 48.6,
+   "previewTraceMsMax": 55.1,
+   "previewTraceMsMedian": 49.6,
+   "betaRange": [
+    0.663,
+    1.128
+   ]
+  },
+  {
+   "mode": "bw",
+   "predictor": "preview 1 MP trace, scale law",
+   "margin": 0.1,
+   "cases": 25,
+   "positives": 0,
+   "budgetFP": 0,
+   "budgetFN": 0,
+   "medianAbsErrPct": 15.8,
+   "p90AbsErrPct": 48.6,
+   "previewTraceMsMax": 55.1,
+   "previewTraceMsMedian": 49.6,
+   "betaRange": [
+    0.663,
+    1.128
+   ],
+   "predictions": [
+    {
+     "image": "architecture-street",
+     "mp": 12.485,
+     "actual": 128973,
+     "predConservative": 98513
+    },
+    {
+     "image": "architecture-street",
+     "mp": 7.996,
+     "actual": 81231,
+     "predConservative": 64011
+    },
+    {
+     "image": "architecture-street",
+     "mp": 3.999,
+     "actual": 36965,
+     "predConservative": 32742
+    },
+    {
+     "image": "architecture-street",
+     "mp": 1.998,
+     "actual": 16543,
+     "predConservative": 16731
+    },
+    {
+     "image": "concert-small-venue-1280",
+     "mp": 1.229,
+     "actual": 3645,
+     "predConservative": 4319
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 12.193,
+     "actual": 16816,
+     "predConservative": 55986
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 7.996,
+     "actual": 13367,
+     "predConservative": 34786
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 3.999,
+     "actual": 8555,
+     "predConservative": 15922
+    },
+    {
+     "image": "concert-small-venue",
+     "mp": 1.998,
+     "actual": 5208,
+     "predConservative": 7279
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 16.085,
+     "actual": 46100,
+     "predConservative": 85108
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 7.996,
+     "actual": 20275,
+     "predConservative": 38689
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 3.998,
+     "actual": 9710,
+     "predConservative": 17703
+    },
+    {
+     "image": "concert-stage-light",
+     "mp": 1.998,
+     "actual": 5330,
+     "predConservative": 8096
+    },
+    {
+     "image": "portrait-face",
+     "mp": 17.916,
+     "actual": 59426,
+     "predConservative": 103852
+    },
+    {
+     "image": "portrait-face",
+     "mp": 7.998,
+     "actual": 26786,
+     "predConservative": 41817
+    },
+    {
+     "image": "portrait-face",
+     "mp": 3.997,
+     "actual": 13304,
+     "predConservative": 19124
+    },
+    {
+     "image": "portrait-face",
+     "mp": 1.999,
+     "actual": 6875,
+     "predConservative": 8753
+    },
+    {
+     "image": "portrait-large",
+     "mp": 23.458,
+     "actual": 32921,
+     "predConservative": 75691
+    },
+    {
+     "image": "portrait-large",
+     "mp": 7.997,
+     "actual": 12957,
+     "predConservative": 22485
+    },
+    {
+     "image": "portrait-large",
+     "mp": 3.998,
+     "actual": 6858,
+     "predConservative": 10287
+    },
+    {
+     "image": "portrait-large",
+     "mp": 1.998,
+     "actual": 3559,
+     "predConservative": 4705
+    },
+    {
+     "image": "texture-bark",
+     "mp": 24.0,
+     "actual": 139746,
+     "predConservative": 450998
+    },
+    {
+     "image": "texture-bark",
+     "mp": 7.998,
+     "actual": 61290,
+     "predConservative": 130587
+    },
+    {
+     "image": "texture-bark",
+     "mp": 3.997,
+     "actual": 35669,
+     "predConservative": 59720
+    },
+    {
+     "image": "texture-bark",
+     "mp": 1.999,
+     "actual": 20367,
+     "predConservative": 27334
+    }
+   ]
+  }
+ ]
+}

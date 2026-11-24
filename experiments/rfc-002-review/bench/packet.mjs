@@ -131,6 +131,9 @@ export function validatePacket(p, limits = LIMITS) {
     let c = co[i];
     const c1 = co[i + 1];
     if (v1 <= v0 || c1 < c) fail("offsets", `path ${i}: offsets not increasing`);
+    // Bounds before iteration (found by the adversarial suite: an out-of-range offset was
+    // otherwise rejected only indirectly, after reading past the array).
+    if (v1 > verbs.length || c1 > coords.length) fail("offsets", `path ${i}: offset beyond array`);
     if (styleIndex[i] >= nStyles || groupIndex[i] >= nGroups) fail("ref", `path ${i}: style/group ref`);
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     let open = false;

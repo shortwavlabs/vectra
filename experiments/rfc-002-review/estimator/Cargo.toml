@@ -1,0 +1,18 @@
+# R03 early complexity estimation spike: segmentation features vs actual anchors.
+# Standalone workspace with its own lockfile; never shipped, never part of the app build.
+# Uses only the engine's public (diagnostic) API; the engine is not modified.
+[package]
+name = "rfc002-estimator"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[workspace]
+
+[dependencies]
+vector-engine = { path = "../../../crates/vector-engine" }
+png = "=0.18.1"
+
+[profile.release]
+opt-level = 3
