@@ -2,7 +2,14 @@
 // import → trace (all modes) → export session, and repeat the workflow offline.
 import { readFileSync } from "node:fs";
 import { expect, test, type Request } from "@playwright/test";
-import { fixture, selectMode, uploadGenerated, waitForState, writeOutput } from "./helpers.ts";
+import {
+  fixture,
+  selectMode,
+  uploadGenerated,
+  waitForSource,
+  waitForState,
+  writeOutput,
+} from "./helpers.ts";
 
 const TOKEN = "PRIVATE-artwork-7f3c9e";
 
@@ -103,6 +110,7 @@ test("the complete workflow works offline once the application has loaded", asyn
     type: "image/jpeg",
     name: "offline-large.jpg",
   });
+  await waitForSource(page, 3000, 3000);
   await waitForState(page, "processing");
   await page.getByTestId("cancel").click();
   await waitForState(page, "cancelled");

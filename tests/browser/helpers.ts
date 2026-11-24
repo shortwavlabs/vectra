@@ -17,6 +17,11 @@ export async function waitForState(page: Page, state: string, timeout = 120_000)
   await expect(page.getByTestId("status")).toHaveAttribute("data-state", state, { timeout });
 }
 
+/** Waits until the workbench shows a source of the given size (so later states belong to it). */
+export async function waitForSource(page: Page, width: number, height: number) {
+  await expect(page.getByText(`Original · ${width}×${height}`)).toBeVisible({ timeout: 60_000 });
+}
+
 export async function upload(page: Page, file: string) {
   await page.getByTestId("file").setInputFiles(fixture(file));
 }

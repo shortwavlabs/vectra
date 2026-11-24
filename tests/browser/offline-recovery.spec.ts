@@ -9,6 +9,7 @@ import {
   selectMode,
   shownRequest,
   uploadGenerated,
+  waitForSource,
   waitForState,
   writeOutput,
 } from "./helpers.ts";
@@ -57,12 +58,13 @@ function recordRequests(context: BrowserContext) {
 async function startLargeJobAndCancel(page: Page, n: number) {
   await selectMode(page, "color");
   await uploadGenerated(page, {
-    width: 3000,
+    width: 3000 + n, // distinct size per cycle so the next assertion targets this source
     height: 3000,
     type: "image/jpeg",
     name: `${TOKEN}-${n}.jpg`,
     baseJpeg: "external/talbot-scene-in-a-library-640.jpg",
   });
+  await waitForSource(page, 3000 + n, 3000);
   await waitForState(page, "processing");
   await page.getByTestId("cancel").click();
   await waitForState(page, "cancelled");

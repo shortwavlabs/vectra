@@ -3,3 +3,7 @@ catalog:
   vite-plus: 1.7.0
 overrides:
   vite@*: "catalog:"
+# core-js is an optional dependency of the evaluation-only jsPDF; its postinstall script
+# (a donation banner) is not needed. Explicitly denied so CI-mode installs do not fail.
+allowBuilds:
+  core-js: false

@@ -9,6 +9,7 @@ import {
   svgInventory,
   upload,
   uploadGenerated,
+  waitForSource,
   waitForState,
   writeOutput,
 } from "./helpers.ts";
@@ -134,6 +135,7 @@ test("cancellation is acknowledged immediately and the next job succeeds", async
     name: "large.jpg",
     baseJpeg: "external/talbot-scene-in-a-library-640.jpg",
   });
+  await waitForSource(page, 3000, 3000);
   await waitForState(page, "processing");
   const t0 = Date.now();
   await page.getByTestId("cancel").click();
