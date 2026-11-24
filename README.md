@@ -19,7 +19,7 @@ Import an image, choose a tracing or artistic preset, compare the result, tune i
 - [Contributing](CONTRIBUTING.md)
 - [Agent instructions](AGENTS.md)
 
-License: MIT, selected by the maintainer. The `LICENSE` file is pending confirmation of the copyright holder. Third-party notices for everything distributed in the web app are generated into [`public/THIRD-PARTY-NOTICES.txt`](public/THIRD-PARTY-NOTICES.txt) (`pnpm run notices`) and checked by the build. See [LICENSING-AND-DISTRIBUTION](docs/research/p0-r/LICENSING-AND-DISTRIBUTION.md).
+License: [MIT](LICENSE), Copyright (c) 2026 Stephane Pericat. Third-party notices (which also carry the Vectra license text) for everything distributed in the web app are generated into [`public/THIRD-PARTY-NOTICES.txt`](public/THIRD-PARTY-NOTICES.txt) (`pnpm run notices`) and checked by the build. See [LICENSING-AND-DISTRIBUTION](docs/research/p0-r/LICENSING-AND-DISTRIBUTION.md).
 
 ## Local development (P0 workbench)
 Prerequisites (validated on macOS arm64 and in an Ubuntu 24.04 arm64 container; linux/amd64 not yet validated):
