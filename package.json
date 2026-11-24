@@ -10,7 +10,7 @@
     "check": "vp check",
     "test": "vp test",
     "test:rust": "cargo test --locked --workspace",
-    "build": "node scripts/build-wasm.mjs && vp build && node scripts/check-dist.mjs",
+    "build": "node scripts/build-wasm.mjs && vp build && node scripts/generate-sw.mjs && node scripts/check-dist.mjs",
     "preview": "vp preview --port 4173 --strictPort",
     "test:browser": "playwright test"
   },

@@ -3,6 +3,9 @@
 import { expect, test } from "@playwright/test";
 import { upload, waitForState } from "./helpers.ts";
 
+// Service workers would serve cached responses that bypass the header rewrite below.
+test.use({ serviceWorkers: "block" });
+
 test("without 'wasm-unsafe-eval' the WASM engine is blocked", async ({
   page,
   context,

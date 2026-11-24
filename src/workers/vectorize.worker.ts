@@ -70,6 +70,10 @@ scope.onmessage = (event) => {
         timings: { wasmCallMs, svgMs, parseMs },
         memoryBytes: memoryBytes(),
       });
+    } else if (msg.type === "debug-crash") {
+      setTimeout(() => {
+        throw new Error("injected worker crash (debug)");
+      });
     } else if (msg.type === "export-pdf") {
       const t = performance.now();
       const bytes = sceneToPdf(msg.sceneJson, JSON.stringify(msg.options));
@@ -81,6 +85,6 @@ scope.onmessage = (event) => {
       post({ type: "pdf-result", jobId: msg.jobId, pdf, ms, memoryBytes: memoryBytes() }, [pdf]);
     }
   } catch (e) {
-    post(toError(msg.jobId, e));
+    post(toError("jobId" in msg ? msg.jobId : null, e));
   }
 };

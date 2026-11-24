@@ -58,7 +58,17 @@ const createWorker = () =>
   }) as unknown as WorkerLike;
 
 export function useWorkbench() {
-  const [client] = useState(() => new VectorizerClient({ createWorker }));
+  // Engineering options for tests: ?debug=1 exposes fault injection; ?recycleMiB=N lowers the
+  // WASM memory threshold at which the worker is recycled. Neither touches artwork.
+  const [params] = useState(() => new URLSearchParams(window.location.search));
+  const [client] = useState(() => {
+    const recycleMiB = Number(params.get("recycleMiB"));
+    return new VectorizerClient({
+      createWorker,
+      recycleAboveBytes: recycleMiB > 0 ? recycleMiB * 1024 * 1024 : undefined,
+    });
+  });
+  const [offlineReady, setOfflineReady] = useState(false);
   const [source, setSource] = useState<Source | null>(null);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS.bw);
   const [maxPixels, setMaxPixels] = useState(DEFAULT_MAX_PIXELS);
@@ -70,12 +80,23 @@ export function useWorkbench() {
 
   useEffect(() => {
     window.__vectra = debug.current;
+    if (params.get("debug") === "1") debug.current.crashWorker = () => client.injectCrash();
     client.warmup().then(
       (ready) => (debug.current.ready = ready),
       () => {},
     );
+    // Offline recovery needs the service worker to control this page (production builds).
+    void navigator.serviceWorker?.ready.then(() => {
+      const update = () => {
+        const controlled = navigator.serviceWorker.controller !== null;
+        debug.current.offlineReady = controlled;
+        setOfflineReady(controlled);
+      };
+      update();
+      navigator.serviceWorker.addEventListener("controllerchange", update);
+    });
     return () => client.dispose();
-  }, [client]);
+  }, [client, params]);
 
   const loadFile = useCallback(
     async (file: File) => {
@@ -211,6 +232,7 @@ export function useWorkbench() {
   );
 
   return {
+    offlineReady,
     source,
     settings,
     setSettings,

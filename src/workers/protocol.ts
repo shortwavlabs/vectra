@@ -18,7 +18,9 @@ export type WorkerRequest =
       rgba: ArrayBuffer;
       request: TraceRequest;
     }
-  | { type: "export-pdf"; jobId: number; sceneJson: string; options: PdfOptions };
+  | { type: "export-pdf"; jobId: number; sceneJson: string; options: PdfOptions }
+  /** Engineering fault injection (workbench `?debug=1` only): throw an uncaught error. */
+  | { type: "debug-crash" };
 
 export interface TraceTimings {
   /** Time inside the WASM vectorize call (trace + SVG serialisation). */

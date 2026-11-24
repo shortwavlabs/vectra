@@ -43,6 +43,8 @@ class FakeWorker implements WorkerLike {
   }
 }
 
+/** jobId of a posted request (every request type except debug-crash carries one). */
+const jobIdOf = (m: WorkerRequest) => (m as { jobId: number }).jobId;
 const flush = () => new Promise((r) => setTimeout(r, 0));
 const request = {
   presetVersion: 1,
@@ -76,8 +78,8 @@ describe("VectorizerClient", () => {
     expect(sent.message.type).toBe("trace");
     expect(sent.transfer).toHaveLength(1);
     expect(sent.transfer[0]).toBe((sent.message as Extract<WorkerRequest, { type: "trace" }>).rgba);
-    workers[0]!.emit(workers[0]!.result(sent.message.jobId));
-    await expect(p).resolves.toMatchObject({ jobId: sent.message.jobId, svg: "<svg/>" });
+    workers[0]!.emit(workers[0]!.result(jobIdOf(sent.message)));
+    await expect(p).resolves.toMatchObject({ jobId: jobIdOf(sent.message), svg: "<svg/>" });
   });
 
   test("a newer trace cancels the in-flight one by terminating its worker", async () => {
@@ -88,7 +90,7 @@ describe("VectorizerClient", () => {
     await expect(a).rejects.toBeInstanceOf(CancelledError);
     expect(workers[0]!.terminated).toBe(true);
     await flush();
-    const jobB = workers[1]!.sent[0]!.message.jobId;
+    const jobB = jobIdOf(workers[1]!.sent[0]!.message);
     workers[1]!.emit(workers[1]!.result(jobB));
     await expect(b).resolves.toMatchObject({ jobId: jobB });
     expect(client.stats.workersCreated).toBe(2);
@@ -98,7 +100,7 @@ describe("VectorizerClient", () => {
     const { client, workers, job } = setup();
     const p = job();
     await flush();
-    const id = workers[0]!.sent[0]!.message.jobId;
+    const id = jobIdOf(workers[0]!.sent[0]!.message);
     workers[0]!.emit(workers[0]!.result(id - 1));
     expect(client.stats.staleMessagesDropped).toBe(1);
     expect(client.busy).toBe(true);
@@ -117,7 +119,7 @@ describe("VectorizerClient", () => {
     expect(client.cancel()).toBe(false);
     const q = job();
     await flush();
-    workers[1]!.emit(workers[1]!.result(workers[1]!.sent[0]!.message.jobId));
+    workers[1]!.emit(workers[1]!.result(jobIdOf(workers[1]!.sent[0]!.message)));
     await expect(q).resolves.toBeTruthy();
   });
 
@@ -139,7 +141,7 @@ describe("VectorizerClient", () => {
     expect(workers[0]!.terminated).toBe(true);
     const q = job();
     await flush();
-    workers[1]!.emit(workers[1]!.result(workers[1]!.sent[0]!.message.jobId));
+    workers[1]!.emit(workers[1]!.result(jobIdOf(workers[1]!.sent[0]!.message)));
     await expect(q).resolves.toBeTruthy();
     expect(client.stats.workersCreated).toBe(2);
   });
@@ -150,7 +152,7 @@ describe("VectorizerClient", () => {
     await flush();
     workers[0]!.emit({
       type: "error",
-      jobId: workers[0]!.sent[0]!.message.jobId,
+      jobId: jobIdOf(workers[0]!.sent[0]!.message),
       code: "invalid_params",
       message: "x",
       fatal: false,
@@ -161,7 +163,7 @@ describe("VectorizerClient", () => {
     await flush();
     workers[0]!.emit({
       type: "error",
-      jobId: workers[0]!.sent[1]!.message.jobId,
+      jobId: jobIdOf(workers[0]!.sent[1]!.message),
       code: "wasm_abort",
       message: "unreachable",
       fatal: true,
@@ -174,7 +176,7 @@ describe("VectorizerClient", () => {
     const { client, workers, job } = setup(1000);
     const p = job();
     await flush();
-    workers[0]!.emit(workers[0]!.result(workers[0]!.sent[0]!.message.jobId, 5000));
+    workers[0]!.emit(workers[0]!.result(jobIdOf(workers[0]!.sent[0]!.message), 5000));
     await p;
     expect(workers[0]!.terminated).toBe(true);
     expect(client.stats.terminations).toBe(1);

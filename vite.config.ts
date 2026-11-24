@@ -1,23 +1,46 @@
 import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react";
-import { defineConfig, lazyPlugins } from "vite-plus";
+import { defineConfig, lazyPlugins, type Plugin } from "vite-plus";
 
-/** Headers for `/*` from public/_headers, so `vp preview` serves what Cloudflare Pages serves. */
-function productionHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {};
-  let inRootRule = false;
-  for (const line of readFileSync(new URL("./public/_headers", import.meta.url), "utf8").split(
-    "\n",
-  )) {
+/**
+ * Cloudflare-style `_headers` rules from public/_headers, applied per path by `vp preview`
+ * so local previews serve the same CSP, security and cache headers as the deployment.
+ * Supports what this project uses: literal paths and `*` splats; later rules add headers.
+ */
+function headersRules(): { pattern: RegExp; headers: [string, string][] }[] {
+  const rules: { pattern: RegExp; headers: [string, string][] }[] = [];
+  const text = readFileSync(new URL("./public/_headers", import.meta.url), "utf8");
+  for (const line of text.split("\n")) {
     if (!line.trim() || line.trimStart().startsWith("#")) continue;
     if (!/^\s/.test(line)) {
-      inRootRule = line.trim() === "/*";
+      const escaped = line
+        .trim()
+        .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/\*/g, ".*");
+      rules.push({ pattern: new RegExp(`^${escaped}$`), headers: [] });
       continue;
     }
     const idx = line.indexOf(":");
-    if (inRootRule && idx > 0) headers[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+    if (idx > 0)
+      rules.at(-1)?.headers.push([line.slice(0, idx).trim(), line.slice(idx + 1).trim()]);
   }
-  return headers;
+  return rules;
+}
+
+function productionHeadersPlugin(): Plugin {
+  const rules = headersRules();
+  return {
+    name: "vectra-production-headers",
+    configurePreviewServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const path = (req.url ?? "/").split("?")[0] ?? "/";
+        for (const rule of rules) {
+          if (rule.pattern.test(path)) for (const [k, v] of rule.headers) res.setHeader(k, v);
+        }
+        next();
+      });
+    },
+  };
 }
 
 export default defineConfig({
@@ -40,11 +63,10 @@ export default defineConfig({
     options: { typeAware: true, typeCheck: true },
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
   },
-  plugins: lazyPlugins(() => [react()]),
+  plugins: lazyPlugins(() => [react(), productionHeadersPlugin()]),
   base: "./",
   worker: { format: "es" },
   build: { target: "es2022", sourcemap: false, assetsInlineLimit: 0 },
-  preview: { headers: productionHeaders() },
   test: {
     include: ["src/**/*.test.ts", "tests/unit/**/*.test.ts"],
   },

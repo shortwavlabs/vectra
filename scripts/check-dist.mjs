@@ -29,6 +29,21 @@ if (!has(/^index\.html$/)) errors.push("missing index.html");
 if (!has(/^_headers$/)) errors.push("missing _headers");
 if (!has(/\.wasm$/)) errors.push("missing .wasm asset");
 if (!has(/worker.*\.js$/)) errors.push("missing worker bundle");
+if (!has(/^sw\.js$/)) errors.push("missing sw.js (run scripts/generate-sw.mjs)");
+else {
+  // The service worker must precache exactly the deployable files of this build.
+  const sw = readFileSync(join(dist, "sw.js"), "utf8");
+  const listed = JSON.parse(/const PRECACHE = (\[[\s\S]*?\]);/.exec(sw)?.[1] ?? "[]").map((p) =>
+    p.replace(/^\.\//, ""),
+  );
+  const expected = files
+    .map((f) => f.path)
+    .filter((p) => !["_headers", "_redirects", "sw.js"].includes(p));
+  const missing = expected.filter((p) => !listed.includes(p));
+  const extra = listed.filter((p) => !expected.includes(p));
+  if (missing.length || extra.length)
+    errors.push(`sw.js precache mismatch: missing ${missing.join(",")}, extra ${extra.join(",")}`);
+}
 
 // No runtime dependency on a third-party origin: scan text assets for absolute http(s) URLs
 // other than XML namespace identifiers and documentation links in comments are not expected.

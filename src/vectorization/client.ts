@@ -270,6 +270,13 @@ export class VectorizerClient {
     return true;
   }
 
+  /** Fault injection for tests: makes the current worker throw an uncaught error. */
+  injectCrash(): boolean {
+    if (!this.gen) return false;
+    this.gen.worker.postMessage({ type: "debug-crash" }, []);
+    return true;
+  }
+
   dispose(): void {
     this.cancel();
     this.discard();

@@ -35,7 +35,12 @@ export function App() {
         <h1>Vectra · P0 engineering workbench</h1>
         <p className="note">
           Temporary evaluation harness. Images are processed locally in a Web Worker; nothing is
-          uploaded.
+          uploaded.{" "}
+          <span data-testid="offline-ready">
+            {wb.offlineReady
+              ? "Offline-ready."
+              : "Offline support not active (development build or first load)."}
+          </span>
         </p>
       </header>
 

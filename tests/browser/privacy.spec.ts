@@ -85,6 +85,7 @@ test("the complete workflow works offline once the application has loaded", asyn
   browserName,
 }) => {
   await page.goto("/");
+  await expect(page.getByTestId("offline-ready")).toHaveText("Offline-ready.", { timeout: 30_000 });
   await expect
     .poll(() =>
       page.evaluate(() =>
@@ -94,7 +95,7 @@ test("the complete workflow works offline once the application has loaded", asyn
     .toBe(true);
   await context.setOffline(true);
   await session(page);
-  // Cancellation recreates the worker: check whether that also works offline (cache-dependent).
+  // Cancellation recreates the worker; since P0-R the service worker serves it offline.
   await page.getByTestId("mode").selectOption("color");
   await uploadGenerated(page, {
     width: 3000,
@@ -106,15 +107,10 @@ test("the complete workflow works offline once the application has loaded", asyn
   await page.getByTestId("cancel").click();
   await waitForState(page, "cancelled");
   await page.getByTestId("file").setInputFiles(fixture("procedural/circle.png"));
-  const recovered = await page
-    .getByTestId("status")
-    .and(page.locator("[data-state=done]"))
-    .waitFor({ timeout: 20_000 })
-    .then(() => true)
-    .catch(() => false);
+  await waitForState(page, "done", 30_000);
   writeOutput(
     `privacy/${browserName}-offline.json`,
-    JSON.stringify({ offlineSession: "passed", workerRecreatedOffline: recovered }, null, 2),
+    JSON.stringify({ offlineSession: "passed", workerRecreatedOffline: true }, null, 2),
   );
   await context.setOffline(false);
 });
