@@ -139,9 +139,9 @@ Counts:
   - **This must be decided in RFC-002.**
 - **Target phase:** RFC-002 (representation); P1-C (implementation).
 - **Acceptance criteria:**
-  - No component of a lower layer's colour ≥ 0.25 source px² visible at 4× on the disc and overlap fixtures.
+  - No component of a lower layer's colour ≥ 0.25 source px² visible at 4× on the disc and overlap fixtures. *(G-0: measured with the crisp-sampled metric; the antialiased metric is still reported, TD-GEO-010.)*
   - |κ|·r − 1 RMS ≤ 0.15 and max ≤ 0.5 beyond 2 px from true junctions.
-  - Every junction shared by all incident paths within 0.1 px.
+  - Every junction shared by all incident paths within 0.1 px. *(G-0: restated as bit-identical mosaic junctions, and consistent shared-edge geometry for stacked output, RFC-002 §12.4.)*
   - No regression of the brief's targets or of spline outputs.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md), [ALGORITHM-EVALUATION](research/p0-r-geo/ALGORITHM-EVALUATION.md) ("Curvature near junctions"), [ROOT-CAUSE-ANALYSIS](research/p0-r-geo/ROOT-CAUSE-ANALYSIS.md).
 - **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R04: graph prototype, 6 synthetic fixtures) / IMPLEMENTATION PENDING**; gate G-SB (may defer to P2, visibly); closure: RFC-002 §12.4 metrics on the existing corpus plus a pre-registered fresh holdout; visual owner bundle; Precision version allocated; owner action: Yes: version allocation; G-SB deferral decision if needed. Representation decided (RFC §12.3). The sliver metric is restated as crisp-sampled (TD-GEO-010); the antialiased metric is still reported.
@@ -250,7 +250,7 @@ Counts:
   - 8-connected ink, with dual 4-connected background, for line-art presets;
   - or centreline / thin-feature tracing that emits strokes or thin closed shapes.
 - **Dependencies.** Centreline output needs stroke semantics in the evaluated scene (scene v1 supports strokes; the exporters handle them).
-- **Target phase:** P1 Line Art.
+- **Target phase:** P1 Line Art *(superseded at G-0: P2-A Line Art)*.
 - **Acceptance criteria:** 1-px diagonal strokes at 30–60° are preserved as one connected stroke or shape, with their position within 0.5 px.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §2](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md), [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md).
 - **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-A Line Art; closure: As above; owner action: No (decided at G-0: Line Art moves to P2-A). Moves with Line Art (RFC §18).
@@ -398,7 +398,7 @@ Counts:
   - offer explicit "reduce to N MP" and "increase pitch" actions.
 - **Dependencies:** none architectural.
 - **Target phase:** P1-A/B.
-- **Acceptance criteria:** over-budget traced jobs report within 2 s on the reference machine, with a recoverable, actionable error; no silent downscaling.
+- **Acceptance criteria (P0 wording, superseded at G-0; see the disposition below):** over-budget traced jobs report within 2 s on the reference machine, with a recoverable, actionable error; no silent downscaling.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) ("Resource limits review").
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (two-stage) / IMPLEMENTATION PENDING**; gate G-ENG (staged API), G-TRACE (closure candidate); closure: **Revised acceptance wording (approved at G-0):** provide a complexity forecast within two seconds on qualified workloads, followed by a definitive resource-budget decision after segmentation and before expensive fitting. The forecast is approximate, shows a range, offers choices, never auto-rejects and never downsamples. False-positive and false-negative rates are validated on a separately reserved corpus; owner action: No. Evidence (R03): post-segmentation predictor 0 FP / 0 FN; preview forecast 2 FP / 1 FN; segmentation is 66–99 % of colour trace time. The two-second forecast is a qualification requirement, not a guarantee.
 
