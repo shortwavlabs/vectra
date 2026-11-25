@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins, type Plugin } from "vite-plus";
 
@@ -54,6 +55,9 @@ export default defineConfig({
       "docs/research/p0-r-geo/artifacts/**",
       "docs/research/p0-r-geo/owner-acceptance-bundle-v2/**",
       "docs/mockups/**",
+      // Copied registry sources stay byte-identical to upstream (SHA-256 provenance in
+      // src/ui/registry/PROVENANCE.json); they are still linted and type-checked.
+      "src/ui/registry/**",
     ],
   },
   lint: {
@@ -64,13 +68,27 @@ export default defineConfig({
       "react/only-export-components": ["warn", { allowConstantExport: true }],
       "vite-plus/prefer-vite-plus-imports": "error",
     },
+    // Upstream registry idioms (variant exports next to components, destructured handler
+    // props); kept as copied rather than patched.
+    overrides: [
+      {
+        files: ["src/ui/registry/**"],
+        rules: { "react/only-export-components": "off", "typescript/unbound-method": "off" },
+      },
+    ],
     options: { typeAware: true, typeCheck: true },
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
   },
-  plugins: lazyPlugins(() => [react(), productionHeadersPlugin()]),
+  plugins: lazyPlugins(() => [react(), tailwindcss(), productionHeadersPlugin()]),
   base: "./",
   worker: { format: "es" },
-  build: { target: "es2022", sourcemap: false, assetsInlineLimit: 0 },
+  build: {
+    target: "es2022",
+    sourcemap: false,
+    assetsInlineLimit: 0,
+    // Two pages: the P0 engineering workbench and the G-UI workspace shell.
+    rolldownOptions: { input: { index: "index.html", workspace: "workspace.html" } },
+  },
   test: {
     include: ["src/**/*.test.ts", "tests/unit/**/*.test.ts"],
   },
