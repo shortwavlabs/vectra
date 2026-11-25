@@ -1,8 +1,10 @@
 # G-JOB — Scheduler, protocol v2, worker lifecycle and single-build sessions
 
-**Status:** **PARTIAL**, waiting for maintainer review. The scheduler, protocol v2, lifecycle, cancellation, recovery, ownership, export snapshots and single-build service-worker sessions are implemented and pass every functional qualification in Chromium, Firefox and Playwright WebKit, online, offline and across application updates (§6–§9). Two things keep the gate PARTIAL:
+**Status:** **PARTIAL** (historical disposition, preserved). **Accepted in principle for downstream engineering** by the maintainer on 2026-11-25, subject to the bounded service-worker corrections in §17, which are done; TD-PERF-010 is accepted as a temporary, non-blocking performance exception ([decision register §8](../g0/G0-DECISION-REGISTER.md)). Real Safari 26.6.2 has since qualified the G-JOB scenarios (§18).
+
+Original status at review: The scheduler, protocol v2, lifecycle, cancellation, recovery, ownership, export snapshots and single-build service-worker sessions are implemented and pass every functional qualification in Chromium, Firefox and Playwright WebKit, online, offline and across application updates (§6–§9). Two things keep the gate PARTIAL:
 - **Main-thread blocking above 50 ms in job handling** (TD-PERF-010): committing a trace result blocks the main thread above 50 ms at the interactive target in every engine (Chromium 47–57 ms, Firefox 71–77 ms, WebKit 55–63 ms), and at the stress level both the commit and the export snapshot and copy exceed it. Cancel acknowledgement (30–55 ms from click to "cancelled" shown; the scheduler call itself ≤ 1 ms) and job posting (≤ 7 ms at 23.5 MP) meet their targets (§10).
-- **Real Safari NOT RUN** (owner part; needs `safaridriver` authorisation, TD-PLATFORM-002).
+- **Real Safari NOT RUN** at review (owner part; needs `safaridriver` authorisation, TD-PLATFORM-002). Run afterwards: §18.
 
 The full P1-A phase is not complete: G-ENG and G-DOC remain PARTIAL as accepted, and G-R0, G-UI and later gates are open.
 
@@ -203,7 +205,7 @@ Production build (`vp build`, `_headers` CSP via `vp preview`), Playwright 1.65.
 - **New:** TD-PERF-008, TD-PERF-009 (accepted P1-A exceptions), **TD-PERF-010** (measured here). Totals: 42 open, 14 High.
 
 ## 13. NOT RUN and blockers
-- **Real Safari** (worker start-up, offline recovery, service-worker updates, churn): needs the maintainer's `sudo safaridriver --enable`. The G-JOB owner part is open: a Safari run, or a documented Safari restriction until it runs.
+- **Real Safari** (worker start-up, offline recovery, service-worker updates, churn): NOT RUN at review; **run afterwards in Safari 26.6.2, 10/10** (§18). iOS and other Safari versions remain NOT RUN.
 - **Quiet-machine benchmarks**: NOT RUN; other projects' CPU-bound processes were running throughout.
 - **Lower-end hardware** (start-up timeout value, queue capacity): NOT RUN (TD-PLATFORM-003).
 - **Render-worker handshake**: not applicable until G-R0.
@@ -217,4 +219,44 @@ Production build (`vp build`, `_headers` CSP via `vp preview`), Playwright 1.65.
 **G-R0** (minimal renderer with worker host): it depends on G-DOC (merged) and on G-JOB's handshake, and it owns the render-worker half of protocol v2 and the display path that replaces the workbench's SVG preview job. **G-UI** can start in parallel. The compact Document v1 follow-up (TD-PERF-009) can run independently on its own branch.
 
 ## 16. Disposition
-**G-JOB: PARTIAL.** Functional qualification passes in Chromium, Firefox and Playwright WebKit, online, offline and across updates; cancel acknowledgement meets its target; main-thread blocking in job handling does not (TD-PERF-010); real Safari is NOT RUN. Historical dispositions unchanged: **G-ENG PARTIAL, G-DOC PARTIAL**; P1-A integration correctness accepted. The P1-A phase is not complete.
+**G-JOB: PARTIAL** (historical; accepted for downstream engineering, §17–§18). At review: Functional qualification passes in Chromium, Firefox and Playwright WebKit, online, offline and across updates; cancel acknowledgement meets its target; main-thread blocking in job handling does not (TD-PERF-010); real Safari is NOT RUN. Historical dispositions unchanged: **G-ENG PARTIAL, G-DOC PARTIAL**; P1-A integration correctness accepted. The P1-A phase is not complete.
+
+## 17. Conditional-acceptance corrections (2026-11-25)
+Tested commit: **`02d3bca`** (code), on PR #15.
+
+**17.1 Template-only update regression (review finding 3).** `tests/browser/sw-update-lifecycle.spec.ts`, "a service-worker-only update gets a new cache…": build A installs and activates; build B has byte-identical application files and a service worker from a generator whose template differs by one comment; B's cache version differs from A's; B's install is cut mid-way (the WASM request fails); A's cache keeps all 6 entries; offline reload and worker recreation with start-up churn run under build A; with the network back, B installs completely and waits. **Mutation check** with the original defect (VERSION without the template, unconditional delete on failure): the test fails at the version assertion, and with that assertion disabled it fails at "build A's cache untouched" (the live cache was deleted).
+
+**17.2 Missing application shell.** Before: if the controlling cache lacked its shell, navigation fell back to an unrestricted network fetch, so a tab could load a newer build's shell under an older cache. Now (`scripts/generate-sw.mjs`, every precached `.html` file is a shell):
+- the shell is **repaired only from an identical build**: the network shell is accepted only if every asset it references is in the controlling version's precache list, and it is then re-cached;
+- otherwise the worker serves a **static recovery page** (no script, no inline style, the production CSP, HTTP 503): reason `version` (the server has another build) or `offline` (unreachable). It says that other tabs keep working and should be used to save work, and how to load the latest version (Shift-reload for this tab without offline support, or close every Vectra tab). No tab is reloaded; committed artwork in running tabs is untouched. Recovery wording is distinct from the update notice.
+- **First-install claiming:** a deploy between page load and service-worker registration can make a worker of build B claim a page of build A. The worker now reports its `BUILD_ID`; the page shows "Offline-ready" only when its controller caches its own build, and otherwise a distinct notice ("Offline support is unavailable in this tab: a different version of Vectra is installed…"). The worker handshake (C5) still refuses any worker of another build; hashed asset names mean page A can never receive build B's worker.
+- **Non-hashed fallbacks:** apart from the shells, the only non-hashed precached file is `THIRD-PARTY-NOTICES.txt` (text, never executed). Hashed assets can only fall back to the same bytes or fail.
+- **Browser cache eviction (unavoidable limits):** browsers may evict an origin's storage under pressure (WebKit also evicts script-writable storage of origins unused for a period). If the whole cache is evicted, no service worker controls the next navigation, which then loads the current build from the network, consistently, without offline support until it reinstalls. If only part is evicted, the shell is repaired or the recovery page is shown; an evicted worker or WASM asset ends a worker start-up with the typed, actionable `worker_startup_failed` (offline hint), never with another build's asset.
+
+Tests (all engines): an evicted shell with build 2 on the server shows the `version` recovery page while another tab of build 1 keeps working (worker recreation), and offline shows the `offline` page; an evicted shell with the same build is repaired; the first-install race shows the mismatch notice. **Mutation checks:** the old unrestricted fallback fails the recovery test; an offline-ready that ignores the build fails the first-install test.
+
+**17.3 Qualification on `02d3bca`.**
+- Service-worker specs: `sw-update-lifecycle` 6/6 in each of Chromium, Firefox and Playwright WebKit. In Firefox, Playwright's offline emulation does not cover service-worker fetches, so the offline step of the eviction test makes the server unreachable.
+- Complete G-JOB functional suite: **111/111** (37 tests × 3 engines: `jobs-lifecycle`, `jobs-adversarial`, `sw-update-lifecycle`, and the P0 suites). Bundle v1 through the workbench: 14/14 byte-identical. `vp test` 337/337; `vp check` pass.
+- `crates/`, `packages/` and the export path are unchanged since `e5b1814`, so the 326 + 72 (`d32f27c`) and 636 (`e5b1814`) results still apply.
+
+## 18. Real Safari qualification (2026-11-25)
+**Setup.** Safari **26.6.2 (21624.5.1.11.3)**, `safaridriver` "Included with Safari 26.6.2", macOS 26.6.2 (25G83), Apple M5 Max. The maintainer enabled `safaridriver`. The harness is a dependency-free W3C WebDriver client (`tests/safari/webdriver.mjs`) driving a headed Safari automation window. Each scenario gets a fresh session and a fresh origin (a static server with the production CSP and `Vary: Origin`). Command: `pnpm run build && node tests/safari/gjob.mjs`. Load average 2.9 → 3.2 (not quiet; not a timing benchmark). Evidence: `docs/research/g-job/safari/gjob-02d3bca.json`.
+
+**Offline in Safari** means the origin refuses connections: WebDriver has no network emulation, and `navigator.onLine` stays true. This exercises the service worker's cache and network-failure paths, not the OS offline state.
+
+| Scenario | Result | Evidence |
+|---|---|---|
+| Compute-worker start-up and protocol handshake | PASS | handshake 1, no mismatch; the controller reports the page's build |
+| Rapid preview replacement during start-up (churn), online + 4 runs offline | PASS | each run: 4 previews cancelled, last succeeded, exactly one new worker, no start-up failure |
+| Cancellation (C9: click → "cancelled" shown) | PASS | 5 ms; scheduler cancel 0–1 ms |
+| Offline application reload and worker recreation | PASS | same build offline; churn recreation |
+| Single-build sessions across a deploy | PASS | update announced, not forced; old tab recreates workers online and offline (churn) and reloads stay on build 1; a second tab gets build 1; after the old tabs close, build 2 activates, one cache remains, build 1's worker URL returns 404; build 2 works offline |
+| Service-worker template-only update | PASS | new cache version; interrupted install left build A's 6 entries; offline reload and churn under A; B then installs |
+| Interrupted update installation | PASS | no partial cache; old version offline; later install succeeds |
+| Cache-eviction recovery | PASS | same build: shell repaired; build 2 on the server: `version` recovery page, no app code ran, another tab keeps working; unreachable: `offline` page |
+| Frozen export snapshots | PASS | export accepted before a concurrent recolour has the pre-edit digest; a later export differs |
+| Document integrity after worker termination | PASS | after 4 × (cancel a running trace + injected crash) offline, the canonical container digest is unchanged; undo/redo restore it; no leaked snapshot or reservation |
+| Build-mismatch refusal | PASS | a worker reporting another build ID is refused (0 handshakes, state `skewed`) |
+
+**10/10 scenarios pass.** These results cover G-JOB only. Not covered: iOS/iPadOS Safari, other Safari versions, the OS-level offline state, and performance in Safari (no timing benchmark was run).

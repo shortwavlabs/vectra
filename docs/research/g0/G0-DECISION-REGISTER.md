@@ -174,3 +174,21 @@ These resolve implementation-level ambiguities named by the maintainer. **None d
 - **Malformed-manifest-text error codes** (G-ENG corrective finding 5): accepted as a bounded exception to cross-runtime error-code equivalence. Scope and the pinned regression test: `tests/fixtures/packet-conformance/README.md`. Malformed inputs must remain rejected by every runtime.
 
 **Benchmark conditions.** Never terminate or interfere with unrelated Shortwav Labs processes. A run is labelled quiet only when its recorded machine conditions support it; otherwise quiet runs stay NOT RUN and independent work continues.
+
+## 8. G-JOB conditional acceptance (maintainer, 2026-11-25)
+**Disposition.** G-JOB is accepted in principle for downstream engineering, subject to bounded service-worker corrections (template-only update regression; never serving another build's shell when the controlling cache lacks it; first-install claiming and non-hashed fallbacks reviewed). Historical dispositions are preserved: **G-ENG PARTIAL, G-DOC PARTIAL, G-JOB PARTIAL**; P1-A integration correctness accepted. Merging PR #15 with a merge commit is authorised once the corrections pass, the report is updated, the required check passes and the regression evidence and final diff are verified.
+
+**TD-PERF-010 accepted as a temporary, non-blocking performance exception for G-JOB.** The ≤ 50 ms attributable main-thread blocking target is unchanged; the measured misses stay in the debt register. No document-store rewrite or broad optimisation inside G-JOB.
+
+**Corrective-work ownership:**
+
+| Gate | Obligation |
+|---|---|
+| G-R1 | Investigate TD-PERF-007: structural sharing, incremental invariant validation, efficient immutable state preparation, no unnecessary full-document traversals. Keep the approved thresholds and the independent full-state validation oracle |
+| G-TRACE | Qualify responsive trace-result preparation and atomic commit (off-thread preparation or bounded time slicing). Publication is atomic, revalidates revisions, preserves source and geometry provenance, rejects stale prepared results, preserves undo/redo, and leaves committed artwork unchanged on failure or cancel; covers cancellation and revision changes during preparation |
+| G-EXP | Qualify responsive frozen-snapshot construction and geometry copy-out; an accepted export stays independent of later edits; snapshot ownership and immutable geometry are not weakened |
+| G-PRJ | Qualify responsive project opening, including the compact Document v1 follow-up; ≤ 1 s open and ≤ 50 ms blocking are separate requirements |
+
+**General.** No performance threshold is lowered. Quiet-machine measurements remain required, never obtained by terminating unrelated processes. Performance debt is not closed merely because an implementation merged.
+
+**Real Safari.** The maintainer enabled `safaridriver` on the reference Mac (2026-11-25); real Safari qualification is authorised for G-JOB, G-R0 and G-UI.
