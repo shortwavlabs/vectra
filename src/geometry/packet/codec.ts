@@ -96,23 +96,10 @@ export function decodeBlock(
   return { manifest: m, ...arrays };
 }
 
-/** RFC 8785 (JCS) canonical JSON for manifests: sorted keys (UTF-16 code units), ECMAScript
- *  number formatting (so -0 is written as 0), no whitespace. Rejects non-finite numbers. */
-export function canonicalJson(v: unknown): string {
-  if (v === null || typeof v === "boolean" || typeof v === "string") return JSON.stringify(v);
-  if (typeof v === "number") {
-    if (!Number.isFinite(v)) throw new PacketError("manifest", "non-finite number");
-    return JSON.stringify(v);
-  }
-  // Array.from visits holes as undefined, which throws below: a sparse array never serialises.
-  if (Array.isArray(v)) return `[${Array.from(v, (x) => canonicalJson(x)).join(",")}]`;
-  if (typeof v === "object") {
-    const o = v as Record<string, unknown>;
-    const keys = Object.keys(o).sort();
-    return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalJson(o[k])}`).join(",")}}`;
-  }
-  throw new PacketError("manifest", `unsupported JSON value of type ${typeof v}`);
-}
+// One canonical JSON writer for the whole app (P1-A integration): RFC 8785, shared with the
+// container (header, manifest and document sections).
+export { canonicalJson } from "../../persistence/canonical-json.ts";
+import { canonicalJson } from "../../persistence/canonical-json.ts";
 
 /** C3.0 geometry record: u32 LE Lm, canonical manifest JSON, zero padding to 8, block. */
 export function encodeRecord(p: GeometryPacket): Uint8Array<ArrayBuffer> {

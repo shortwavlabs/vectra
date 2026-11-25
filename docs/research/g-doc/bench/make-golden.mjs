@@ -6,7 +6,6 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { GeometryStore } from "../../../../src/document/geometry-store.ts";
 import { createDocument } from "../../../../src/document/model.ts";
 import { DocumentSession } from "../../../../src/document/session.ts";
-import { testPacketPort } from "../../../../src/document/testing/packet-adapter.ts";
 import { encodeScene } from "../../../../src/document/testing/synthetic.ts";
 import { sceneProvenance } from "../../../../src/document/testing/provenance.ts";
 import { saveContainer } from "../../../../src/persistence/container.ts";
@@ -15,7 +14,7 @@ const root = new URL("../../../../", import.meta.url);
 const scene = JSON.parse(
   readFileSync(new URL("src/document/testing/fixtures/circle-bw.scene.json.raw", root), "utf8"),
 );
-const session = new DocumentSession(new GeometryStore(testPacketPort), {
+const session = new DocumentSession(new GeometryStore(), {
   state: createDocument({ documentId: "golden-circle-bw", width: 256, height: 256 }),
 });
 session.dispatch({

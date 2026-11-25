@@ -7,11 +7,9 @@ import type { DocNode, LayerNode, PathNode } from "./model.ts";
 import { DocumentSession } from "./session.ts";
 import { GeometryStore } from "./geometry-store.ts";
 import { createDocument } from "./model.ts";
-import { testPacketPort } from "./testing/packet-adapter.ts";
 import { encodeScene, syntheticPacket } from "./testing/synthetic.ts";
 import { emptySession, errorCode, fixtureSession, TEST_PROVENANCE } from "./testing/helpers.ts";
 
-const port = testPacketPort;
 const png = (w: number, h: number, size = 64) => {
   const b = new Uint8Array(size);
   b.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52]);
@@ -30,7 +28,7 @@ const trace = (s: DocumentSession) =>
 describe("G-DOC review regressions", () => {
   test("1: a throwing subscriber cannot break dispatch atomicity or lose source bytes", async () => {
     const errors: unknown[] = [];
-    const store = new GeometryStore(port);
+    const store = new GeometryStore();
     const s = new DocumentSession(store, {
       state: createDocument({ documentId: "d", width: 256, height: 256 }),
       onListenerError: (e) => errors.push(e),
@@ -56,7 +54,7 @@ describe("G-DOC review regressions", () => {
     const b = s.sourceBytes(asset)!;
     structuredClone(b.buffer, { transfer: [b.buffer] });
     const bytes = await saveContainer(s, { codec: "none" });
-    await expect(loadContainer(bytes, { port })).resolves.toBeInstanceOf(DocumentSession);
+    await expect(loadContainer(bytes, {})).resolves.toBeInstanceOf(DocumentSession);
   });
 
   test("3: committed state, history states, derived data and evaluation output are immutable", async () => {
@@ -105,7 +103,7 @@ describe("G-DOC review regressions", () => {
     const derived = s.derivedOf(s.state)!;
     (derived.chunks as Map<string, number>).clear();
     const saved = await saveContainer(s, { codec: "none" });
-    await expect(loadContainer(saved, { port })).resolves.toBeInstanceOf(DocumentSession);
+    await expect(loadContainer(saved, {})).resolves.toBeInstanceOf(DocumentSession);
   });
 
   test("4: the history budget counts history-only source bytes", async () => {
@@ -116,12 +114,12 @@ describe("G-DOC review regressions", () => {
   });
 
   test("5: the chunk counter can never pass what the container accepts", () => {
-    const store = new GeometryStore(port, { nextChunkId: 999_999_999_999_999 });
+    const store = new GeometryStore({ nextChunkId: 999_999_999_999_999 });
     store.commit(syntheticPacket({ paths: 1, anchorsPerPath: 2 }));
     expect(errorCode(() => store.commit(syntheticPacket({ paths: 1, anchorsPerPath: 2 })))).toBe(
       "invariant",
     );
-    expect(() => new GeometryStore(port, { nextChunkId: 1_000_000_000_000_001 })).toThrow();
+    expect(() => new GeometryStore({ nextChunkId: 1_000_000_000_000_001 })).toThrow();
   });
 
   test("7: a composed transform that overflows is rejected with invalid_transform", () => {
@@ -196,6 +194,6 @@ describe("G-DOC review regressions", () => {
       ...p,
       verbs: new Spoof(new ArrayBuffer(p.verbs.length + 8), 8, p.verbs.length),
     };
-    expect(errorCode(() => new GeometryStore(port).commit(spoofed))).toBe("ownership");
+    expect(errorCode(() => new GeometryStore().commit(spoofed))).toBe("ownership");
   });
 });

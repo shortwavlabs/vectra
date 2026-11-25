@@ -5,7 +5,6 @@ import { createDocument, DocumentError } from "../model.ts";
 import type { PacketLimits } from "../packet-port.ts";
 import { DocumentSession, type HistoryLimits } from "../session.ts";
 import { FIXTURE_SCENES, fixturePacket } from "./fixtures.ts";
-import { testPacketPort } from "./packet-adapter.ts";
 import { parseColor } from "./synthetic.ts";
 import { sceneProvenance } from "./provenance.ts";
 
@@ -24,7 +23,7 @@ export interface TestSessionOptions {
 }
 
 export function emptySession(o: TestSessionOptions = {}, width = 256, height = 256) {
-  const store = new GeometryStore(testPacketPort, o.packetLimits ? { limits: o.packetLimits } : {});
+  const store = new GeometryStore(o.packetLimits ? { limits: o.packetLimits } : {});
   return new DocumentSession(store, {
     state: createDocument({ documentId: "doc-test", width, height }),
     ...o,
@@ -34,7 +33,7 @@ export function emptySession(o: TestSessionOptions = {}, width = 256, height = 2
 /** A session holding one committed trace layer per named fixture, in order. */
 export function fixtureSession(names: readonly string[], o: TestSessionOptions = {}) {
   const first = FIXTURE_SCENES.get(names[0]!)!.scene;
-  const store = new GeometryStore(testPacketPort, o.packetLimits ? { limits: o.packetLimits } : {});
+  const store = new GeometryStore(o.packetLimits ? { limits: o.packetLimits } : {});
   const session = new DocumentSession(store, {
     state: createDocument({
       documentId: "doc-test",

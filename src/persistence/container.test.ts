@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+import { encodeRecord } from "../document/packet-port.ts";
 import { fixtureProvenance, TEST_PROVENANCE } from "../document/testing/helpers.ts";
 import { evaluate } from "../document/evaluate.ts";
 import { GeometryStore } from "../document/geometry-store.ts";
@@ -7,7 +8,7 @@ import { createDocument, type ContainerNode, type DocState } from "../document/m
 import { DocumentSession, sha256Hex } from "../document/session.ts";
 import { fixturePacket, FIXTURE_SCENES } from "../document/testing/fixtures.ts";
 import { fixtureSession } from "../document/testing/helpers.ts";
-import { align8, testPacketPort } from "../document/testing/packet-adapter.ts";
+const align8 = (x: number) => x + ((8 - (x % 8)) % 8);
 import { syntheticPacket } from "../document/testing/synthetic.ts";
 import { canonicalJson, canonicalJsonBytes, parseCanonicalJson } from "./canonical-json.ts";
 import goldenB64 from "./golden/circle-bw.none.vectra.b64?raw";
@@ -23,8 +24,7 @@ import {
 } from "./container.ts";
 import { documentJson } from "./document-json.ts";
 
-const port = testPacketPort;
-const load = (bytes: Uint8Array, o = {}) => loadContainer(bytes, { port, ...o });
+const load = (bytes: Uint8Array, o = {}) => loadContainer(bytes, { ...o });
 const kids = (s: DocState, id: string) => (s.nodesById.get(id) as ContainerNode).orderedChildIds;
 
 /** A document from every fixture, with structural edits, a hidden layer and a palette recolour. */
@@ -179,7 +179,7 @@ describe("container v1 round trip and determinism (C7)", () => {
   });
 
   test("codec none container equals the committed golden", async () => {
-    const store = new GeometryStore(port);
+    const store = new GeometryStore();
     const session = new DocumentSession(store, {
       state: createDocument({ documentId: "golden-circle-bw", width: 256, height: 256 }),
     });
@@ -594,10 +594,7 @@ describe("container adversarial suite: typed errors, live document unchanged", (
     await expectCode(reManifest({ coordCount: 2 ** 32 - 1 }), "packet:budget");
     await expectCode(reManifest({ styles: [] }), "packet:ref");
     // An extra, unreferenced chunk.
-    const extra = port.encodeRecord(
-      fixturePacket("circle-bw").manifest,
-      fixturePacket("circle-bw"),
-    );
+    const extra = encodeRecord(fixturePacket("circle-bw").manifest, fixturePacket("circle-bw"));
     const lastGeo = secs.filter((s) => s.kind === "geometry").at(-1)!.id;
     const extraId = `chk_${+lastGeo.slice(4) + 1}`;
     await expectCode(

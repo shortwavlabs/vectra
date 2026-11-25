@@ -10,7 +10,6 @@ import { type DocState, DocumentError, type Matrix, type NodeId, rotate90Matrix 
 import type { DocumentSession } from "./session.ts";
 import { FIXTURE_SCENES, fixturePacket } from "./testing/fixtures.ts";
 import { fixtureSession } from "./testing/helpers.ts";
-import { testPacketPort } from "./testing/packet-adapter.ts";
 import { randomPacket, rng, type Rng } from "./testing/synthetic.ts";
 
 const MATRICES: Matrix[] = [
@@ -145,7 +144,7 @@ function checkEvaluation(state: DocState) {
 /** Every accepted state saves, loads and re-saves byte-identically, with an equal evaluation. */
 async function checkRoundTrip(session: DocumentSession) {
   const a = await saveContainer(session, { codec: "none" });
-  const loaded = await loadContainer(a, { port: testPacketPort, limits: session.limits });
+  const loaded = await loadContainer(a, { limits: session.limits });
   expect(await saveContainer(loaded, { codec: "none" })).toEqual(a);
   expect(evaluate(loaded.state)).toEqual(evaluate(session.state));
 }

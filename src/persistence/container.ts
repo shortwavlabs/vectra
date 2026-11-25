@@ -7,14 +7,11 @@
 // manifest, document, geometry by chunk number, source by asset number, and the file ends at the
 // last section. `sha256` is over the uncompressed bytes. Compressed bytes are not canonical.
 
+import { MAX_MANIFEST_BYTES } from "../geometry/packet/types.ts";
 import { GeometryStore } from "../document/geometry-store.ts";
 import type { DocLimits } from "../document/invariants.ts";
 import { type AssetId, type ChunkId, DocumentError, idNumber } from "../document/model.ts";
-import {
-  DEFAULT_PACKET_LIMITS,
-  type PacketLimits,
-  type PacketPort,
-} from "../document/packet-port.ts";
+import { DEFAULT_PACKET_LIMITS, type PacketLimits, decodeRecord } from "../document/packet-port.ts";
 import { DocumentSession, type HistoryLimits, sha256Hex } from "../document/session.ts";
 import { IntakeError, sniffImage } from "../vectorization/intake.ts";
 import { canonicalJsonBytes, parseCanonicalJson } from "./canonical-json.ts";
@@ -151,7 +148,7 @@ export function readHeader(bytes: Uint8Array): ContainerHeader {
 /** Declared sizes against the caps, before any section allocation. */
 function checkLimits(h: ContainerHeader, packetLimits: PacketLimits, sessionBudget: number): void {
   let total = 0;
-  const geometryCap = packetLimits.maxBytes + packetLimits.maxManifestBytes + 24;
+  const geometryCap = packetLimits.maxBytes + MAX_MANIFEST_BYTES + 24;
   for (const s of h.sections) {
     total += s.uncompressedLength;
     const cap =
@@ -262,7 +259,6 @@ const packetFail = (id: string, code: string, message: string): never =>
     : fail("packet", `${id}: ${message}`, code);
 
 export interface LoadOptions {
-  port: PacketPort;
   packetLimits?: PacketLimits;
   limits?: DocLimits;
   history?: HistoryLimits;
@@ -294,13 +290,13 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
     throw e;
   }
 
-  const store = new GeometryStore(o.port, { limits: packetLimits });
+  const store = new GeometryStore({ limits: packetLimits });
   const sources = new Map<AssetId, Uint8Array>();
   const sectionChunks: ChunkId[] = [];
   for (let i = 2; i < h.sections.length; i++) {
     const s = h.sections[i]!;
     if (s.kind === "geometry") {
-      const r = o.port.decodeRecord(data[i]!, packetLimits);
+      const r = decodeRecord(data[i]!, packetLimits);
       if (!r.ok) return packetFail(s.id, r.code, r.message);
       const n = idNumber(s.id);
       if (n >= parsed.nextChunkId)

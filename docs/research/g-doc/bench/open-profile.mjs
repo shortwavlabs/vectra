@@ -2,11 +2,11 @@
 //   node docs/research/g-doc/bench/open-profile.mjs [paths] [anchorsPerPath]
 // Each phase calls the same functions loadContainer uses, in the same order.
 import { loadavg } from "node:os";
+import { decodeRecord } from "../../../../src/document/packet-port.ts";
 import { GeometryStore } from "../../../../src/document/geometry-store.ts";
 import { createDocument } from "../../../../src/document/model.ts";
 import { DEFAULT_PACKET_LIMITS } from "../../../../src/document/packet-port.ts";
 import { DocumentSession } from "../../../../src/document/session.ts";
-import { testPacketPort } from "../../../../src/document/testing/packet-adapter.ts";
 import { syntheticPacket } from "../../../../src/document/testing/synthetic.ts";
 import { parseCanonicalJson } from "../../../../src/persistence/canonical-json.ts";
 import { readHeader, readSection, saveContainer } from "../../../../src/persistence/container.ts";
@@ -14,7 +14,7 @@ import { parseDocumentJson } from "../../../../src/persistence/document-json.ts"
 
 const paths = Number(process.argv[2] ?? 250_000);
 const anchorsPerPath = Number(process.argv[3] ?? 4);
-const session = new DocumentSession(new GeometryStore(testPacketPort), {
+const session = new DocumentSession(new GeometryStore(), {
   state: createDocument({ documentId: "bench", width: 1000, height: 1000 }),
 });
 session.dispatch({
@@ -41,9 +41,9 @@ for (const codec of ["none", "deflate-raw"]) {
   mark();
   const parsed = parseDocumentJson(doc.value);
   mark();
-  const store = new GeometryStore(testPacketPort);
+  const store = new GeometryStore();
   for (let i = 2; i < h.sections.length; i++) {
-    const r = testPacketPort.decodeRecord(data[i], DEFAULT_PACKET_LIMITS);
+    const r = decodeRecord(data[i], DEFAULT_PACKET_LIMITS);
     store.advanceChunkCounter(Number(h.sections[i].id.slice(4)));
     store.commit(r.packet);
   }

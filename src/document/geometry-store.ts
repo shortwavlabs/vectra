@@ -12,10 +12,11 @@ import {
   type PacketArrays,
   type PacketLimits,
   type PacketManifest,
-  type PacketPort,
   SECTION_KEYS,
   type TransferPacket,
   packetMemBytes,
+  validate,
+  encodeRecord,
 } from "./packet-port.ts";
 
 export type OwnerKind = "document" | "snapshot" | "job" | "history";
@@ -191,7 +192,6 @@ function makeViews(c: Omit<Chunk, "view" | "derivedView">): Pick<Chunk, "view" |
 }
 
 export class GeometryStore {
-  readonly #port: PacketPort;
   readonly #limits: PacketLimits;
   readonly #chunks = new Map<ChunkId, Chunk>();
   readonly #pending = new Set<ChunkId>();
@@ -201,8 +201,7 @@ export class GeometryStore {
   /** C9 "Store commit": per-step timings of the last successful commit. */
   lastCommitTiming: CommitTiming | null = null;
 
-  constructor(port: PacketPort, o: { limits?: PacketLimits; nextChunkId?: number } = {}) {
-    this.#port = port;
+  constructor(o: { limits?: PacketLimits; nextChunkId?: number } = {}) {
     this.#limits = o.limits ?? DEFAULT_PACKET_LIMITS;
     this.#nextChunkId = o.nextChunkId ?? 1;
     if (
@@ -258,7 +257,7 @@ export class GeometryStore {
       SECTION_KEYS.map((k, i) => [k, new ctors[i]!(moved[i]!)]),
     ) as unknown as PacketArrays;
     const t1 = performance.now();
-    const r = this.#port.validate(manifest, arrays, this.#limits);
+    const r = validate(manifest, arrays, this.#limits);
     if (!r.ok) throw new DocumentError(r.code, r.message);
     const t2 = performance.now();
     if (this.#nextChunkId > MAX_CHUNK_NUMBER)
@@ -342,7 +341,7 @@ export class GeometryStore {
   /** C3.0 geometry record of a chunk (fresh bytes), for the container serializer. */
   encodeRecord(id: ChunkId): Uint8Array {
     const c = this.#get(id);
-    return this.#port.encodeRecord(c.manifest as PacketManifest, c.arrays!);
+    return encodeRecord(c.manifest as PacketManifest, c.arrays!);
   }
 
   retain(id: ChunkId, owner: OwnerRef): void {

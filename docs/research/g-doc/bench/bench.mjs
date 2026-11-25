@@ -12,7 +12,6 @@ import { loadavg, cpus, totalmem } from "node:os";
 import { copyIncoming, GeometryStore } from "../../../../src/document/geometry-store.ts";
 import { createDocument } from "../../../../src/document/model.ts";
 import { DocumentSession } from "../../../../src/document/session.ts";
-import { testPacketPort } from "../../../../src/document/testing/packet-adapter.ts";
 import { syntheticPacket } from "../../../../src/document/testing/synthetic.ts";
 import { loadContainer, saveContainer } from "../../../../src/persistence/container.ts";
 
@@ -42,7 +41,7 @@ const result = {
   totalMemGiB: +(totalmem() / 2 ** 30).toFixed(1),
   loadavgStart: loadavg().map((x) => +x.toFixed(2)),
   reps: REPS,
-  validator: "test-only adapter (src/document/testing/packet-adapter.ts)",
+  validator: "production (src/geometry/packet via src/document/packet-port.ts)",
   configs: [],
 };
 
@@ -66,7 +65,7 @@ for (const cfg of CONFIGS) {
   const total = [];
   const copy = [];
   for (let r = 0; r < REPS + 1; r++) {
-    const store = new GeometryStore(testPacketPort);
+    const store = new GeometryStore();
     const p = make();
     const t0 = now();
     store.commit(p);
@@ -92,7 +91,7 @@ for (const cfg of CONFIGS) {
   };
 
   // 2. structural undo/redo on a document holding the 1M-anchor trace
-  const store = new GeometryStore(testPacketPort);
+  const store = new GeometryStore();
   const session = new DocumentSession(store, {
     state: createDocument({ documentId: "bench", width: 1000, height: 1000 }),
   });
@@ -146,7 +145,7 @@ for (const cfg of CONFIGS) {
     const open = [];
     for (let r = 0; r < Math.max(3, Math.ceil(REPS / 2)) + 1; r++) {
       const o0 = now();
-      await loadContainer(bytes, { port: testPacketPort });
+      await loadContainer(bytes, {});
       if (r > 0) open.push(now() - o0);
     }
     out.open[codec] = {

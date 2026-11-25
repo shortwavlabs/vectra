@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+import { decodeRecord, validate } from "./packet-port.ts";
 import { canonicalJsonBytes } from "../persistence/canonical-json.ts";
 import {
   copyDiagnostics,
@@ -10,10 +11,9 @@ import {
 import { DocumentError } from "./model.ts";
 import { DEFAULT_PACKET_LIMITS, type IncomingPacket, SECTION_KEYS } from "./packet-port.ts";
 import { FIXTURE_SCENES, fixturePacket } from "./testing/fixtures.ts";
-import { testPacketPort } from "./testing/packet-adapter.ts";
 import { syntheticPacket } from "./testing/synthetic.ts";
 
-const newStore = () => new GeometryStore(testPacketPort);
+const newStore = () => new GeometryStore();
 const codeOf = (fn: () => unknown) => {
   try {
     fn();
@@ -74,12 +74,12 @@ describe("GeometryStore commit (C2 rules 1–4)", () => {
   test("validate–mutate–commit stores only the moved bytes and re-validates them", () => {
     const s = newStore();
     const p = fixturePacket("circle-bw");
-    expect(testPacketPort.validate(p.manifest, p, DEFAULT_PACKET_LIMITS).ok).toBe(true);
+    expect(validate(p.manifest, p, DEFAULT_PACKET_LIMITS).ok).toBe(true);
     p.coords[3] = 77.25; // still valid
     const id = s.commit(p);
     expect(s.view(id).coord(3)).toBe(77.25);
     const q = fixturePacket("circle-bw");
-    expect(testPacketPort.validate(q.manifest, q, DEFAULT_PACKET_LIMITS).ok).toBe(true);
+    expect(validate(q.manifest, q, DEFAULT_PACKET_LIMITS).ok).toBe(true);
     q.coords[3] = NaN; // mutation after an earlier validation
     const before = storeState(s);
     expect(codeOf(() => s.commit(q))).toBe("coord");
@@ -226,7 +226,7 @@ describe("GeometryStore access and copy-out (C2 rules 5–7)", () => {
     const s = newStore();
     const id = s.commit(fixturePacket("adjacent_colors-mosaic"));
     const rec = s.encodeRecord(id);
-    const d = testPacketPort.decodeRecord(rec, DEFAULT_PACKET_LIMITS);
+    const d = decodeRecord(rec, DEFAULT_PACKET_LIMITS);
     if (!d.ok) throw new Error(d.message);
     const id2 = s.commit(d.packet);
     expect(s.encodeRecord(id2)).toEqual(rec);
@@ -264,7 +264,7 @@ describe("GeometryStore lifetime and accounting (C2 rules 8, 11; C3.2)", () => {
     const ids = [...FIXTURE_SCENES.keys()].map((n) => {
       const p = fixturePacket(n);
       const m = p.manifest;
-      const r = testPacketPort.validate(m, p, DEFAULT_PACKET_LIMITS);
+      const r = validate(m, p, DEFAULT_PACKET_LIMITS);
       if (!r.ok) throw new Error(r.message);
       const mMem = m.verbCount + 8 * m.coordCount + 16 * m.pathCount + 8;
       expect(mMem).toBe(SECTION_KEYS.reduce((t, k) => t + p[k].byteLength, 0));

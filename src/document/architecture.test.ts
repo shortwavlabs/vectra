@@ -1,7 +1,8 @@
 // Architectural rules for G-DOC production code (G0 next-gate brief, ownership section):
 // - production modules never import the test-only adapter in src/document/testing;
 // - the document needs no renderer types or worker handles (stop condition);
-// - imports stay inside src/document, src/persistence and the pure intake sniffer.
+// - imports stay inside src/document, src/persistence, the production packet validator and
+//   codec (src/geometry/packet, P1-A integration) and the pure intake sniffer.
 import { describe, expect, test } from "vite-plus/test";
 
 const sources = import.meta.glob<string>(["/src/document/**/*.ts", "/src/persistence/**/*.ts"], {
@@ -44,13 +45,14 @@ describe("G-DOC architecture", () => {
         );
   });
 
-  test("imports stay within document, persistence and the intake sniffer", () => {
+  test("imports stay within document, persistence, the packet validator and the intake sniffer", () => {
     for (const [path, text] of production)
       for (const spec of importsOf(text)) {
         const target = resolve(path, spec);
         const ok =
           target.startsWith("/src/document/") ||
           target.startsWith("/src/persistence/") ||
+          target.startsWith("/src/geometry/packet/") ||
           target === "/src/vectorization/intake.ts";
         expect(ok, `${path} → ${spec}`).toBe(true);
       }
@@ -62,5 +64,14 @@ describe("G-DOC architecture", () => {
         /\b(Worker|OffscreenCanvas|Path2D|CanvasRenderingContext2D|postMessage)\b/.test(text),
         path,
       ).toBe(false);
+  });
+});
+
+describe("P1-A integration: one production validation path", () => {
+  test("the test-only adapter is gone and the port uses the production validator and codec", () => {
+    const port = sources["/src/document/packet-port.ts"]!;
+    expect(port).toContain('from "../geometry/packet/validate.ts"');
+    expect(port).toContain('from "../geometry/packet/codec.ts"');
+    expect(Object.keys(sources).some((k) => k.includes("packet-adapter"))).toBe(false);
   });
 });
