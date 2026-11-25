@@ -1,0 +1,208 @@
+{
+  "workspace": {
+    "files": [
+      {
+        "file": "assets/workspace.js",
+        "raw": 382963,
+        "gzip": 127745,
+        "brotli": 108168
+      },
+      {
+        "file": "assets/scheduler.js",
+        "raw": 282398,
+        "gzip": 88670,
+        "brotli": 77203
+      },
+      {
+        "file": "assets/workspace.css",
+        "raw": 46461,
+        "gzip": 8438,
+        "brotli": 7429
+      }
+    ],
+    "js": {
+      "raw": 665361,
+      "gzip": 216415,
+      "brotli": 185371
+    },
+    "css": {
+      "raw": 46461,
+      "gzip": 8438,
+      "brotli": 7429
+    }
+  },
+  "workbench": {
+    "files": [
+      {
+        "file": "assets/index.js",
+        "raw": 25640,
+        "gzip": 8655,
+        "brotli": 7833
+      },
+      {
+        "file": "assets/scheduler.js",
+        "raw": 282398,
+        "gzip": 88670,
+        "brotli": 77203
+      },
+      {
+        "file": "assets/index.css",
+        "raw": 1603,
+        "gzip": 700,
+        "brotli": 565
+      }
+    ],
+    "js": {
+      "raw": 308038,
+      "gzip": 97325,
+      "brotli": 85036
+    },
+    "css": {
+      "raw": 1603,
+      "gzip": 700,
+      "brotli": 565
+    }
+  },
+  "separate": {
+    "compute.worker.js": {
+      "raw": 13529,
+      "gzip": 3926,
+      "brotli": 3529
+    },
+    "vector_engine_wasm_bg.wasm": {
+      "raw": 646325,
+      "gzip": 253821,
+      "brotli": 208815
+    }
+  },
+  "baseline": {
+    "files": [
+      {
+        "file": "assets/index.js",
+        "raw": 219578,
+        "gzip": 67749,
+        "brotli": 58391
+      }
+    ],
+    "js": {
+      "raw": 219578,
+      "gzip": 67749,
+      "brotli": 58391
+    },
+    "css": {
+      "raw": 0,
+      "gzip": 0,
+      "brotli": 0
+    }
+  },
+  "workbenchAlone": {
+    "files": [
+      {
+        "file": "assets/index.js",
+        "raw": 307237,
+        "gzip": 95893,
+        "brotli": 83682
+      },
+      {
+        "file": "assets/index.css",
+        "raw": 1603,
+        "gzip": 700,
+        "brotli": 565
+      }
+    ],
+    "js": {
+      "raw": 307237,
+      "gzip": 95893,
+      "brotli": 83682
+    },
+    "css": {
+      "raw": 1603,
+      "gzip": 700,
+      "brotli": 565
+    }
+  },
+  "attribution": [
+    {
+      "chunk": "react",
+      "raw": 218754,
+      "gzip": 67361,
+      "brotli": 58016
+    },
+    {
+      "chunk": "base-ui",
+      "raw": 191687,
+      "gzip": 63895,
+      "brotli": 54876
+    },
+    {
+      "chunk": "domain",
+      "raw": 61945,
+      "gzip": 21071,
+      "brotli": 19018
+    },
+    {
+      "chunk": "react-resizable-panels",
+      "raw": 48240,
+      "gzip": 15403,
+      "brotli": 13867
+    },
+    {
+      "chunk": "dnd-kit",
+      "raw": 45801,
+      "gzip": 14868,
+      "brotli": 13468
+    },
+    {
+      "chunk": "shell",
+      "raw": 38062,
+      "gzip": 12467,
+      "brotli": 11241
+    },
+    {
+      "chunk": "cn-cva-clsx",
+      "raw": 26679,
+      "gzip": 11048,
+      "brotli": 9624
+    },
+    {
+      "chunk": "ui-owned-and-copied",
+      "raw": 25458,
+      "gzip": 7727,
+      "brotli": 6937
+    },
+    {
+      "chunk": "lucide-react",
+      "raw": 9202,
+      "gzip": 3629,
+      "brotli": 3185
+    },
+    {
+      "chunk": "workspace",
+      "raw": 698,
+      "gzip": 413,
+      "brotli": 348
+    },
+    {
+      "chunk": "rolldown-runtime",
+      "raw": 599,
+      "gzip": 368,
+      "brotli": 327
+    }
+  ],
+  "summary": {
+    "baselineJsGzipKiB": 66.2,
+    "workspaceInitialJsGzipKiB": 211.3,
+    "workspaceInitialCssGzipKiB": 8.2,
+    "additionalOverBaselineJsGzipKiB": 145.2,
+    "designSystemJsGzipKiB": 113.8,
+    "shellJsGzipKiB": 12.2,
+    "domainJsGzipKiB": 20.6,
+    "workbenchInitialJsGzipKiB": 95,
+    "workbenchAloneInitialJsGzipKiB": 93.6,
+    "budgets": {
+      "additional design-system JS ≤ 150 KiB": true,
+      "additional design-system CSS ≤ 15 KiB": true,
+      "total initial UI JS ≤ 250 KiB": true
+    }
+  }
+}

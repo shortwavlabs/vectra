@@ -1,0 +1,75 @@
+- banner:
+  - text: vectra / Studio
+  - paragraph: Untitled artwork · Edited
+  - group "History":
+    - button "Undo"
+    - button "Redo" [disabled]
+    - button "Keyboard shortcuts"
+  - button "Import"
+  - button "Export"
+- navigation "Tools":
+  - button "Select" [pressed]
+  - button "Trace"
+  - button "Smooth, not available yet" [disabled]
+  - button "Simplify, not available yet" [disabled]
+  - button "Cleanup, not available yet" [disabled]
+  - button "Recolor"
+- region "Canvas":
+  - group "View":
+    - button "Artwork" [pressed]
+    - button "Paths view, available with the production renderer" [disabled]: Paths
+    - button "Compare view, available with the production renderer" [disabled]: Compare
+  - region "Artwork canvas":
+    - paragraph: Interim preview. Click a path to select it (bounding-box hit test). With the keyboard, select layers and groups in the Layers panel; single paths are not keyboard-selectable yet.
+    - img "Artwork preview, document revision 2"
+  - button "Zoom out"
+  - text: 123%
+  - button "Zoom in"
+  - button "Fit artboard"
+  - text: Artboard 640 × 430 px
+- separator "Resize inspector"
+- complementary "Inspector":
+  - heading "Select" [level=2]
+  - paragraph: hokusai-great-wave-640
+  - paragraph: Layer
+  - heading "Transform" [level=3]
+  - text: X
+  - textbox "X (px)": "-0.1"
+  - text: "Y"
+  - textbox "Y (px)": "37.7"
+  - paragraph: Size 640.1 × 392.7 px
+  - text: Scale
+  - group:
+    - slider "Scale": "100"
+  - text: Scale value
+  - textbox "Scale value (%)": "100"
+  - button "Reset" [disabled]
+  - button "Rotate 90° counter-clockwise"
+  - button "Rotate 90° clockwise"
+  - heading "Fill" [level=3]
+  - 'button "Fill colour: #000000. Edit colour"': "#000000"
+  - paragraph: Applies to 80 paths; locked paths are skipped. Uses palette colour ink; Apply sets a custom fill instead. Recolor (R) edits palette colours everywhere.
+- separator "Resize layers"
+- region "Layers":
+  - heading "Layers" [level=2]
+  - button "Move hokusai-great-wave-640 up" [disabled]
+  - button "Move hokusai-great-wave-640 down" [disabled]
+  - list "Layers":
+    - listitem:
+      - button "Reorder hokusai-great-wave-640"
+      - button "Collapse hokusai-great-wave-640" [expanded]
+      - button "hokusai-great-wave-640 80 paths" [pressed]
+      - button "Hide hokusai-great-wave-640"
+      - button "Lock hokusai-great-wave-640"
+      - button "More actions for hokusai-great-wave-640"
+      - list "Groups in hokusai-great-wave-640":
+        - listitem:
+          - button "bw 80 paths"
+          - button "Hide bw"
+          - button "Lock bw"
+          - button "More actions for bw"
+  - status
+- contentinfo:
+  - text: RGB · Vector document 80 paths · 2107 anchors
+  - status: "Traced hokusai-great-wave-640.jpg: 80 paths, 2107 anchors in 32 ms"
+  - text: "Preview: interim SVG host (ready); production renderer pending Offline ready"

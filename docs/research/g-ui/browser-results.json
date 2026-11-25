@@ -1,0 +1,1571 @@
+{
+  "note": "Final G-UI run (production build, vp preview on 127.0.0.1:4180, PW_BASE_URL). Per test and engine: status and recorded annotations. Generated from tests/output/playwright-results.json.",
+  "stats": {
+    "startTime": "2026-11-25T17:41:11.700Z",
+    "duration": 47222.824,
+    "expected": 75,
+    "skipped": 6,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "file": "ui-document.spec.ts",
+      "title": "import: keyboard-opened chooser, local trace, no upload",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 774,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "import: keyboard-opened chooser, local trace, no upload",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 1102,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "import: keyboard-opened chooser, local trace, no upload",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 994,
+      "notes": {
+        "requests during import": [
+          "blob:http://127.0.0.1:4180/0d60361c-48d0-4fd5-84ee-be96925307b7"
+        ]
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layers: visibility, lock, rename, Move up/down, keyboard and pointer reorder",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 1507,
+      "notes": {
+        "dnd-kit live region (name-based, D8)": "nested_rings dropped at position 2 of 2."
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layers: visibility, lock, rename, Move up/down, keyboard and pointer reorder",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 1927,
+      "notes": {
+        "dnd-kit live region (name-based, D8)": "nested_rings dropped at position 2 of 2."
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layers: visibility, lock, rename, Move up/down, keyboard and pointer reorder",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 1580,
+      "notes": {
+        "dnd-kit live region (name-based, D8)": "nested_rings dropped at position 2 of 2."
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "selection: canvas click, Escape, layer row; Delete is undoable and skips locked",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 377,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "selection: canvas click, Escape, layer row; Delete is undoable and skips locked",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 482,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "selection: canvas click, Escape, layer row; Delete is undoable and skips locked",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 514,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "slider (Scale): name, value, keyboard steps coalesce into one undo entry",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 376,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "slider (Scale): name, value, keyboard steps coalesce into one undo entry",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 587,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "slider (Scale): name, value, keyboard steps coalesce into one undo entry",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 587,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "slider (Scale): a pointer drag commits once; Escape during a drag cancels",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 558,
+      "notes": {
+        "value after a 10-move drag": 195
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "slider (Scale): a pointer drag commits once; Escape during a drag cancels",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 616,
+      "notes": {
+        "value after a 10-move drag": 195
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "slider (Scale): a pointer drag commits once; Escape during a drag cancels",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 478,
+      "notes": {
+        "value after a 10-move drag": 195
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "numeric field: Enter commits, Escape reverts, arrow steps coalesce",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 318,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "numeric field: Enter commits, Escape reverts, arrow steps coalesce",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 409,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "numeric field: Enter commits, Escape reverts, arrow steps coalesce",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 489,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "colour picker: names, keyboard, hex draft, Apply once, Escape cancels",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 624,
+      "notes": {
+        "area value text": {
+          "before": "Saturation 83%, brightness 94%",
+          "after": "Saturation 82%, brightness 93%"
+        },
+        "hex field after each key": ["#", "#3", "#33", "#336", "#3366", "#3366c", "#3366cc"]
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "colour picker: names, keyboard, hex draft, Apply once, Escape cancels",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 900,
+      "notes": {
+        "area value text": {
+          "before": "Saturation 83%, brightness 94%",
+          "after": "Saturation 82%, brightness 93%"
+        },
+        "hex field after each key": ["#", "#3", "#33", "#336", "#3366", "#3366c", "#3366cc"]
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "colour picker: names, keyboard, hex draft, Apply once, Escape cancels",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 803,
+      "notes": {
+        "area value text": {
+          "before": "Saturation 83%, brightness 94%",
+          "after": "Saturation 82%, brightness 93%"
+        },
+        "hex field after each key": ["#", "#3", "#33", "#336", "#3366", "#3366c", "#3366cc"]
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "keyboard only: select a layer in Layers and fill its paths",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 346,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "keyboard only: select a layer in Layers and fill its paths",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 547,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "keyboard only: select a layer in Layers and fill its paths",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 543,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "recolor: palette colours edit every path that uses them (one undo step)",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 493,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "recolor: palette colours edit every path that uses them (one undo step)",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 612,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "recolor: palette colours edit every path that uses them (one undo step)",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 665,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "export: dialog focus management; SVG and PDF are real engine output",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 679,
+      "notes": {
+        "svg inventory": {
+          "parseError": false,
+          "paths": 3,
+          "rasters": 0
+        },
+        "pdf bytes": 1479
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "export: dialog focus management; SVG and PDF are real engine output",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 1045,
+      "notes": {
+        "svg inventory": {
+          "parseError": false,
+          "paths": 3,
+          "rasters": 0
+        },
+        "pdf bytes": 1479
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "export: dialog focus management; SVG and PDF are real engine output",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 767,
+      "notes": {
+        "svg inventory": {
+          "parseError": false,
+          "paths": 3,
+          "rasters": 0
+        },
+        "pdf bytes": 1479
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "offline: once loaded, import, trace, edit and export work with no network",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 357,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "offline: once loaded, import, trace, edit and export work with no network",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 620,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "offline: once loaded, import, trace, edit and export work with no network",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 564,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "drop, cancel and failure: a cancelled or failed import leaves no document",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 436,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "drop, cancel and failure: a cancelled or failed import leaves no document",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 510,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "drop, cancel and failure: a cancelled or failed import leaves no document",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 640,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layers menu: Rename, Move up/down, Duplicate and Delete, each one undo step",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 801,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layers menu: Rename, Move up/down, Duplicate and Delete, each one undo step",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 1044,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layers menu: Rename, Move up/down, Duplicate and Delete, each one undo step",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 946,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layer rows fit the panel at its minimum and maximum width",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 294,
+      "notes": {
+        "layers panel width after ArrowRight": 288,
+        "layers panel width after ArrowLeft": 336
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layer rows fit the panel at its minimum and maximum width",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 401,
+      "notes": {
+        "layers panel width after ArrowRight": 288,
+        "layers panel width after ArrowLeft": 336
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "layer rows fit the panel at its minimum and maximum width",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 473,
+      "notes": {
+        "layers panel width after ArrowRight": 288,
+        "layers panel width after ArrowLeft": 336
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "canvas zoom and fit; rotate and reset in the inspector",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 478,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "canvas zoom and fit; rotate and reset in the inspector",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 713,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "canvas zoom and fit; rotate and reset in the inspector",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 650,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "the interim preview catches up with rapid keyboard edits",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 1087,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "the interim preview catches up with rapid keyboard edits",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 1295,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "the interim preview catches up with rapid keyboard edits",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 1346,
+      "notes": {}
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "control boundaries and the OS colour scheme, measured in the running build",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 226,
+      "notes": {
+        "computed control contrast (chromium)": {
+          "input border vs panel": 3.7,
+          "slider track vs panel": 3.7,
+          "resize grip vs background": 4.05,
+          "colours": {
+            "panel": [33, 34, 36],
+            "inputBorder": [120, 122, 126],
+            "sliderTrack": [120, 122, 126],
+            "resizeGrip": [120, 122, 126],
+            "importButton": [0.579088, 0.000599951, 0.00650728, 120, 122, 126]
+          }
+        }
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "control boundaries and the OS colour scheme, measured in the running build",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 243,
+      "notes": {
+        "computed control contrast (firefox)": {
+          "input border vs panel": 3.7,
+          "slider track vs panel": 3.7,
+          "resize grip vs background": 4.05,
+          "colours": {
+            "panel": [33, 34, 36],
+            "inputBorder": [120, 122, 126],
+            "sliderTrack": [120, 122, 126],
+            "resizeGrip": [120, 122, 126],
+            "importButton": [0.579092, 0.000626117, 0.00651905, 120, 122, 126]
+          }
+        }
+      }
+    },
+    {
+      "file": "ui-document.spec.ts",
+      "title": "control boundaries and the OS colour scheme, measured in the running build",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 346,
+      "notes": {
+        "computed control contrast (webkit)": {
+          "input border vs panel": 3.7,
+          "slider track vs panel": 3.7,
+          "resize grip vs background": 4.05,
+          "colours": {
+            "panel": [33, 34, 36],
+            "inputBorder": [120, 122, 126],
+            "sliderTrack": [120, 122, 126],
+            "resizeGrip": [120, 122, 126],
+            "importButton": [0.579092, 0.000626, 0.006519, 120, 122, 126]
+          }
+        }
+      }
+    },
+    {
+      "file": "ui-screenshots.spec.ts",
+      "title": "workspace states at 1920×1080",
+      "engine": "chromium",
+      "status": "skipped",
+      "ms": 0,
+      "notes": {
+        "skip": "set UI_SCREENSHOTS=1 to write docs evidence"
+      }
+    },
+    {
+      "file": "ui-screenshots.spec.ts",
+      "title": "workspace states at 1920×1080",
+      "engine": "firefox",
+      "status": "skipped",
+      "ms": 0,
+      "notes": {
+        "skip": "set UI_SCREENSHOTS=1 to write docs evidence"
+      }
+    },
+    {
+      "file": "ui-screenshots.spec.ts",
+      "title": "workspace states at 1920×1080",
+      "engine": "webkit",
+      "status": "skipped",
+      "ms": 0,
+      "notes": {
+        "skip": "set UI_SCREENSHOTS=1 to write docs evidence"
+      }
+    },
+    {
+      "file": "ui-screenshots.spec.ts",
+      "title": "workspace states at 1366×768",
+      "engine": "chromium",
+      "status": "skipped",
+      "ms": 0,
+      "notes": {
+        "skip": "set UI_SCREENSHOTS=1 to write docs evidence"
+      }
+    },
+    {
+      "file": "ui-screenshots.spec.ts",
+      "title": "workspace states at 1366×768",
+      "engine": "firefox",
+      "status": "skipped",
+      "ms": 0,
+      "notes": {
+        "skip": "set UI_SCREENSHOTS=1 to write docs evidence"
+      }
+    },
+    {
+      "file": "ui-screenshots.spec.ts",
+      "title": "workspace states at 1366×768",
+      "engine": "webkit",
+      "status": "skipped",
+      "ms": 0,
+      "notes": {
+        "skip": "set UI_SCREENSHOTS=1 to write docs evidence"
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "CSP header is the _headers policy; the shell loads clean; the detector fires",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 541,
+      "notes": {
+        "scrollbar-width on .base-ui-disable-scrollbar": "none",
+        "negative control": [
+          {
+            "step": "negative-control",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "",
+            "sample": ""
+          }
+        ]
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "CSP header is the _headers policy; the shell loads clean; the detector fires",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 594,
+      "notes": {
+        "scrollbar-width on .base-ui-disable-scrollbar": "none",
+        "negative control": [
+          {
+            "step": "negative-control",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "debugger eval code line 370 > eval",
+            "sample": ""
+          }
+        ]
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "CSP header is the _headers policy; the shell loads clean; the detector fires",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 703,
+      "notes": {
+        "scrollbar-width on .base-ui-disable-scrollbar": "none",
+        "negative control": [
+          {
+            "step": "negative-control",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "",
+            "sample": ""
+          }
+        ]
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "positive control: without CSPProvider, Base UI's inline <style> is blocked",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 426,
+      "notes": {
+        "violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js",
+            "sample": ""
+          }
+        ],
+        "expected CSP console messages": [
+          "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked."
+        ],
+        "csp-violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js",
+            "sample": ""
+          }
+        ],
+        "console-errors": [
+          "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked."
+        ]
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "positive control: without CSPProvider, Base UI's inline <style> is blocked",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 487,
+      "notes": {
+        "violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js",
+            "sample": ""
+          }
+        ],
+        "expected CSP console messages": [
+          "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked an inline style (style-src-elem) from being applied because it violates the following directive: “style-src 'self'”. Consider using a hash ('sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA=', requires 'unsafe-hashes' for style attributes) or a nonce.\" {file: \"http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js\" line: 9}]"
+        ],
+        "csp-violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js",
+            "sample": ""
+          }
+        ],
+        "console-errors": [
+          "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked an inline style (style-src-elem) from being applied because it violates the following directive: “style-src 'self'”. Consider using a hash ('sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA=', requires 'unsafe-hashes' for style attributes) or a nonce.\" {file: \"http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js\" line: 9}]"
+        ]
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "positive control: without CSPProvider, Base UI's inline <style> is blocked",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 587,
+      "notes": {
+        "violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js",
+            "sample": ""
+          }
+        ],
+        "expected CSP console messages": [
+          "Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."
+        ],
+        "csp-violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4180/assets/scheduler-C11VzPvZ.js",
+            "sample": ""
+          }
+        ],
+        "console-errors": [
+          "Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."
+        ]
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "tool rail: names, pressed state, unavailable tools explained and focusable",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 150,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "tool rail: names, pressed state, unavailable tools explained and focusable",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 454,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "tool rail: names, pressed state, unavailable tools explained and focusable",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 327,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "shortcuts dialog: opens by key and button, traps focus, Escape returns focus",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 638,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "shortcuts dialog: opens by key and button, traps focus, Escape returns focus",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 688,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "shortcuts dialog: opens by key and button, traps focus, Escape returns focus",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 785,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "global shortcuts: fire on the page, not in inputs",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 179,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "global shortcuts: fire on the page, not in inputs",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 293,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "global shortcuts: fire on the page, not in inputs",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 345,
+      "notes": {}
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "resizable panels: keyboard and pointer, inspector width within 288–336 px",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 278,
+      "notes": {
+        "inspector widths": {
+          "initial": 320,
+          "keyboard": 288,
+          "pointer": 336
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "resizable panels: keyboard and pointer, inspector width within 288–336 px",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 352,
+      "notes": {
+        "inspector widths": {
+          "initial": 320,
+          "keyboard": 288,
+          "pointer": 336
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "resizable panels: keyboard and pointer, inspector width within 288–336 px",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 322,
+      "notes": {
+        "inspector widths": {
+          "initial": 320,
+          "keyboard": 288,
+          "pointer": 336
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "reduced motion: transitions collapse when the user asks for it",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 116,
+      "notes": {
+        "transition-duration": {
+          "normal": "0.15s",
+          "reduced": "1e-05s"
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "reduced motion: transitions collapse when the user asks for it",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 182,
+      "notes": {
+        "transition-duration": {
+          "normal": "0.15s",
+          "reduced": "0.00001s"
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "reduced motion: transitions collapse when the user asks for it",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 279,
+      "notes": {
+        "transition-duration": {
+          "normal": "0.15s",
+          "reduced": "0.00001s"
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "tokens: contrast table from the running build; dual focus ring",
+      "engine": "chromium",
+      "status": "passed",
+      "ms": 521,
+      "notes": {
+        "contrast": [
+          {
+            "pair": "foreground on background",
+            "ratio": 15.03,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on background",
+            "ratio": 7.56,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on background",
+            "ratio": 12.35,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on background",
+            "ratio": 7.89,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on background",
+            "ratio": 10.38,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on background",
+            "ratio": 4.05,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on background",
+            "ratio": 12.35,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on panel",
+            "ratio": 13.74,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on panel",
+            "ratio": 6.91,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on panel",
+            "ratio": 11.29,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on panel",
+            "ratio": 7.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on panel",
+            "ratio": 9.49,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on panel",
+            "ratio": 3.7,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on panel",
+            "ratio": 11.29,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on elevated",
+            "ratio": 12.4,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on elevated",
+            "ratio": 6.24,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on elevated",
+            "ratio": 10.19,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on elevated",
+            "ratio": 6.51,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on elevated",
+            "ratio": 8.56,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on elevated",
+            "ratio": 3.34,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on elevated",
+            "ratio": 10.19,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on canvas-surround",
+            "ratio": 11.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on canvas-surround",
+            "ratio": 5.65,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on canvas-surround",
+            "ratio": 9.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on canvas-surround",
+            "ratio": 5.9,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on canvas-surround",
+            "ratio": 7.75,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on canvas-surround",
+            "ratio": 3.02,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on canvas-surround",
+            "ratio": 9.22,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary-foreground on primary",
+            "ratio": 11.11,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "background on paper",
+            "ratio": 14.24,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "background on primary",
+            "ratio": 12.35,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "border on background (decorative only)",
+            "ratio": 1.76,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on panel (decorative only)",
+            "ratio": 1.61,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on elevated (decorative only)",
+            "ratio": 1.45,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on canvas-surround (decorative only)",
+            "ratio": 1.31,
+            "need": 0,
+            "pass": true
+          }
+        ],
+        "focus ring": {
+          "outline": "solid 2px rgb(185, 232, 123)",
+          "offset": "2px",
+          "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px"
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "tokens: contrast table from the running build; dual focus ring",
+      "engine": "firefox",
+      "status": "passed",
+      "ms": 594,
+      "notes": {
+        "contrast": [
+          {
+            "pair": "foreground on background",
+            "ratio": 15.03,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on background",
+            "ratio": 7.56,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on background",
+            "ratio": 12.35,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on background",
+            "ratio": 7.89,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on background",
+            "ratio": 10.38,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on background",
+            "ratio": 4.05,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on background",
+            "ratio": 12.35,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on panel",
+            "ratio": 13.74,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on panel",
+            "ratio": 6.91,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on panel",
+            "ratio": 11.29,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on panel",
+            "ratio": 7.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on panel",
+            "ratio": 9.49,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on panel",
+            "ratio": 3.7,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on panel",
+            "ratio": 11.29,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on elevated",
+            "ratio": 12.4,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on elevated",
+            "ratio": 6.24,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on elevated",
+            "ratio": 10.19,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on elevated",
+            "ratio": 6.51,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on elevated",
+            "ratio": 8.56,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on elevated",
+            "ratio": 3.34,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on elevated",
+            "ratio": 10.19,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on canvas-surround",
+            "ratio": 11.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on canvas-surround",
+            "ratio": 5.65,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on canvas-surround",
+            "ratio": 9.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on canvas-surround",
+            "ratio": 5.9,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on canvas-surround",
+            "ratio": 7.75,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on canvas-surround",
+            "ratio": 3.02,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on canvas-surround",
+            "ratio": 9.22,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary-foreground on primary",
+            "ratio": 11.11,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "background on paper",
+            "ratio": 14.24,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "background on primary",
+            "ratio": 12.35,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "border on background (decorative only)",
+            "ratio": 1.76,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on panel (decorative only)",
+            "ratio": 1.61,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on elevated (decorative only)",
+            "ratio": 1.45,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on canvas-surround (decorative only)",
+            "ratio": 1.31,
+            "need": 0,
+            "pass": true
+          }
+        ],
+        "focus ring": {
+          "outline": "solid 2px rgb(185, 232, 123)",
+          "offset": "2px",
+          "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px"
+        }
+      }
+    },
+    {
+      "file": "ui-shell.spec.ts",
+      "title": "tokens: contrast table from the running build; dual focus ring",
+      "engine": "webkit",
+      "status": "passed",
+      "ms": 690,
+      "notes": {
+        "contrast": [
+          {
+            "pair": "foreground on background",
+            "ratio": 15.03,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on background",
+            "ratio": 7.56,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on background",
+            "ratio": 12.35,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on background",
+            "ratio": 7.89,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on background",
+            "ratio": 10.38,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on background",
+            "ratio": 4.05,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on background",
+            "ratio": 12.35,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on panel",
+            "ratio": 13.74,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on panel",
+            "ratio": 6.91,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on panel",
+            "ratio": 11.29,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on panel",
+            "ratio": 7.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on panel",
+            "ratio": 9.49,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on panel",
+            "ratio": 3.7,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on panel",
+            "ratio": 11.29,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on elevated",
+            "ratio": 12.4,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on elevated",
+            "ratio": 6.24,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on elevated",
+            "ratio": 10.19,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on elevated",
+            "ratio": 6.51,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on elevated",
+            "ratio": 8.56,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on elevated",
+            "ratio": 3.34,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on elevated",
+            "ratio": 10.19,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "foreground on canvas-surround",
+            "ratio": 11.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "muted-foreground on canvas-surround",
+            "ratio": 5.65,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "primary on canvas-surround",
+            "ratio": 9.22,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "destructive on canvas-surround",
+            "ratio": 5.9,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "warning on canvas-surround",
+            "ratio": 7.75,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "control-border on canvas-surround",
+            "ratio": 3.02,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary on canvas-surround",
+            "ratio": 9.22,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "primary-foreground on primary",
+            "ratio": 11.11,
+            "need": 4.5,
+            "pass": true
+          },
+          {
+            "pair": "background on paper",
+            "ratio": 14.24,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "background on primary",
+            "ratio": 12.35,
+            "need": 3,
+            "pass": true
+          },
+          {
+            "pair": "border on background (decorative only)",
+            "ratio": 1.76,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on panel (decorative only)",
+            "ratio": 1.61,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on elevated (decorative only)",
+            "ratio": 1.45,
+            "need": 0,
+            "pass": true
+          },
+          {
+            "pair": "border on canvas-surround (decorative only)",
+            "ratio": 1.31,
+            "need": 0,
+            "pass": true
+          }
+        ],
+        "focus ring": {
+          "outline": "solid 2px rgb(185, 232, 123)",
+          "offset": "2px",
+          "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px"
+        }
+      }
+    }
+  ]
+}

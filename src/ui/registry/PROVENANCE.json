@@ -1,0 +1,141 @@
+{
+  "note": "Copied-source manifest (DESIGN-SYSTEM §6). These files are owned by Vectra, copied from the shadcn/ui and Dice UI registries; scripts/generate-notices.mjs verifies every sha256_current and fails the build when a file changed without updating this manifest. sha256_upstream is the content written by the pinned shadcn CLI at R05-A (docs/research/rfc-002-review/artifacts/design-system/registry-provenance.json); registry URLs are unversioned, so content hashes are the pin.",
+  "copied_from": "experiments/rfc-002-review/design-system-harness/src (R05-A harness, verified equal to the recorded hashes before copying)",
+  "cli": "shadcn@4.23.0",
+  "upstream_heads": {
+    "shadcn-ui/ui": "055aa6b7837b1808456a24beb4c97a677864aa82 (2026-11-23, MIT)",
+    "sadmann7/diceui": "8b94856ee5c4387ab869fb7b09ee8f2e1b8ce669 (2026-11-23, MIT, Copyright (c) 2024 Sadman Sakib)",
+    "mui/base-ui": "df283577954738d028f43629af7d50e96200dd82 (2026-11-24, MIT)"
+  },
+  "licenses": {
+    "shadcn/ui": {
+      "license": "MIT",
+      "copyright": "Copyright (c) 2023 shadcn",
+      "file": "scripts/notices-supplements/shadcn-ui-055aa6b.LICENSE.md",
+      "source": "https://github.com/shadcn-ui/ui/blob/055aa6b7837b1808456a24beb4c97a677864aa82/LICENSE.md"
+    },
+    "Dice UI": {
+      "license": "MIT",
+      "copyright": "Copyright (c) 2024 Sadman Sakib",
+      "file": "scripts/notices-supplements/diceui-8b94856.LICENSE",
+      "source": "https://github.com/sadmann7/diceui/blob/8b94856ee5c4387ab869fb7b09ee8f2e1b8ce669/LICENSE"
+    }
+  },
+  "files": [
+    {
+      "path": "src/ui/registry/button.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "button",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/button.json",
+      "registry_json_sha256": "9ba7e870178813f0552b818a913a2792fb500c779e36395740b4973e3025d427",
+      "sha256_upstream": "313353436d0fcc8e44ab470adb614b9fd013d28626f624328ea0d66d41a6c81b",
+      "sha256_current": "313353436d0fcc8e44ab470adb614b9fd013d28626f624328ea0d66d41a6c81b",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/input.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "input",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/input.json",
+      "registry_json_sha256": "bbad1bba130ac9750a61844eeb8f043e8a710846e07689fa85398b80a46c2741",
+      "sha256_upstream": "dab990dfefa0ba78854ab6602ad074270dba9d7d1262184d9bfbb62bd990903b",
+      "sha256_current": "dab990dfefa0ba78854ab6602ad074270dba9d7d1262184d9bfbb62bd990903b",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/slider.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "slider",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/slider.json",
+      "registry_json_sha256": "646bcd7913417b786bbf7578484f851bf89c81a62f70ef9c4f3522e2af80a951",
+      "sha256_upstream": "1fd32ee03ddaa382aabccce0bd88669aa8f91e4fe487622a68745d2ed1d5f5b9",
+      "sha256_current": "ed5e3fed144a485a91a3335ebac2d9d618e8b9cf3b9fd2f6a3ea29f3a4e6e51b",
+      "patches": [
+        "R05-A D1: forward aria-label to every thumb (upstream leaves thumbs unnamed, WCAG 4.1.2)"
+      ]
+    },
+    {
+      "path": "src/ui/registry/tooltip.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "tooltip",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/tooltip.json",
+      "registry_json_sha256": "2f55867faecee2d3616cfd8c6a80b538909a21e62fdfa2788b1ead56093e5395",
+      "sha256_upstream": "100101631756e1bebc1f1831e1642b26cd11a6a6c4affb6c638c42001dc14e83",
+      "sha256_current": "100101631756e1bebc1f1831e1642b26cd11a6a6c4affb6c638c42001dc14e83",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/popover.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "popover",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/popover.json",
+      "registry_json_sha256": "ba5fe84f353f6c0fd2133a2ab893f5e8861fc60dc4dea548a7ec875acaa37b2c",
+      "sha256_upstream": "b6bc5045e7b67414816f813788b5f699d0cc5e4a23debe76c89a6ddb68079c26",
+      "sha256_current": "b6bc5045e7b67414816f813788b5f699d0cc5e4a23debe76c89a6ddb68079c26",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/dialog.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "dialog",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/dialog.json",
+      "registry_json_sha256": "40fc321d25eb9590d07db54b00d9bc1a74274a549aa06d5915a34ba302ed8b94",
+      "sha256_upstream": "e1a331d1617ef6381511f537c5652b13e1f9a4d627a25d80853d6171b7e8b8a5",
+      "sha256_current": "ec68f755774f5472845807555d1f7bfdc800e62fb42b48f38230e1a5b81dfe0b",
+      "patches": [
+        "import of the button changed from the \"@/components/ui/button\" alias to \"./button\" (no @ alias in this repository)"
+      ]
+    },
+    {
+      "path": "src/ui/registry/dropdown-menu.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "dropdown-menu",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/dropdown-menu.json",
+      "registry_json_sha256": "335c59dba30145f434a9cc9ccb0438a3c5e2afe857fc11b029de1ecb415224d7",
+      "sha256_upstream": "38eb2d79c390295e7038ed4c016543afdd5441611e9692f10c85f78434752a3f",
+      "sha256_current": "38eb2d79c390295e7038ed4c016543afdd5441611e9692f10c85f78434752a3f",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/resizable.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "resizable",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/resizable.json",
+      "registry_json_sha256": "7415e497f342485720b6c878c81604eda0aa8b479a2211e4355c324de89a1672",
+      "sha256_upstream": "c45c4e1a32aefb83d60406366e2368b9d8a6e772406f8b964154e7202d6304f7",
+      "sha256_current": "c45c4e1a32aefb83d60406366e2368b9d8a6e772406f8b964154e7202d6304f7",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/scroll-area.tsx",
+      "registry": "shadcn/ui (style base-nova)",
+      "item": "scroll-area",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/scroll-area.json",
+      "registry_json_sha256": "be6cdcfbf02a2fa091ec92cb2bc34e35b8a4e4b3a2d041973cfcd68396e6da1d",
+      "sha256_upstream": "6befabe60becf093bb0740e172e50447c2ae70d757abb08fa2d479b4f2a511ff",
+      "sha256_current": "aa47dbf1c3632e6e83173620b6885806ab594db0814133f49c40cf0a7ed0f8cf",
+      "patches": [
+        "removed the unused `import * as React` (TS6133 under the root noUnusedLocals)"
+      ]
+    },
+    {
+      "path": "src/ui/registry/sortable.tsx",
+      "registry": "Dice UI (diceui/base)",
+      "item": "sortable",
+      "url": "https://diceui.com/r/sortable.json",
+      "registry_json_sha256": "a50701d9b772d765dc35fcc2ec0b0c89751e6e5d40b472ca1971c808a5f36d20",
+      "sha256_upstream": "cec925e9ba25a7eea79b7b508ab801bec7a3f4bfa0f90d7b89497bc1b5c6be92",
+      "sha256_current": "cec925e9ba25a7eea79b7b508ab801bec7a3f4bfa0f90d7b89497bc1b5c6be92",
+      "patches": []
+    },
+    {
+      "path": "src/ui/registry/shadcn-tailwind.css",
+      "registry": "shadcn/ui",
+      "item": "tailwind.css (shadcn@4.23.0 npm package, dist/tailwind.css)",
+      "url": "https://www.npmjs.com/package/shadcn/v/4.23.0",
+      "sha256_upstream": "4c371f7a1ff5d219ae2f7ff28bd256b4346fd546fe46fbae22092e57db2f0fae",
+      "sha256_current": "4c371f7a1ff5d219ae2f7ff28bd256b4346fd546fe46fbae22092e57db2f0fae",
+      "patches": []
+    }
+  ]
+}
