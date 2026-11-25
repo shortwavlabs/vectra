@@ -1,9 +1,8 @@
 # G-UI — Design-system workspace shell (P1-B)
 
 **Status:** ready for review, 2026-11-25. Branch `gate/g-ui-shell` (base `origin/main` 80a1d1a; `main` be74819, which includes G-JOB, is merged in). Nothing is merged or deployed.
-**Disposition: PARTIAL.** The engineering criteria that can be run here pass. Four items stay open:
+**Disposition: PARTIAL.** The engineering criteria that can be run here pass, including real Safari 26.6.2 (14/14 scenarios, added by the lead, §7). Three items stay open:
 - the VoiceOver smoke test is NOT RUN;
-- real Safari is NOT RUN (the lead adds the real-Safari G-UI evidence on top of this head);
 - single paths are not keyboard-selectable while the interim host is in place (§5.4); this needs a maintainer decision;
 - the maintainer's visual review against the mockups is pending.
 
@@ -19,7 +18,7 @@
 | R05-A suite promoted, 3 engines, 0 CSP violations, zero network | **PASS**: 75 passed, 0 failed, 0 flaky (§7) |
 | Reduced motion | **PASS** (3 engines) |
 | Screen-reader smoke test (VoiceOver) | **NOT RUN**. Aria snapshots are a proxy only (§8) |
-| Real Safari | **NOT RUN** (Playwright WebKit is not Safari) |
+| Real Safari | **PASS**: 14/14 scenarios (91 checks) in Safari 26.6.2, macOS 26.6.2, on `478d26a` (§7). Not covered in Safari: reduced-motion emulation, export download bytes, VoiceOver |
 | Owner visual review against the mockups | **PENDING** (screenshots in §9) |
 | Stop conditions: `unsafe-inline`, a Radix primitive, an unresolved a11y gap | `unsafe-inline` and Radix: not hit (CSP unchanged, 0 `@radix-ui` packages). **Accessibility: two gaps are open and not waived**: the screen-reader pass (§8) and keyboard selection of single paths (§5.4). Either needs a fix or an approved exception before acceptance |
 
@@ -208,6 +207,51 @@ Chromium 159.0.8154.6, Firefox 159.0 and Playwright WebKit 27.2. **Playwright We
 - dnd-kit swallows clicks for 50 ms after a pointer drag (its click-after-drag guard), so the pointer-reorder test waits 100 ms before clicking Undo.
 - Offline is tested after load, as in the P0 privacy suite. An offline reload is not exercised, because Playwright Firefox refuses offline navigations before the service worker answers.
 
+**Real Safari (added by the lead after the hand-back).**
+- **Run.**
+  - Command: `pnpm run build && node tests/safari/gui.mjs`, on `478d26a`. That commit is `bc4674f` plus the update-lifecycle test fix and the harness; the application build is identical.
+  - Safari 26.6.2 (21624.5.1.11.3) on macOS 26.6.2 (25G83), driven by `safaridriver` with W3C actions (real key and pointer events).
+  - Load average 1.58–1.75; no ngspice running.
+  - Evidence: `safari/gui-478d26a.json`.
+- **Result: 14/14 scenarios, 91 checks.** Each scenario ends with 0 CSP violations and 0 page errors.
+  - **CSP:**
+    - the header is the unchanged `_headers` policy;
+    - clean load: 0 violations, 0 errors, 0 inline `<style>`, ScrollArea on screen;
+    - negative control: an injected `<style>` is blocked and reported (`style-src-elem`);
+    - positive control (`?csp=default`): Base UI's `<style>` is blocked at load. That gives 1 `style-src-elem` violation, plus 1 `error` event from the blocked element.
+  - **Tool rail:** names, pressed and disabled states, and `aria-keyshortcuts`. Tooltips appear on keyboard focus, Enter selects, and the unavailable tool does nothing. All checked with Tab and with Option-Tab.
+  - **Shortcuts dialog:** opens with `?` and with its button. Focus stays inside for Tab and Option-Tab in both directions, global shortcuts are inert, and Escape returns focus.
+  - **Global shortcuts** fire on the page but not in the preset radio group.
+  - **Resizable panels:** the inspector goes from 320 px to 288 px by keyboard and to 336 px by pointer; the layers separator resizes.
+  - **Tokens,** as resolved by Safari (all `rgb()`, cross-checked through a canvas): every contrast pair passes. The lowest is 3.02:1 (control border on the canvas surround, against a 3:1 requirement).
+  - **Focus ring,** as rendered: `solid 2px` lime `rgb(185, 232, 123)`, a 2 px offset, a dark inner ring `rgb(25, 26, 28)`, and `:focus-visible` set.
+  - **Import** through the real file input (WebDriver file upload): local trace, no off-origin resource.
+  - **Scale slider:** 5 key steps make one undo entry.
+  - **Numeric field:** Enter commits, Escape reverts, and 3 arrow steps make one undo entry.
+  - **Colour picker:** keyboard colour area and hue, hex typed key by key. Apply commits once and returns focus; Escape cancels.
+  - **Layers:**
+    - hide, then undo;
+    - lock disables reorder and every menu item;
+    - F2 rename: Escape cancels, Enter commits, undo works;
+    - keyboard reorder (Space, ArrowDown, Space) is announced by the live region and is one undo step.
+  - **Export dialog:** opens by keyboard, keeps focus inside, and Escape returns focus to Export.
+- **Instrumentation (disclosed).**
+  - WebDriver has no init scripts and no console access. So the served `workspace.html` gets one same-origin classic `<script src="/__probe.js">` as the first element of `<head>`. `script-src 'self'` allows it; the CSP header is not changed.
+  - The probe records violations, errors, unhandled rejections and `console.error` from the start of the load.
+  - The positive control shows that it captures load-time violations.
+- **Environment note.**
+  - In the WebDriver session, plain Tab reaches buttons. Yet neither Safari's "Press Tab to highlight each item on a webpage" nor macOS keyboard navigation is set on this machine, so automation sessions evidently enable full keyboard access.
+  - Plain-Tab results therefore do not show stock Safari. Every keyboard check also runs with Option-Tab, which is stock Safari's every-item key.
+- **Screenshots.**
+  - Taken in 1920×1080 and 1366×768 windows (viewports 1920×1028 and 1366×716, DPR 2), with `nested_rings` imported. Layout and artwork match Chromium.
+  - Kept out of git, in `tests/output/safari/gui-*.png`.
+  - A capture taken as the DOM turns ready shows the previous frame: the rings are absent at "ready" although the image is already decoded, and present 4 s later. So the harness waits before capturing, and screenshot timing is not used as evidence.
+- **Not run in Safari:**
+  - reduced-motion emulation: WebDriver has none, and the system setting was not changed. With it off, transitions are 0.15 s;
+  - export download bytes: engine output is covered by the Playwright suites and bundle v1;
+  - VoiceOver.
+- **Update-lifecycle fix.** `01d2621` derives the precache count from the build (every file `generate-sw.mjs` precaches). `sw-update-lifecycle.spec.ts` is now **18/18** in Chromium, Firefox and Playwright WebKit on this build, so the 3 failures in the table above are fixed.
+
 ## 8. Screen reader
 - **VoiceOver smoke test: NOT RUN.** It needs macOS UI automation with real Safari, and only the lead runs Safari sessions.
 - **Proxy only:** Playwright aria snapshots of the running build are in `aria/` (`01-empty`, `03-selected-path`, `04-layer-selected`, `05-colour-picker`, `09-export-dialog`). These are Playwright's accessibility tree, not what VoiceOver announces.
@@ -228,7 +272,7 @@ Chromium 159.0.8154.6, Firefox 159.0 and Playwright WebKit 27.2. **Playwright We
 
 ## 10. NOT RUN
 - VoiceOver or any screen reader (§8).
-- Real Safari: TD-UI-001 closure, owner sign-off.
+- In real Safari: reduced-motion emulation, export download bytes and VoiceOver. The rest ran (14/14, §7); TD-UI-001 closure needs the owner's sign-off.
 - Touch and pen input; Windows and Linux; lower-end hardware.
 - An offline reload of `workspace.html`. Offline after load is tested, and the G-JOB service worker serves precached `.html` shells.
 - The coalescing window length (1000 ms) as a usability parameter.
@@ -242,7 +286,7 @@ Each item has a G-UI disposition in `docs/TECHNICAL-DEBT.md`. None is closed: on
 
 | Item | Stage now |
 |---|---|
-| TD-UI-001 (CSP) | Production verified in 3 Playwright engines; real Safari pending |
+| TD-UI-001 (CSP) | Production verified in 3 Playwright engines and real Safari 26.6.2; closure criteria met; owner acceptance pending |
 | TD-UI-002 (slider and picker) | Production verified (automated); screen-reader pass pending |
 | TD-UI-003 (contrast) | Owner acceptance pending (visual review) |
 | TD-UI-004 (notices) | Production verified; closure criteria met; owner acceptance pending |
@@ -253,9 +297,9 @@ No new debt item was added. The interim host and box hit test are G-R1 scope, an
 - **Conflict points:** `package.json`, `pnpm-lock.yaml`, `vite.config.ts` (Tailwind plugin, two inputs, `workspace.html` in `buildId()`, fmt and lint entries), `public/THIRD-PARTY-NOTICES.txt` (regenerate after merging), `scripts/generate-notices.mjs`, `scripts/check-dist.mjs`.
 - **G-R0:** `src/canvas-host/types.ts` is identical on both branches. Replace `InterimCanvasHost` in `src/shell/Workspace.tsx` (one element) and drop `renderSvg`.
 - **Service worker:** `scripts/generate-sw.mjs` is unchanged and needs no change; `workspace.html` is precached.
-- **`tests/browser/sw-update-lifecycle.spec.ts:368`** must count the HTML pages (`assets + 3`, or derive the count from `dist/`). Until then it fails in all 3 engines on this branch (§7).
+- **`tests/browser/sw-update-lifecycle.spec.ts`:** fixed by the lead in `01d2621`, which derives the count from `dist/`; 18/18 in 3 engines (§7).
 - **Workbench:** its scripts are now split into `index-*.js` plus a shared chunk. The P0 suites (21/21) and the workbench and G-JOB suites (81/84; the 3 failures are the precache count above) pass.
-- **Real Safari:** the lead adds the real-Safari G-UI evidence on top of this head.
+- **Real Safari:** added by the lead: `tests/safari/gui.mjs`, 14/14 (§7).
 - **Port:** the default Playwright config (port 4173) also picks up `ui-*.spec.ts`. Those specs need nothing beyond the production build.
 
 ## 13. Reproduction and environment

@@ -611,6 +611,7 @@ Counts:
 - **Acceptance criteria:** the workflow, offline recovery and exports verified in real Safari (macOS and iOS) and Android Chrome, with performance measured.
 - **References:** [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [OWNER-ACCEPTANCE-CHECKLIST (P0-R) §C](research/p0-r/OWNER-ACCEPTANCE-CHECKLIST.md).
 - **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate G-JOB, G-UI, G-R1 (owner parts); closure: Real Safari coverage per G0-P1-IMPLEMENTATION-PLAN; iOS and Android are separate future gates; owner action: **Yes:** the maintainer runs `sudo safaridriver --enable` locally (approved in principle; never run by an agent). Raised by R03 and R02 WebKit-only findings.
+- **Real Safari, G-UI scope (2026-11-25):** Safari 26.6.2 on the G-UI workspace (`tests/safari/gui.mjs`): 14/14 scenarios covering strict CSP with negative and positive controls, the design-system components (tool rail, dialogs, slider, numeric field, colour picker, resizable panels, layers with keyboard reorder), tokens and focus ring, and import through the file input. VoiceOver, reduced-motion emulation and export download bytes were not run in Safari. [G-UI report §7](research/g-ui/G-UI-REPORT.md).
 - **G-JOB disposition (2026-11-25):** real Safari was NOT RUN for G-JOB (no `safaridriver` authorisation). The G-JOB owner part is open: a Safari run, or a documented Safari restriction until it runs. Every G-JOB browser result is Chromium 159, Firefox 159 or Playwright WebKit 27.2. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 - **Real Safari, G-JOB scope (2026-11-25):** run with `safaridriver` (maintainer-enabled) in **Safari 26.6.2 (21624.5.1.11.3)**, macOS 26.6.2: 10/10 G-JOB scenarios pass (worker start-up and handshake, start-up churn online and offline, cancellation, offline reload and recreation, single-build sessions across a deploy, template-only update, interrupted install, cache-eviction recovery, frozen exports, document integrity after termination, build-mismatch refusal). "Offline" was an unreachable origin (WebDriver has no network emulation). Still NOT RUN: G-R0 and G-UI in Safari (pending their gates), iOS/iPadOS Safari, Android Chrome, Safari performance. Status: **PARTIALLY RUN**; not closed. [G-JOB report §18](research/g-job/G-JOB-REPORT.md).
 
@@ -756,6 +757,13 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Dependencies:** none.
 - **Owner action:** no.
 - **G-UI disposition (2026-11-25):** the workspace (`workspace.html`) wraps its root in `<CSPProvider disableStyleElements>` and owns the `.base-ui-disable-scrollbar` rule (`src/ui/styles.css`); the CSP in `public/_headers` is unchanged. `tests/browser/ui-shell.spec.ts`: the served header equals `_headers`, 0 violations and 0 inline `<style>` elements at load with a ScrollArea on screen; negative control (injected `<style>` reported) and positive control (`?csp=default` drops the provider: 1 `style-src-elem` violation at load) pass in Chromium 159, Firefox 159 and Playwright WebKit 27.2; every UI test asserts 0 violations and 0 off-host requests. Real Safari NOT RUN. Stage: **PRODUCTION VERIFIED (3 Playwright engines) / real Safari pending**. Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
+- **Real Safari (2026-11-25):** Safari 26.6.2 (21624.5.1.11.3), macOS 26.6.2, `tests/safari/gui.mjs` on `478d26a`, against the production build and the unchanged production CSP:
+  - clean load: 0 violations, 0 errors, 0 inline `<style>`, ScrollArea on screen;
+  - negative control: an injected `<style>` is blocked and reported (`style-src-elem`);
+  - positive control (`?csp=default`): Base UI's `<style>` is blocked at load;
+  - all 14 G-UI scenarios end with 0 violations.
+
+  A same-origin probe script, allowed by the unchanged policy, records violations from the start of the load (disclosed in the G-UI report §7). Closure criteria **met; proposed for closure, maintainer to confirm**.
 
 <a id="td-ui-002"></a>
 ### TD-UI-002 — Colour picker and slider accessibility
