@@ -1,0 +1,141 @@
+{
+  "commit": "42db2e8ed089b0c98ee2b792519552acbee81456",
+  "loadavgStart": [2.80419921875, 2.16845703125, 1.896484375],
+  "checks": [
+    {
+      "name": "none: Safari save → Node strict load is semantically equal",
+      "pass": true
+    },
+    {
+      "name": "none: Safari bytes are identical to Node's",
+      "pass": true
+    },
+    {
+      "name": "none: Node save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "none: chromium save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "none: Safari save → chromium load",
+      "pass": true
+    },
+    {
+      "name": "none: firefox save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "none: Safari save → firefox load",
+      "pass": true
+    },
+    {
+      "name": "none: webkit save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "none: Safari save → webkit load",
+      "pass": true
+    },
+    {
+      "name": "none: Safari round trip (clean, no undo, byte-identical resave)",
+      "pass": true
+    },
+    {
+      "name": "none: malformed input fails atomically with typed errors in Safari (8 cases)",
+      "pass": true,
+      "detail": [
+        ["truncated: 8 bytes", "truncated"],
+        ["truncated: inside the header", "truncated"],
+        ["truncated: last byte missing", "truncated"],
+        ["bad magic", "magic"],
+        ["oversized header", "header"],
+        ["SHA mismatch: header sha256", "sha256"],
+        ["corrupt geometry record", "packet"],
+        ["SHA mismatch: flipped section byte", "sha256"]
+      ]
+    },
+    {
+      "name": "none: limits input fails atomically with typed errors in Safari (5 cases)",
+      "pass": true,
+      "detail": [
+        ["decompression bomb (256 MiB of zeros in the document section)", "section"],
+        ["document declares 64 MiB + 1", "section"],
+        ["source declares 20 MiB + 1", "section"],
+        ["geometry declares 8 GiB", "section"],
+        ["session budget of 1,000 bytes", "limit"]
+      ]
+    },
+    {
+      "name": "deflate-raw: Safari save → Node strict load is semantically equal",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: Node save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: chromium save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: Safari save → chromium load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: firefox save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: Safari save → firefox load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: webkit save → Safari load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: Safari save → webkit load",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: Safari round trip (clean, no undo, byte-identical resave)",
+      "pass": true
+    },
+    {
+      "name": "deflate-raw: malformed input fails atomically with typed errors in Safari (7 cases)",
+      "pass": true,
+      "detail": [
+        ["truncated: 8 bytes", "truncated"],
+        ["truncated: inside the header", "truncated"],
+        ["truncated: last byte missing", "truncated"],
+        ["bad magic", "magic"],
+        ["oversized header", "header"],
+        ["SHA mismatch: header sha256", "sha256"],
+        ["corrupt geometry record", "packet"]
+      ]
+    },
+    {
+      "name": "deflate-raw: limits input fails atomically with typed errors in Safari (5 cases)",
+      "pass": true,
+      "detail": [
+        ["decompression bomb (256 MiB of zeros in the document section)", "inflate"],
+        ["document declares 64 MiB + 1", "limit"],
+        ["source declares 20 MiB + 1", "limit"],
+        ["geometry declares 8 GiB", "limit"],
+        ["session budget of 1,000 bytes", "limit"]
+      ]
+    }
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2"
+  },
+  "engines": {
+    "chromium": "159.0.8154.6",
+    "firefox": "159.0",
+    "webkit": "27.2"
+  },
+  "loadavgEnd": [3.14013671875, 2.24853515625, 1.92626953125]
+}

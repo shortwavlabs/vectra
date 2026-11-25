@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { VectorCanvas } from "./canvas-host/CanvasHost.tsx";
+import type { CanvasHostHandle, CanvasHostState } from "./canvas-host/types.ts";
 import { SettingsPanel } from "./components/SettingsPanel.tsx";
 import type { LengthUnit } from "./vectorization/types.ts";
 import { useWorkbench } from "./workspace/useWorkbench.ts";
@@ -20,8 +22,27 @@ function Elapsed({ since }: { since: number }) {
   return <>{((now - since) / 1000).toFixed(1)} s</>;
 }
 
+/** Canvas status, with the renderer host disclosed (worker or main-thread fallback). */
+function canvasLabel(s: CanvasHostState): string {
+  switch (s.kind) {
+    case "empty":
+      return "Canvas: no artwork";
+    case "starting":
+      return "Canvas: starting…";
+    case "rendering":
+      return "Canvas: rendering…";
+    case "ready":
+      return s.host === "worker" ? "Canvas: render worker" : "Canvas: main-thread fallback";
+    case "recovering":
+      return `Canvas: recovering (${s.reason})`;
+    case "error":
+      return `Canvas error [${s.code}]: ${s.message}`;
+  }
+}
+
 export function App() {
   const wb = useWorkbench();
+  const canvas = useRef<CanvasHostHandle>(null);
   const { source, status, result, pdf } = wb;
   const [dragging, setDragging] = useState(false);
   const [pdfWidth, setPdfWidth] = useState(200);
@@ -194,15 +215,56 @@ export function App() {
               Vector result {result && `· ${m?.mode}`}{" "}
               {processing && result && "· outdated, re-processing…"}
             </figcaption>
-            {result ? (
-              <img
-                src={result.svgUrl}
-                alt="Vectorized SVG result"
-                data-testid="result"
-                onLoad={(e) => wb.onPreviewLoaded(e.currentTarget)}
-              />
+            {wb.svgPreview ? (
+              result?.svgUrl ? (
+                <img
+                  src={result.svgUrl}
+                  alt="Vectorized SVG result (P0 comparison toggle)"
+                  data-testid="result"
+                  onLoad={(e) => wb.onPreviewLoaded(e.currentTarget)}
+                />
+              ) : (
+                <div className="empty">No result</div>
+              )
             ) : (
-              <div className="empty">No result</div>
+              <>
+                <div className="canvas-toolbar">
+                  <button type="button" onClick={() => canvas.current?.fitToView()}>
+                    Fit
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Zoom in"
+                    onClick={() => canvas.current?.zoomBy(1.25)}
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Zoom out"
+                    onClick={() => canvas.current?.zoomBy(0.8)}
+                  >
+                    −
+                  </button>
+                  <span data-testid="canvas-state" data-state={wb.canvasState.kind}>
+                    {canvasLabel(wb.canvasState)}
+                  </span>
+                  {wb.selection.length > 0 && (
+                    <span data-testid="selection">{wb.selection.length} selected</span>
+                  )}
+                </div>
+                <VectorCanvas
+                  ref={canvas}
+                  className="canvas-host"
+                  session={wb.displaySession}
+                  selection={wb.selection}
+                  onSelect={wb.select}
+                  onStateChange={wb.onCanvasState}
+                  onHost={wb.onCanvasHost}
+                  forceMainThread={wb.forceMainThread}
+                  label="Vector result"
+                />
+              </>
             )}
           </figure>
         </div>
@@ -243,12 +305,14 @@ export function App() {
               <th>Fit (compose) / optimise</th>
               <td>{m ? `${fmtMs(m.timingsMs.compose)} / ${fmtMs(m.timingsMs.optimize)}` : "—"}</td>
               <th>SVG size</th>
-              <td data-testid="svg-bytes">{fmtBytes(result?.svgBytes)}</td>
+              <td data-testid="svg-bytes">{fmtBytes(result?.svgBytes ?? undefined)}</td>
             </tr>
             <tr>
               <th>SVG serialise / round trip</th>
               <td>
-                {result ? `${fmtMs(result.timings.svgMs)} / ${fmtMs(result.roundTripMs)}` : "—"}
+                {result
+                  ? `${fmtMs(result.timings.svgMs ?? undefined)} / ${fmtMs(result.roundTripMs)}`
+                  : "—"}
               </td>
               <th>PDF size / time</th>
               <td data-testid="pdf-bytes">

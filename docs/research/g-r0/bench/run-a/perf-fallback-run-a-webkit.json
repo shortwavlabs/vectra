@@ -1,0 +1,56 @@
+{
+  "machine": {
+    "loadavg": [1.79, 1.84, 1.76],
+    "ngspice": 0
+  },
+  "interactive": {
+    "load": {
+      "frames": 139,
+      "maxGapMs": 79,
+      "p50": 17,
+      "p95": 18,
+      "longTasks": 0,
+      "longestTaskMs": 0
+    },
+    "pan": {
+      "p50": 17,
+      "p95": 18,
+      "max": 18,
+      "exactSettleMs": 41
+    },
+    "gestureMainThread": {
+      "frames": 62,
+      "maxGapMs": 26,
+      "p50": 17,
+      "p95": 18,
+      "longTasks": 0,
+      "longestTaskMs": 0
+    },
+    "host": "main-thread"
+  },
+  "stress": {
+    "load": {
+      "frames": 436,
+      "maxGapMs": 156,
+      "p50": 17,
+      "p95": 17,
+      "longTasks": 0,
+      "longestTaskMs": 0
+    },
+    "pan": {
+      "p50": 17,
+      "p95": 17,
+      "max": 19,
+      "exactSettleMs": 48
+    },
+    "gestureMainThread": {
+      "frames": 63,
+      "maxGapMs": 40,
+      "p50": 17,
+      "p95": 17,
+      "longTasks": 0,
+      "longestTaskMs": 0
+    },
+    "host": "main-thread"
+  }
+}

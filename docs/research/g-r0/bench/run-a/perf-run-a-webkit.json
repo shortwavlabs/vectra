@@ -1,0 +1,173 @@
+{
+  "browser": "webkit 27.2",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "dpr": 2,
+  "machineStart": {
+    "loadavg": [1.63, 1.82, 1.75],
+    "ngspice": 0
+  },
+  "workloads": {
+    "interactive": {
+      "file": "bark-1224.png",
+      "sha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+      "anchors": 269996,
+      "paths": 16056,
+      "stages": {
+        "traceWorkerMs": 1536,
+        "tracePostMs": 0,
+        "previewCommitMs": 61,
+        "snapshotPrepareMs": 8,
+        "renderCopyMs": 1,
+        "renderPostMs": 5,
+        "bytesCopied": 12851193,
+        "firstFrameMs": 68,
+        "exactFrameMs": 103,
+        "exactDrawWorkerMs": 44
+      },
+      "previewMs": 105,
+      "importToVisibleMs": 1942,
+      "loadMainThread": {
+        "frames": 141,
+        "maxGapMs": 74,
+        "p50": 17,
+        "p95": 19,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "pan": {
+        "p50": 17,
+        "p95": 19,
+        "max": 21,
+        "exactSettleMs": 55
+      },
+      "zoom": {
+        "p50": 17,
+        "p95": 19,
+        "max": 19,
+        "exactSettleMs": 54
+      },
+      "gestureMainThread": {
+        "frames": 126,
+        "maxGapMs": 21,
+        "p50": 17,
+        "p95": 19,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "hits": {
+        "coldMs": 41,
+        "buildMs": 40,
+        "warmP50": 0,
+        "warmP95": 0.05,
+        "warmMax": 0.1
+      },
+      "cache": {
+        "workerHeld": {
+          "chunks": 1,
+          "paths": 16056,
+          "bytes": 13364985
+        },
+        "backingStoreBytes": 6973440
+      },
+      "recoveryMs": 54,
+      "host": "worker",
+      "machine": {
+        "loadavg": [1.98, 1.88, 1.77],
+        "ngspice": 0
+      }
+    },
+    "stress": {
+      "file": "bark-2350.png",
+      "sha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+      "anchors": 812003,
+      "paths": 43621,
+      "stages": {
+        "traceWorkerMs": 6495,
+        "tracePostMs": 2,
+        "previewCommitMs": 141,
+        "snapshotPrepareMs": 24,
+        "renderCopyMs": 3,
+        "renderPostMs": 14,
+        "bytesCopied": 64437968,
+        "firstFrameMs": 100,
+        "exactFrameMs": 283,
+        "exactDrawWorkerMs": 182
+      },
+      "previewMs": 285,
+      "importToVisibleMs": 7200,
+      "loadMainThread": {
+        "frames": 435,
+        "maxGapMs": 161,
+        "p50": 17,
+        "p95": 18,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "pan": {
+        "p50": 17,
+        "p95": 18,
+        "max": 19,
+        "exactSettleMs": 77
+      },
+      "zoom": {
+        "p50": 17,
+        "p95": 18,
+        "max": 18,
+        "exactSettleMs": 76
+      },
+      "gestureMainThread": {
+        "frames": 128,
+        "maxGapMs": 19,
+        "p50": 17,
+        "p95": 18,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "hits": {
+        "coldMs": 93,
+        "buildMs": 93,
+        "warmP50": 0,
+        "warmP95": 0.05,
+        "warmMax": 0.2
+      },
+      "cache": {
+        "workerHeld": {
+          "chunks": 1,
+          "paths": 43621,
+          "bytes": 40131454
+        },
+        "backingStoreBytes": 6973440
+      },
+      "recoveryMs": 54,
+      "host": "worker",
+      "machine": {
+        "loadavg": [1.75, 1.84, 1.75],
+        "ngspice": 0
+      }
+    }
+  },
+  "pathScaling": [
+    {
+      "anchors": 25000,
+      "ms": 1,
+      "ok": true
+    },
+    {
+      "anchors": 125000,
+      "ms": 3,
+      "ok": true
+    },
+    {
+      "anchors": 250000,
+      "ms": 6,
+      "ok": true
+    }
+  ],
+  "machineEnd": {
+    "loadavg": [1.75, 1.84, 1.75],
+    "ngspice": 0
+  }
+}
