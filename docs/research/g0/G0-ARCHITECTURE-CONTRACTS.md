@@ -1,6 +1,6 @@
 # G-0 — Architecture contracts (frozen for G-ENG and G-DOC)
 
-**Status:** FROZEN at G-0 closure. The maintainer approved C1–C9 subject to the G-0 closure clarifications (C2, C3, C5, C7, C8). Those clarifications are integrated below and landed **before** the freeze, so every contract version stays at its initial value.
+**Status:** FROZEN at G-0 closure, then amended once through change control: **amendment set AM-1** (P1-A corrective review, maintainer-approved, 2026-11-25). AM-1 is integrated below and recorded in §AM-1 and in [G0-DECISION-REGISTER §6](G0-DECISION-REGISTER.md).
 
 This file holds the **byte-level and API details** that RFC-002 defers to. Architecture, rationale and evidence stay in [RFC-002](../../RFC-002.md); this file does not restate them.
 
@@ -11,17 +11,20 @@ This file holds the **byte-level and API details** that RFC-002 defers to. Archi
 
 Additive fields are allowed only where a contract says so. A gate that needs a change stops the affected work and raises an amendment ([G0-NEXT-GATE-BRIEF](G0-NEXT-GATE-BRIEF.md)).
 
-| ID | Contract | Version | Authoritative here | Architecture in |
-|---|---|---|---|---|
-| C1 | Identifiers and revisions | 1 | yes | RFC §5.1 |
-| C2 | GeometryStore ownership and lifetime | 1 | yes | RFC §5.2 |
-| C3 | GeometryPacket and resource accounting | 1 | yes | RFC §6 |
-| C4 | Engine API (Rust and WASM) | 1 | yes (shape); signatures finalised in G-ENG | RFC §6, §11.2 |
-| C5 | Worker protocol | 2 | yes | RFC §10 |
-| C6 | Geometry and algorithm versions | 1 | yes | RFC §12.2 |
-| C7 | `.vectra` container | 1 | yes | RFC §14 |
-| C8 | Renderer boundary, snapshots and P1 clipping | 1 | yes | RFC §8, §12.3 |
-| C9 | Measurement boundaries | 1 | yes | RFC §17 |
+**Two kinds of version.** A **specification revision** (`rN`) identifies the text of a contract; it is bumped by every approved amendment. A **serialized version** is a number written into bytes or messages (`packetVersion`, `protocolVersion`, container `formatVersion`, `documentSchemaVersion`); it changes only when the wire format changes. AM-1 bumps revisions and changes **no** serialized version.
+
+| ID | Contract | Spec revision | Serialized version(s) | Authoritative here | Architecture in |
+|---|---|---|---|---|---|
+| C1 | Identifiers and revisions | r1 | — | yes | RFC §5.1 |
+| C2 | GeometryStore ownership and lifetime | **r2** (AM-1: A1) | — | yes | RFC §5.2 |
+| C3 | GeometryPacket and resource accounting | **r2** (AM-1: AR-1, AR-3) | `packetVersion` 1 (unchanged) | yes | RFC §6 |
+| C4 | Engine API (Rust and WASM) | **r2** (AM-1: finalised signatures) | — | yes | RFC §6, §11.2 |
+| C5 | Worker protocol | **r2** (AM-1: AR-2) | `protocolVersion` 2 (unchanged) | yes | RFC §10 |
+| C6 | Geometry and algorithm versions | **r2** (AM-1: version table) | — | yes | RFC §12.2 |
+| C7 | `.vectra` container | **r2** (AM-1: offsets, contiguity) | `formatVersion` 1 (unchanged; unreleased) | yes | RFC §14 |
+| C8 | Renderer boundary, snapshots and P1 clipping | **r2** (AM-1: A2, A3, AR-2) | — | yes | RFC §8, §12.3 |
+| C9 | Measurement boundaries | r1 | — | yes | RFC §17 |
+| C10 | Document v1 schema and TraceProvenance | **r1** (new at AM-1) | `documentSchemaVersion` 1 (unchanged; unreleased), `provenanceVersion` 1 | yes | RFC §5.1, §6.1, §14 |
 
 ## C1 — Identifiers and revisions
 - **Node IDs.**
@@ -44,7 +47,7 @@ Additive fields are allowed only where a contract says so. A gate that needs a c
 interface GeometryStore {
   commit(packet: IncomingPacket): ChunkId;        // consumes the packet: move, validate, derive, publish (rules 1–5)
   view(id: ChunkId): ChunkView;                   // read-only accessors; NO ArrayBuffer/TypedArray/DataView exposure
-  derived(id: ChunkId): DerivedMetadata;          // C3 derived metadata, computed by commit
+  derived(id: ChunkId): DerivedView;              // C3 derived metadata through frozen accessors (AM-1 A1)
   jobCopy(ids: ChunkId[]): { packets: TransferPacket[]; transfer: ArrayBuffer[] };    // fresh copies
   renderCopy(ids: ChunkId[]): { packets: TransferPacket[]; transfer: ArrayBuffer[] }; // fresh copies
   retain(id: ChunkId, owner: OwnerRef): void;     // owner kinds: document | history | snapshot | job
@@ -83,6 +86,7 @@ An `IncomingPacket` is a C3 manifest plus the six section arrays (`Uint8Array` v
 No browser version numbers are frozen here; the browser baseline is decided from evidence (ROADMAP).
 
 **Access and copy-out.**
+- **Derived data (AM-1, A1).** `derived(id)` returns a frozen `DerivedView`: `anchors`, `pathCount`, `subpathCount`, `pathAnchors(i)`, `subpathStart(k)` and `bounds(i)`. It never returns the store's typed arrays, which a caller could detach. Callers that need arrays copy them explicitly.
 6. **Private buffers.** `ChunkView` is a frozen object whose methods close over the store's arrays (closures or `#private` fields). It exposes element reads, counts and iteration only.
    - TypeScript `readonly` is **not** relied on.
    - A runtime test walks every own and inherited property of a view and of its method results, and fails if any is an `ArrayBuffer`, typed array or DataView.
@@ -223,7 +227,7 @@ This corrects the earlier declared-bytes formula, `verbCount + 8·coordCount + 1
 | 11 | Surplus coordinates | `arity` |
 | 12 | Running anchor budget | `budget` |
 
-Byte decoding (C3.0) precedes step 1 and may additionally return `length` or `padding`.
+**Byte streams (AM-1, AR-1).** Steps 1–2 run on the manifest first, because the block length depends on the validated counts. The block is then decoded (`length`, `padding`) before step 3. Within step 2 the sub-order is: key set, artboard, counts, styles (table cap, then entries), groups (table cap, then entries), then the caps P, V, C and `M_mem + D_max`. Steps 5–12 run per path, in path order.
 
 ### C3.1 — Authority after commit (packet vs document)
 A packet's `styles`, `evenOdd`, `styleIndex`, `groups` and `groupIndex` are **commit-time inputs and provenance**. The commit command (G-DOC) maps them deterministically:
@@ -244,11 +248,12 @@ After commit, the **document is authoritative** for style, fill rule, transform,
 - `anchors: u32` (total).
 
 **Determinism and conformance.**
-- Native and WASM builds produce byte-identical packets and identical serialized blocks.
+- **(AM-1, AR-3)** Identical validated scenes produce byte-identical geometry packets and C3.0 blocks across Rust (native), WASM and TypeScript. This is proved over identical canonical scene inputs (`tests/fixtures/packet-determinism/` and the local corpus run).
+- **Native/WASM *tracing* identity is a separate, unresolved requirement: TD-PLATFORM-007.** Identical pixels do not yet always trace to identical scenes on the two targets.
 - `Scene → Packet → Scene` round-trips **losslessly** for every scene v1 in the regression corpus (with `SceneMeta`: background, palette, metadata).
 - The shared adversarial suite lives in one fixture directory, created in G-ENG and seeded from the review's 27 cases plus byte-serialisation cases. Both validators must return identical codes per case.
 
-## C4 — Engine API (shape; exact signatures finalised and reviewed in G-ENG)
+## C4 — Engine API (r2: signatures finalised at AM-1)
 **Rust (`vector-engine`).** The public, documented API exposes no VTracer or visioncortex types:
 ```text
 vectorize(rgba, w, h, &TraceRequest, clock) -> Result<Output>            // unchanged (scene v1), byte-identical
@@ -256,10 +261,11 @@ GeometryPacket::from_scene(&Scene) -> GeometryPacket                     // loss
 Scene::from_packet(&GeometryPacket, &SceneMeta) -> Result<Scene>
 validate_packet(&GeometryPacket, &Limits) -> Result<Derived, PacketError>  // codes and accounting = C3
 GeometryPacket::to_bytes / from_bytes                                    // C3.0 block; caps before allocation
-bake_draw_list(&DrawList, &[GeometryPacket]) -> Result<Scene>            // export: applies effective transforms (f64), styles, fill rules, clips (C8); visible items only; identity + unchanged style ⇒ original coordinates bit-identical
-segment(rgba, w, h, &TraceRequest) -> Result<Segmentation>               // opaque Vectra-owned handle
-estimate(&Segmentation, &TraceRequest) -> Estimate { anchors_low, anchors_high, basis }
-fit(Segmentation, &TraceRequest, clock) -> Result<Output>                 // == vectorize output, byte-identical
+bake_draw_list(&DrawList, &[GeometryPacket], &SceneMeta, &Limits) -> Result<Scene>   // export (C8 export draw list): effective transforms (f64), styles, fill rules, clip runs; identity + unchanged style ⇒ original coordinates bit-identical
+SceneMeta::from_json(&str)                                               // re-types metadata.params through Settings when it parses as one (C10 number formatting)
+segment(rgba, w, h, &TraceRequest, clock) -> Result<Segmentation>        // opaque Vectra-owned handle; carries the request
+estimate(&Segmentation) -> Estimate::{Range{anchors_low, anchors_high, basis} | Unavailable{reason}}
+fit(Segmentation, clock) -> Result<Output>                                // == vectorize output, byte-identical
 ```
 - Limited and halftone modes get staged estimators, or an explicit "no estimate", in G-ENG.
 - `segment_layers` and `vectorize_with_precision_options` move behind a `diagnostics` cargo feature (TD-ARCH-004).
@@ -269,7 +275,9 @@ fit(Segmentation, &TraceRequest, clock) -> Result<Output>                 // == 
 vectorizePacket(rgba, w, h, requestJson) -> { manifestJson, verbs, coords, verbOffsets, coordOffsets,
                                              styleIndex, groupIndex, sceneMetaJson, reportJson }   // one copy out per array: each a fresh, whole-buffer array (C2 rule 1)
 validatePacket(manifestJson, ...arrays) -> derived | throws {code, message}
-exportDrawList(format, drawListJson, sceneMetaJson, optionsJson, ...packets) -> string | Uint8Array  // via bake_draw_list → scene v1 → writers
+PacketSet.add(manifestJson, ...arrays) -> index                            // packets referenced by the draw list's `chunk`
+exportDrawListSvg / exportDrawListPdf / exportDrawListScene(drawListJson, sceneMetaJson, [optionsJson,] set)   // bake_draw_list → scene v1 → writers
+sceneToPacket(sceneJson) -> PacketResult                                  // GeometryPacket::from_scene (interchange; determinism proof)
 packetToSvg / packetToPdf (single-packet convenience, used for the byte-identity regression)
 segment/estimate (handle-scoped to the worker instance)
 ```
@@ -294,7 +302,7 @@ segment/estimate (handle-scoped to the worker instance)
 - Unmatched responses are dropped, and the drops are counted in diagnostics.
 
 **Compute worker.**
-- **Requests:** `trace{rgba(transfer), width, height, request, quality: "preview"|"final", sourceDigest}`, `estimate{...}`, `op{opId, opVersion, params, inputs: TransferPacket[], sideInputs}`, `export{format: "svg"|"pdf", drawList (C8: effective transform, style, fillRule, effective clip; visible, unclipped-or-non-empty items in paint order), chunks: TransferPacket[] (job copies), sceneMeta, options}`.
+- **Requests:** `trace{rgba(transfer), width, height, request, quality: "preview"|"final", sourceDigest}`, `estimate{...}`, `op{opId, opVersion, params, inputs: TransferPacket[], sideInputs}`, `export{format: "svg"|"pdf", drawList (the C8 **export draw list**, AM-1 AR-2), chunks: TransferPacket[] (job copies, indexed by the draw list's `chunk`), sceneMeta (C10 export metadata semantics), options}`.
 - **Responses:**
   - `status{state}`;
   - `progress{stage: "segment"|"estimate"|"fit"|"validate"|"serialize"}`, staged only; **no fabricated percentages**;
@@ -322,7 +330,8 @@ segment/estimate (handle-scoped to the worker instance)
 | `presetVersion` (`TraceRequest`) | engine | Bumped on any default change; old versions keep working |
 | `packetVersion` | C3 | 1 |
 | scene version | engine | v1 for export and interchange; v2 only for a needed capability, with dual-format regression |
-| `documentSchemaVersion` | G-DOC | 1, forward-only deterministic migrations |
+| `documentSchemaVersion` | G-DOC | 1 (finalised at AM-1, unreleased; C10). Forward-only deterministic migrations after first release |
+| `provenanceVersion` | C10 | 1 |
 | container `formatVersion` | C7 | 1 |
 | operation versions (recipes) | per operation | Migrations in Rust |
 
@@ -334,7 +343,7 @@ The layout is in RFC §14. Normative limits:
 | Item | Limit |
 |---|---|
 | Header JSON | ≤ 1 MiB |
-| Sections | ≤ 4,096, non-overlapping, in bounds, unique `id` |
+| Sections | ≤ 4,096, unique `id`. **(AM-1)** `offset` is relative to the first byte after the header; sections are **contiguous** in the fixed order, with no gaps or overlaps, and the file ends at the last section (otherwise `section`; past EOF, `truncated`) |
 | Section kinds | `manifest` (1), `document` (1), `geometry` (≥ 0, one per chunk, `id` = chunkId), `source` (≥ 0, opt-in, `id` = assetId) |
 | Codecs | `none`, `deflate-raw` (native `CompressionStream`/`DecompressionStream`) |
 | Total declared `uncompressedLength` | ≤ the profile session budget (default 512 MiB) |
@@ -402,6 +411,18 @@ RenderSnapshot { renderRevision, documentRevision, dpr, cssWidth, cssHeight, cam
                                fill: u32|null, stroke?, evenOdd /* from the document fillRule */, groupRun: u32 /* index into runs */ } ],  // paint order; effective values per C3.1
                  selection?: { runs: [ [startIndex, endIndex) ] } }
 ```
+**Export draw list (AM-1, AR-2).** The export job (C5) carries:
+```text
+ExportDrawList { width, height,                                   // artboard
+                 runs: [ { id, clip: {x,y,width,height} | null } ],
+                 items: [ { chunk /* index into the job's packet set */, pathIndex, transform,
+                            fill: u32 | null, paletteId: string | null, stroke: {color, width} | null,
+                            evenOdd, groupRun } ] }
+```
+- It is the render draw list plus each item's effective **`paletteId`** (C3.1, part of the effective style) and the artboard size.
+- The worker maps chunk IDs to packet-set indices.
+- Render items are unchanged.
+
 - Snapshots are immutable once sent. The renderer receives packet render copies only for chunks it does not hold, and is told when to release chunks (C2 rule 9).
 - **Imports:** `src/renderer/**` may import only `src/renderer/**`, the snapshot and packet **read** types, and the standard library. An architectural test fails on any import of document mutation modules (`src/document/commands`, `store` writers) or export modules.
 - **Frame kinds** (`interaction` | `exact`) are reported per frame. Tests and owner review use `exact` frames only.
@@ -414,7 +435,8 @@ RenderSnapshot { renderRevision, documentRevision, dpr, cssWidth, cssHeight, cam
    - Committed packet groups get identity transforms, so their effective clip equals the packet clip, and the P0 route is unchanged.
 3. **Axis-preserving transforms only.**
    - Every clipped node's composed transform `[a c e; b d f]` must satisfy `(b = 0 ∧ c = 0) ∨ (a = 0 ∧ d = 0)`, compared **exactly**, with no tolerance. This allows translation, scale, reflection and 90° rotations.
-   - The effective clip is then an axis-aligned rectangle, computed in f64 from the transformed corners (min/max).
+   - The effective clip is then an axis-aligned rectangle computed in f64 **(AM-1, A3)**: its origin is the minimum of the transformed corners, and its extent is `|scale| × size` on each axis. Computing the extent as `max − min` is not bit-exact; `(x + w) − x ≠ w` in general.
+   - In an intersection, an interval contained in the other keeps its exact extent. Unedited packet clips therefore pass through bit for bit (rule 2).
    - **Command validation rejects** anything that would break the rule, with the typed error `clip_transform_unsupported`, before the command is published. This covers a transform or reparent of a clipped node or any of its ancestors, and adding a clip under a non-axis-preserving composed transform.
    - The UI offers **Release clip** (undoable).
    - The rotate-by-90° command emits exact matrices (entries 0 and ±1).
@@ -430,12 +452,98 @@ RenderSnapshot { renderRevision, documentRevision, dpr, cssWidth, cssHeight, cam
 6. **Export mapping.**
    - `bake_draw_list` emits one scene-v1 group per run, in order, with `clip` = the run's effective clip.
    - A run is a maximal sequence of consecutive items sharing the same nearest Group or Layer and the same effective clip.
-   - **Runs may be empty.** A visible Group or Layer with no visible PathObject children yields one run with no items, so an unedited empty packet group round-trips. (The regression corpus has no empty groups, checked at G-0 closure.)
+   - **Empty runs (AM-1, A2).** A visible, not fully clipped Group or Layer whose **whole subtree emits nothing** yields one run with no items, so an unedited empty packet group round-trips. A container whose children all emit their own runs adds no run of its own. An unedited trace's runs therefore equal its packet groups 1:1.
    - A run whose effective clip is empty is omitted entirely, because scene v1 rejects zero-area clips.
-   - The run `id` is the Group's `name` when it is a valid scene-v1 id not used by an earlier run; otherwise it is `run-<k>`. So an unedited P0 trace keeps its original group id and hashes.
+   - **Run ids.** The run `id` is the Group's `name` when it is a valid scene-v1 id not used by an earlier run. Otherwise it is `run-<k>`, and if that is taken too, `run-<k>-<n>` with the smallest free `n`. Run ids are unique, so an unedited P0 trace keeps its original group ids and hashes.
 7. **Outside P1.**
    - Arbitrary path clips and rotated or skewed rect clips require scene v2 (RFC §6.1), with dual-format regression. They come in P2-A, or earlier only after qualification.
    - P1 presets emit no clips. Halftone (P2) emits an artboard rect clip, so the rotated-clip decision (scene v2, or keeping the rejection rule) must be taken before Halftone ships.
+
+## C10 — Document v1 schema and TraceProvenance (new at AM-1)
+`documentSchemaVersion` stays **1**.
+- No `.vectra` file has been released, so v1 is finalised here, before its first release, instead of being bumped.
+- The test golden files are regenerated.
+- Any change after the first release needs a version bump and a forward-only migration (C6).
+
+**Document section** (canonical JSON, C7). Every member listed here is required unless it is marked `?`. Unknown members are rejected.
+```text
+Document { documentSchemaVersion: 1, documentId, nextId, nextChunkId,
+           artboard: { width, height, background: u32 RGBA8888 | null },
+           orderedRootIds, nodesById, stylesById, paletteById, sourceAssetsById }
+Node common    { id, kind, name, visible, locked, localTransform: [a,b,c,d,e,f], clipRef?: {x,y,width,height} }
+Layer          + orderedChildIds, traceProvenance?: TraceProvenance
+Group          + orderedChildIds
+PathObject     + geometry: { chunkId, pathIndex }, styleRef, fillRule: "nonzero" | "evenodd"
+SourceReference+ assetId, sourceToDocument: [a,b,c,d,e,f]
+Style          { id: sty_n, fill: u32 | null, paletteRef: pal_n | null, stroke: { color: u32, width } | null }
+PaletteEntry   { id: pal_n, name (scene-v1 id rule), color: u32 }
+SourceAsset    { id: ast_n, digest (SHA-256, 64 lowercase hex), mime: image/png | image/jpeg | image/webp,
+                 width, height, embedded, decodePolicy, provenance?: { kind: "local-file" } }
+```
+- **Styles.** `fill` and `paletteRef` are mutually exclusive: one colour authority. A style needs a fill, a palette reference or a stroke, because scene v1 cannot export a path with none of them.
+- **Palette.** Each trace commit creates its own palette entries, and `name` keeps the packet `paletteId`.
+- **Artboard.** The artboard `background` is document data: it is the export background in document form (see below).
+- **Transforms.** Every transform entry satisfies `|v| ≤ 1e9`, and the linear part must be non-singular with condition number `σmax/σmin ≤ 1e8`.
+- **Tree shape.** The root holds Layers and SourceReferences; Layers and Groups hold Groups and PathObjects.
+- **Effect stacks** (`effectStack`) are **not part of v1**. They must be absent. Their introduction (P2-B) is a `documentSchemaVersion` 2 change, with the deterministic migration "absent → empty stack".
+- **Source provenance.** The supported v1 subset is `{ kind: "local-file" }`, or the member is absent. Provider provenance (for example image-library attribution) is a later, versioned extension.
+- **`decodePolicy`** is a closed enum. In v1 it has two values:
+  - `"browser-canvas-v1"`: the P1 app path, browser decode to straight RGBA through canvas (TD-GEO-007);
+  - `"external"`: the pixels were supplied by a caller outside the app's decoder, such as engine tools or tests.
+
+  A new decoder needs a new enum value, and P0 defaults are never switched silently.
+
+### TraceProvenance v1
+**Shape:**
+```text
+TraceProvenance { provenanceVersion: 1,
+  chunkId,                                   // the commit-time chunk (historical geometry reference)
+  source: { digest, width, height },         // content identity of the traced pixels (no file names)
+  decodePolicy,                              // as above
+  traceRequest: { presetVersion, seed, maxPixels, maxAnchors, settings },   // the engine request, ≤ 64 KiB canonical
+  engineVersion,                             // ≤ 64 bytes of [0-9A-Za-z.+-]
+  fitMode: "spline" | "polygon" | "pixel" | "precision" | null,           // null for halftone
+  precisionFitVersion: positive integer | null,
+  presetVersion, seed,                       // equal to traceRequest.presetVersion / .seed
+  originalScene: { width, height, background: u32 | null,
+                   palette: [ { id, color: u32 } ],                      // ≤ 65,536, in scene order
+                   metadata: { generator, engineVersion, mode, presetVersion, seed,
+                               sourceWidth, sourceHeight, params } } }
+```
+
+**Storage and validity:**
+- **Where it lives.** Provenance is stored on the **Layer** that a trace commit creates or replaces, and `commitTrace` requires it. Duplicating a traced layer copies the provenance; an explicit replace installs the new trace's provenance.
+- **Historical and immutable.** No command ever modifies provenance. It describes the trace at commit time and **is never authoritative** for current styles, transforms, palette, artboard or geometry; the document is (C3.1).
+- **Load invariants:**
+  - `originalScene.metadata` agrees with `engineVersion`, `presetVersion`, `seed` and `source.width`/`source.height`;
+  - `chunkId` is a well-formed chunk ID below `nextChunkId`.
+- **The chunk reference may become historical.** After a bake or deletion, `chunkId` may no longer resolve. It never resolves to a different chunk, because chunk IDs are never reused (C1).
+- **The source reference is by content.** `source.digest` identifies the traced pixels. Relinking matches digests, and removing the source asset never invalidates provenance.
+- **"Unedited" is computed, never stored.** Layer L is *export-unedited* when the export items and runs contributed by L equal the C3.1 identity draw list of the chunk `L.traceProvenance.chunkId`. That draw list has identity transforms, the packet's styles with palette ids and colours, its fill rules, and one run per packet group with the packet's id and clip, covering every path in order. This survives save and load and edit-then-undo, because it compares current state.
+
+### Export metadata semantics (deterministic)
+| Document | Export `SceneMeta` |
+|---|---|
+| **Unedited single trace:** the whole export draw list equals one export-unedited layer's identity draw list, *and* the artboard equals `originalScene` (width, height, background) | `originalScene.background`, `.palette` and `.metadata`, verbatim. The export is byte-identical to the original trace export |
+| **Edited trace**, **multiple traced layers**, **baked geometry**, or any other content | **Document form** (below) |
+| **Missing source assets** | No effect. Exports use committed geometry, and provenance keeps the source digest |
+
+**Document form:**
+- `background` = the artboard background.
+- `palette` = the palette entries referenced by exported items, in first-use (paint) order. Each entry's scene id is the entry's `name` if that is not already used, else the first unused `p<k>`.
+- `metadata`:
+  ```text
+  { generator: "vectra", engineVersion: <exporting engine>, mode: "document", presetVersion: 0, seed: 0,
+    sourceWidth: ceil(artboard.width), sourceHeight: ceil(artboard.height),
+    params: { documentSchemaVersion: 1,
+              derivedFrom: [ { sourceDigest, mode, presetVersion, seed, fitMode, precisionFitVersion, edited } ] } }
+  ```
+  - `derivedFrom` lists each traced layer that contributes exported items, in paint order.
+  - `edited` is the negation of export-unedited for that layer.
+  - Document form never presents an original trace's parameters as describing the edited artwork. They appear only as labelled provenance entries.
+- No clocks, file names or node IDs are written.
+
+**Number formatting.** The document stores `traceRequest` and `originalScene.metadata.params` as canonical JSON, so a whole-number f64 such as `pitch: 8.0` is written as `8`. The Rust export path re-types `metadata.params` through the engine's `Settings` type before writing it, which restores the engine's own serialisation (`8.0`). Unedited exports are therefore byte-identical.
 
 ## C9 — Measurement boundaries (RFC §17)
 | Measure | Start | End | Context |
@@ -452,3 +560,20 @@ RenderSnapshot { renderRevision, documentRevision, dpr, cssWidth, cssHeight, cam
 | Store commit (G-DOC) | `commit` entry | return | main thread; move, validate-and-derive and publish reported separately |
 
 **Every report states:** browser and version, headed or headless, DPR, viewport, workload hash, rep count, machine, and **machine load**. Clean runs must show no unrelated CPU-bound processes.
+
+## AM-1 — Amendment record (P1-A corrective review)
+Approved by the maintainer on 2026-11-25. These revisions are shared by the G-ENG, G-DOC and integration branches.
+
+| Item | Source | Contract change | Wire impact |
+|---|---|---|---|
+| AR-1 | G-ENG | C3 r2: byte-stream decoding order and step-2 sub-order | none |
+| AR-2 | G-ENG | C5 r2, C8 r2: export draw list with `paletteId`, artboard size and packet-set indices | none (worker protocol unreleased; `protocolVersion` 2) |
+| AR-3 (qualified) | G-ENG | C3 r2: determinism over identical validated scenes across Rust, WASM and TS; native/WASM tracing identity tracked by TD-PLATFORM-007 | none |
+| A1 | G-DOC | C2 r2: `derived()` returns a frozen accessor view | none |
+| A2 | G-DOC | C8 r2: empty-run rule and run-id collisions | none |
+| A3 | G-DOC | C8 r2: bit-exact clip arithmetic | none |
+| Schema | G-DOC | C10 r1: `stylesById`, palette names, artboard background, TraceProvenance, export metadata semantics, defined subsets | `documentSchemaVersion` 1 finalised before release |
+| Container | G-DOC | C7 r2: header-relative offsets, contiguous sections | `formatVersion` 1 (unreleased) |
+| Tolerance | G-DOC | C10: transform entries `|v| ≤ 1e9`, condition number ≤ 1e8 | none |
+| C4 | G-ENG | C4 r2: finalised signatures, `sceneToPacket`, `exportDrawListScene` | none |
+
