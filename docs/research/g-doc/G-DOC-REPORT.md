@@ -1,6 +1,6 @@
 # G-DOC — Document model, GeometryStore, history and container v1 (P1-A)
 
-**Status: IMPLEMENTED ON A REVIEW BRANCH, awaiting independent review.** Not pushed, no PR opened, not merged. Nothing here is closed without maintainer acceptance.
+**Status: IMPLEMENTED; PR open for maintainer review.** Not merged. Nothing here is closed without maintainer acceptance. The lead engineer's review, re-run and integration cross-check are in §5.1 and §10.1.
 
 | | |
 |---|---|
@@ -163,6 +163,28 @@ The five structural commands are: layer transform, path rename, group hide, path
 - **Trace-commit transaction.** The store `commit` meets ≤ 50 ms. The whole trace-commit transaction (164 ms at A) is relevant to G-TRACE's import → visible budget.
 - **Load.** The machine was heavily loaded throughout, so absolute numbers are pessimistic. A quiet-machine re-run is NOT RUN.
 
+### 5.1 Lead-engineer re-run (lower load) and review
+The same command (`bench.mjs --reps 7`) was re-run by the lead engineer after the gate agent finished: load average 11.3 at start and 11.2 at end, with 13 `ngspice` processes. That is still not a clean run (`artifacts/bench-rerun-lead.json`).
+
+| Measure (ms, median) | A (50k paths) | B (250k paths) | Budget | Verdict |
+|---|---|---|---|---|
+| `commit` total (move / validate+derive / publish) | 24.2 (0.14 / 24.0 / 0.10) | 31.8 (0.08 / 31.7 / 0.05) | ≤ 50 | **met** |
+| `copyIncoming` (separate) | 2.8 | 2.3 | — | |
+| structural undo / redo, worst of 5 | 0.010 / 0.004 | 0.005 / 0.005 | ≤ 16 | **met** |
+| open, `deflate-raw` | 457 | 1,493 | ≤ 1,000 | A met; **B miss** |
+| open, `none` | 254 | 1,449 | ≤ 1,000 | A met; **B miss** |
+| *Information:* structural command dispatch | 36.6–44.9 | 257–331 | — | **risk for G-EDIT** |
+
+The conclusions are unchanged at the lower load:
+- the open miss at 250k paths is real and follows node count;
+- dispatching a structural command is O(nodes): about 0.3 s at 250k paths. That needs persistent maps and incremental invariants before any interactive-latency claim (G-EDIT).
+
+The lead engineer also checked the following:
+- **Ownership:** every changed file is inside G-DOC's paths (`git diff --name-only main..HEAD`).
+- **Fixtures:** they are procedural only.
+- **Checks:** `pnpm exec vp check` PASS and `pnpm exec vp test` 172/172 PASS in the worktree.
+- **C2:** the `GeometryStore.commit` sequence was read against C2 (shape check → `structuredClone` transfer → manifest copy → validation of the owned bytes → publish).
+
 ## 6. Contract conformance notes
 **C1.** Node IDs `^[a-z]{3}_[0-9]{1,15}$` with prefixes `lay grp pth src ast sty pal`, allocated from one shared `nextId`, never reused. The invariant pass rejects a number used twice across kinds. Chunk IDs `chk_<n>` come from the store's own counter. Both high-water marks are persisted and live outside undoable state (duplicate then undo is clean, and `nextId` stays advanced). `documentRevision` increments on every committed transaction, including undo and redo, and is not persisted.
 
@@ -271,3 +293,12 @@ A3. **C8 rules 2–4: clip arithmetic.** "Computed in f64 from the transformed c
 - **Tests that move.** The G-DOC suites build packets with `fixturePacket`/`syntheticPacket` from the testing directory. They need G-ENG packets or fixtures as their source.
 - **Golden.** The golden depends only on the C3.0 record layout and canonical JSON. G-ENG's encoder must produce identical record bytes for it to stay valid, which is a useful conformance check. Regenerate it only if `from_scene` builds a different style table; `make-golden.mjs --check` detects that.
 - **Re-measure** the commit benchmark with the production validator.
+
+### 10.1 Cross-check with G-ENG (done before the PRs)
+- **Trial merge.** In a scratch worktree, `main` + G-ENG (PR #10) + G-DOC was merged.
+  - The only conflict is the expected one: adjacent appended lines under TD-ARCH-003 in `docs/TECHNICAL-DEBT.md`. Keep both lines.
+  - The merged tree passes `vp check`, and `vp test` passes 227/227 (14 existing + 55 G-ENG + 158 G-DOC).
+- **Validator agreement.** G-ENG's 34 Rust-and-TS `arrays` conformance cases were run through this gate's test-only adapter *and* G-ENG's production validator. They agreed 34/34 with the expected codes.
+- **Port mapping for integration.** `PacketLimits` here has `maxStyles`, `maxGroups` and `maxManifestBytes`, which G-ENG's `Limits` does not: G-ENG uses the C3 constants. Its validator throws `PacketError`, whereas the port returns `{ok, code}`. The integration PR needs a small adapter for both. Canonical JSON exists in both gates (`src/persistence/canonical-json.ts` and G-ENG's `canonicalJson`), and the integration keeps one.
+- **Observation 8 (palette ids)** matches G-ENG's amendment request AR-2 (the export draw list carries `paletteId` and the artboard size).
+

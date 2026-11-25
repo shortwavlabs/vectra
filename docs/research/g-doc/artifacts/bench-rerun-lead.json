@@ -1,0 +1,316 @@
+{
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "cpus": 18,
+  "totalMemGiB": 128,
+  "loadavgStart": [
+    11.32,
+    13.47,
+    16.01
+  ],
+  "reps": 7,
+  "validator": "test-only adapter (src/document/testing/packet-adapter.ts)",
+  "configs": [
+    {
+      "config": "A",
+      "P": 50000,
+      "V": 1050000,
+      "C": 3903180,
+      "anchors": 1000000,
+      "packetBytes": 33075448,
+      "commit": {
+        "moveMs": {
+          "median": 0.137,
+          "min": 0.096,
+          "max": 0.331
+        },
+        "validateAndDeriveMs": {
+          "median": 23.99,
+          "min": 18.758,
+          "max": 24.617
+        },
+        "publishMs": {
+          "median": 0.104,
+          "min": 0.08,
+          "max": 0.136
+        },
+        "totalMs": {
+          "median": 24.194,
+          "min": 19.025,
+          "max": 24.959
+        },
+        "copyIncomingMs": {
+          "median": 2.817,
+          "min": 2.339,
+          "max": 5.254
+        },
+        "budgetMs": 50
+      },
+      "commitTraceDispatchMs": 147.998,
+      "nodes": 50009,
+      "structural": {
+        "transformLayer": {
+          "dispatchMs": {
+            "median": 36.569,
+            "min": 35.81,
+            "max": 37.901
+          },
+          "undoMs": {
+            "median": 0.01,
+            "min": 0.006,
+            "max": 0.038
+          },
+          "redoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.018
+          }
+        },
+        "renamePath": {
+          "dispatchMs": {
+            "median": 36.56,
+            "min": 34.48,
+            "max": 36.886
+          },
+          "undoMs": {
+            "median": 0.005,
+            "min": 0.004,
+            "max": 0.008
+          },
+          "redoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.009
+          }
+        },
+        "hideGroup": {
+          "dispatchMs": {
+            "median": 36.945,
+            "min": 34.286,
+            "max": 50.275
+          },
+          "undoMs": {
+            "median": 0.005,
+            "min": 0.004,
+            "max": 0.006
+          },
+          "redoMs": {
+            "median": 0.003,
+            "min": 0.003,
+            "max": 0.031
+          }
+        },
+        "recolourPath": {
+          "dispatchMs": {
+            "median": 44.927,
+            "min": 43.644,
+            "max": 47.22
+          },
+          "undoMs": {
+            "median": 0.004,
+            "min": 0.004,
+            "max": 0.005
+          },
+          "redoMs": {
+            "median": 0.003,
+            "min": 0.003,
+            "max": 0.003
+          }
+        },
+        "deleteGroup": {
+          "dispatchMs": {
+            "median": 41.609,
+            "min": 39.8,
+            "max": 43.649
+          },
+          "undoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.004
+          },
+          "redoMs": {
+            "median": 0.002,
+            "min": 0.002,
+            "max": 0.003
+          }
+        }
+      },
+      "structuralBudgetMs": 16,
+      "open": {
+        "deflate-raw": {
+          "fileBytes": 24871773,
+          "saveMs": 1648.5,
+          "openMs": {
+            "median": 457.231,
+            "min": 438.529,
+            "max": 461.326
+          },
+          "budgetMs": 1000
+        },
+        "none": {
+          "fileBytes": 43884347,
+          "saveMs": 251.4,
+          "openMs": {
+            "median": 253.883,
+            "min": 236.939,
+            "max": 256.636
+          },
+          "budgetMs": 1000
+        }
+      }
+    },
+    {
+      "config": "B",
+      "P": 250000,
+      "V": 1250000,
+      "C": 3502836,
+      "anchors": 1000000,
+      "packetBytes": 33272696,
+      "commit": {
+        "moveMs": {
+          "median": 0.081,
+          "min": 0.069,
+          "max": 0.109
+        },
+        "validateAndDeriveMs": {
+          "median": 31.653,
+          "min": 30.924,
+          "max": 32.323
+        },
+        "publishMs": {
+          "median": 0.048,
+          "min": 0.045,
+          "max": 0.06
+        },
+        "totalMs": {
+          "median": 31.791,
+          "min": 31.055,
+          "max": 32.477
+        },
+        "copyIncomingMs": {
+          "median": 2.297,
+          "min": 2.204,
+          "max": 2.886
+        },
+        "budgetMs": 50
+      },
+      "commitTraceDispatchMs": 430.787,
+      "nodes": 250009,
+      "structural": {
+        "transformLayer": {
+          "dispatchMs": {
+            "median": 257.056,
+            "min": 255.798,
+            "max": 261.51
+          },
+          "undoMs": {
+            "median": 0.005,
+            "min": 0.004,
+            "max": 0.009
+          },
+          "redoMs": {
+            "median": 0.003,
+            "min": 0.002,
+            "max": 0.004
+          }
+        },
+        "renamePath": {
+          "dispatchMs": {
+            "median": 265.624,
+            "min": 257.74,
+            "max": 294.998
+          },
+          "undoMs": {
+            "median": 0.005,
+            "min": 0.003,
+            "max": 0.043
+          },
+          "redoMs": {
+            "median": 0.005,
+            "min": 0.003,
+            "max": 0.007
+          }
+        },
+        "hideGroup": {
+          "dispatchMs": {
+            "median": 266.449,
+            "min": 263.604,
+            "max": 267.746
+          },
+          "undoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.038
+          },
+          "redoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.006
+          }
+        },
+        "recolourPath": {
+          "dispatchMs": {
+            "median": 331.433,
+            "min": 325.946,
+            "max": 356.833
+          },
+          "undoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.01
+          },
+          "redoMs": {
+            "median": 0.003,
+            "min": 0.002,
+            "max": 0.016
+          }
+        },
+        "deleteGroup": {
+          "dispatchMs": {
+            "median": 305.285,
+            "min": 302.308,
+            "max": 309.952
+          },
+          "undoMs": {
+            "median": 0.004,
+            "min": 0.003,
+            "max": 0.007
+          },
+          "redoMs": {
+            "median": 0.003,
+            "min": 0.003,
+            "max": 0.007
+          }
+        }
+      },
+      "structuralBudgetMs": 16,
+      "open": {
+        "deflate-raw": {
+          "fileBytes": 25744203,
+          "saveMs": 3226.6,
+          "openMs": {
+            "median": 1493.086,
+            "min": 1469.687,
+            "max": 1536.319
+          },
+          "budgetMs": 1000
+        },
+        "none": {
+          "fileBytes": 88081652,
+          "saveMs": 1220.3,
+          "openMs": {
+            "median": 1449.364,
+            "min": 1314.998,
+            "max": 1496.421
+          },
+          "budgetMs": 1000
+        }
+      }
+    }
+  ],
+  "loadavgEnd": [
+    11.23,
+    13.18,
+    15.78
+  ]
+}
