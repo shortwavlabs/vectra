@@ -1,0 +1,16 @@
+- region "Layers":
+  - status
+- dialog "Export artwork":
+  - heading "Export artwork" [level=2]
+  - paragraph: Vector paths only, generated on this device by the engine. Nothing is uploaded.
+  - group "Format":
+    - text: Format
+    - radio "SVG (editable vector)" [checked]
+    - text: SVG (editable vector)
+    - radio "PDF (vector, physical size)"
+    - text: PDF (vector, physical size)
+  - text: File name
+  - textbox "File name": artwork
+  - button "Cancel"
+  - button "Export SVG"
+  - button "Close"

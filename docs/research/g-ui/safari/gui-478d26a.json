@@ -1,0 +1,990 @@
+{
+  "commit": "478d26a2512933993b7358fa7677acf07914ec89",
+  "loadavgStart": [1.5810546875, 1.64697265625, 1.7236328125],
+  "instrumentation": "workspace.html is served with <script src=\"/__probe.js\"> first in <head> (same-origin, allowed by the unchanged CSP)",
+  "scenarios": [
+    {
+      "name": "CSP: the shell loads clean; the detector fires on an injected <style>",
+      "result": "PASS",
+      "ms": 618,
+      "checks": [
+        {
+          "label": "no violations or errors during the load",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        },
+        {
+          "label": "probe loaded first",
+          "pass": true
+        },
+        {
+          "label": "no inline <style> elements",
+          "pass": true
+        },
+        {
+          "label": "Base UI ScrollArea is on screen",
+          "pass": true
+        },
+        {
+          "label": "the injected <style> is reported as style-src",
+          "pass": true,
+          "detail": [
+            {
+              "directive": "style-src-elem",
+              "blocked": "inline",
+              "source": "",
+              "sample": ""
+            }
+          ]
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "positive control: without CSPProvider, Base UI's inline <style> is blocked",
+      "result": "PASS",
+      "ms": 600,
+      "checks": [
+        {
+          "label": "violations reported",
+          "pass": true,
+          "detail": {
+            "csp": [
+              {
+                "directive": "style-src-elem",
+                "blocked": "inline",
+                "source": "http://127.0.0.1:52262/assets/scheduler-C11VzPvZ.js",
+                "sample": ""
+              }
+            ],
+            "errors": ["error: unknown"]
+          }
+        },
+        {
+          "label": "all are style-src",
+          "pass": true,
+          "detail": [
+            {
+              "directive": "style-src-elem",
+              "blocked": "inline",
+              "source": "http://127.0.0.1:52262/assets/scheduler-C11VzPvZ.js",
+              "sample": ""
+            }
+          ]
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "tool rail: names, pressed state, unavailable tools, keyboard and tooltips",
+      "result": "PASS",
+      "ms": 1352,
+      "checks": [
+        {
+          "label": "names",
+          "pass": true,
+          "detail": [
+            "Select",
+            "Trace",
+            "Smooth, not available yet",
+            "Simplify, not available yet",
+            "Cleanup, not available yet",
+            "Recolor"
+          ]
+        },
+        {
+          "label": "Select pressed",
+          "pass": true
+        },
+        {
+          "label": "Smooth aria-disabled",
+          "pass": true
+        },
+        {
+          "label": "Smooth not pressed",
+          "pass": true
+        },
+        {
+          "label": "Simplify aria-disabled",
+          "pass": true
+        },
+        {
+          "label": "Simplify not pressed",
+          "pass": true
+        },
+        {
+          "label": "Cleanup aria-disabled",
+          "pass": true
+        },
+        {
+          "label": "Cleanup not pressed",
+          "pass": true
+        },
+        {
+          "label": "Recolor shortcut",
+          "pass": true
+        },
+        {
+          "label": "Tab: focus on Trace",
+          "pass": true,
+          "detail": {
+            "inDialog": false,
+            "name": "Trace",
+            "tag": "BUTTON",
+            "hasFocus": true
+          }
+        },
+        {
+          "label": "Tab: tooltip names Trace",
+          "pass": true,
+          "detail": "TraceT"
+        },
+        {
+          "label": "Tab: Enter selects Trace",
+          "pass": true
+        },
+        {
+          "label": "Tab: tooltip explains Smooth",
+          "pass": true,
+          "detail": "Smooth, not available yet"
+        },
+        {
+          "label": "Tab: the unavailable tool does nothing",
+          "pass": true
+        },
+        {
+          "label": "Option-Tab: focus on Trace",
+          "pass": true,
+          "detail": {
+            "inDialog": false,
+            "name": "Trace",
+            "tag": "BUTTON",
+            "hasFocus": true
+          }
+        },
+        {
+          "label": "Option-Tab: tooltip names Trace",
+          "pass": true,
+          "detail": "TraceT"
+        },
+        {
+          "label": "Option-Tab: Enter selects Trace",
+          "pass": true
+        },
+        {
+          "label": "Option-Tab: tooltip explains Smooth",
+          "pass": true,
+          "detail": "Smooth, not available yet"
+        },
+        {
+          "label": "Option-Tab: the unavailable tool does nothing",
+          "pass": true
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shortcuts dialog: key and button, focus trap, inert shortcuts, focus return",
+      "result": "PASS",
+      "ms": 1395,
+      "checks": [
+        {
+          "label": "focus stays in the dialog (Tab and Option-Tab, both directions)",
+          "pass": true,
+          "detail": []
+        },
+        {
+          "label": "global shortcut inert inside the dialog",
+          "pass": true
+        },
+        {
+          "label": "focus returns to the trigger",
+          "pass": true,
+          "detail": {
+            "inDialog": false,
+            "name": "Keyboard shortcuts",
+            "tag": "BUTTON",
+            "hasFocus": true
+          }
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "global shortcuts: fire on the page, not in form controls",
+      "result": "PASS",
+      "ms": 156,
+      "checks": [
+        {
+          "label": "t selects Trace",
+          "pass": true
+        },
+        {
+          "label": "ignored in the radio group",
+          "pass": true
+        },
+        {
+          "label": "r selects Recolor",
+          "pass": true
+        },
+        {
+          "label": "v selects Select",
+          "pass": true
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "resizable panels: keyboard and pointer, inspector 288–336 px",
+      "result": "PASS",
+      "ms": 303,
+      "checks": [
+        {
+          "label": "keyboard narrows within bounds",
+          "pass": true,
+          "detail": {
+            "w0": 320,
+            "wk": 288
+          }
+        },
+        {
+          "label": "pointer widens within bounds",
+          "pass": true,
+          "detail": {
+            "wk": 288,
+            "wp": 336
+          }
+        },
+        {
+          "label": "layers separator resizes",
+          "pass": true
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "tokens: contrast from the running build; dual focus ring",
+      "result": "PASS",
+      "ms": 513,
+      "checks": [
+        {
+          "label": "every pair meets its threshold",
+          "pass": true,
+          "detail": []
+        },
+        {
+          "label": "focus-visible",
+          "pass": true,
+          "detail": {
+            "offset": "2px",
+            "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px",
+            "shadowSrgb": [[25, 26, 28]],
+            "outlineSrgb": [185, 232, 123],
+            "outlineColour": "rgb(185, 232, 123)",
+            "outline": "solid 2px",
+            "focusVisible": true,
+            "name": "Trace"
+          }
+        },
+        {
+          "label": "solid 2px lime outline",
+          "pass": true,
+          "detail": {
+            "offset": "2px",
+            "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px",
+            "shadowSrgb": [[25, 26, 28]],
+            "outlineSrgb": [185, 232, 123],
+            "outlineColour": "rgb(185, 232, 123)",
+            "outline": "solid 2px",
+            "focusVisible": true,
+            "name": "Trace"
+          }
+        },
+        {
+          "label": "2px offset",
+          "pass": true,
+          "detail": {
+            "offset": "2px",
+            "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px",
+            "shadowSrgb": [[25, 26, 28]],
+            "outlineSrgb": [185, 232, 123],
+            "outlineColour": "rgb(185, 232, 123)",
+            "outline": "solid 2px",
+            "focusVisible": true,
+            "name": "Trace"
+          }
+        },
+        {
+          "label": "dark inner ring",
+          "pass": true,
+          "detail": {
+            "offset": "2px",
+            "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px",
+            "shadowSrgb": [[25, 26, 28]],
+            "outlineSrgb": [185, 232, 123],
+            "outlineColour": "rgb(185, 232, 123)",
+            "outline": "solid 2px",
+            "focusVisible": true,
+            "name": "Trace"
+          }
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "import: file input, local trace, same-origin requests only",
+      "result": "PASS",
+      "ms": 228,
+      "checks": [
+        {
+          "label": "one layer",
+          "pass": true
+        },
+        {
+          "label": "title",
+          "pass": true
+        },
+        {
+          "label": "complexity",
+          "pass": true
+        },
+        {
+          "label": "no off-origin requests",
+          "pass": true,
+          "detail": []
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "slider (Scale): keyboard steps coalesce into one undo entry",
+      "result": "PASS",
+      "ms": 276,
+      "checks": [
+        {
+          "label": "value 100",
+          "pass": true
+        },
+        {
+          "label": "range",
+          "pass": true
+        },
+        {
+          "label": "one slider",
+          "pass": true
+        },
+        {
+          "label": "105 after five steps",
+          "pass": true,
+          "detail": "105"
+        },
+        {
+          "label": "one undo restores 100",
+          "pass": true,
+          "detail": "100"
+        },
+        {
+          "label": "trace still there",
+          "pass": true
+        },
+        {
+          "label": "redo 105",
+          "pass": true
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "numeric field: Enter commits, Escape reverts, arrow steps coalesce",
+      "result": "PASS",
+      "ms": 285,
+      "checks": [
+        {
+          "label": "Enter commits",
+          "pass": true,
+          "detail": "20"
+        },
+        {
+          "label": "Escape reverts",
+          "pass": true,
+          "detail": "20"
+        },
+        {
+          "label": "arrows step",
+          "pass": true,
+          "detail": "23"
+        },
+        {
+          "label": "one undo for the arrow steps",
+          "pass": true,
+          "detail": "20"
+        },
+        {
+          "label": "undo the Enter commit",
+          "pass": true,
+          "detail": "0"
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "colour picker: keyboard area, hue, hex draft, Apply once, Escape cancels",
+      "result": "PASS",
+      "ms": 730,
+      "checks": [
+        {
+          "label": "area moves by keyboard",
+          "pass": true
+        },
+        {
+          "label": "hue steps",
+          "pass": true
+        },
+        {
+          "label": "hex draft kept key by key",
+          "pass": true,
+          "detail": ["#", "#3", "#33", "#336", "#3366", "#3366c", "#3366cc"]
+        },
+        {
+          "label": "draft colour",
+          "pass": true
+        },
+        {
+          "label": "focus back on the trigger",
+          "pass": true,
+          "detail": {
+            "inDialog": false,
+            "name": "Fill colour: #3366cc. Edit colour",
+            "tag": "BUTTON",
+            "hasFocus": true
+          }
+        },
+        {
+          "label": "one undo restores",
+          "pass": true
+        },
+        {
+          "label": "redo",
+          "pass": true
+        },
+        {
+          "label": "Escape cancels",
+          "pass": true
+        },
+        {
+          "label": "focus back on the trigger after Escape",
+          "pass": true,
+          "detail": {
+            "inDialog": false,
+            "name": "Fill colour: #3366cc. Edit colour",
+            "tag": "BUTTON",
+            "hasFocus": true
+          }
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "layers: visibility, lock, rename, keyboard reorder with live region",
+      "result": "PASS",
+      "ms": 891,
+      "checks": [
+        {
+          "label": "order",
+          "pass": true,
+          "detail": ["nested_rings", "adjacent_colors"]
+        },
+        {
+          "label": "locked: reorder disabled",
+          "pass": true
+        },
+        {
+          "label": "menu items disabled while locked",
+          "pass": true,
+          "detail": [true, true, true, true, true]
+        },
+        {
+          "label": "Escape cancels rename",
+          "pass": true,
+          "detail": ["nested_rings", "adjacent_colors"]
+        },
+        {
+          "label": "Enter commits rename",
+          "pass": true,
+          "detail": ["nested_rings", "Colours"]
+        },
+        {
+          "label": "undo rename",
+          "pass": true,
+          "detail": ["nested_rings", "adjacent_colors"]
+        },
+        {
+          "label": "live region announces the drop",
+          "pass": true,
+          "detail": "nested_rings dropped at position 2 of 2."
+        },
+        {
+          "label": "one undo for the reorder",
+          "pass": true,
+          "detail": ["nested_rings", "adjacent_colors"]
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "export dialog: keyboard open, focus trap, Escape returns focus",
+      "result": "PASS",
+      "ms": 1818,
+      "checks": [
+        {
+          "label": "focus stays in the dialog",
+          "pass": true,
+          "detail": []
+        },
+        {
+          "label": "focus returns to Export",
+          "pass": true,
+          "detail": {
+            "inDialog": false,
+            "name": "Export",
+            "tag": "BUTTON",
+            "hasFocus": true
+          }
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "reduced motion and colour scheme as Safari reports them",
+      "result": "PASS",
+      "ms": 86,
+      "checks": [
+        {
+          "label": "transitions present when reduced motion is off",
+          "pass": true,
+          "detail": {
+            "reduce": false,
+            "dark": true,
+            "transition": "0.15s"
+          }
+        },
+        {
+          "label": "no CSP violations or page errors",
+          "pass": true,
+          "detail": {
+            "csp": [],
+            "errors": []
+          }
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "environment": [
+    "Neither Safari's 'Press Tab to highlight each item on a webpage' nor macOS keyboard navigation (AppleKeyboardUIMode) is set on this machine, yet plain Tab reaches buttons in the WebDriver session: Safari automation sessions enable full keyboard access, so plain-Tab results do not show stock Safari. Stock Safari reaches buttons with Option-Tab, which every keyboard check here also runs."
+  ],
+  "notRun": [
+    "Reduced-motion emulation (WebDriver has none; the system setting was not changed)",
+    "Export download bytes (Safari download prompt; engine output is covered by the Playwright suites and bundle v1)",
+    "VoiceOver smoke test"
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2"
+  },
+  "servedCsp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' blob: data:; style-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  "positiveControl": {
+    "csp": [
+      {
+        "directive": "style-src-elem",
+        "blocked": "inline",
+        "source": "http://127.0.0.1:52262/assets/scheduler-C11VzPvZ.js",
+        "sample": ""
+      }
+    ],
+    "errors": ["error: unknown"]
+  },
+  "plainTabFromSelect": {
+    "inDialog": false,
+    "name": "Trace",
+    "tag": "BUTTON",
+    "hasFocus": true
+  },
+  "inspectorWidths": {
+    "initial": 320,
+    "keyboard": 288,
+    "pointer": 336
+  },
+  "tokens": {
+    "muted-foreground": {
+      "computed": "rgb(169, 171, 173)",
+      "srgb": [169, 171, 173]
+    },
+    "paper": {
+      "computed": "rgb(238, 232, 216)",
+      "srgb": [238, 232, 216]
+    },
+    "primary-foreground": {
+      "computed": "rgb(32, 37, 26)",
+      "srgb": [32, 37, 26]
+    },
+    "foreground": {
+      "computed": "rgb(238, 238, 240)",
+      "srgb": [238, 238, 240]
+    },
+    "background": {
+      "computed": "rgb(25, 26, 28)",
+      "srgb": [25, 26, 28]
+    },
+    "control-border": {
+      "computed": "rgb(120, 122, 126)",
+      "srgb": [120, 122, 126]
+    },
+    "border": {
+      "computed": "rgb(65, 67, 71)",
+      "srgb": [65, 67, 71]
+    },
+    "canvas-surround": {
+      "computed": "rgb(48, 49, 52)",
+      "srgb": [48, 49, 52]
+    },
+    "primary": {
+      "computed": "rgb(185, 232, 123)",
+      "srgb": [185, 232, 123]
+    },
+    "warning": {
+      "computed": "rgb(242, 193, 78)",
+      "srgb": [242, 193, 78]
+    },
+    "panel": {
+      "computed": "rgb(33, 34, 36)",
+      "srgb": [33, 34, 36]
+    },
+    "destructive": {
+      "computed": "rgb(255, 143, 133)",
+      "srgb": [255, 143, 133]
+    },
+    "elevated": {
+      "computed": "rgb(41, 42, 44)",
+      "srgb": [41, 42, 44]
+    }
+  },
+  "contrast": [
+    {
+      "pair": "foreground on background",
+      "ratio": 15.03,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "muted-foreground on background",
+      "ratio": 7.56,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "primary on background",
+      "ratio": 12.35,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "destructive on background",
+      "ratio": 7.89,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "warning on background",
+      "ratio": 10.38,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "control-border on background",
+      "ratio": 4.05,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "primary on background",
+      "ratio": 12.35,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "foreground on panel",
+      "ratio": 13.74,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "muted-foreground on panel",
+      "ratio": 6.91,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "primary on panel",
+      "ratio": 11.29,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "destructive on panel",
+      "ratio": 7.22,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "warning on panel",
+      "ratio": 9.49,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "control-border on panel",
+      "ratio": 3.7,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "primary on panel",
+      "ratio": 11.29,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "foreground on elevated",
+      "ratio": 12.4,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "muted-foreground on elevated",
+      "ratio": 6.24,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "primary on elevated",
+      "ratio": 10.19,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "destructive on elevated",
+      "ratio": 6.51,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "warning on elevated",
+      "ratio": 8.56,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "control-border on elevated",
+      "ratio": 3.34,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "primary on elevated",
+      "ratio": 10.19,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "foreground on canvas-surround",
+      "ratio": 11.22,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "muted-foreground on canvas-surround",
+      "ratio": 5.65,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "primary on canvas-surround",
+      "ratio": 9.22,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "destructive on canvas-surround",
+      "ratio": 5.9,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "warning on canvas-surround",
+      "ratio": 7.75,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "control-border on canvas-surround",
+      "ratio": 3.02,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "primary on canvas-surround",
+      "ratio": 9.22,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "primary-foreground on primary",
+      "ratio": 11.11,
+      "need": 4.5,
+      "pass": true
+    },
+    {
+      "pair": "background on paper",
+      "ratio": 14.24,
+      "need": 3,
+      "pass": true
+    },
+    {
+      "pair": "background on primary",
+      "ratio": 12.35,
+      "need": 3,
+      "pass": true
+    }
+  ],
+  "focusRing": {
+    "offset": "2px",
+    "shadow": "rgb(25, 26, 28) 0px 0px 0px 2px",
+    "shadowSrgb": [[25, 26, 28]],
+    "outlineSrgb": [185, 232, 123],
+    "outlineColour": "rgb(185, 232, 123)",
+    "outline": "solid 2px",
+    "focusVisible": true,
+    "name": "Trace"
+  },
+  "media": {
+    "reduce": false,
+    "dark": true,
+    "transition": "0.15s"
+  },
+  "screenshots": [
+    {
+      "window": [1920, 1080],
+      "viewport": {
+        "w": 1920,
+        "h": 1028,
+        "dpr": 2
+      },
+      "file": "tests/output/safari/gui-1920.png"
+    },
+    {
+      "window": [1366, 768],
+      "viewport": {
+        "w": 1366,
+        "h": 716,
+        "dpr": 2
+      },
+      "file": "tests/output/safari/gui-1366.png"
+    }
+  ],
+  "loadavgEnd": [1.7470703125, 1.68017578125, 1.73388671875]
+}

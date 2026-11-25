@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins, type Plugin } from "vite-plus";
 
@@ -62,7 +63,14 @@ function buildId(): string {
     }
   };
   for (const dir of ["src", "public", "packages/vector-engine-wasm/pkg"]) walk(dir);
-  files.push("index.html", "package.json", "pnpm-lock.yaml", "vite.config.ts", "tsconfig.json");
+  files.push(
+    "index.html",
+    "workspace.html",
+    "package.json",
+    "pnpm-lock.yaml",
+    "vite.config.ts",
+    "tsconfig.json",
+  );
   const h = createHash("sha256").update(process.env.VECTRA_BUILD_SALT ?? "");
   for (const f of files)
     h.update(f)
@@ -94,6 +102,10 @@ export default defineConfig({
       "docs/research/p0-r-geo/artifacts/**",
       "docs/research/p0-r-geo/owner-acceptance-bundle-v2/**",
       "docs/mockups/**",
+      "docs/research/g-ui/aria/**",
+      // Copied registry sources stay byte-identical to upstream (SHA-256 provenance in
+      // src/ui/registry/PROVENANCE.json); they are still linted and type-checked.
+      "src/ui/registry/**",
     ],
   },
   lint: {
@@ -104,13 +116,27 @@ export default defineConfig({
       "react/only-export-components": ["warn", { allowConstantExport: true }],
       "vite-plus/prefer-vite-plus-imports": "error",
     },
+    // Upstream registry idioms (variant exports next to components, destructured handler
+    // props); kept as copied rather than patched.
+    overrides: [
+      {
+        files: ["src/ui/registry/**"],
+        rules: { "react/only-export-components": "off", "typescript/unbound-method": "off" },
+      },
+    ],
     options: { typeAware: true, typeCheck: true },
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
   },
-  plugins: lazyPlugins(() => [react(), productionHeadersPlugin()]),
+  plugins: lazyPlugins(() => [react(), tailwindcss(), productionHeadersPlugin()]),
   base: "./",
   worker: { format: "es" },
-  build: { target: "es2022", sourcemap: false, assetsInlineLimit: 0 },
+  build: {
+    target: "es2022",
+    sourcemap: false,
+    assetsInlineLimit: 0,
+    // Two pages: the P0 engineering workbench and the G-UI workspace shell.
+    rolldownOptions: { input: { index: "index.html", workspace: "workspace.html" } },
+  },
   test: {
     include: ["src/**/*.test.ts", "tests/unit/**/*.test.ts"],
   },
