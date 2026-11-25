@@ -6,6 +6,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium, firefox, webkit } from "@playwright/test";
 
 const [mode, engines, renderers, scenes, reps = "6"] = process.argv.slice(2);
+const extra = process.env.QS ?? ""; // e.g. "&cache=1"
 const types = { chromium, firefox, webkit };
 const shotDir = new URL("../../../tests/output/rfc-002-review/correctness/", import.meta.url);
 mkdirSync(shotDir, { recursive: true });
@@ -29,7 +30,7 @@ for (const engine of engines.split(",")) {
       page.on("pageerror", (e) => errors.push(String(e)));
       page.on("console", (m) => m.type() === "error" && !m.text().includes("favicon") && errors.push(m.text()));
       const checks = corr && CHECKS[name] ? `&checks=${encodeURIComponent(JSON.stringify(CHECKS[name]))}` : "";
-      const url = `http://127.0.0.1:4199/bench/render.html?renderer=${renderer}&kind=${kind}&name=${name}&mode=${mode}&reps=${reps}&zoom=${z}${checks}`;
+      const url = `http://127.0.0.1:4199/bench/render.html?renderer=${renderer}&kind=${kind}&name=${name}&mode=${mode}&reps=${reps}&zoom=${z}${checks}${extra}`;
       const t0 = Date.now();
       let done;
       try {
@@ -43,7 +44,7 @@ for (const engine of engines.split(",")) {
         await page.locator("#stage").screenshot({ path: new URL(file, shotDir).pathname });
         done.screenshot = file;
       }
-      const row = { engine, version: browser.version(), renderer, kind, name, zoom: Number(z), wallMs: Date.now() - t0, errors, ...done };
+      const row = { engine, version: browser.version(), renderer: renderer + (extra.includes("cache=1") ? "+cache" : ""), kind, name, zoom: Number(z), wallMs: Date.now() - t0, errors, ...done };
       out.push(row);
       if (process.env.OUT) writeFileSync(process.env.OUT, JSON.stringify(out)); // incremental
       console.error(engine, renderer, name, z, done.ok ? "ok" : done.error, `${((Date.now() - t0) / 1000).toFixed(1)}s`);

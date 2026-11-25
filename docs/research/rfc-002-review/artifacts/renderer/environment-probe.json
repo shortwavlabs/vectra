@@ -1,0 +1,152 @@
+[
+  {
+    "engine": "chromium",
+    "headless": true,
+    "version": "159.0.8154.6",
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      800
+    ],
+    "screen": [
+      1280,
+      800
+    ],
+    "hardwareConcurrency": 18,
+    "deviceMemory": 32,
+    "webgl": "webgl2",
+    "glVendor": "Google Inc. (Google)",
+    "glRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",
+    "maxTextureSize": 8192,
+    "rafMedianMs": 16.699999999999932,
+    "rafFrames": 60,
+    "crossOriginIsolated": false,
+    "jsHeap": 3760000000
+  },
+  {
+    "engine": "chromium",
+    "headless": false,
+    "version": "159.0.8154.6",
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      800
+    ],
+    "screen": [
+      1280,
+      800
+    ],
+    "hardwareConcurrency": 18,
+    "deviceMemory": 32,
+    "webgl": "webgl2",
+    "glVendor": "Google Inc. (Apple)",
+    "glRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5 Max, Unspecified Version)",
+    "maxTextureSize": 16384,
+    "rafMedianMs": 16.69999999999999,
+    "rafFrames": 60,
+    "crossOriginIsolated": false,
+    "jsHeap": 4395630592
+  },
+  {
+    "engine": "firefox",
+    "headless": true,
+    "version": "159.0",
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      800
+    ],
+    "screen": [
+      1366,
+      768
+    ],
+    "hardwareConcurrency": 18,
+    "deviceMemory": null,
+    "webgl": "webgl2",
+    "glVendor": "Apple",
+    "glRenderer": "Apple M1, or similar",
+    "maxTextureSize": 8192,
+    "rafMedianMs": 16.660000000000025,
+    "rafFrames": 61,
+    "crossOriginIsolated": false,
+    "jsHeap": null
+  },
+  {
+    "engine": "firefox",
+    "headless": false,
+    "version": "159.0",
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      800
+    ],
+    "screen": [
+      3008,
+      1692
+    ],
+    "hardwareConcurrency": 18,
+    "deviceMemory": null,
+    "webgl": "webgl2",
+    "glVendor": "Apple",
+    "glRenderer": "Apple M1, or similar",
+    "maxTextureSize": 8192,
+    "rafMedianMs": 16.659999999999997,
+    "rafFrames": 60,
+    "crossOriginIsolated": false,
+    "jsHeap": null
+  },
+  {
+    "engine": "webkit",
+    "headless": true,
+    "version": "27.2",
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      800
+    ],
+    "screen": [
+      1280,
+      800
+    ],
+    "hardwareConcurrency": 8,
+    "deviceMemory": null,
+    "webgl": "webgl2",
+    "glVendor": "Apple Inc.",
+    "glRenderer": "Apple GPU",
+    "maxTextureSize": 16384,
+    "rafMedianMs": 17,
+    "rafFrames": 60,
+    "crossOriginIsolated": false,
+    "jsHeap": null
+  },
+  {
+    "engine": "webkit",
+    "headless": false,
+    "version": "27.2",
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+    "dpr": 1,
+    "viewport": [
+      1280,
+      800
+    ],
+    "screen": [
+      1280,
+      800
+    ],
+    "hardwareConcurrency": 8,
+    "deviceMemory": null,
+    "webgl": "webgl2",
+    "glVendor": "Apple Inc.",
+    "glRenderer": "Apple GPU",
+    "maxTextureSize": 16384,
+    "rafMedianMs": 17,
+    "rafFrames": 60,
+    "crossOriginIsolated": false,
+    "jsHeap": null
+  }
+]

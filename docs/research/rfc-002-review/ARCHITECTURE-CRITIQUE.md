@@ -18,7 +18,7 @@ RFC-002 gets the fundamentals right. The editable document is separate from the 
 It did find five gaps that would cost real time in P1 if left implicit:
 1. **Geometry granularity is unspecified.** RFC §4 gives each `PathObject` its own `geometryRef`. A traced photo commits 30k paths, and a halftone commits one 195k-subpath path. Per-object buffers make transfers and history accounting expensive, and per-layer buffers make single-object edits copy whole layers. Amendment: immutable **geometry chunks** (one per trace commit or bake), with objects referencing `(chunkId, pathIndex)` and edits producing small new chunks (D01/D02).
 2. **The transport proposal keeps two paths.** The "capped v1 JSON fallback for small scenes" doubles the test surface for no measured benefit: JSON and the packet are about the same size, and parse versus validate costs 97–198 ms against 8–19 ms on the main thread at ~1M anchors [measured, R01]. Amendment: the packet is the only editor transport; scene v1 JSON remains for export and interop (D03).
-3. **Renderer construction is browser-sensitive.** Chromium 159 builds Path2D incrementally in **quadratic** time [measured]. The renderer contract must specify path-data or chunked construction and a regression benchmark (D04).
+3. **Canvas 2D is the right renderer only with parts the RFC leaves optional.** Exact per-frame redraw misses the budget at ≥ 300k anchors in Firefox and WebKit [measured]. A display-only raster cache (gestures p95 17–22 ms in all engines up to 1M) and an OffscreenCanvas render worker (main thread ≤ 24 ms) fix it. Chromium also builds Path2D incrementally in **quadratic** time, so construction must use path data (D04).
 4. **The scheduler needs two rules the RFC does not state.** Only previews are pre-emptible. A worker is never terminated before its job is posted; the second rule fixes a measured WebKit offline failure (D05, R03).
 5. **The phase plan has a circular dependency.** P1-A must "not lock renderer-specific data structures" yet has no renderer with which to validate the document model. Amendment: a minimal Canvas 2D renderer and the project serializer move into P1-A as test oracles ([REVISED-P1-SEQUENCE](REVISED-P1-SEQUENCE.md)).
 
@@ -80,7 +80,34 @@ Both move the authority further from the UI and add message round trips for ever
 **Disposition: ACCEPT WITH AMENDMENTS** (packet-only editor transport; derived data not transported; shared adversarial suite in TS and Rust; little-endian on disk).
 
 ### D04 — Rendering architecture
-<!-- D04 -->
+**Proposal.** Retained Canvas 2D with a spatial index and caches as the first candidate; SVG DOM and WebGL to be benchmarked; one production renderer.
+
+**Evidence** [measured, [RENDERER-EVALUATION](RENDERER-EVALUATION.md)]:
+- **Scope of the bake-off:**
+  - 4 candidates, 3 engines (headed), DPR 2;
+  - 11 workloads in Chromium and 6 in Firefox and WebKit, from 17k to 1M anchors and 1 to 167k paths;
+  - cold plus 5 warm reps; 72 correctness renders against independent resvg;
+  - a traced presentation check, a raster cross-check, and display-cache and OffscreenCanvas variants.
+- **Correctness:** every candidate is correct (0 geometry-error pixels; hole, evenodd and clip hit checks pass).
+- **Exact redraw cost differs by engine:** Canvas is ~0.5 / 5 / 2.3 µs per `fill()` in Chromium / Firefox / WebKit. Exact per-frame redraw therefore misses the budget on ≥ 300k-anchor scenes in Firefox and WebKit for Canvas and SVG, and beyond ~30k paths for WebGL.
+- **A display-only raster cache** makes Canvas gestures p95 17–22 ms in all engines up to 1M anchors.
+- **An OffscreenCanvas host** keeps the main thread ≤ 24 ms during load and pan in all engines.
+- **Construction trap:** Chromium builds Path2D incrementally in quadratic time.
+
+**Weaknesses of the proposal as written.** None of the parts that make Canvas viable is specified:
+- the construction method;
+- the gesture cache;
+- the worker host;
+- subpath-level hit indexing.
+
+"Incremental invalidation" (RFC §3) is not what makes it fast: a cache that makes gestures O(1) is.
+
+**Alternatives.**
+- **WebGL:** the best first visible, and the best exact redraw for few-path scenes in Firefox and WebKit. Rejected for P1 because it is draw-call-bound for many paths, and fixing that means a tessellator plus batching plus strokes, clips and context loss. Kept as the revisit path.
+- **SVG DOM:** degrades with path count.
+- **SVG image:** slowest load, no editing.
+
+**Disposition: ACCEPT WITH AMENDMENTS.** Canvas 2D is confirmed, with the four mandatory parts (A6, A7), the proposed scene-size limits and the WebGL revisit conditions.
 
 ### D05 — Disposable workers and scheduling
 **Proposal.** One disposable compute worker plus an explicit scheduler; frozen snapshots; no SharedArrayBuffer or pool until measured.

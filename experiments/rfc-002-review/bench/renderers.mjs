@@ -72,6 +72,29 @@ export class CanvasRenderer extends Base {
     this.paths[i] = new Path2D(dString(this.p, i));
   }
   draw() {
+    if (this.opts.cache && this.gesture && this.snap) return this.blit();
+    const drawn = this.drawExact();
+    if (this.opts.cache) this.snapshot();
+    return drawn;
+  }
+  /** Display-only raster cache (never authoritative): the last exact frame as a bitmap. */
+  snapshot() {
+    if (!this.snap) this.snap = document.createElement("canvas");
+    this.snap.width = this.canvas.width;
+    this.snap.height = this.canvas.height;
+    this.snap.getContext("2d").drawImage(this.canvas, 0, 0);
+    this.snapCam = { ...this.cam };
+  }
+  blit() {
+    const { ctx, cam, snapCam: c0, dpr } = this;
+    const k = cam.s / c0.s; // camera relative to the snapshot's camera
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.setTransform(k, 0, 0, k, dpr * (cam.tx - k * c0.tx), dpr * (cam.ty - k * c0.ty));
+    ctx.drawImage(this.snap, 0, 0);
+    return -1;
+  }
+  drawExact() {
     const { ctx, p, cam, dpr } = this;
     const n = p.manifest.pathCount, b = this.bounds, gi = p.groupIndex, si = p.styleIndex;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -133,7 +156,7 @@ export class CanvasRenderer extends Base {
     this.ctx.getImageData(0, 0, 1, 1);
   }
   memory() {
-    return { backingStoreBytes: this.canvas.width * this.canvas.height * 4 };
+    return { backingStoreBytes: this.canvas.width * this.canvas.height * 4, displayCacheBytes: this.snap ? this.snap.width * this.snap.height * 4 : 0 };
   }
   release() {
     this.paths = null;

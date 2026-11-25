@@ -69,3 +69,57 @@ elif what == "persistence":
         for name in dict.fromkeys(r["name"] for r in e["results"]):
             rs = [r for r in e["results"] if r["name"] == name]
             print(f"| {e['engine']} {e['version']} | {name} | {rs[0]['bytes']/1e6:.1f} | {rs[0]['deflated']/1e6:.1f} | {f(med([r['compressMs'] for r in rs]),0)} | {f(med([r['decompressMs'] for r in rs]),0)} | {f(med([r['sha256Ms'] for r in rs]),0)} | {'ok' if all(r['roundTripOk'] for r in rs) else 'FAIL'} |")
+
+if what == "renderer-extra":
+    print("### Display-only raster cache (Canvas 2D + cache; 5 warm reps, medians)\n")
+    print("| Engine | Scene | Pan p50/p95 | Zoom p50/p95 | >50 ms frames | Settle after pan / zoom: visible ms (JS ms) | Without cache: pan p95 / zoom p95 |")
+    print("|---|---|---|---|---|---|---|")
+    for eng in ("chromium", "firefox", "webkit"):
+        base = {r["name"]: r for r in json.load(open(f"{A}/renderer/bench-{eng}.json")) if r["renderer"] == "canvas" and r.get("ok")}
+        for r in json.load(open(f"{A}/renderer/bench-cache-{eng}.json")):
+            it = [x["interactions"] for x in r["results"][1:]]
+            bi = [x["interactions"] for x in base[r["name"]]["results"][1:]] if r["name"] in base else []
+            g = lambda its, k, q: med([i[k][q] for i in its])
+            over = sum(i["pan"]["over50"] + i["zoom"]["over50"] for i in it)
+            n = sum(i["pan"]["n"] + i["zoom"]["n"] for i in it)
+            print(f"| {eng} | {r['name']} | {f(g(it,'pan','p50'),0)}/{f(g(it,'pan','p95'),0)} | {f(g(it,'zoom','p50'),0)}/{f(g(it,'zoom','p95'),0)} | {over}/{n} | {f(med([i['panSettle']['visibleMs'] for i in it]),0)} / {f(med([i['zoomSettle']['visibleMs'] for i in it]),0)} ({f(med([i['panSettle']['jsMs'] for i in it]),0)}) | {f(g(bi,'pan','p95'),0) if bi else '—'} / {f(g(bi,'zoom','p95'),0) if bi else '—'} |")
+    try:
+        off = json.load(open(f"{A}/renderer/offscreen.json"))
+        print("\n### OffscreenCanvas render worker (same Canvas 2D code in a worker; 6 reps, warm median)\n")
+        print("| Engine | Scene | Worker rAF | Worker build ms | Worker draw ms | Main-thread max gap during load ms | Worker pan p50/p95 | Main-thread max gap during pan ms |")
+        print("|---|---|---|---|---|---|---|---|")
+        for r in off:
+            if not r.get("ok"):
+                print(f"| {r['engine']} | {r['name']} | FAILED: {r.get('error','')[:80]} |||||| ")
+                continue
+            w = r["results"][1:]
+            print(f"| {r['engine']} | {r['name']} | {'yes' if w[0]['workerRaf'] else 'no (timer)'} | {f(med([x['buildMs'] for x in w]),0)} | {f(med([x['drawMs'] for x in w]),0)} | {f(med([x['mainLoadMaxGapMs'] for x in w]),0)} | {f(med([x['workerPanP50'] for x in w]),0)}/{f(med([x['workerPanP95'] for x in w]),0)} | {f(med([x['mainPanMaxGapMs'] for x in w]),0)} |")
+    except FileNotFoundError:
+        pass
+    rc = json.load(open(f"{A}/renderer/rastercheck.json"))
+    print("\n### Canvas raster cross-check (2560×1600; ms per draw)\n")
+    print("| Engine | Scene | A: 10 draws + 1 readback | B: readback every draw | C: `willReadFrequently` (CPU) |")
+    print("|---|---|---|---|---|")
+    for e in rc:
+        for r in e["results"]:
+            print(f"| {e['engine']} | {r['name']} | {r['A_tenDrawsOneReadbackPerDrawMs']:.1f} | {r['B_readbackEveryDrawMs']:.1f} | {r['C_cpuCanvasPerDrawMs']:.1f} |")
+    fc = json.load(open(f"{A}/renderer/framecheck.json"))
+    print("\n### Chromium traced presentation (120-frame pan)\n")
+    print("| Renderer | Scene | rAF frames | rAF p50/p95 ms | DrawFrame | Dropped BeginFrames | Window ms |")
+    print("|---|---|---|---|---|---|---|")
+    for r in fc:
+        print(f"| {r['renderer']} | {r['name']} | {r['rafFrames']} | {r['rafP50']:.1f}/{r['rafP95']:.1f} | {r['drawFrame']} | {r['droppedFrame']} | {r['windowMs']:.0f} |")
+    ib = json.load(open(f"{A}/renderer/index-bench.json"))
+    print(f"\n### Spatial index comparison (Node {ib['node']}; 2,000 random points; ms)\n")
+    print("| Scene | Index | Subpath index | Items | MB | Build | Cold p95 / max | Warm p95 / max | Agreement |")
+    print("|---|---|---|---|---|---|---|---|---|")
+    for r in ib["results"]:
+        print(f"| {r['name']} | {r['index']} | {'yes' if r['subpathIndex'] else 'no'} | {r['items']:,} | {r['bytes']/1e6:.2f} | {r['buildMs']} | {r['coldP95']} / {r['coldMax']} | {r['warmP95']} / {r['warmMax']} | {r['agreeWithFirstVariant']}/2000 |")
+    print(f"\nHole and clip checks (11 fixed points × 4 variants): {sum(len(h['failures']) for h in ib['holeChecks'])} failures.")
+    cc = json.load(open(f"{A}/renderer/correctness-compare.json"))
+    print("\n### Correctness against the independent resvg reference\n")
+    print("| Scene @ zoom | Renders (engines × renderers) | Geometry-error px (max over renders) | Max % px > 32 (AA band) |")
+    print("|---|---|---|---|")
+    for key in dict.fromkeys((r["scene"], r["zoom"]) for r in cc):
+        rs = [r for r in cc if (r["scene"], r["zoom"]) == key]
+        print(f"| {key[0]} @ {key[1]}× | {len(rs)} | {max(r['geometryErrorPx'] for r in rs)} | {max(r['pctOver32'] for r in rs)} |")

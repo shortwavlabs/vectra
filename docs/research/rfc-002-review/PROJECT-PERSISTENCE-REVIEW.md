@@ -98,7 +98,28 @@ The same document saves to identical bytes: no clocks, sections in a fixed order
   - So binary geometry sections are the faster open path, at equal size.
 - **Native compression in the browser:** see `artifacts/persistence/compression.json` and the table below.
 
-<!-- persistence-table -->
+Native browser primitives (headed, 3 reps, median; `artifacts/persistence/compression.json`; the same background load as the other runs):
+
+| Engine | Packet | Bytes MB | deflate-raw MB | Compress ms | Decompress ms | SHA-256 ms | Round trip |
+|---|---|---|---|---|---|---|---|
+| chromium 159.0.8154.6 | synthetic-many-1m | 45.5 | 11.8 | 1,975 | 80 | 26 | ok |
+| chromium 159.0.8154.6 | architecture-street-halftone | 41.8 | 10.0 | 1,829 | 66 | 24 | ok |
+| chromium 159.0.8154.6 | portrait-large-color | 20.6 | 6.4 | 776 | 40 | 12 | ok |
+| chromium 159.0.8154.6 | concert-small-venue-bw | 0.8 | 0.2 | 32 | 2 | 0 | ok |
+| firefox 159.0 | synthetic-many-1m | 45.5 | 12.3 | 1,167 | 94 | 23 | ok |
+| firefox 159.0 | architecture-street-halftone | 41.8 | 10.1 | 1,124 | 75 | 19 | ok |
+| firefox 159.0 | portrait-large-color | 20.6 | 6.4 | 400 | 46 | 10 | ok |
+| firefox 159.0 | concert-small-venue-bw | 0.8 | 0.2 | 15 | 2 | 0 | ok |
+| webkit 27.2 | synthetic-many-1m | 45.5 | 11.5 | 901 | 60 | 18 | ok |
+| webkit 27.2 | architecture-street-halftone | 41.8 | 10.1 | 790 | 52 | 16 | ok |
+| webkit 27.2 | portrait-large-color | 20.6 | 6.3 | 493 | 32 | 8 | ok |
+| webkit 27.2 | concert-small-venue-bw | 0.8 | 0.2 | 20 | 2 | 1 | ok |
+
+What this means for P1:
+- **Open.** A 1M-anchor geometry section takes 52–94 ms to decompress, 16–26 ms to hash and 8–20 ms to validate: **≈ 0.1–0.15 s**, well inside the G-PRJ ≤ 1 s target.
+- **Save.** Compression of 42–46 MB takes **0.8–2.0 s**, so it must run off the main thread: in the compute worker, with the job copied from the frozen snapshot, behind an indeterminate progress indicator. An optional `codec: "none"` keeps very large saves fast at about 4× the size.
+- **Integrity.** SHA-256 per section costs about 0.4–0.6 ms per MB.
+
 
 ## 6. Security checklist (gate G-PRJ)
 Fuzzed malformed containers: truncation, bad magic, oversized header, overlapping or out-of-range sections, duplicate IDs, a declared length smaller than the inflated output (bomb), SHA mismatch, unknown kind, unknown fields, unknown versions, invalid packets (the R01 adversarial set), dangling references, ID cycles, a non-finite transform, a source with a bad signature. Every case must produce a typed error with the document unchanged.

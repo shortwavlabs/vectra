@@ -12,6 +12,7 @@ import { HitIndex } from "./hit.mjs";
 const q = new URLSearchParams(location.search);
 const R = q.get("renderer"), kind = q.get("kind"), name = q.get("name");
 const reps = Number(q.get("reps") ?? 6), frames = Number(q.get("frames") ?? 30);
+const cache = q.get("cache") === "1";
 const mode = q.get("mode") ?? "bench", zoom = Number(q.get("zoom") ?? 1), indexKind = q.get("index") ?? "grid";
 const stage = document.getElementById("stage");
 const dpr = devicePixelRatio;
@@ -32,7 +33,7 @@ async function loadScene(inp, W, H) {
   let t = now();
   const derived = validatePacket(p);
   const validateMs = now() - t;
-  const r = new RENDERERS[R](stage, { white: mode === "correctness" });
+  const r = new RENDERERS[R](stage, { white: mode === "correctness", cache });
   r.resize(W, H, dpr);
   if (mode === "correctness") r.cam = { s: zoom, tx: 0, ty: 0 };
   else fit(r, p.manifest);
@@ -110,16 +111,23 @@ async function interactions(sc, rep) {
   const m = p.manifest, out = {};
   const home = { ...r.cam };
   const redraw = () => r.draw();
+  r.gesture = true;
   out.pan = await series(frames, () => {
     r.cam.tx -= 12;
     redraw();
   });
+  r.gesture = false;
+  if (cache) out.panSettle = await latency(redraw); // exact redraw when the gesture ends
   r.cam = { ...home };
+  redraw();
+  r.gesture = true;
   out.zoom = await series(frames, () => {
     const f = 1.04, cx = r.w / 2, cy = r.h / 2;
     r.cam = { s: r.cam.s * f, tx: cx - (cx - r.cam.tx) * f, ty: cy - (cy - r.cam.ty) * f };
     redraw();
   });
+  r.gesture = false;
+  if (cache) out.zoomSettle = await latency(redraw);
   r.cam = { ...home };
   redraw();
   await twoFrames();

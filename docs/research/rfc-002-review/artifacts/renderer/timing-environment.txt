@@ -1,0 +1,22 @@
+Apple M5 Max
+137438953472
+18
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+== probe 2026-11-24T23:23:26Z | load averages: 12.86 12.86 13.36 | unrelated ngspice procs: 12
+== transport 2026-11-24T23:23:37Z | load averages: 16.36 13.63 13.62 | unrelated ngspice procs: 12
+== node-transport 2026-11-24T23:27:38Z | load averages: 14.93 14.08 13.79 | unrelated ngspice procs: 12
+== render-chromium 2026-11-24T23:28:02Z | load averages: 14.75 14.09 13.80 | unrelated ngspice procs: 12
+== render-firefox 2026-11-24T23:49:58Z | load averages: 14.06 14.12 14.03 | unrelated ngspice procs: 12
+== render-webkit 2026-11-25T00:29:34Z | load averages: 14.07 14.09 14.37 | unrelated ngspice procs: 12
+== persist 2026-11-25T00:50:58Z | load averages: 14.43 14.86 14.64 | unrelated ngspice procs: 12
+== done 2026-11-25T00:51:38Z | load averages: 14.13 14.72 14.60 | unrelated ngspice procs: 12
+== rastercheck 2026-11-25T00:52:07Z | load averages: 13.56 14.52 14.53 | unrelated ngspice procs: 13
+== framecheck 2026-11-25T00:54:04Z | load averages: 14.89 14.55 14.53 | unrelated ngspice procs: 13
+== cache-chromium 2026-11-25T00:56:03Z | load averages: 14.34 14.43 14.48 | unrelated ngspice procs: 13
+== cache-firefox 2026-11-25T00:58:45Z | load averages: 13.67 14.06 14.31 | unrelated ngspice procs: 13
+== cache-webkit 2026-11-25T01:05:10Z | load averages: 13.73 13.80 14.08 | unrelated ngspice procs: 13
+== index-bench 2026-11-25T01:09:30Z | load averages: 15.65 14.72 14.39 | unrelated ngspice procs: 13
+== followups-done 2026-11-25T01:14:54Z | load averages: 13.31 13.77 14.04 | unrelated ngspice procs: 13
+== offscreen 2026-11-25T01:15:11Z | load averages: 13.10 13.70 14.01 | unrelated ngspice procs: 14
