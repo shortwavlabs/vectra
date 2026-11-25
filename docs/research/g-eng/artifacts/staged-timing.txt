@@ -1,0 +1,12 @@
+21:22  up 1 day,  6:21, 1 user, load averages: 7.78 3.66 2.29
+10
+image,mode,mp,vectorize_ms,segment_ms,estimate_ms,fit_ms,anchors,estimate
+hokusai-great-wave-640,bw,0.28,11.7,7.1,0.46,5.1,2118,1762-3318
+hokusai-great-wave-640,color,0.28,308.0,214.2,9.56,100.7,54573,43718-74072
+talbot-scene-in-a-library-640,bw,0.34,18.7,8.5,1.41,10.0,3334,2339-4405
+talbot-scene-in-a-library-640,color,0.34,215.9,135.7,7.19,77.7,33123,27247-46165
+architecture-street,bw,12.48,674.1,306.5,42.64,367.2,128973,79140-148986
+architecture-street,color,12.48,7503.4,5850.3,182.76,1654.5,389717,361062-611747
+portrait-face,bw,17.92,852.5,424.8,52.34,438.7,59426,35106-66091
+portrait-face,color,17.92,26040.7,22659.1,429.22,3920.2,1145297,796621-1349710
+21:26  up 1 day,  6:25, 1 user, load averages: 19.15 10.48 5.46

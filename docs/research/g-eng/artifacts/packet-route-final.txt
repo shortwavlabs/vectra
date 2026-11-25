@@ -1,0 +1,10 @@
+21:40  up 1 day,  6:38, 1 user, load averages: 45.91 30.38 19.33
+    Finished `release` profile [optimized] target(s) in 7.56s
+packet route: 114 cases written to tests/output/geng-packet-final
+files:      326
+PACKET ROUTE: IDENTICAL to a4cf172.sha256
+wasm e4571a645e8d51a8… 65 cases, output digest 68723671d1403d15bdebd89e13bae746d3359bf25bdb4481262d865bd135c22a
+precision: 26 cases, output digest 07fdd00d93f9273217ead74b970728cc134cdb503ee8e9c94b01e09c6d832ae5
+packet route: 65 cases, block digest f39346f476aa027cbfec9cd794f948362db5666ca901971258fb1d61731ba70b; packet/draw-list SVG+PDF mismatches: 0; native vs WASM blocks: 62/65 identical
+  differ: sharp_corners/mosaic/native-block, nested_rings/color/native-block, nested_rings/mosaic/native-block
+21:54  up 1 day,  6:53, 1 user, load averages: 11.35 14.55 16.74

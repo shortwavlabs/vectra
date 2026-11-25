@@ -19,6 +19,30 @@ use crate::precision;
 use crate::region::Mask;
 use crate::scene::PathBuilder;
 
+/// A segmentation produced by this adapter, opaque outside the crate (no VTracer type escapes).
+pub struct Segmented(pub(crate) Segmentation);
+
+/// 4-neighbour boundary length summed over every layer mask: the R03 complexity feature.
+pub fn boundary_length(seg: &Segmented) -> u64 {
+    let mut perimeter = 0u64;
+    for layer in &seg.0.layers {
+        let img = &layer.mask.image;
+        let (w, h) = (img.width as i64, img.height as i64);
+        let at = |x: i64, y: i64| x >= 0 && y >= 0 && x < w && y < h && img.get_pixel(x as usize, y as usize);
+        for y in 0..h {
+            for x in 0..w {
+                if at(x, y) {
+                    perimeter += [(1, 0), (-1, 0), (0, 1), (0, -1)]
+                        .iter()
+                        .filter(|(dx, dy)| !at(x + dx, y + dy))
+                        .count() as u64;
+                }
+            }
+        }
+    }
+    perimeter
+}
+
 /// Binary ink mask for black & white tracing.
 pub fn bw_mask(img: &RgbaImage, luma: &Luma, threshold: u8, invert: bool, alpha_threshold: u8) -> Vec<bool> {
     img.data
@@ -201,6 +225,7 @@ pub fn region_mask(m: &RegionMask) -> Mask {
 
 /// Runs VTracer's colour fitters (palette snapping) on a segmentation in place; the same
 /// fitters `fit_segmentation` selects for this palette.
+#[cfg(feature = "diagnostics")]
 pub fn fit_colors(seg: &mut Segmentation, layer_difference: i32, palette: &[Rgba]) -> Result<(), EngineError> {
     let cfg = vtracer::Config {
         layer_difference,

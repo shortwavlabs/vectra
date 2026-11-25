@@ -1,0 +1,2921 @@
+{
+  "schema": "vectra-packet-conformance/1",
+  "contract": "G-0 C3 (GeometryPacket v1)",
+  "generator": "tests/fixtures/packet-conformance/generate.mjs",
+  "cases": [
+    {
+      "id": "valid",
+      "source": "review R01 adversarial: valid packet",
+      "kind": "arrays",
+      "expect": "ok",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "derived": {
+        "anchors": 14,
+        "pathAnchors": [4, 2, 6, 2],
+        "subpathStart": [0, 5, 7, 11, 15],
+        "bounds": [0, 0, 10, 10, 20, 20, 30, 30, 1, 1, 5, 5, 40, 40, 45, 45]
+      }
+    },
+    {
+      "id": "verb-offsets-decreasing",
+      "source": "review R01 adversarial: verb offsets decreasing",
+      "kind": "arrays",
+      "expect": "offsets",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 5, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "verb-offset-beyond-array",
+      "source": "review R01 adversarial: verb offset beyond array",
+      "kind": "arrays",
+      "expect": "offsets",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 1000000000, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "bad-sentinel",
+      "source": "review R01 adversarial: bad sentinel",
+      "kind": "arrays",
+      "expect": "offsets",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 16],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "surplus-coordinates",
+      "source": "review R01 adversarial: coordinate offsets inconsistent (surplus)",
+      "kind": "arrays",
+      "expect": "arity",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 10, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "too-few-coordinates",
+      "source": "review R01 adversarial: too few coordinates for verbs",
+      "kind": "arrays",
+      "expect": "arity",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 6, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "coords-shorter-than-manifest",
+      "source": "review R01 adversarial: coord array shorter than manifest",
+      "kind": "arrays",
+      "expect": "length",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "nan-coordinate",
+      "source": "review R01 adversarial: NaN coordinate",
+      "kind": "arrays",
+      "expect": "coord",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0,
+          0,
+          10,
+          0,
+          10,
+          "NaN",
+          0,
+          10,
+          20,
+          20,
+          25,
+          20,
+          30,
+          25,
+          30,
+          30,
+          1,
+          1,
+          5,
+          1,
+          5,
+          5,
+          2,
+          2,
+          3,
+          2,
+          3,
+          3,
+          40,
+          40,
+          45,
+          45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "infinite-coordinate",
+      "source": "review R01 adversarial: +Infinity coordinate",
+      "kind": "arrays",
+      "expect": "coord",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0,
+          0,
+          10,
+          0,
+          10,
+          10,
+          0,
+          "Infinity",
+          20,
+          20,
+          25,
+          20,
+          30,
+          25,
+          30,
+          30,
+          1,
+          1,
+          5,
+          1,
+          5,
+          5,
+          2,
+          2,
+          3,
+          2,
+          3,
+          3,
+          40,
+          40,
+          45,
+          45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "coordinate-beyond-1e6",
+      "source": "review R01 adversarial: coordinate beyond ±1e6",
+      "kind": "arrays",
+      "expect": "coord",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 1500000, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2,
+          3, 2, 3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "unknown-opcode",
+      "source": "review R01 adversarial: unknown opcode",
+      "kind": "arrays",
+      "expect": "opcode",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 7, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "segment-before-moveto",
+      "source": "review R01 adversarial: segment before moveTo",
+      "kind": "arrays",
+      "expect": "grammar",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [1, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "segment-after-close-without-moveto",
+      "source": "review R01 adversarial: segment after close without moveTo",
+      "kind": "arrays",
+      "expect": "grammar",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 1, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "style-index-out-of-range",
+      "source": "review R01 adversarial: style index out of range",
+      "kind": "arrays",
+      "expect": "ref",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [999, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "group-index-out-of-range",
+      "source": "review R01 adversarial: group index out of range",
+      "kind": "arrays",
+      "expect": "ref",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [999, 0, 1, 1]
+      }
+    },
+    {
+      "id": "groups-not-contiguous",
+      "source": "review R01 adversarial: groups not contiguous in paint order",
+      "kind": "arrays",
+      "expect": "ref",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 0]
+      }
+    },
+    {
+      "id": "wrong-type-float32-coords",
+      "source": "review R01 adversarial: wrong array type (Float32 coords)",
+      "kind": "arrays",
+      "expect": "type",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "tsOnly": true,
+      "arrayTypes": {
+        "coords": "Float32Array"
+      }
+    },
+    {
+      "id": "wrong-type-plain-array-offsets",
+      "source": "review R01 adversarial: wrong array type (plain array offsets)",
+      "kind": "arrays",
+      "expect": "type",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "tsOnly": true,
+      "arrayTypes": {
+        "verbOffsets": "Array"
+      }
+    },
+    {
+      "id": "detached-coords",
+      "source": "review R01 adversarial: detached buffer (transferred away)",
+      "kind": "arrays",
+      "expect": "length",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "tsOnly": true,
+      "detach": ["coords"]
+    },
+    {
+      "id": "unsupported-version",
+      "source": "review R01 adversarial: unsupported version",
+      "kind": "arrays",
+      "expect": "version",
+      "manifest": {
+        "packetVersion": 2,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "negative-count",
+      "source": "review R01 adversarial: negative count",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": -1,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "non-integer-count",
+      "source": "review R01 adversarial: non-integer count",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 1.5,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "artboard-out-of-range",
+      "source": "review R01 adversarial: artboard out of range",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 1000000000,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "anchor-budget-exceeded",
+      "source": "review R01 adversarial: anchor budget exceeded (limit lowered to 13; the base has 14)",
+      "kind": "arrays",
+      "expect": "budget",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "limits": {
+        "maxPaths": 1000000,
+        "maxAnchors": 13,
+        "maxBytes": 536870912
+      }
+    },
+    {
+      "id": "declared-max-u32-coords",
+      "source": "review R01 adversarial: declared 2^32 coords (adapted to 2^32-1)",
+      "kind": "manifest",
+      "expect": "budget",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 4294967295,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "declared-2pow32-coords",
+      "source": "C3 integer range: 2^32 is out of range",
+      "kind": "manifest",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 4294967296,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "declared-10m-paths",
+      "source": "review R01 adversarial: declared 10M paths",
+      "kind": "manifest",
+      "expect": "budget",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 10000000,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "declared-1gib-verbs",
+      "source": "review R01 adversarial: declared 1 GiB total (verbCount 2^30)",
+      "kind": "manifest",
+      "expect": "budget",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 1073741824,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "empty-packet",
+      "source": "G-ENG: pathCount 0 is valid",
+      "kind": "arrays",
+      "expect": "ok",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 0,
+        "verbCount": 0,
+        "coordCount": 0,
+        "styles": [],
+        "groups": []
+      },
+      "arrays": {
+        "verbs": [],
+        "coords": [],
+        "verbOffsets": [0],
+        "coordOffsets": [0],
+        "styleIndex": [],
+        "groupIndex": []
+      },
+      "derived": {
+        "anchors": 0,
+        "pathAnchors": [],
+        "subpathStart": [],
+        "bounds": []
+      }
+    },
+    {
+      "id": "missing-packet-version",
+      "source": "G-ENG: missing packetVersion",
+      "kind": "arrays",
+      "expect": "version",
+      "manifest": {
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "unknown-manifest-key",
+      "source": "G-ENG: unknown manifest key",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ],
+        "extra": 1
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "missing-manifest-key",
+      "source": "G-ENG: missing manifest key",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "invalid-palette-id",
+      "source": "G-ENG: paletteId violates the scene-v1 id rule",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red ink",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "invalid-group-id",
+      "source": "G-ENG: group id longer than 64 bytes",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "zero-width-clip",
+      "source": "G-ENG: clip with zero width",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "zero-stroke-width",
+      "source": "G-ENG: stroke width 0",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 0
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "fill-not-u32",
+      "source": "G-ENG: fill colour above 2^32-1",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4294967296,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "unknown-style-key",
+      "source": "G-ENG: unknown style key",
+      "kind": "arrays",
+      "expect": "manifest",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false,
+            "blend": "multiply"
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      }
+    },
+    {
+      "id": "verb-count-over-cap",
+      "source": "G-ENG: verbCount above 2 x anchor cap (lowered limits)",
+      "kind": "arrays",
+      "expect": "budget",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "limits": {
+        "maxPaths": 1000000,
+        "maxAnchors": 8,
+        "maxBytes": 536870912
+      }
+    },
+    {
+      "id": "byte-cap",
+      "source": "G-ENG: M_mem + D_max above maxBytes (limit 556; the base needs 345 + 212 = 557)",
+      "kind": "arrays",
+      "expect": "budget",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "limits": {
+        "maxPaths": 1000000,
+        "maxAnchors": 1000000,
+        "maxBytes": 556
+      }
+    },
+    {
+      "id": "integer-written-as-float",
+      "source": "G-ENG: a count written as 4.0 is the integer 4 (as in JavaScript)",
+      "kind": "arrays",
+      "expect": "ok",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4.0,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "arrays": {
+        "verbs": [0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 0, 1, 1, 3, 0, 1],
+        "coords": [
+          0, 0, 10, 0, 10, 10, 0, 10, 20, 20, 25, 20, 30, 25, 30, 30, 1, 1, 5, 1, 5, 5, 2, 2, 3, 2,
+          3, 3, 40, 40, 45, 45
+        ],
+        "verbOffsets": [0, 5, 7, 15, 17],
+        "coordOffsets": [0, 8, 16, 28, 32],
+        "styleIndex": [0, 1, 2, 0],
+        "groupIndex": [0, 0, 1, 1]
+      },
+      "derived": {
+        "anchors": 14,
+        "pathAnchors": [4, 2, 6, 2],
+        "subpathStart": [0, 5, 7, 11, 15],
+        "bounds": [0, 0, 10, 10, 20, 20, 30, 30, 1, 1, 5, 5, 40, 40, 45, 45]
+      },
+      "rawCountAsFloat": true
+    },
+    {
+      "id": "block-valid",
+      "source": "G-ENG: C3.0 block of the base packet (B = 360, M_mem = 345)",
+      "kind": "bytes",
+      "expect": "ok",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "blockHex": "0001010103000200010103000101030001000000000000000000000000000000000000000000000000000000000024400000000000000000000000000000244000000000000024400000000000000000000000000000244000000000000034400000000000003440000000000000394000000000000034400000000000003e4000000000000039400000000000003e400000000000003e40000000000000f03f000000000000f03f0000000000001440000000000000f03f0000000000001440000000000000144000000000000000400000000000000040000000000000084000000000000000400000000000000840000000000000084000000000000044400000000000004440000000000080464000000000008046400000000005000000070000000f00000011000000000000000000000008000000100000001c00000020000000000000000000000001000000020000000000000000000000000000000100000001000000",
+      "derived": {
+        "anchors": 14,
+        "pathAnchors": [4, 2, 6, 2],
+        "subpathStart": [0, 5, 7, 11, 15],
+        "bounds": [0, 0, 10, 10, 20, 20, 30, 30, 1, 1, 5, 5, 40, 40, 45, 45]
+      }
+    },
+    {
+      "id": "block-truncated",
+      "source": "G-ENG: block 8 bytes short",
+      "kind": "bytes",
+      "expect": "length",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "blockHex": "0001010103000200010103000101030001000000000000000000000000000000000000000000000000000000000024400000000000000000000000000000244000000000000024400000000000000000000000000000244000000000000034400000000000003440000000000000394000000000000034400000000000003e4000000000000039400000000000003e400000000000003e40000000000000f03f000000000000f03f0000000000001440000000000000f03f0000000000001440000000000000144000000000000000400000000000000040000000000000084000000000000000400000000000000840000000000000084000000000000044400000000000004440000000000080464000000000008046400000000005000000070000000f00000011000000000000000000000008000000100000001c0000002000000000000000000000000100000002000000000000000000000000000000"
+    },
+    {
+      "id": "block-oversized",
+      "source": "G-ENG: block 8 bytes long",
+      "kind": "bytes",
+      "expect": "length",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "blockHex": "0001010103000200010103000101030001000000000000000000000000000000000000000000000000000000000024400000000000000000000000000000244000000000000024400000000000000000000000000000244000000000000034400000000000003440000000000000394000000000000034400000000000003e4000000000000039400000000000003e400000000000003e40000000000000f03f000000000000f03f0000000000001440000000000000f03f0000000000001440000000000000144000000000000000400000000000000040000000000000084000000000000000400000000000000840000000000000084000000000000044400000000000004440000000000080464000000000008046400000000005000000070000000f00000011000000000000000000000008000000100000001c000000200000000000000000000000010000000200000000000000000000000000000001000000010000000000000000000000"
+    },
+    {
+      "id": "block-nonzero-padding-after-verbs",
+      "source": "G-ENG: non-zero padding after verbs",
+      "kind": "bytes",
+      "expect": "padding",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "blockHex": "0001010103000200010103000101030001010000000000000000000000000000000000000000000000000000000024400000000000000000000000000000244000000000000024400000000000000000000000000000244000000000000034400000000000003440000000000000394000000000000034400000000000003e4000000000000039400000000000003e400000000000003e40000000000000f03f000000000000f03f0000000000001440000000000000f03f0000000000001440000000000000144000000000000000400000000000000040000000000000084000000000000000400000000000000840000000000000084000000000000044400000000000004440000000000080464000000000008046400000000005000000070000000f00000011000000000000000000000008000000100000001c00000020000000000000000000000001000000020000000000000000000000000000000100000001000000"
+    },
+    {
+      "id": "block-nonzero-padding-between-offsets",
+      "source": "G-ENG: non-zero padding between u32 sections",
+      "kind": "bytes",
+      "expect": "padding",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "blockHex": "0001010103000200010103000101030001000000000000000000000000000000000000000000000000000000000024400000000000000000000000000000244000000000000024400000000000000000000000000000244000000000000034400000000000003440000000000000394000000000000034400000000000003e4000000000000039400000000000003e400000000000003e40000000000000f03f000000000000f03f0000000000001440000000000000f03f0000000000001440000000000000144000000000000000400000000000000040000000000000084000000000000000400000000000000840000000000000084000000000000044400000000000004440000000000080464000000000008046400000000005000000070000000f00000011000000ff0000000000000008000000100000001c00000020000000000000000000000001000000020000000000000000000000000000000100000001000000"
+    },
+    {
+      "id": "block-nan-coordinate",
+      "source": "G-ENG: block decodes, then validation rejects a NaN",
+      "kind": "bytes",
+      "expect": "coord",
+      "manifest": {
+        "packetVersion": 1,
+        "width": 64,
+        "height": 48,
+        "pathCount": 4,
+        "verbCount": 17,
+        "coordCount": 32,
+        "styles": [
+          {
+            "fill": 4278190335,
+            "paletteId": "red",
+            "stroke": null,
+            "evenOdd": true
+          },
+          {
+            "fill": null,
+            "paletteId": null,
+            "stroke": {
+              "color": 255,
+              "width": 2
+            },
+            "evenOdd": false
+          },
+          {
+            "fill": 16711935,
+            "paletteId": null,
+            "stroke": null,
+            "evenOdd": false
+          }
+        ],
+        "groups": [
+          {
+            "id": "g0",
+            "clip": null
+          },
+          {
+            "id": "g1",
+            "clip": {
+              "x": 0,
+              "y": 0,
+              "width": 50,
+              "height": 50
+            }
+          }
+        ]
+      },
+      "blockHex": "000101010300020001010300010103000100000000000000000000000000000000000000000000000000000000002440000000000000f87f000000000000244000000000000024400000000000000000000000000000244000000000000034400000000000003440000000000000394000000000000034400000000000003e4000000000000039400000000000003e400000000000003e40000000000000f03f000000000000f03f0000000000001440000000000000f03f0000000000001440000000000000144000000000000000400000000000000040000000000000084000000000000000400000000000000840000000000000084000000000000044400000000000004440000000000080464000000000008046400000000005000000070000000f00000011000000000000000000000008000000100000001c00000020000000000000000000000001000000020000000000000000000000000000000100000001000000"
+    }
+  ]
+}

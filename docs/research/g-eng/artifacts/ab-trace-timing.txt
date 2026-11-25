@@ -1,0 +1,39 @@
+round 1 load averages: 18.86 12.07 6.42 ngspice=13
+main,hokusai-great-wave-640,bw,13.7
+main,hokusai-great-wave-640,color,361.6
+main,talbot-scene-in-a-library-640,bw,20.7
+main,talbot-scene-in-a-library-640,color,257.8
+main,architecture-street,bw,781.1
+main,architecture-street,color,9173.5
+geng,hokusai-great-wave-640,bw,13.9
+geng,hokusai-great-wave-640,color,375.5
+geng,talbot-scene-in-a-library-640,bw,22.0
+geng,talbot-scene-in-a-library-640,color,258.7
+geng,architecture-street,bw,780.1
+geng,architecture-street,color,8775.7
+round 2 load averages: 16.16 12.42 6.93 ngspice=13
+main,hokusai-great-wave-640,bw,13.8
+main,hokusai-great-wave-640,color,369.0
+main,talbot-scene-in-a-library-640,bw,22.2
+main,talbot-scene-in-a-library-640,color,262.9
+main,architecture-street,bw,777.6
+main,architecture-street,color,8765.4
+geng,hokusai-great-wave-640,bw,13.4
+geng,hokusai-great-wave-640,color,372.3
+geng,talbot-scene-in-a-library-640,bw,21.2
+geng,talbot-scene-in-a-library-640,color,260.4
+geng,architecture-street,bw,786.8
+geng,architecture-street,color,9289.3
+round 3 load averages: 14.94 12.67 7.42 ngspice=13
+main,hokusai-great-wave-640,bw,15.1
+main,hokusai-great-wave-640,color,413.8
+main,talbot-scene-in-a-library-640,bw,23.3
+main,talbot-scene-in-a-library-640,color,285.0
+main,architecture-street,bw,874.6
+main,architecture-street,color,11116.0
+geng,hokusai-great-wave-640,bw,15.6
+geng,hokusai-great-wave-640,color,458.0
+geng,talbot-scene-in-a-library-640,bw,23.9
+geng,talbot-scene-in-a-library-640,color,339.6
+geng,architecture-street,bw,929.2
+geng,architecture-street,color,11452.3
