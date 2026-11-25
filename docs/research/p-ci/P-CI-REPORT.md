@@ -44,6 +44,10 @@
 |---|---|---|---|---|
 | [45535732214](https://github.com/shortwavlabs/vectra/actions/runs/45535732214) | PR #8, head `114c0e6` | **success** | 3 min 33 s (02:49:58 → 02:53:31 UTC) | Cold caches. Full path: workflow file changed |
 | [45539986929](https://github.com/shortwavlabs/vectra/actions/runs/45539986929) | temporary draft PR #9 (base `ci/p-ci-minimal`, head `8d819d3`; only this report changed) | **success** | 13 s | **Docs-only path:** the diff was classified `full checks required: false`, the no-op step ran, and every heavy step was skipped. PR #9 was closed unmerged and its branch deleted |
+| [45540147953](https://github.com/shortwavlabs/vectra/actions/runs/45540147953) | PR #8, head `01c3619`; warm caches | **success** | 1 min 50 s | `wasm-bindgen` cache hit; install skipped |
+| [45547713460](https://github.com/shortwavlabs/vectra/actions/runs/45547713460) | PR #8, head `da3829c` (hardened workflow) | **success** | 1 min 52 s | Full path. The validated-versions step and the production-library clippy step (host and wasm32) passed |
+| [45547754567](https://github.com/shortwavlabs/vectra/actions/runs/45547754567) | temporary probe PR #12, commit 1 (one Markdown file) | **success** | 8 s | **Hardened docs-only path:** `full checks required: false`; heavy steps skipped |
+| [45548030083](https://github.com/shortwavlabs/vectra/actions/runs/45548030083) | probe PR #12, commit 2 (adds `probe.unknown`) | **success** | 3 min 43 s | **Unknown path → full checks:** `full checks required: true`. PR #12 was closed unmerged and its branch deleted |
 
 Step timings of the cold run:
 - Rust toolchain install 10 s;
@@ -54,8 +58,6 @@ Step timings of the cold run:
 - production build: notices verified (35 components), dist check passed.
 
 The logs were read to confirm that every step did real work: compiler output, test counts and build output are present.
-
-The run triggered by this report's own commit on PR #8 exercises warm caches; its result is in the PR checks.
 
 **Observations:**
 - **WASM binary hash.** The CI (Linux amd64) build of `main`'s engine produced `vector_engine_wasm_bg.wasm` `2e7bd355…` (526,561 B). A fresh macOS build of the same commit gives `be101bca…`.
@@ -69,7 +71,7 @@ Full Playwright suites, geometry corpus qualification, the 326/72 frozen-hash re
 
 ## 5. Maintainer actions
 1. **Merge PR #8.** The G-0 closure authorised P-CI as a separate PR but not its merge. P1-A PRs cut from `main` get CI only once this workflow is on `main`, or after `main` is merged into them.
-2. **Branch protection** (optional; repository administration). This has **not** been configured or verified by the agent. To make `ci` a required check on `main`:
+2. **Branch protection.** The P1-A corrective brief authorises configuring it if admin access is available. Before the merge, a read-only `GET` found `main` **unprotected**, with 0 rulesets. The configuration actually applied after the merge is recorded in the integration report. The manual steps are kept here for reference. To make `ci` a required check on `main`:
    - GitHub → Settings → Branches (or Rules → Rulesets) → add a rule for `main` → "Require status checks to pass before merging" → select **`ci`**. The check appears in the list after its first run on `main`.
    - Equivalent CLI (admin token):
      ```bash
