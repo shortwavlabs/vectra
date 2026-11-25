@@ -69,6 +69,7 @@ export class CanvasRenderer {
   #gesture = false;
   #token = 0;
   #built = 0;
+  #buildMs = 0;
 
   constructor(
     canvas: Canvas,
@@ -165,7 +166,9 @@ export class CanvasRenderer {
     if (!h) return null;
     let p = h.paths[i];
     if (!p) {
+      const t = this.#hooks.now();
       p = new Path2D(pathData(h.packet, i));
+      this.#buildMs += this.#hooks.now() - t;
       h.paths[i] = p;
       this.#built++;
     }
@@ -261,12 +264,15 @@ export class CanvasRenderer {
     const D = device(this.#camera, this.#surface.dpr);
     const t0 = this.#hooks.now();
     const builtAt = this.#built;
+    const buildAt = this.#buildMs;
     this.#background(ctx, D);
     if (!snap) {
       this.#hooks.frame({
+        camera: this.#camera,
         renderRevision: 0,
         kind: "exact",
         ms: this.#hooks.now() - t0,
+        buildMs: 0,
         drawn: 0,
         built: 0,
         complete: true,
@@ -303,9 +309,11 @@ export class CanvasRenderer {
       busy += this.#hooks.now() - s0;
       if (k < items.length) {
         this.#hooks.frame({
+          camera: this.#camera,
           renderRevision: snap.renderRevision,
           kind: "interaction",
           ms: busy,
+          buildMs: this.#buildMs - buildAt,
           drawn,
           built: this.#built - builtAt,
           complete: false,
@@ -316,9 +324,11 @@ export class CanvasRenderer {
       this.#snapshotCache();
       this.#drawSelection(ctx, D);
       this.#hooks.frame({
+        camera: this.#camera,
         renderRevision: snap.renderRevision,
         kind: "exact",
         ms: busy,
+        buildMs: this.#buildMs - buildAt,
         drawn,
         built: this.#built - builtAt,
         complete: true,
@@ -353,9 +363,11 @@ export class CanvasRenderer {
     ctx.drawImage(this.#cache as CanvasImageSource, 0, 0);
     this.#drawSelection(ctx, device(c1, dpr));
     this.#hooks.frame({
+      camera: this.#camera,
       renderRevision: this.#snapshot?.renderRevision ?? 0,
       kind: exactCamera && k === 1 && c1.tx === c0.tx && c1.ty === c0.ty ? "exact" : "interaction",
       ms: this.#hooks.now() - t0,
+      buildMs: 0,
       drawn: 0,
       built: 0,
       complete: true,

@@ -42,9 +42,12 @@ export type FrameKind = "interaction" | "exact";
 
 export interface FrameInfo {
   readonly renderRevision: number;
+  /** The camera the frame was drawn with (exact frames are evidence only for their camera). */
+  readonly camera: Camera;
   readonly kind: FrameKind;
-  /** Main/worker time spent drawing this frame (Path2D construction included). */
+  /** Main/worker time spent on this frame: Path2D construction (`buildMs`) plus drawing. */
   readonly ms: number;
+  readonly buildMs: number;
   /** Items drawn (after viewport culling) and Path2D objects built for this frame. */
   readonly drawn: number;
   readonly built: number;

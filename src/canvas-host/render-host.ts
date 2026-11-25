@@ -54,6 +54,10 @@ export class DocumentRenderHost {
     hitTestBuildMs: null as number | null,
     exactFrames: 0,
     interactionFrames: 0,
+    /** Increments whenever a different document session is shown. */
+    sessions: 0,
+    /** The last complete exact frame: its render revision and camera. */
+    lastExact: null as { renderRevision: number; camera: Camera; host: HostMode } | null,
   };
   readonly #o: RenderHostOptions;
   #surface: Surface;
@@ -68,6 +72,8 @@ export class DocumentRenderHost {
   #itemsOf = new Map<NodeId, number[]>();
   #fitOnNext = true;
   #pending: Pending | null = null;
+  /** The session whose chunks the renderer holds: chunk IDs are unique only within one store. */
+  #copiedFrom: DocumentSession | null = null;
   #lastState: CanvasHostState = { kind: "starting" };
 
   constructor(o: RenderHostOptions) {
@@ -113,6 +119,7 @@ export class DocumentRenderHost {
     if (session === this.#session) return;
     this.#unsubscribe?.();
     this.#session = session;
+    this.diag.sessions++;
     this.#state = null;
     this.#fitOnNext = true;
     this.#unsubscribe = session ? session.subscribe(() => this.#refresh()) : null;
@@ -255,8 +262,11 @@ export class DocumentRenderHost {
     };
     const needed = new Set(ev.drawList.map((it) => it.chunkId));
     const held = this.client.held;
-    const copy = [...needed].filter((id) => full || !held.has(id));
-    const release = full ? [] : [...held].filter((id) => !needed.has(id));
+    // Another document: its `chk_1` is not this one's `chk_1`. Replace every render copy.
+    const replace = full || this.#copiedFrom !== session;
+    const copy = [...needed].filter((id) => replace || !held.has(id));
+    const release = full ? [] : replace ? [...held] : [...held].filter((id) => !needed.has(id));
+    this.#copiedFrom = session;
     const t1 = performance.now();
     const { packets } = session.store.renderCopy(copy);
     const render: RenderPacket[] = packets.map((p, i) => ({
@@ -296,8 +306,11 @@ export class DocumentRenderHost {
   }
 
   #onFrame(f: FrameInfo & { host: HostMode }): void {
-    if (f.kind === "exact") this.diag.exactFrames++;
-    else this.diag.interactionFrames++;
+    if (f.kind === "exact") {
+      this.diag.exactFrames++;
+      if (f.complete)
+        this.diag.lastExact = { renderRevision: f.renderRevision, camera: f.camera, host: f.host };
+    } else this.diag.interactionFrames++;
     const p = this.#pending;
     if (p && f.renderRevision >= p.renderRevision) {
       const ms = performance.now() - p.sentAt;
