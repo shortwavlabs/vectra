@@ -172,3 +172,32 @@ The G-UI shell follows §1–§11 with these recorded deviations ([G-UI report](
 - **Import:** a native file input and a canvas drop target instead of Dice `file-upload` (local `File` only, zero network, as §3 requires).
 - **Copied sources** are excluded from formatting (kept byte-identical for hash provenance) but linted and type-checked by the root `vp check` (§10.7).
 - **Dark only, deterministic:** registry `dark:` styles follow a `dark` class on `<html>`, never the OS colour scheme.
+
+## 13. G-UI-R design refinement (2026-11-25; review branch, not yet accepted)
+A refinement of the integrated workspace, not a redesign: the §4 palette, the §9 layout regions and the §8 accessibility rules are unchanged. Report and evidence: [G-UI-R report](research/g-ui-r/G-UI-R-REPORT.md).
+
+**Decisions:**
+- **Docked panels.** Rail, canvas, inspector and layers are docked and separated by `border` hairlines; there are no floating rounded panels or outer gutter. Resize handles are the hairlines themselves, with a `control-border` grip and an 8 px hit area.
+- **§9 placement, applied.** The Artwork/Paths/Compare switch is in the top bar (centred); zoom, fit and artboard size are in the status bar. The view strip above the canvas and the canvas footer are gone. Chrome at 768 px high is 72 px (top bar 44, status bar 28).
+- **Side column:** starts at 296 px below 1440 px of viewport width and at 320 px above; the 288–336 px range is unchanged. Layers start at 30 % of the column (was 40 %).
+- **Type scale** (system font stack, unchanged): `text-2xs` 11 px (meta, section titles, units), `text-xs` 12 px (controls and values), `text-ui` 13 px (body, panel titles, layer names), `text-title` 15 px (the selection name). Section titles are 11 px uppercase, `muted-foreground`, tracking 0.06 em; panel titles are 13 px semibold. Numbers are `tabular-nums` and grouped (1,613).
+- **Inspector = property sheet:** sections of rows with a 3.25 rem label column (Position, Size, Scale, Rotate). One field style for every value: 28 px high, `background` well, `control-border` outline, 12 px tabular text, a short visible label inside the field (X, Y, Hex) and the unit at the right. The registry input's `md:text-sm` is overridden at the call site, not patched.
+- **Colour picker:** opens below its trigger, over the inspector column, so it does not cover the artwork; offers the document's palette as 24 px swatches that set the draft only; Hex label inside the field. Commit/cancel semantics (D3–D6) are unchanged.
+- **Layers:** two-line rows (name, then state and count); a row that contains the selected path is tinted and reads "Selection inside" (never colour alone); eye, lock and menu are `muted-foreground` until toggled.
+- **Empty canvas:** the canvas surround with a blank ivory sheet (the artboard to come) as the drop target. Text on the sheet uses `background` (14.24:1) and the new `ink-muted` (5.6:1). A lime button on the sheet carries a `background` ink outline (lime on paper alone is 1.15:1).
+- **Modal scrim:** a flat `rgb(10 10 12 / 0.6)` without backdrop blur (owned unlayered rule on `[data-slot="dialog-overlay"]`; the registry file is not patched).
+- **Status bar:** activity icon, the message truncated with its full text as a `title`, then document size and complexity, zoom, renderer and offline state, each a fixed item separated by hairlines. With no document, the document items are hidden but stay mounted (their test IDs are part of the contract).
+- **Focus on the canvas:** the frame around the canvas draws the dual ring (lime outer, dark inner) above the canvas layers while the canvas has keyboard focus, because Chromium paints the canvas's own inset outline under its layers.
+- **Browser surfaces:** text selection and the caret use the lime accent; scroll thumbs use `control-border`; a scrolling panel fades at its lower edge while more content is below.
+
+**Token additions:**
+
+| Token | Value | Role and contrast (measured in the running build) |
+|---|---|---|
+| ink-muted | #5c5a54 | secondary text printed on `paper` (the empty-state sheet): 5.6:1 |
+| text-2xs / text-ui / text-title | 11 / 13 / 15 px | the type scale above (`text-xs` 12 px is Tailwind's) |
+
+**Deviations from §3 and §9 (recorded):**
+- **Paper as a UI surface.** `paper` was "artwork surface, display only". The empty-state sheet uses it to stand for the artboard to come; it is still display only and never exported.
+- **Unavailable controls stay in place.** The three unavailable tools and the two unavailable views remain visible and focusable (the shell and Safari suites check their names and keyboard order). They are now dimmed and explained by a tooltip, and the rail groups tools with dividers (selection and tracing, path refinement, colour). Removing them is an open question for the maintainer.
+- **Copy.** The Paths and Compare names changed from "available with the production renderer" to "not available yet", consistent with the tools.
