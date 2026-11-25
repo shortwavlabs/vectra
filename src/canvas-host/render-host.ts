@@ -53,6 +53,9 @@ function parents(s: DocState): Map<NodeId, NodeId | null> {
   return m;
 }
 
+/** Hit-index preparation slice (ms): short enough never to be an attributable long task. */
+export const HIT_SLICE_MS = 4;
+
 /** Selected paths outlined by the renderer, at most (beyond it: the bounds overlay only). A
  *  selected container is never outlined path by path: its bounds are drawn by the caller. */
 export const OUTLINE_LIMIT = 2000;
@@ -88,7 +91,13 @@ export class DocumentRenderHost {
     lastFirstFrameMs: null as number | null,
     lastExactFrameMs: null as number | null,
     lastExactDrawMs: null as number | null,
+    /** Hit index: total build time, slices, longest slice, evaluation → ready, click waits. */
     hitTestBuildMs: null as number | null,
+    hitTestSlices: 0,
+    hitTestMaxSliceMs: 0,
+    hitTestReadyMs: null as number | null,
+    hitTestWaitMs: null as number | null,
+    hitTestStaleAnswers: 0,
     exactFrames: 0,
     interactionFrames: 0,
     /** Increments whenever a different document session is shown. */
@@ -104,6 +113,10 @@ export class DocumentRenderHost {
   #state: DocState | null = null;
   #ev: Evaluation | null = null;
   #hit: HitTester | null = null;
+  #hitStarted = 0;
+  #hitScheduled = false;
+  #hitWaiters: (() => void)[] = [];
+  readonly #hitChannel = new MessageChannel();
   #renderRevision = 0;
   #selection: readonly NodeId[] = [];
   /** Draw-list indices per PathObject (a path can draw more than once only if duplicated). */
@@ -154,6 +167,10 @@ export class DocumentRenderHost {
 
   dispose(): void {
     this.#unsubscribe?.();
+    this.#hit = null;
+    this.#flushHitWaiters();
+    this.#hitChannel.port1.onmessage = null;
+    this.#hitChannel.port1.close();
     this.client.dispose();
   }
 
@@ -230,19 +247,89 @@ export class DocumentRenderHost {
   }
 
   // --- hit testing ----------------------------------------------------------------------------
-  /** The topmost selectable node under a CSS point of the canvas, or null. */
-  hitAt(cssX: number, cssY: number): NodeId | null {
+  /**
+   * The topmost selectable node under a CSS point of the canvas, or null; `undefined` when the
+   * document changed before the answer was ready (the caller ignores it). The index is prepared
+   * in bounded slices after each evaluation; a click that arrives first waits for completion,
+   * still in slices, and is never answered by a partial index.
+   */
+  hitAt(cssX: number, cssY: number): Promise<NodeId | null | undefined> {
     const c = this.#camera;
-    return this.hitDocument((cssX - c.tx) / c.scale, (cssY - c.ty) / c.scale);
+    const x = (cssX - c.tx) / c.scale;
+    const y = (cssY - c.ty) / c.scale;
+    const ev = this.#ev;
+    const hit = this.#hit;
+    if (!ev || !hit) return Promise.resolve(null);
+    if (hit.ready) return Promise.resolve(hit.hit(x, y));
+    const t0 = performance.now();
+    return new Promise((resolve) => {
+      this.#hitWaiters.push(() => {
+        this.diag.hitTestWaitMs = performance.now() - t0;
+        if (this.#ev === ev && this.#hit === hit && hit.ready) resolve(hit.hit(x, y));
+        else {
+          this.diag.hitTestStaleAnswers++;
+          resolve(undefined);
+        }
+      });
+      this.#scheduleHitSlice();
+    });
   }
 
+  /** Qualification only: completes the index synchronously and queries it. */
   hitDocument(x: number, y: number): NodeId | null {
-    if (!this.#ev || !this.#session) return null;
-    if (!this.#hit) {
-      this.#hit = new HitTester(this.#ev, this.#session.store);
-      this.diag.hitTestBuildMs = this.#hit.buildMs;
+    if (!this.#hit) return null;
+    if (!this.#hit.ready) {
+      this.#hit.step(Infinity);
+      this.#hitDone();
     }
     return this.#hit.hit(x, y);
+  }
+
+  /** Starts preparing the index of the current evaluation (any older index is dropped). */
+  #startHitIndex(): void {
+    this.#hit =
+      this.#ev && this.#session
+        ? new HitTester(this.#ev, this.#session.store, { deferred: true })
+        : null;
+    this.#hitStarted = performance.now();
+    this.diag.hitTestBuildMs = null;
+    this.diag.hitTestReadyMs = null;
+    this.#flushHitWaiters(); // answers for an older evaluation are stale
+    if (this.#hit) this.#scheduleHitSlice();
+  }
+
+  #scheduleHitSlice(): void {
+    if (this.#hitScheduled || !this.#hit || this.#hit.ready) return;
+    this.#hitScheduled = true;
+    if (this.#hitWaiters.length) {
+      // A click is waiting: run the next slice as soon as the event loop allows.
+      this.#hitChannel.port1.onmessage = () => this.#runHitSlice();
+      this.#hitChannel.port2.postMessage(0);
+    } else setTimeout(() => this.#runHitSlice(), 0);
+  }
+
+  #runHitSlice(): void {
+    this.#hitScheduled = false;
+    const hit = this.#hit;
+    if (!hit || hit.ready) return;
+    const t0 = performance.now();
+    hit.slice(HIT_SLICE_MS, 2048);
+    const ms = performance.now() - t0;
+    this.diag.hitTestSlices++;
+    this.diag.hitTestMaxSliceMs = Math.max(this.diag.hitTestMaxSliceMs, ms);
+    if (hit.ready) this.#hitDone();
+    else this.#scheduleHitSlice();
+  }
+
+  #hitDone(): void {
+    if (!this.#hit) return;
+    this.diag.hitTestBuildMs = this.#hit.buildMs;
+    this.diag.hitTestReadyMs = performance.now() - this.#hitStarted;
+    this.#flushHitWaiters();
+  }
+
+  #flushHitWaiters(): void {
+    for (const w of this.#hitWaiters.splice(0)) w();
   }
 
   // --- internals ------------------------------------------------------------------------------
@@ -250,10 +337,10 @@ export class DocumentRenderHost {
     const state = this.#session?.getSnapshot().state ?? null;
     if (state === this.#state) return;
     this.#state = state;
-    this.#hit = null;
     if (!state) {
       this.#ev = null;
       this.#itemsUnder = null;
+      this.#startHitIndex();
       this.#itemsOf.clear();
       this.#emit({ kind: "empty" });
       return;
@@ -381,6 +468,7 @@ export class DocumentRenderHost {
     if (!this.#ev || full === false) {
       this.#ev = evaluate(state);
       this.#itemsUnder = null;
+      this.#startHitIndex();
     }
     const ev = this.#ev;
     this.#itemsOf = new Map();

@@ -106,8 +106,12 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
         const d = down;
         down = null;
         if (d.panning) return h.gesture("end");
-        const id = h.hitAt(d.x, d.y);
-        latest.current.onSelect(id ? [id] : [], e.shiftKey ? "toggle" : "replace");
+        const mode = e.shiftKey ? "toggle" : "replace";
+        void h.hitAt(d.x, d.y).then((id) => {
+          // Dropped when the document changed, or this canvas was replaced, before the answer.
+          if (id === undefined || host.current !== h) return;
+          latest.current.onSelect(id ? [id] : [], mode);
+        });
       };
       let wheelEnd: ReturnType<typeof setTimeout> | null = null;
       const onWheel = (e: WheelEvent) => {
