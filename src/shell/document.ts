@@ -221,6 +221,20 @@ export function displayName(n: DocNode, s: DocState): string {
   return n.kind === "group" ? "Group" : "Layer";
 }
 
+/**
+ * How a palette entry is named on screen and to assistive technology (display only). The
+ * engine names the colours of a trace by preset, numbered from 0: `p0`…`p7` (Limited Palette),
+ * `c0`, `c1`… (Full Colour), `ink`, `ink1`… (Black & White and halftone; `ink` is the first),
+ * `x0`… (a Limited Palette fallback). Those become "Colour N+1", N being the number in the name,
+ * never the list position (the list is in first-use order). Any other name is shown as it is.
+ * The entry's `name` is untouched: export writes it into SVG and PDF.
+ */
+export function paletteLabel(name: string): string {
+  if (name === "ink") return "Colour 1";
+  const m = /^(?:p|c|x|ink)(\d+)$/.exec(name);
+  return m ? `Colour ${Number(m[1]) + 1}` : name;
+}
+
 /** Effective fill of a path (palette entries resolved), or null for no fill. */
 export function pathFill(
   s: DocState,

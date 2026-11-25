@@ -368,77 +368,54 @@ try {
     },
   );
 
-  await scenario(
-    "tool rail: names, pressed state, unavailable tools, keyboard and tooltips",
-    async (ok) => {
+  await scenario("tool rail: names, pressed state, keyboard and tooltips", async (ok) => {
+    await open();
+    const names = await x(() =>
+      [...__one("navigation", "Tools").querySelectorAll("button")].map((b) =>
+        b.getAttribute("aria-label"),
+      ),
+    );
+    // Maintainer review of G-UI-R: Smooth, Simplify and Cleanup are hidden until implemented.
+    ok("names", JSON.stringify(names) === JSON.stringify(["Select", "Trace", "Recolor"]), names);
+    ok("Select pressed", (await attr("button", "Select", "aria-pressed")) === "true");
+    ok("Recolor shortcut", (await attr("button", "Recolor", "aria-keyshortcuts")) === "R");
+    // Keyboard: plain Tab (what this automation session does) and Option-Tab (stock Safari's
+    // every-item key), each from a fresh page.
+    const tip = () =>
+      x(
+        () =>
+          document.querySelector('[data-slot="tooltip-content"][data-open]')?.textContent ?? null,
+      );
+    for (const { label, nav } of [
+      { label: "Tab", nav: [K.Tab] },
+      { label: "Option-Tab", nav: [K.Alt, K.Tab] },
+    ]) {
       await open();
-      const names = await x(() =>
-        [...__one("navigation", "Tools").querySelectorAll("button")].map((b) =>
-          b.getAttribute("aria-label"),
-        ),
+      await focus("button", "Select");
+      await keys(nav);
+      await sleep(150);
+      if (label === "Tab") report.plainTabFromSelect = await active();
+      ok(`${label}: focus on Trace`, (await active())?.name === "Trace", await active());
+      await until(
+        () => document.querySelector('[data-slot="tooltip-content"][data-open]'),
+        "tooltip on focus",
       );
+      ok(`${label}: tooltip names Trace`, (await tip())?.includes("Trace"), await tip());
+      await keys(K.Enter);
       ok(
-        "names",
-        JSON.stringify(names) ===
-          JSON.stringify([
-            "Select",
-            "Trace",
-            "Smooth, not available yet",
-            "Simplify, not available yet",
-            "Cleanup, not available yet",
-            "Recolor",
-          ]),
-        names,
+        `${label}: Enter selects Trace`,
+        (await attr("button", "Trace", "aria-pressed")) === "true",
       );
-      ok("Select pressed", (await attr("button", "Select", "aria-pressed")) === "true");
-      for (const n of ["Smooth", "Simplify", "Cleanup"]) {
-        const nm = `${n}, not available yet`;
-        ok(`${n} aria-disabled`, (await attr("button", nm, "aria-disabled")) === "true");
-        ok(`${n} not pressed`, (await attr("button", nm, "aria-pressed")) === null);
-      }
-      ok("Recolor shortcut", (await attr("button", "Recolor", "aria-keyshortcuts")) === "R");
-      // Keyboard: plain Tab (what this automation session does) and Option-Tab (stock Safari's
-      // every-item key), each from a fresh page.
-      const tip = () =>
-        x(
-          () =>
-            document.querySelector('[data-slot="tooltip-content"][data-open]')?.textContent ?? null,
-        );
-      for (const { label, nav } of [
-        { label: "Tab", nav: [K.Tab] },
-        { label: "Option-Tab", nav: [K.Alt, K.Tab] },
-      ]) {
-        await open();
-        await focus("button", "Select");
-        await keys(nav);
-        await sleep(150);
-        if (label === "Tab") report.plainTabFromSelect = await active();
-        ok(`${label}: focus on Trace`, (await active())?.name === "Trace", await active());
-        await until(
-          () => document.querySelector('[data-slot="tooltip-content"][data-open]'),
-          "tooltip on focus",
-        );
-        ok(`${label}: tooltip names Trace`, (await tip())?.includes("Trace"), await tip());
-        await keys(K.Enter);
-        ok(
-          `${label}: Enter selects Trace`,
-          (await attr("button", "Trace", "aria-pressed")) === "true",
-        );
-        await keys(nav);
-        await sleep(300);
-        ok(
-          `${label}: tooltip explains Smooth`,
-          (await tip())?.includes("Smooth, not available yet"),
-          await tip(),
-        );
-        await keys(K.Enter);
-        ok(
-          `${label}: the unavailable tool does nothing`,
-          (await attr("button", "Trace", "aria-pressed")) === "true",
-        );
-      }
-    },
-  );
+      await keys(nav);
+      await sleep(300);
+      ok(`${label}: tooltip names Recolor`, (await tip())?.includes("Recolor"), await tip());
+      await keys(K.Enter);
+      ok(
+        `${label}: Enter selects Recolor`,
+        (await attr("button", "Recolor", "aria-pressed")) === "true",
+      );
+    }
+  });
 
   await scenario(
     "shortcuts dialog: key and button, focus trap, inert shortcuts, focus return",

@@ -42,22 +42,44 @@ export interface LayersPanelProps {
   selection: readonly NodeId[];
   onSelect: (ids: readonly NodeId[], mode: "replace" | "toggle") => void;
   run: (c: Command | Command[]) => void;
+  /** Whether the panel is expanded (it collapses to its header only on request). */
+  open: boolean;
+  onToggle: () => void;
 }
 
 const HEADER = "flex h-9 shrink-0 items-center gap-1.5 border-b border-border pr-1.5 pl-3";
 
-export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProps) {
+export function LayersPanel({ state, selection, onSelect, run, open, onToggle }: LayersPanelProps) {
   const [expanded, setExpanded] = useState<ReadonlySet<NodeId>>(new Set());
   const [renaming, setRenaming] = useState<NodeId | null>(null);
+  // The disclosure: the panel title is the collapse/expand control (a constant name; the state
+  // is aria-expanded). Collapsed, the body is hidden, so no row keeps a Tab stop.
+  const title = (
+    <h2 id="layers-heading" className="text-ui font-semibold">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="layers-body"
+        onClick={onToggle}
+        className="-ml-1.5 flex items-center gap-1 rounded px-1.5 py-1 hover:bg-elevated"
+      >
+        <ChevronRight
+          className={`size-3.5 text-muted-foreground transition-transform ${open ? "rotate-90" : ""}`}
+          aria-hidden="true"
+        />
+        Layers
+      </button>
+    </h2>
+  );
   if (!state)
     return (
       <section aria-labelledby="layers-heading" className="flex min-h-0 flex-1 flex-col">
-        <div className={HEADER}>
-          <h2 id="layers-heading" className="text-ui font-semibold">
-            Layers
-          </h2>
-        </div>
-        <div className="grid flex-1 content-center justify-items-center gap-2 px-6 pb-6 text-center">
+        <div className={HEADER}>{title}</div>
+        <div
+          id="layers-body"
+          hidden={!open}
+          className="grid flex-1 content-center justify-items-center gap-2 px-6 pb-6 text-center"
+        >
           <Layers className="size-5 text-muted-foreground" aria-hidden="true" />
           <p className="text-xs text-pretty text-muted-foreground">
             No document yet. Imported artwork appears here as layers.
@@ -88,7 +110,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
   const canStep = (step: 1 | -1) =>
     selected !== null && !isLocked(state, selected) && stepCommand(state, selected, step) !== null;
 
-  // Rows that hold a selected path (paths are not listed): marked so the selection has a place.
+  // Rows that contain a selected path (paths are not listed): marked so the selection has a place.
   const par = parents(state);
   const holdsSelection = new Set<NodeId>();
   for (const id of selection)
@@ -102,7 +124,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
     const holds = !isSel && holdsSelection.has(id);
     const count = pathCount(state, id);
     const meta = [
-      holds && "Selection inside",
+      holds && "Contains selection",
       !n.visible && "Hidden",
       n.kind === "source"
         ? "Source image"
@@ -265,9 +287,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
   return (
     <section aria-labelledby="layers-heading" className="flex min-h-0 flex-1 flex-col">
       <div className={HEADER}>
-        <h2 id="layers-heading" className="text-ui font-semibold">
-          Layers
-        </h2>
+        {title}
         <span className="flex-1 text-2xs text-muted-foreground tabular-nums">{roots.length}</span>
         <Tip
           label="Move up"
@@ -304,7 +324,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
           <ArrowDown />
         </Tip>
       </div>
-      <ScrollArea className="min-h-0 flex-1">
+      <ScrollArea id="layers-body" hidden={!open} className="min-h-0 flex-1">
         {roots.length === 0 ? (
           <p className="px-3 py-3 text-xs text-pretty text-muted-foreground">
             The document has no layers. Import an image to add one.

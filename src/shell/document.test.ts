@@ -6,6 +6,7 @@ import {
   fillTargets,
   isLocked,
   moveCommand,
+  paletteLabel,
   quarterTurnAbout,
   scalingAbout,
   selectionBounds,
@@ -134,5 +135,33 @@ describe("fill targets", () => {
     ).toBe(0x112233ff);
     s.dispatch({ type: "setLocked", ids: [layer], locked: true });
     expect(fillTargets(s.state, [layer])).toEqual([]);
+  });
+});
+
+describe("palette names on screen (display only)", () => {
+  test("generated names become Colour N+1 from the number in the name; others are kept", () => {
+    expect(["p0", "p7", "c0", "c12", "x3", "ink", "ink1"].map(paletteLabel)).toEqual([
+      "Colour 1",
+      "Colour 8",
+      "Colour 1",
+      "Colour 13",
+      "Colour 4",
+      "Colour 1",
+      "Colour 2",
+    ]);
+    for (const custom of ["Sky", "p", "p1a", "pink", "P2", "Colour 3", ""])
+      expect(paletteLabel(custom)).toBe(custom);
+  });
+
+  test("real traces: the number, not the list position; the entries are unchanged", () => {
+    const s = fixtureSession(["adjacent_colors-limited", "adjacent_colors-color", "circle-bw"]);
+    const entries = [...s.state.paletteById.values()];
+    const before = JSON.stringify(entries);
+    const shown = entries.map((e) => [e.name, paletteLabel(e.name)]);
+    // The palette is in first-use order, so a name's number is not its position.
+    expect(shown.some(([name], i) => name !== `p${i}` && /^p\d$/.test(name!))).toBe(true);
+    for (const [name, label] of shown)
+      expect(label).toBe(`Colour ${name === "ink" ? 1 : Number(/\d+$/.exec(name!)![0]) + 1}`);
+    expect(JSON.stringify([...s.state.paletteById.values()])).toBe(before);
   });
 });

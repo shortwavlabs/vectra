@@ -78,7 +78,9 @@ async function recoverRenderer(page: Page) {
   await expect(page.getByTestId("canvas-state")).toHaveAttribute("data-state", "ready", {
     timeout: 30_000,
   });
-  await expect(page.getByTestId("canvas-state")).toContainText("Renderer: worker");
+  // A healthy render worker again: disclosed by the state attributes, silent in the status bar.
+  await expect(page.getByTestId("canvas-state")).toHaveAttribute("data-host", "worker");
+  await expect(page.getByTestId("canvas-state")).toHaveText("");
   expect((await v(page).canvasDiag())?.client.buildMismatches).toBe(0);
 }
 

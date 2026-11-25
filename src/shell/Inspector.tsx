@@ -19,6 +19,7 @@ import {
   containsLocked,
   displayName,
   isLocked,
+  paletteLabel,
   pathCount,
   pathFill,
   fillTargets,
@@ -141,7 +142,10 @@ export function SelectionInspector(p: {
   const [draftScale, setDraftScale] = useState<number | null>(null);
   const drag = useRef({ active: false, cancelled: false });
   const end = () => session.endCoalescing();
-  const swatches = [...s.paletteById.values()].map((e) => ({ name: e.name, hex: rgbHex(e.color) }));
+  const swatches = [...s.paletteById.values()].map((e) => ({
+    name: paletteLabel(e.name),
+    hex: rgbHex(e.color),
+  }));
 
   const move = (dx: number, dy: number, step: boolean, axis: string) =>
     run(
@@ -336,6 +340,7 @@ export function SelectionInspector(p: {
             <ColorPicker
               label="Fill colour"
               value={fill.color === null ? "#000000" : rgbHex(fill.color)}
+              mixed={mixed}
               disabled={locked}
               swatches={swatches}
               onCommit={(hex) =>
@@ -353,7 +358,7 @@ export function SelectionInspector(p: {
               {fill.color === null && "No fill. "}
               {fill.paletteName !== null &&
                 !mixed &&
-                `Uses palette colour ${fill.paletteName}; Apply sets a custom fill instead. `}
+                `Uses ${paletteLabel(fill.paletteName)} from the palette; Apply sets a custom fill instead. `}
               To edit a palette colour everywhere, use Recolor (R).
             </p>
           </>
@@ -369,7 +374,7 @@ export function SelectionInspector(p: {
 
 export function RecolorInspector({ snap, run }: { snap: SessionSnapshot; run: Run }) {
   const entries = [...snap.state.paletteById.values()];
-  const swatches = entries.map((e) => ({ name: e.name, hex: rgbHex(e.color) }));
+  const swatches = entries.map((e) => ({ name: paletteLabel(e.name), hex: rgbHex(e.color) }));
   return (
     <>
       <div className="grid gap-0.5 px-3 pt-3 pb-2.5">
@@ -379,6 +384,14 @@ export function RecolorInspector({ snap, run }: { snap: SessionSnapshot; run: Ru
         </p>
       </div>
       <Section title="Colours">
+        {/* Locks do not apply here: a palette colour is shared by every path that uses it. */}
+        {entries.length > 0 && (
+          <p className="text-xs text-pretty text-muted-foreground" data-testid="recolor-note">
+            A palette edit recolours every path that uses that colour,{" "}
+            <span className="text-foreground">including locked paths</span>: locks prevent
+            transforms and deletion, not palette edits.
+          </p>
+        )}
         {entries.length === 0 ? (
           <p className="text-xs text-muted-foreground">This document has no palette colours.</p>
         ) : (
@@ -386,8 +399,8 @@ export function RecolorInspector({ snap, run }: { snap: SessionSnapshot; run: Ru
             {entries.map((e) => (
               <li key={e.id}>
                 <ColorPicker
-                  label={`Palette colour ${e.name}`}
-                  name={e.name}
+                  label={paletteLabel(e.name)}
+                  name={paletteLabel(e.name)}
                   value={rgbHex(e.color)}
                   swatches={swatches}
                   onCommit={(hex) =>
@@ -402,9 +415,6 @@ export function RecolorInspector({ snap, run }: { snap: SessionSnapshot; run: Ru
             ))}
           </ul>
         )}
-        <p className="text-2xs text-pretty text-muted-foreground">
-          A palette edit recolours every path that uses that colour, including locked ones.
-        </p>
       </Section>
     </>
   );

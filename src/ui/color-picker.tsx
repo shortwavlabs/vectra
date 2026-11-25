@@ -8,6 +8,9 @@
 // G-UI-R: the popover opens below its trigger (over the inspector column, not over the artwork),
 // offers the document's colours as swatches (they set the draft, nothing else), and shows the
 // current and new colour side by side.
+// Maintainer review: a selection whose fills differ is shown as mixed (a hatched swatch, "Mixed",
+// and "mixed" in the name), never as one of its colours. The draft starts from `value`, and
+// Apply always commits then, since any colour makes the fills uniform.
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { type Hsv, hexToHsv, hsvToHex, parseHex } from "./color.ts";
 import { FIELD } from "./numeric-field.tsx";
@@ -17,8 +20,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "./registry/popover";
 import { Slider } from "./registry/slider";
 
 export interface ColorPickerProps {
-  /** The committed colour, `#rrggbb`. */
+  /** The committed colour, `#rrggbb`; with `mixed`, only where the draft starts. */
   value: string;
+  /** The targets' colours differ: no single current colour is shown or named. */
+  mixed?: boolean;
   /** What is being coloured, e.g. "Fill colour". */
   label: string;
   onCommit: (hex: string) => void;
@@ -33,6 +38,7 @@ const clamp = (v: number) => Math.min(100, Math.max(0, v));
 
 export function ColorPicker({
   value,
+  mixed,
   label,
   onCommit,
   disabled,
@@ -72,7 +78,7 @@ export function ColorPicker({
     setDraftHex(hex);
   };
   const apply = () => {
-    if (draft !== value) onCommit(draft);
+    if (mixed || draft !== value) onCommit(draft);
     setOpen(false);
   };
 
@@ -106,17 +112,17 @@ export function ColorPicker({
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
         disabled={disabled}
-        aria-label={`${label}: ${value}. Edit colour`}
+        aria-label={`${label}: ${mixed ? "mixed" : value}. Edit colour`}
         className={`${FIELD} flex w-full min-w-0 items-center gap-2 border px-1.5 text-left text-foreground transition-colors hover:border-foreground/55 disabled:pointer-events-none disabled:opacity-50 data-popup-open:border-primary`}
       >
         <span
           aria-hidden="true"
-          className="size-4 shrink-0 rounded-[3px] ring-1 ring-foreground/25 ring-inset"
-          style={{ backgroundColor: value }}
+          className={`size-4 shrink-0 rounded-[3px] ring-1 ring-foreground/25 ring-inset ${mixed ? "vx-swatch-mixed" : ""}`}
+          style={mixed ? undefined : { backgroundColor: value }}
         />
         {name && <span className="min-w-0 flex-1 truncate">{name}</span>}
         <span className={name ? "shrink-0 text-muted-foreground" : "min-w-0 truncate"}>
-          {value}
+          {mixed ? "Mixed" : value}
         </span>
       </PopoverTrigger>
       <PopoverContent
@@ -210,7 +216,10 @@ export function ColorPicker({
             className="flex h-7 overflow-hidden rounded-md ring-1 ring-foreground/25 ring-inset"
             aria-hidden="true"
           >
-            <span className="block w-7" style={{ backgroundColor: value }} />
+            <span
+              className={`block w-7 ${mixed ? "vx-swatch-mixed" : ""}`}
+              style={mixed ? undefined : { backgroundColor: value }}
+            />
             <span className="block w-7" style={{ backgroundColor: draft }} />
           </div>
         </div>
@@ -221,7 +230,7 @@ export function ColorPicker({
             </span>
           ) : (
             <>
-              Current {value} · New <span data-testid="color-draft">{draft}</span>
+              Current {mixed ? "mixed" : value} · New <span data-testid="color-draft">{draft}</span>
             </>
           )}
         </p>

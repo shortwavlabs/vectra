@@ -1,25 +1,21 @@
 // The Vectra workspace shell (G-UI, P1-B): top bar, contextual tool rail, central canvas,
 // inspector and layers, status bar. It binds to the document session through commands only.
-// Controls for features that do not exist yet are shown disabled with an explanation; none
-// pretends to work.
-// G-UI-R layout: docked panels separated by hairlines (no floating cards), the view switch in
-// the top bar and zoom in the status bar (DESIGN-SYSTEM §9), so the canvas takes every pixel
-// the chrome does not need.
+// Tools and views that do not exist yet are not shown (maintainer review of G-UI-R): none
+// pretends to work, and none takes a Tab stop.
+// G-UI-R layout: docked panels separated by hairlines (no floating cards) and zoom in the status
+// bar (DESIGN-SYSTEM §9), so the canvas takes every pixel the chrome does not need.
 import {
   CircleAlert,
   Download,
-  Eraser,
   Keyboard,
   LoaderCircle,
   Maximize,
-  Minimize2,
   Minus,
   MousePointer2,
   Palette,
   Plus,
   Redo2,
   ScanLine,
-  Spline,
   Undo2,
   Upload,
   X,
@@ -34,6 +30,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { usePanelRef } from "react-resizable-panels";
 import { VectorCanvas } from "../canvas-host/CanvasHost.tsx";
 import type { DocumentRenderHost } from "../canvas-host/render-host.ts";
 import type { CanvasHostHandle, CanvasHostState, CanvasView } from "../canvas-host/types.ts";
@@ -86,40 +83,32 @@ import {
 import { LayersPanel } from "./LayersPanel.tsx";
 import { installWorkspaceQualification } from "./qualification.ts";
 
-type ToolId = "select" | "trace" | "smooth" | "simplify" | "cleanup" | "recolor";
+type ToolId = "select" | "trace" | "recolor";
 interface Tool {
   id: ToolId;
   label: string;
   icon: LucideIcon;
-  key?: string;
-  /** Why the tool is unavailable; undefined when it works. */
-  unavailable?: string;
-  /** Rail group: selection and tracing, path refinement, colour (a divider between groups). */
-  group: 0 | 1 | 2;
+  key: string;
+  /** Rail group: selection and tracing, colour (a divider between groups). */
+  group: 0 | 1;
 }
-// RFC-002 §16 P1 tools only (nodes, booleans and offset are P2-A). The order is the keyboard
-// order the shell and Safari suites check; groups only add dividers.
+// The RFC-002 §16 P1 tools that work today. Smooth, Simplify and Cleanup (path refinement) are
+// hidden until they are implemented, then return between Trace and Recolor in their own group.
+// The order is the keyboard order the shell and Safari suites check.
 const TOOLS: readonly Tool[] = [
   { id: "select", label: "Select", icon: MousePointer2, key: "V", group: 0 },
   { id: "trace", label: "Trace", icon: ScanLine, key: "T", group: 0 },
-  { id: "smooth", label: "Smooth", icon: Spline, unavailable: "not available yet", group: 1 },
-  {
-    id: "simplify",
-    label: "Simplify",
-    icon: Minimize2,
-    unavailable: "not available yet",
-    group: 1,
-  },
-  { id: "cleanup", label: "Cleanup", icon: Eraser, unavailable: "not available yet", group: 1 },
-  { id: "recolor", label: "Recolor", icon: Palette, key: "R", group: 2 },
+  { id: "recolor", label: "Recolor", icon: Palette, key: "R", group: 1 },
 ];
 const PRESET_NOTES: Record<PresetId, string> = {
-  bw: "One ink on paper",
-  color: "Every colour region",
-  limited: "A small palette of inks",
+  bw: "Bold shapes and high-contrast artwork.",
+  color: "Preserve the richness of the original image.",
+  limited: "Reduce artwork to a curated set of colours.",
 };
 
 const ACCEPT = "image/png,image/jpeg,image/webp";
+/** The Layers header's height (h-9): what a collapsed Layers panel keeps. */
+const LAYERS_HEADER = 36;
 /** The side column starts narrower on small laptops (under 1440 px wide): more canvas. */
 const SIDE_WIDTH = typeof innerWidth === "number" && innerWidth < 1440 ? 296 : 320;
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -136,28 +125,15 @@ function tokenColor(name: string, fallback: string): string {
   return c || fallback;
 }
 
-/** The status-bar description of the renderer: state, and the host (worker or fallback). */
-function rendererLabel(s: CanvasHostState, fallbackReason: string | null): string {
-  const host =
-    s.kind === "ready"
-      ? s.host === "worker"
-        ? "worker"
-        : `main thread${fallbackReason ? ` (fallback: ${fallbackReason})` : ""}`
-      : null;
-  switch (s.kind) {
-    case "empty":
-      return "Renderer: no document";
-    case "starting":
-      return "Renderer: starting";
-    case "rendering":
-      return "Renderer: rendering";
-    case "ready":
-      return `Renderer: ${host} · ready`;
-    case "recovering":
-      return `Renderer: recovering (${s.reason})`;
-    case "error":
-      return `Renderer error: ${s.message}`;
-  }
+/** What the status bar discloses about the renderer: nothing while it is healthy (the render
+ *  worker, or starting and drawing in it); the main-thread fallback, a recovery and a failure
+ *  are shown. The fallback reason stays set once the client has fallen back, so the disclosure
+ *  does not flicker while a fallback renderer draws. */
+function rendererNotice(s: CanvasHostState, fallbackReason: string | null): string {
+  if (s.kind === "error") return `Renderer error: ${s.message}`;
+  if (s.kind === "recovering") return `Renderer: recovering (${s.reason})`;
+  if (fallbackReason !== null) return `Renderer: main thread (fallback: ${fallbackReason})`;
+  return "";
 }
 
 const noSubscribe = () => () => {};
@@ -173,22 +149,19 @@ const shortcutsBlocked = (t: EventTarget | null) =>
 /** Undo/redo still work from a slider (a range input edits no text). */
 const isRange = (t: EventTarget | null) => t instanceof HTMLInputElement && t.type === "range";
 
-/** A rail or bar button whose name, shortcut and (un)availability are on the trigger itself
- *  (tooltips are visual only, R05-A D9). Unavailable controls stay focusable (aria-disabled). */
+/** A rail or bar button whose name and shortcut are on the trigger itself (tooltips are visual
+ *  only, R05-A D9). A disabled control stays focusable (aria-disabled). */
 function IconAction(p: {
   label: string;
   icon: ReactNode;
   shortcut?: string;
   ariaShortcut?: string;
-  unavailable?: string;
   pressed?: boolean;
   disabled?: boolean;
   side?: "right" | "bottom" | "top";
   size?: "icon-lg" | "icon";
   onClick?: () => void;
 }) {
-  const name = p.unavailable ? `${p.label}, ${p.unavailable}` : p.label;
-  const off = p.unavailable || p.disabled;
   return (
     <Tooltip>
       <TooltipTrigger
@@ -196,25 +169,25 @@ function IconAction(p: {
           <Button
             variant="ghost"
             size={p.size ?? "icon-lg"}
-            aria-label={name}
+            aria-label={p.label}
             aria-pressed={p.pressed}
             aria-keyshortcuts={p.ariaShortcut}
-            aria-disabled={off ? true : undefined}
+            aria-disabled={p.disabled ? true : undefined}
             className={
               p.pressed
                 ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                : off
+                : p.disabled
                   ? "text-muted-foreground opacity-40 hover:bg-transparent hover:text-muted-foreground"
                   : "text-muted-foreground hover:text-foreground"
             }
-            onClick={off ? undefined : p.onClick}
+            onClick={p.disabled ? undefined : p.onClick}
           />
         }
       >
         {p.icon}
       </TooltipTrigger>
       <TooltipContent side={p.side ?? "right"}>
-        {name}
+        {p.label}
         {p.shortcut && (
           <kbd className="ml-1 rounded bg-background/15 px-1 font-sans text-[11px]">
             {p.shortcut}
@@ -255,7 +228,9 @@ const SHORTCUTS: [string, string][] = [
 ];
 
 export function Workspace() {
-  const [status, setStatus] = useState<{ text: string; error?: boolean }>({ text: "Ready" });
+  // Idle is silent: the status live region is mounted empty and speaks only when something
+  // happens (no "Ready").
+  const [status, setStatus] = useState<{ text: string; error?: boolean }>({ text: "" });
   const [jobs] = useState(() =>
     createJobs((detail) => setStatus({ text: `This page is out of date: ${detail}`, error: true })),
   );
@@ -305,6 +280,8 @@ export function Workspace() {
   const [zoom, setZoom] = useState<number | null>(null);
   const onView = useCallback((v: CanvasView) => setZoom(Math.round(v.scale * 100)), []);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const layersPanel = usePanelRef();
+  const [layersOpen, setLayersOpen] = useState(true);
   const [offline, setOffline] = useState<OfflineStatus | null>(null);
   const canvas = useRef<CanvasHostHandle>(null);
   // Resolved once, before the canvas mounts: the renderer draws with these colours.
@@ -546,6 +523,7 @@ export function Workspace() {
   })();
 
   const presetLabel = PRESETS.find((p) => p.id === preset)!.label;
+  const rendererText = rendererNotice(hostState, host?.client.diag.fallbackReason ?? null);
   const statusText = tracing
     ? `Tracing ${tracing.name} (${tracing.stage})…`
     : preparing
@@ -555,13 +533,13 @@ export function Workspace() {
   return (
     <TooltipProvider delay={300}>
       <div className="grid h-full grid-rows-[44px_minmax(0,1fr)_28px] bg-background">
-        {/* Top bar: identity and document, view, history and file actions */}
-        <header className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-b border-border bg-panel px-3">
+        {/* Top bar: identity and document; history and file actions. Artwork is the only view
+            today, so there is no view switch until Paths or Compare exists. */}
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-panel px-3">
           <div className="flex min-w-0 items-center gap-2.5">
             <div className="flex shrink-0 items-center gap-1.5">
               <LogoMark />
               <span className="text-[15px] font-bold tracking-tight">vectra</span>
-              <span className="text-2xs text-muted-foreground">Studio</span>
             </div>
             <Divider />
             <p className="min-w-0 truncate text-ui" data-testid="document-title">
@@ -572,38 +550,6 @@ export function Workspace() {
               )}
               {snap?.dirty && <span className="text-muted-foreground"> · Edited</span>}
             </p>
-          </div>
-          <div
-            role="group"
-            aria-label="View"
-            className="flex gap-0.5 rounded-lg bg-background p-0.5"
-          >
-            <Button
-              variant="secondary"
-              size="sm"
-              aria-pressed="true"
-              className="h-7 bg-elevated px-3 text-xs"
-            >
-              Artwork
-            </Button>
-            {["Paths", "Compare"].map((v) => (
-              <Tip
-                key={v}
-                side="bottom"
-                label={`${v} view: not available yet`}
-                render={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-disabled="true"
-                    aria-label={`${v} view, not available yet`}
-                    className="h-7 px-3 text-xs text-muted-foreground opacity-60 hover:bg-transparent hover:text-muted-foreground"
-                  />
-                }
-              >
-                {v}
-              </Tip>
-            ))}
           </div>
           <div className="flex min-w-0 items-center justify-end gap-1.5">
             <div className="flex items-center" role="group" aria-label="History">
@@ -684,8 +630,7 @@ export function Workspace() {
                   icon={<t.icon className="size-[18px]" />}
                   shortcut={t.key}
                   ariaShortcut={t.key}
-                  unavailable={t.unavailable}
-                  pressed={t.unavailable ? undefined : tool === t.id}
+                  pressed={tool === t.id}
                   onClick={() => setTool(t.id)}
                 />
               </div>
@@ -795,13 +740,30 @@ export function Workspace() {
                   aria-label="Resize layers"
                   className="bg-border aria-[orientation=horizontal]:after:h-2 [&>div]:bg-control-border"
                 />
-                <ResizablePanel id="layers" defaultSize="30" minSize={120}>
+                {/* Layers never collapse by themselves (not by viewport height either): the
+                    header's disclosure, or a drag of the split past the minimum, collapses them
+                    to the 36 px header; the split stays resizable. */}
+                <ResizablePanel
+                  id="layers"
+                  defaultSize="30"
+                  minSize={120}
+                  collapsible
+                  collapsedSize={LAYERS_HEADER}
+                  panelRef={layersPanel}
+                  onResize={() => setLayersOpen(!layersPanel.current?.isCollapsed())}
+                >
                   <div className="flex h-full flex-col overflow-hidden bg-panel">
                     <LayersPanel
                       state={state}
                       selection={selection}
                       onSelect={onSelect}
                       run={run}
+                      open={layersOpen}
+                      onToggle={() => {
+                        const p = layersPanel.current;
+                        if (p?.isCollapsed()) p.expand();
+                        else p?.collapse();
+                      }}
                     />
                   </div>
                 </ResizablePanel>
@@ -826,7 +788,7 @@ export function Workspace() {
             <span
               role={status.error ? "alert" : "status"}
               data-testid="status"
-              title={statusText}
+              title={statusText || undefined}
               className={`min-w-0 truncate ${status.error ? "text-destructive" : "text-foreground/85"}`}
             >
               {status.error ? "Error: " : ""}
@@ -916,12 +878,23 @@ export function Workspace() {
             </div>
           </div>
           <Divider />
+          {/* The renderer speaks only when it is not healthy: the main-thread fallback, a
+              recovery or a failure. It stays mounted (empty while healthy) as a live region, with
+              its state and host for the tests and the debug API. */}
           <span
             data-testid="canvas-state"
             data-state={hostState.kind}
-            className={`shrink-0 ${hostState.kind === "error" ? "text-destructive" : ""}`}
+            data-host={hostState.kind === "ready" ? hostState.host : undefined}
+            role={hostState.kind === "error" ? "alert" : "status"}
+            title={rendererText || undefined}
+            className={`flex max-w-96 min-w-0 items-center gap-1.5 empty:-ml-3 ${hostState.kind === "error" ? "text-destructive" : "text-warning"}`}
           >
-            {rendererLabel(hostState, host?.client.diag.fallbackReason ?? null)}
+            {rendererText ? (
+              <>
+                <CircleAlert className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="truncate">{rendererText}</span>
+              </>
+            ) : null}
           </span>
           {offline?.updateWaiting && (
             <span data-testid="update-waiting" className="shrink-0 text-foreground/85">

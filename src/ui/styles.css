@@ -177,6 +177,15 @@ input {
   background-image:
     linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
 }
+/* A mixed fill (the selected paths' colours differ): a neutral hatch, never one of the colours. */
+.vx-swatch-mixed {
+  background-color: var(--background);
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--muted-foreground) 0 1px,
+    transparent 1px 4px
+  );
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -56,7 +56,7 @@ test("positive control: without CSPProvider, Base UI's inline <style> is blocked
   expect(guard.consoleErrors.filter((e) => !csp.test(e))).toEqual([]);
 });
 
-test("tool rail: names, pressed state, unavailable tools explained and focusable", async ({
+test("tool rail: only working tools; names, pressed state, keyboard and tooltips", async ({
   page,
 }) => {
   await openWorkspace(page);
@@ -64,24 +64,14 @@ test("tool rail: names, pressed state, unavailable tools explained and focusable
   const names = await rail
     .getByRole("button")
     .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
-  expect(names).toEqual([
-    "Select",
-    "Trace",
-    "Smooth, not available yet",
-    "Simplify, not available yet",
-    "Cleanup, not available yet",
-    "Recolor",
-  ]);
+  // Maintainer review: Smooth, Simplify and Cleanup are hidden until they are implemented.
+  expect(names).toEqual(["Select", "Trace", "Recolor"]);
+  await expect(rail.locator("[aria-disabled=true]")).toHaveCount(0);
   await expect(rail.getByRole("button", { name: "Select" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  for (const n of ["Smooth", "Simplify", "Cleanup"]) {
-    const b = rail.getByRole("button", { name: new RegExp(`^${n},`) });
-    await expect(b).toHaveAttribute("aria-disabled", "true");
-    await expect(b).not.toHaveAttribute("aria-pressed");
-  }
-  // Keyboard: tooltip on focus, Enter selects, the unavailable tool does nothing.
+  // Keyboard: tooltip on focus, Enter selects; Trace is followed by Recolor.
   await rail.getByRole("button", { name: "Select" }).focus();
   const tip = page.locator('[data-slot="tooltip-content"][data-open]');
   await page.keyboard.press("Tab");
@@ -89,13 +79,50 @@ test("tool rail: names, pressed state, unavailable tools explained and focusable
   await page.keyboard.press("Enter");
   await expect(rail.getByRole("button", { name: "Trace" })).toHaveAttribute("aria-pressed", "true");
   await page.keyboard.press("Tab");
-  await expect(tip).toContainText("Smooth, not available yet");
+  await expect(tip).toContainText("Recolor");
   await page.keyboard.press("Enter");
-  await expect(rail.getByRole("button", { name: "Trace" })).toHaveAttribute("aria-pressed", "true");
+  await expect(rail.getByRole("button", { name: "Recolor" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(rail.getByRole("button", { name: "Recolor" })).toHaveAttribute(
     "aria-keyshortcuts",
     "R",
   );
+});
+
+test("top bar and status bar: no view switch, no Studio label, quiet when idle and healthy", async ({
+  page,
+}) => {
+  await openWorkspace(page);
+  const top = page.getByRole("banner");
+  // Artwork is the only view: no switch until Paths or Compare exists.
+  await expect(page.getByRole("group", { name: "View" })).toHaveCount(0);
+  for (const v of ["Artwork", "Paths", "Compare"])
+    await expect(top.getByRole("button", { name: new RegExp(`^${v}`) })).toHaveCount(0);
+  await expect(top).toContainText("vectra");
+  await expect(top).not.toContainText("Studio");
+  // Idle: the status live region is mounted, polite and empty (no "Ready").
+  const status = page.getByTestId("status");
+  await expect(status).toHaveAttribute("role", "status");
+  await expect(status).toHaveText("");
+  // A healthy renderer says nothing; its state stays readable for tests and the debug API.
+  const renderer = page.getByTestId("canvas-state");
+  await expect(renderer).toHaveAttribute("data-state", /^(empty|starting|rendering|ready)$/);
+  await expect(renderer).toHaveAttribute("role", "status");
+  await expect(renderer).toHaveText("");
+  await expect(page.getByRole("contentinfo")).not.toContainText("Renderer");
+});
+
+test("trace presets: the approved descriptions, attached to the radios", async ({ page }) => {
+  await openWorkspace(page);
+  await page.getByRole("button", { name: "Trace", exact: true }).click();
+  for (const [name, note] of [
+    ["Black & White", "Bold shapes and high-contrast artwork."],
+    ["Full Colour", "Preserve the richness of the original image."],
+    ["Limited Palette", "Reduce artwork to a curated set of colours."],
+  ])
+    await expect(page.getByRole("radio", { name })).toHaveAccessibleDescription(note!);
 });
 
 test("shortcuts dialog: opens by key and button, traps focus, Escape returns focus", async ({

@@ -253,7 +253,9 @@ test("numeric field: Enter commits, Escape reverts, arrow steps coalesce", async
   await expect(x).toHaveValue(String(x0));
 });
 
-const fillTrigger = (page: Page) => page.getByRole("button", { name: /^Fill colour: #/ });
+// The trigger names one colour ("Fill colour: #rrggbb. Edit colour") or, when the selected
+// paths' fills differ, none ("Fill colour: mixed. Edit colour").
+const fillTrigger = (page: Page) => page.getByRole("button", { name: /^Fill colour: / });
 const fillHex = async (page: Page) =>
   /#[0-9a-f]{6}/.exec((await fillTrigger(page).getAttribute("aria-label"))!)![0];
 
@@ -328,8 +330,14 @@ test("keyboard only: select a layer in Layers and fill its paths", async ({ page
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
   await expect(page.getByTestId("fill-note")).toContainText(/Applies to [\d,]+ paths/);
+  // The layer's paths have different fills: the control names no single colour before Apply.
+  await expect(fillTrigger(page)).toHaveAttribute("aria-label", "Fill colour: mixed. Edit colour");
+  await expect(fillTrigger(page)).toContainText("Mixed");
+  await expect(fillTrigger(page)).not.toContainText("#");
+  await expect(page.getByTestId("fill-note")).toContainText("Their fills differ");
   await fillTrigger(page).focus();
   await page.keyboard.press("Enter");
+  await expect(page.getByText("Current mixed")).toBeVisible();
   await page.getByRole("textbox", { name: "Hex" }).focus();
   await page.keyboard.press("ControlOrMeta+a");
   await page.keyboard.type("#2050a0");
@@ -352,7 +360,11 @@ test("recolor: palette colours edit every path that uses them (one undo step)", 
   await page.getByRole("button", { name: "Recolor" }).click();
   const entries = page.getByRole("list", { name: "Palette colours" }).getByRole("listitem");
   expect(await entries.count()).toBeGreaterThan(1);
-  const first = entries.first().getByRole("button", { name: /^Palette colour / });
+  // Locks protect against transforms and deletion, not against a global palette edit.
+  await expect(page.getByTestId("recolor-note")).toHaveText(
+    "A palette edit recolours every path that uses that colour, including locked paths: locks prevent transforms and deletion, not palette edits.",
+  );
+  const first = entries.first().getByRole("button", { name: /^Colour \d+: #[0-9a-f]{6}\./ });
   const before = await first.getAttribute("aria-label");
   await first.click();
   await page.getByRole("textbox", { name: "Hex" }).fill("#0a7f55");
@@ -708,4 +720,136 @@ test("control boundaries and the OS colour scheme, measured in the running build
   };
   note(`computed control contrast (${browserName})`, { ...rows, colours: light });
   for (const r of Object.values(rows)) expect(r).toBeGreaterThanOrEqual(3);
+});
+
+// Maintainer review of G-UI-R: the engine's generated palette names (p0…, c0…, ink) are shown
+// as "Colour N+1", N being the number in the name, never the list position; the document and
+// its exports keep the engine's names.
+test("palette names: Colour N+1 on screen, the engine's names in the export", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png", "Limited Palette");
+  const exportSvg = async () => {
+    await page.getByRole("button", { name: "Export", exact: true }).click();
+    const [d] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Export SVG" }).click(),
+    ]);
+    return readFileSync((await d.path())!, "utf8");
+  };
+  const before = await exportSvg();
+  // The engine's palette ids as exported: `class="pN"` on each path, with its fill.
+  const fills = new Map<string, string>();
+  for (const m of before.matchAll(/fill="(#[0-9a-f]{6})"[^>]*class="(p\d+)"/g))
+    fills.set(m[2]!, m[1]!);
+  note("exported palette", Object.fromEntries(fills));
+  expect(fills.size).toBeGreaterThan(1);
+  expect(before).not.toContain("Colour");
+
+  // Recolor: every entry is "Colour N", and Colour N is the engine's p(N−1).
+  await page.getByRole("button", { name: "Recolor" }).click();
+  const list = page.getByRole("list", { name: "Palette colours" });
+  const names = await list
+    .getByRole("button")
+    .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")!));
+  note("recolor names", names);
+  const shown = names.map((n) => /^Colour (\d+): (#[0-9a-f]{6})\. Edit colour$/.exec(n)!);
+  expect(shown.every(Boolean), names.join(" | ")).toBe(true);
+  for (const m of shown) expect(fills.get(`p${Number(m[1]) - 1}`)).toBe(m[2]);
+  // The list is in first-use order, so the numbers are not the positions.
+  expect(shown.map((m) => Number(m[1]))).not.toEqual(shown.map((_, i) => i + 1));
+  await expect(list).not.toContainText(/\bp\d/);
+  // The picker's document swatches use the same names.
+  await list.getByRole("button").first().click();
+  const swatches = await page
+    .getByRole("group", { name: "Document colours" })
+    .getByRole("button")
+    .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")!));
+  expect(swatches.length).toBe(names.length);
+  for (const s of swatches) expect(s).toMatch(/^Use Colour \d+, #[0-9a-f]{6}$/);
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+
+  // The Fill note of a single path names its palette colour the same way.
+  await page.getByRole("button", { name: "Select", exact: true }).click();
+  await selectOnCanvas(page);
+  const uses = /Uses Colour (\d+) from the palette/.exec(
+    (await page.getByTestId("fill-note").textContent())!,
+  );
+  expect(uses).not.toBeNull();
+  expect(fills.get(`p${Number(uses![1]) - 1}`)).toBe(await fillHex(page));
+  // Its layer row says it holds the selection (in words, not colour alone).
+  await expect(rowNamed(page, "adjacent_colors")).toContainText("Contains selection");
+  // Nothing shown on screen reaches the document: the export is byte for byte the same.
+  expect(await exportSvg()).toBe(before);
+});
+
+// Maintainer review: Layers never collapse by themselves (no height breakpoint). The header's
+// disclosure collapses them to the header and restores them; the split stays resizable.
+test("layers: an explicit collapse control at 1024×640, 1280×720 and 1366×768", async ({
+  page,
+}) => {
+  const toggle = page.getByRole("button", { name: "Layers", exact: true });
+  const panel = page.getByRole("region", { name: "Layers" });
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  const rows = page.getByTestId("layer-row");
+  const height = async (l: typeof panel) => Math.round((await l.boundingBox())!.height);
+  for (const size of [
+    { width: 1024, height: 640 },
+    { width: 1280, height: 720 },
+    { width: 1366, height: 768 },
+  ]) {
+    const at = `${size.width}×${size.height}`;
+    await page.setViewportSize(size);
+    await openWorkspace(page);
+    await importFixture(page, "procedural/adjacent_colors.png");
+    // Expanded on load at every size.
+    await expect(toggle, at).toHaveAttribute("aria-expanded", "true");
+    await expect(rows.first(), at).toBeVisible();
+    const open = { layers: await height(panel), inspector: await height(inspector) };
+    expect(open.layers, at).toBeGreaterThanOrEqual(120);
+    const t = (await toggle.boundingBox())!;
+    expect(t.y + t.height, `${at}: the control is on screen`).toBeLessThanOrEqual(size.height);
+    // Collapse: the header stays, the rows leave the page (no hidden Tab stops).
+    await toggle.click();
+    await expect(toggle, at).toHaveAttribute("aria-expanded", "false");
+    await expect(rows.first(), at).toBeHidden();
+    await expect.poll(() => height(panel), { message: at }).toBeLessThanOrEqual(37);
+    expect(await height(inspector), at).toBeGreaterThan(open.inspector);
+    // Keyboard: the same control expands them to their previous size.
+    await toggle.focus();
+    await page.keyboard.press("Enter");
+    await expect(toggle, at).toHaveAttribute("aria-expanded", "true");
+    await expect(rows.first(), at).toBeVisible();
+    await expect.poll(() => height(panel), { message: at }).toBe(open.layers);
+    note(`layers at ${at}`, open);
+  }
+  // A drag of the split past the minimum collapses them too; the control follows.
+  const sep = (await page.getByRole("separator", { name: "Resize layers" }).boundingBox())!;
+  const x = sep.x + sep.width / 2;
+  await page.mouse.move(x, sep.y + sep.height / 2);
+  await page.mouse.down();
+  for (let i = 1; i <= 10; i++) await page.mouse.move(x, sep.y + i * 30);
+  await page.mouse.up();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(rows.first()).toBeHidden();
+});
+
+// Maintainer review: a healthy renderer is not shown; the fallback, a recovery and a failure
+// are. `?renderer=main` takes the client's fallback path (a deterministic fallback).
+test("renderer: the main-thread fallback is disclosed; a healthy worker is silent", async ({
+  page,
+}) => {
+  const renderer = page.getByTestId("canvas-state");
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png");
+  await expect(renderer).toHaveAttribute("data-host", "worker");
+  await expect(renderer).toHaveText("");
+  await openWorkspace(page, "?renderer=main");
+  await importFixture(page, "procedural/adjacent_colors.png");
+  await expect(renderer).toHaveAttribute("data-state", "ready");
+  await expect(renderer).toHaveAttribute("data-host", "main-thread");
+  await expect(renderer).toHaveAttribute("role", "status");
+  await expect(renderer).toBeVisible();
+  await expect(renderer).toHaveText(
+    "Renderer: main thread (fallback: main-thread renderer selected)",
+  );
 });
