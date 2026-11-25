@@ -15,6 +15,7 @@ Per-component cost, from measurements where available:
 | Derived: bounds and subpath starts | main | 32 B per path + 4 B per subpath | R01 | With the chunk |
 | Hit-test index | main | ≈ 51 B per indexed item (10.0 MB for the 195k-subpath halftone) | R02 `indexBytes` [measured] | Rebuilt per chunk; evictable |
 | Renderer caches | main / GPU | Canvas: backing store W·H·DPR²·4 (16 MB at 2560×1600) plus browser-native Path2D (not exposed). WebGL: f32 vertices and u32 indices ≈ 40 B per anchor at 0.05 px flattening (39 MB at 977k), held on CPU **and** GPU for context-loss recovery, plus the MSAA framebuffer (~16 MB × 4 samples estimate) | R02 [measured]; GPU memory not observable from the page | Disposable; never authoritative |
+| Render-worker copy (R02 host) | render worker | One packet copy of the visible document (≈ 42–52 B per anchor), its Path2D objects (browser-native, not exposed), and the display-cache bitmap (16 MB at 2560×1600) | R02 OffscreenCanvas variant [measured]; Path2D not observable | Disposable; rebuilt from the document on worker loss |
 | History-only geometry | main | ≤ 128 MiB unique bytes (RFC; 64 MiB constrained) | — | Oldest whole transactions evicted, with visible truncation |
 | Pending job payloads | worker | export: one packet copy per job (≈ 45 MB at 1M anchors) | R01 | Job lifetime |
 | Export buffers | worker then main | SVG text ≈ 25–50 B per anchor (P0-R: 36.8 MB at 977k; synthetic 49.5 MB at 1M); PDF ≈ 0.3× SVG thanks to Flate (P0-R finding 6; 8–12 B per anchor) | P0-R | Released after download (Blob URL revoked) |
@@ -23,9 +24,9 @@ Per-component cost, from measurements where available:
 ### Worked peaks (estimates from the components above, not measured end to end)
 | Scenario | Main thread | Worker (peak) | Total |
 |---|---|---|---|
-| 12 MP colour trace committed as ~400k anchors, idle | 20 (Blob) + 48 (RGBA cache) + 20 (chunk) + 4 (index) + 16 (canvas) + Path2D ≈ **110–150 MB** | idle worker, after recycle: ≈ 40 MiB | ≈ 0.15–0.2 GB |
-| The same, while re-tracing at 12 MP colour, with history holding the previous trace | above + 48 (job RGBA) + 20 (history chunk) | 538 MiB WASM + 48 MB input | **≈ 0.75–0.8 GB** |
-| 1M-anchor halftone layer plus an export in flight | 20 + 48 + 45 (chunk) + 10 (index) + 16 + Path2D | 45 (job copy) + 37 (SVG) + WASM (~430 MiB P0 halftone) | **≈ 0.7–0.8 GB** |
+| 12 MP colour trace committed as ~400k anchors, idle | 20 (Blob) + 48 (RGBA cache) + 20 (chunk) + 4 (index) + overlay canvas ≈ **95–110 MB** | compute worker idle, after recycle: ≈ 40 MiB; render worker: 20 (copy) + 32 (canvas + cache) + Path2D | ≈ 0.2–0.25 GB |
+| The same, while re-tracing at 12 MP colour, with history holding the previous trace | above + 48 (job RGBA) + 20 (history chunk) | 538 MiB WASM + 48 MB input; render worker as above | **≈ 0.8–0.9 GB** |
+| 1M-anchor halftone layer plus an export in flight | 20 + 48 + 45 (chunk) + 10 (index) | compute: 45 (job copy) + 37 (SVG) + WASM (~430 MiB P0 halftone); render worker: 45 (copy) + 32 (canvas + cache) + Path2D | **≈ 0.8–0.9 GB** |
 | 23.5 MP colour trace (engineering stress) | ≈ 0.25 GB | 972 MiB WASM + 94 MB input | **≈ 1.3 GB** |
 
 ## 2. Are the RFC budgets realistic?

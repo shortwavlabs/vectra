@@ -61,6 +61,28 @@ elif what == "renderer":
         trunc = any(i["pan"]["truncated"] or i["zoom"]["truncated"] for i in it)
         print(f"| {r['engine']} | {r['renderer']} | {r['name']} | {f(cold['firstVisibleMs'],0)} / {f(med([x['firstVisibleMs'] for x in warm]),0)} | {f(med([x['loadMaxFrameGapMs'] for x in warm]),0)} | {f(med([x['prepareMs'] for x in warm]),0)} | {f(med([x['indexMs'] for x in warm]),0)} | {f(s('pan','p50'))}/{f(s('pan','p95'))}/{f(s('pan','max'))} | {f(s('zoom','p50'))}/{f(s('zoom','p95'))}/{f(s('zoom','max'))} | {f(s('translate','p95'))} | {over}/{frames}{' (truncated)' if trunc else ''} | {f(med([i['syncRedraw']['p50'] for i in it if i.get('syncRedraw')]))} | {f(med([i['hitTest']['warmP95'] for i in it]),4)} | {f(lat('selectLatencyMs'),0)} / {f(lat('paletteLatencyMs'),0)} / {f(lat('visibilityLatencyMs'),0)} | {f(med([x['memory'].get('jsHeapUsedBytes') for x in warm]) and med([x['memory'].get('jsHeapUsedBytes') for x in warm])/2**20,0)} |")
 
+if what == "renderer-edit":
+    rows = []
+    for eng in ("chromium", "firefox", "webkit"):
+        rows += json.load(open(f"{A}/renderer/bench-{eng}.json"))
+    print("Editing and replacement interactions (median over 5 warm reps). Scene replacement = a warm rep's load: release the previous scene, then rebuild from a fresh packet (first visible, ms). Object translate and scale: frame p95 while one selected object moves or scales for 30 frames. Visible latencies are frame-aligned (≈ 33 ms = next frame).\n")
+    print("| Engine | Renderer | Scene | Scene replacement ms | Translate p95 | Scale p95 | Select | Palette | Visibility | Resize | Cache invalidation (rebuild one path) |")
+    print("|---|---|---|---|---|---|---|---|---|---|---|")
+    for r in rows:
+        if not r.get("ok"):
+            print(f"| {r['engine']} | {r['renderer']} | {r['name']} | FAILED |||||||| ")
+            continue
+        warm = r["results"][1:]
+        it = [x["interactions"] for x in warm if "interactions" in x]
+
+        def lat(k):
+            return med([i[k]["visibleMs"] for i in it if isinstance(i.get(k), dict)])
+
+        def ser(k):
+            return med([i[k]["p95"] for i in it if isinstance(i.get(k), dict)])
+        na = r["renderer"] == "svgimg"
+        print(f"| {r['engine']} | {r['renderer']} | {r['name']} | {f(med([x['firstVisibleMs'] for x in warm]),0)} | {'N/A' if na else f(ser('translate'),0)} | {'N/A' if na else f(ser('scale'),0)} | {'N/A' if na else f(lat('selectLatencyMs'),0)} | {'N/A' if na else f(lat('paletteLatencyMs'),0)} | {'N/A' if na else f(lat('visibilityLatencyMs'),0)} | {f(lat('resizeLatencyMs'),0)} | {'N/A' if r['renderer'] in ('svgimg','webgl') else f(lat('invalidateLatencyMs'),0)} |")
+
 elif what == "persistence":
     d = json.load(open(f"{A}/persistence/compression.json"))
     print("| Engine | Packet | Bytes MB | deflate-raw MB | Compress ms | Decompress ms | SHA-256 ms | Round trip |")
@@ -94,6 +116,23 @@ if what == "renderer-extra":
                 continue
             w = r["results"][1:]
             print(f"| {r['engine']} | {r['name']} | {'yes' if w[0]['workerRaf'] else 'no (timer)'} | {f(med([x['buildMs'] for x in w]),0)} | {f(med([x['drawMs'] for x in w]),0)} | {f(med([x['mainLoadMaxGapMs'] for x in w]),0)} | {f(med([x['workerPanP50'] for x in w]),0)}/{f(med([x['workerPanP95'] for x in w]),0)} | {f(med([x['mainPanMaxGapMs'] for x in w]),0)} |")
+    except FileNotFoundError:
+        pass
+    try:
+        oc = json.load(open(f"{A}/renderer/offscreen-cache.json"))
+        mainfv = {}
+        for eng in ("chromium", "firefox", "webkit"):
+            for r in json.load(open(f"{A}/renderer/bench-{eng}.json")):
+                if r["renderer"] == "canvas" and r.get("ok"):
+                    mainfv[(eng, r["name"])] = med([x["firstVisibleMs"] for x in r["results"][1:]])
+        print("\n### Recommended combination: OffscreenCanvas render worker + display cache (6 reps, warm median)\n")
+        print("| Engine | Scene | Worker first draw ms (main-thread Canvas first visible) | Worker pan p50/p95 | Worker zoom p50/p95 | Exact settle after pan / zoom ms (worker, readback-synchronised) | Main-thread max gap: load / gestures ms |")
+        print("|---|---|---|---|---|---|---|")
+        for r in oc:
+            w = r["results"][1:]
+            print(f"| {r['engine']} | {r['name']} | {f(med([x['workerFirstDrawMs'] for x in w]),0)} ({f(mainfv.get((r['engine'], r['name'])),0)}) | {f(med([x['workerPanP50'] for x in w]),0)}/{f(med([x['workerPanP95'] for x in w]),0)} | {f(med([x['workerZoomP50'] for x in w]),0)}/{f(med([x['workerZoomP95'] for x in w]),0)} | {f(med([x['settlePanMs'] for x in w]),0)} / {f(med([x['settleZoomMs'] for x in w]),0)} | {f(med([x['mainLoadMaxGapMs'] for x in w]),0)} / {f(med([x['mainPanMaxGapMs'] for x in w]),0)} |")
+        vis = json.load(open(f"{A}/renderer/offscreen-visibility.json"))
+        print("\nWorker-canvas visibility in page screenshots (synthetic correctness scene, 1.5 s after first draw; non-white fraction): " + "; ".join(f"{v['engine']} {v['cssW']}×{v['cssH']}@{v['dpr']}x {v['nonWhiteFraction']}" for v in vis) + ".")
     except FileNotFoundError:
         pass
     rc = json.load(open(f"{A}/renderer/rastercheck.json"))

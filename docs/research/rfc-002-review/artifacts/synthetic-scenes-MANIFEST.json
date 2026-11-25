@@ -1,0 +1,50 @@
+[
+  {
+    "name": "synthetic-correctness",
+    "anchors": 173,
+    "paths": 32,
+    "jsonBytes": 8761,
+    "svgBytes": 6859,
+    "sha256": "08c2e952bbd5e117063833671679205f61ac35858aac7f50cd32b0e57f121df5"
+  },
+  {
+    "name": "synthetic-many-10k",
+    "anchors": 10000,
+    "paths": 1655,
+    "jsonBytes": 577692,
+    "svgBytes": 495350,
+    "sha256": "c7582b77da632b625e5c2f48b5f6ecbbcf453773626854456754f7925cc13478"
+  },
+  {
+    "name": "synthetic-many-100k",
+    "anchors": 100000,
+    "paths": 16683,
+    "jsonBytes": 5780482,
+    "svgBytes": 4956142,
+    "sha256": "c36c207227f422a7b4861904bd73f78c1a87666cc55c6bf7789af17b8e8e0864"
+  },
+  {
+    "name": "synthetic-many-250k",
+    "anchors": 250000,
+    "paths": 41853,
+    "jsonBytes": 14457070,
+    "svgBytes": 12390412,
+    "sha256": "46280a24968b63f4f8ce3729b46212d7642911076d153bd113be5a56a4981b3c"
+  },
+  {
+    "name": "synthetic-many-500k",
+    "anchors": 500005,
+    "paths": 83309,
+    "jsonBytes": 28877972,
+    "svgBytes": 24762847,
+    "sha256": "fd2ac2f33397d6c459d8a2fbd820dc6652f281c92f718a4122286fc83a1b5c8c"
+  },
+  {
+    "name": "synthetic-many-1m",
+    "anchors": 1000000,
+    "paths": 166598,
+    "jsonBytes": 57734665,
+    "svgBytes": 49504401,
+    "sha256": "a4bc59d677e36c9c0a566283d70af65bcb5a27509ac7de51a81d36b62c2934df"
+  }
+]

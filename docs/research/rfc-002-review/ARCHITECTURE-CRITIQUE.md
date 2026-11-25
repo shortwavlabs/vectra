@@ -42,6 +42,8 @@ It did find five gaps that would cost real time in P1 if left implicit:
 
 Both move the authority further from the UI and add message round trips for every read. Option 3 reduces to option 1 once the snapshot is complete. Neither is justified by the measurements.
 
+Option 4, a render worker holding a disposable copy, is adopted **for rendering only** after R02 (D04). Authority stays on the main thread.
+
 **Disposition: ACCEPT WITH AMENDMENTS** (geometry chunks; a GeometryStore API with copy-out only; aggregate memory accounting).
 
 ### D02 — Transactional commands and bounded history
@@ -91,7 +93,8 @@ Both move the authority further from the UI and add message round trips for ever
 - **Correctness:** every candidate is correct (0 geometry-error pixels; hole, evenodd and clip hit checks pass).
 - **Exact redraw cost differs by engine:** Canvas is ~0.5 / 5 / 2.3 µs per `fill()` in Chromium / Firefox / WebKit. Exact per-frame redraw therefore misses the budget on ≥ 300k-anchor scenes in Firefox and WebKit for Canvas and SVG, and beyond ~30k paths for WebGL.
 - **A display-only raster cache** makes Canvas gestures p95 17–22 ms in all engines up to 1M anchors.
-- **An OffscreenCanvas host** keeps the main thread ≤ 24 ms during load and pan in all engines.
+- **An OffscreenCanvas host** keeps the main thread ≤ 24 ms during load and pan in all engines. Worker plus cache, measured together: gestures 17–23 ms and main thread 17–19 ms. WebKit's first worker frame showed a presentation delay, to verify on real Safari.
+- **Object drags** with exact redraw are as slow as exact frames, so layered caching is required (G-R1).
 - **Construction trap:** Chromium builds Path2D incrementally in quadratic time.
 
 **Weaknesses of the proposal as written.** None of the parts that make Canvas viable is specified:

@@ -4,7 +4,21 @@
 import { validatePacket } from "./packet.mjs";
 import { packetPathData, rgba } from "./common.mjs";
 
-let canvas, ctx, p, paths, bounds, cam, dpr, w, h;
+let canvas, ctx, p, paths, bounds, cam, dpr, w, h, snap = null, snapCam = null;
+// Display-only raster cache inside the worker: snapshot of the last exact frame.
+const snapshot = () => {
+  if (!snap) snap = new OffscreenCanvas(canvas.width, canvas.height);
+  snap.width = canvas.width; snap.height = canvas.height;
+  snap.getContext("2d").drawImage(canvas, 0, 0);
+  snapCam = { ...cam };
+};
+const blit = () => {
+  const k = cam.s / snapCam.s;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(k, 0, 0, k, dpr * (cam.tx - k * snapCam.tx), dpr * (cam.ty - k * snapCam.ty));
+  ctx.drawImage(snap, 0, 0);
+};
 const draw = () => {
   const n = p.manifest.pathCount, styles = p.manifest.styles, gi = p.groupIndex, si = p.styleIndex;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -43,18 +57,35 @@ self.onmessage = async ({ data: m }) => {
     cam = m.cam;
     const t2 = performance.now();
     draw();
-    self.postMessage({ type: "drawn", buildMs, drawMs: performance.now() - t2 });
-  } else if (m.type === "pan") {
-    // Worker-driven pan series: frame intervals measured on the worker's rAF.
+    if (m.cache) snapshot();
+    const drawMs = performance.now() - t2;
+    if (m.commit) await new Promise(raf); // let the worker frame commit to the placeholder canvas
+    self.postMessage({ type: "drawn", buildMs, drawMs });
+  } else if (m.type === "pan" || m.type === "zoom") {
+    // Worker-driven gesture series on the worker's rAF; with m.cache the frames blit the
+    // snapshot and one exact redraw follows the gesture (settle).
     const xs = [];
     let last = await new Promise(raf), k = 0;
     while (k++ < m.frames) {
-      cam.tx -= 12;
-      draw();
+      if (m.type === "pan") cam.tx -= 12;
+      else {
+        const f = 1.04, cx = w / 2, cy = h / 2;
+        cam = { s: cam.s * f, tx: cx - (cx - cam.tx) * f, ty: cy - (cy - cam.ty) * f };
+      }
+      if (m.cache && snap) blit();
+      else draw();
       const t = await new Promise(raf);
       xs.push(t - last);
       last = t;
     }
-    self.postMessage({ type: "panned", intervals: xs });
+    let settleMs = null;
+    if (m.cache) {
+      const t = performance.now();
+      draw();
+      snapshot();
+      ctx.getImageData?.(0, 0, 1, 1);
+      settleMs = performance.now() - t;
+    }
+    self.postMessage({ type: "panned", intervals: xs, settleMs });
   }
 };

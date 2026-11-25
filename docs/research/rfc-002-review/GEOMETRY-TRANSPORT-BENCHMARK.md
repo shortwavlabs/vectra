@@ -1,6 +1,6 @@
 # RFC-002 review R01 (part 2) — geometry transport benchmark
 
-**Gate result for R01:** PASS for the transport and ownership decision, with the amendments in [DOCUMENT-OWNERSHIP](DOCUMENT-OWNERSHIP.md). PARTIAL only in that the Rust-side packet producer and validator were not built: the review measured an equivalent JS path, labelled below.
+**Gate result for R01: PASS**, for the transport and ownership decision, with the amendments in [DOCUMENT-OWNERSHIP](DOCUMENT-OWNERSHIP.md). The Rust-side packet producer and validator are P1 G-ENG deliverables, so this review measured an equivalent JS path and labels it as such below.
 
 ## Method
 - **Workloads.**

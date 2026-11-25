@@ -128,7 +128,7 @@ export function compare(ref, cand) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const re = /^(chromium|firefox|webkit)-(canvas|svgdom|svgimg|webgl)-(.+)-z([\d.]+)\.png$/;
+  const re = /^(chromium|firefox|webkit)-(canvas|svgdom|svgimg|webgl|offscreen)-(.+)-z([\d.]+)\.png$/;
   const rows = [];
   for (const f of readdirSync(dir).sort()) {
     const m = f.match(re);

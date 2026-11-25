@@ -2,7 +2,13 @@
 
 Companion: [GEOMETRY-TRANSPORT-BENCHMARK](GEOMETRY-TRANSPORT-BENCHMARK.md) (measurements), [WORKER-SCHEDULING-AND-RECOVERY](WORKER-SCHEDULING-AND-RECOVERY.md) (termination evidence).
 
-**Recommendation.** Option 1, the main-thread authoritative document with immutable geometry chunks (RFC D01), with the contracts in §4. Options 2 and 3 add contexts and round trips without solving a measured problem. Option 4 (a render worker) is a recorded escape hatch, not a P1 design.
+**Recommendation.** Option 1 for **document ownership**: the main-thread authoritative document with immutable geometry chunks (RFC D01), with the contracts in §4. Options 2 and 3 add contexts and round trips without solving a measured problem.
+
+R02 later showed that **renderer preparation and exact redraw** must leave the main thread: up to 1,313 ms of main-thread blocking, and up to 251 ms in a single unsliceable `fill()`. It also showed that an OffscreenCanvas host keeps the main thread ≤ 24 ms. So option 4's render worker is adopted **for rendering only**:
+- it holds a disposable render-cache copy of the packets;
+- the document, history and hit-test index stay on the main thread.
+
+This is option 1 plus a renderer host, not a change of authority ([RENDERER-EVALUATION](RENDERER-EVALUATION.md)).
 
 ## 1. Options compared
 | Consideration | 1. Main-thread document + immutable chunks (RFC) | 2. Persistent document worker + disposable compute worker | 3. Worker-owned geometry + recoverable snapshots | 4. (narrow) Option 1 + an OffscreenCanvas render worker holding a cache copy |
@@ -19,7 +25,7 @@ Companion: [GEOMETRY-TRANSPORT-BENCHMARK](GEOMETRY-TRANSPORT-BENCHMARK.md) (meas
 | Offline cancellation | Terminate and recreate the compute worker (SW-served; R03 offline 16/16) | Must never terminate the document worker, so cancellation needs a second worker anyway | Termination destroys authority unless snapshotted | Same as 1 |
 | Persistence | Serialize the main-thread store directly | Message the worker to serialize | Serialize the snapshot | Same as 1 |
 | Multiple sources | Assets in one store with aggregate accounting | Split accounting | Split | Same as 1 |
-| Complexity | Lowest | High (three contexts, a protocol for every read) | High; reduces to option 1 once snapshots are complete | Medium; only if main-thread rendering misses budget |
+| Complexity | Lowest | High (three contexts, a protocol for every read) | High; reduces to option 1 once snapshots are complete | Medium. **Adopted for the renderer host after R02**: main-thread rendering missed the budget in Firefox and WebKit |
 
 ## 2. Copy chain: today vs proposed [source inspection; costs measured where noted]
 **Today: trace result to preview** (`packages/vector-engine-wasm/src/lib.rs`, generated glue `pkg/vector_engine_wasm.js`, `src/workers/vectorize.worker.ts`, `useWorkbench.ts`):

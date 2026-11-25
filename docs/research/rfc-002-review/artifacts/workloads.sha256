@@ -1,0 +1,50 @@
+# RFC-002 review workloads: SHA-256 of every scene/SVG input used (inputs are gitignored and regenerable).
+# real: tests/output/regression-a4cf172 (regression_corpus); verified = matches docs/research/p0-r-geo/artifacts/regression/a4cf172.sha256
+# native: tests/output/native (export_samples); verified = matches a fresh export_samples run at this head
+# synth: tests/output/rfc-002-review/scenes (gen-scenes.mjs, engine-validated); MANIFEST copy alongside
+201f225f4e25390939e8ae5b7f602aa65dfa294b4c02c2f41fb033d73692fd5d  real/concert-small-venue-bw.scene.json  verified
+7ba9484c3e79688d68d50448a1a6bf9c4e50684bfae164750a247b7fffd941c9  real/concert-small-venue-bw.svg  verified
+f20a5b3a58f5090282e65809f8df19fce6796146d2dd1f0a96561579138d2767  real/concert-small-venue-1280-halftone.scene.json  verified
+8304db4182fe9a37d0a8e0c23f9cb5a3d9ae3c9f83bd68c0d994045fcdfd1f3f  real/concert-small-venue-1280-halftone.svg  verified
+e7ec871b37c5c65148ce87e77505c40e86bb6fa92c16b75215af38fc246519d8  real/architecture-street-bw.scene.json  verified
+94b517d8e4422f4550bc085524f23a3a9178507dc5fb93e441469b3896c339de  real/architecture-street-bw.svg  verified
+d3dfb42d7704a59bd963fa302154d4efca2d5b4c21b3ce48af3ed81b4e567639  real/architecture-street-limited.scene.json  verified
+6f49a680550c04cc44e87ee1949b6867f067ab825935d53983626af3b62b9b36  real/architecture-street-limited.svg  verified
+9c7fe5b27ba5ef8c9b8710f38beb4ba86feca2140a9d2d1152586a3718c3eeff  real/portrait-large-color.scene.json  verified
+03afbb7b4c270bd1f7d42cb3214f0fcfdd20c8a1a394eb4a3dd8a9ef9163f3a8  real/portrait-large-color.svg  verified
+c78039d7611b7892462698bff77179078904af673b91bcceaa2f7176d9d4f8d5  real/portrait-face-limited.scene.json  verified
+160621818fa01756540a7618104f573177e81858af1f71c4bc2ee7372dbe0388  real/portrait-face-limited.svg  verified
+482181c827c32c7a6fb6969bbe515beea8e34fca4e7a72fa5b5888c0d68d4e2b  real/architecture-street-halftone.scene.json  verified
+5c89ac541f929cd4bf2a3136220a2deadc529f4d9dde5ac9885a48bca23df473  real/architecture-street-halftone.svg  verified
+b1c8e6a73ebaaf8f7a7c86ab462eb17553ee60ed7877ccb15092ebdb4964cb2d  real/texture-bark-bw.scene.json  verified
+11a28268ee933c39026f4e48c11bae58afb12cfe749c8b816989bd0ced147629  real/texture-bark-bw.svg  verified
+aee7b066d564fe0bcef69383e478b4cf2295f6526f9df6b2696febcc395e294f  real/concert-small-venue-1280-color.scene.json  verified
+9047500e4d266f41367e3502efee3f916a322b6dced8563513959203e1cb22bf  real/concert-small-venue-1280-color.svg  verified
+57b416dde4e7af8a665b90f1a45c8e2006f6d8067d93e1e12672cb2796e3292c  real/concert-small-venue-1280-limited.scene.json  verified
+428cce9cfba38faca250a8c46280d77513ca3db8aee1d568608c0f27c8711ae2  real/concert-small-venue-1280-limited.svg  verified
+8f41b7b8c0d3d485ac407a240e3072548810bccca31375475e3cfc7448207c03  real/portrait-large-limited.scene.json  verified
+12bc522f74c5336b15c7bc2d4ca04d0db30a12eed2dea71adb43542a225d23fa  real/portrait-large-limited.svg  verified
+430c8dec266d9ed670752e5cfd871e1987e7e7b72afc633566ba846f60b10784  real/concert-small-venue-halftone.scene.json  verified
+3ef5ac7fe905c4886c2a3b45787c9c0952edb3ae54b4f9794919172ffa41b3f8  real/concert-small-venue-halftone.svg  verified
+708c6b64e3dd2127c99b9417720ce42d6d54fb4b16e2b3b4204132b937cd2c7d  real/architecture-street-color.scene.json  verified
+0aaa79dd697323079b67704d6dbd48c2642b7049d07c7274bcce87295b71d887  real/architecture-street-color.svg  verified
+08c2e952bbd5e117063833671679205f61ac35858aac7f50cd32b0e57f121df5  synth/synthetic-correctness.scene.json  generated
+1be47ac193df7729894771006540ff4ff004096391beabfe6c96e51ee4e12ee6  synth/synthetic-correctness.svg  generated
+c7582b77da632b625e5c2f48b5f6ecbbcf453773626854456754f7925cc13478  synth/synthetic-many-10k.scene.json  generated
+0fad595ead434da7510ec8e79beb3f62c6b4ddea02dc197f6d962c385834e396  synth/synthetic-many-10k.svg  generated
+c36c207227f422a7b4861904bd73f78c1a87666cc55c6bf7789af17b8e8e0864  synth/synthetic-many-100k.scene.json  generated
+c1173ddca51dbbfb3e07041d446cf997fd0f064084e82c8c5cab314dd7594867  synth/synthetic-many-100k.svg  generated
+46280a24968b63f4f8ce3729b46212d7642911076d153bd113be5a56a4981b3c  synth/synthetic-many-250k.scene.json  generated
+e1b50920bfd05f572a30e26601be97354d9817c9a570bacfc6c0c71937b26e7e  synth/synthetic-many-250k.svg  generated
+fd2ac2f33397d6c459d8a2fbd820dc6652f281c92f718a4122286fc83a1b5c8c  synth/synthetic-many-500k.scene.json  generated
+73357bb45e668f26df9e0cf8cfc4febbdb5f0fd7e6e8a7c327d0acbe50aa688c  synth/synthetic-many-500k.svg  generated
+a4bc59d677e36c9c0a566283d70af65bcb5a27509ac7de51a81d36b62c2934df  synth/synthetic-many-1m.scene.json  generated
+ecda22271109520c3884447658824b87cb1e3e1c69690cfda7a24567c9e37bc6  synth/synthetic-many-1m.svg  generated
+031ee656bab64f090cacde29dc6b390cf19b4e36155d4adf5b0c0598a2282a36  native/logo_transparent_hole-color-precision.scene.json  verified
+8d4c29f93315e866c259b5c0700515216490b2f784298dd71eff1c85bb28ecb6  native/logo_transparent_hole-color-precision.svg  verified
+f04a5698c6bb4fe1ff9b4c63fcfc3e81ac3f3118ec93af30584120b02576cbe0  native/nested_rings-color-precision.scene.json  verified
+df282dead40cc78a76e6ed590568d29c9fdd2364a4526cbbf959be889afc1637  native/nested_rings-color-precision.svg  verified
+4d6b4e0029db1506af13d8962dd62e82fe4cbb70dc532fb474c781056c9ac046  native/antialiased_discs-color-precision.scene.json  verified
+85a84e342d9625b2995d6b65a0788f6dfab5edbcd9a2597a837fe48d43fb33e7  native/antialiased_discs-color-precision.svg  verified
+ed59e28152fda4b1dc9d56b6d0c899183f310f0669269fef140d86879ffe33f7  native/transparent_ring-color-precision.scene.json  verified
+9a5a00c619cd375e4f2f6f37b2d05b053ab412574c883b3b9e8858cdbd6f04a9  native/transparent_ring-color-precision.svg  verified

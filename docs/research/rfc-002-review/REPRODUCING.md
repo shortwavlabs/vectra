@@ -55,15 +55,32 @@ The full timing chain (transport, Chromium full matrix, Firefox/WebKit reduced m
 sh experiments/rfc-002-review/bench/run-all-timing.sh
 ```
 Then:
+Follow-ups, in sequence: raster cross-check, traced presentation, display-cache variant (`QS="&cache=1"`) in 3 engines, spatial-index comparison:
 ```bash
-node experiments/rfc-002-review/bench/run-rastercheck.mjs > docs/research/rfc-002-review/artifacts/renderer/rastercheck.json
+sh experiments/rfc-002-review/bench/run-followups.sh
+```
+OffscreenCanvas render-worker variant (exact; then with the display cache; then correctness renders):
+```bash
+node experiments/rfc-002-review/bench/run-offscreen.mjs chromium,firefox,webkit architecture-street-limited,portrait-large-color,architecture-street-halftone,synthetic-many-1m > docs/research/rfc-002-review/artifacts/renderer/offscreen.json
 ```
 ```bash
-node experiments/rfc-002-review/bench/run-framecheck.mjs canvas,svgdom,webgl real:portrait-large-color,synth:synthetic-many-1m > docs/research/rfc-002-review/artifacts/renderer/framecheck.json
+QS="&cache=1" node experiments/rfc-002-review/bench/run-offscreen.mjs chromium,firefox,webkit architecture-street-limited,portrait-large-color,architecture-street-halftone,synthetic-many-1m > docs/research/rfc-002-review/artifacts/renderer/offscreen-cache.json
 ```
+```bash
+QS="&waitMs=1500" node experiments/rfc-002-review/bench/run-offscreen.mjs chromium,firefox,webkit synthetic-correctness@1,synthetic-correctness@2,nested_rings-color-precision@4,logo_transparent_hole-color-precision@4 correctness > docs/research/rfc-002-review/artifacts/renderer/offscreen-correctness-runs.json
+```
+The 1.5 s wait is needed for WebKit's first worker frame. Worker-canvas visibility at the benchmark's backing sizes:
+```bash
+node experiments/rfc-002-review/bench/run-offscreen-visibility.mjs > docs/research/rfc-002-review/artifacts/renderer/offscreen-visibility.json
+```
+Then re-run `compare-renders.mjs`; it includes the `offscreen` screenshots.
+Tables in the reports are generated, not transcribed:
 ```bash
 python3 experiments/rfc-002-review/bench/summarize.py docs/research/rfc-002-review/artifacts renderer
 ```
+The other modes are `renderer-edit`, `renderer-extra`, `transport` and `persistence`.
+
+Workload inputs are verified against `artifacts/workloads.sha256`: real scenes against the committed `a4cf172.sha256`, precision scenes against a fresh `export_samples` run. Synthetic scene hashes are recorded there, with `artifacts/synthetic-scenes-MANIFEST.json`.
 
 ## R03 — lifecycle and estimation
 ```bash

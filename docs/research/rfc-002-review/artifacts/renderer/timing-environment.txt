@@ -20,3 +20,6 @@ BuildVersion:		25G83
 == index-bench 2026-11-25T01:09:30Z | load averages: 15.65 14.72 14.39 | unrelated ngspice procs: 13
 == followups-done 2026-11-25T01:14:54Z | load averages: 13.31 13.77 14.04 | unrelated ngspice procs: 13
 == offscreen 2026-11-25T01:15:11Z | load averages: 13.10 13.70 14.01 | unrelated ngspice procs: 14
+== offscreen-correctness 2026-11-25T01:28:00Z | load averages: 8.20 10.80 12.58 | unrelated ngspice procs: 9
+== offscreen-cache 2026-11-25T01:28:06Z | load averages: 8.35 10.79 12.56 | unrelated ngspice procs: 8
+== offscreen-done 2026-11-25T01:30:08Z
