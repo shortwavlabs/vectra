@@ -120,3 +120,26 @@ These resolve implementation-level ambiguities named by the maintainer. **None d
 
 **Blockers introduced:** none. **Architectural departures:** none.
 
+## 6. Amendment set AM-1 (P1-A corrective review, maintainer, 2026-11-25)
+**Accepted and processed through change control** (contract revisions in the [contracts](G0-ARCHITECTURE-CONTRACTS.md) table and §AM-1). No serialized version changed.
+
+| ID | Decision | Contract revision | Rationale |
+|---|---|---|---|
+| AR-1 | Byte streams: steps 1–2 on the manifest, then block `length`/`padding`, then steps 3–12 | C3 r2 | The block length depends on validated counts |
+| AR-2 | Export draw list carries `paletteId`, the artboard size and packet-set indices | C5 r2, C8 r2 | Unedited P0 exports need palette ids to keep their hashes |
+| AR-3 (qualified) | Identical validated scenes produce byte-identical packets across Rust, WASM and TS. Native/WASM tracing identity stays an unresolved requirement (TD-PLATFORM-007) | C3 r2 | Packet encoding is deterministic. The tracing difference exists on the frozen G-0 baseline and is not changed in this gate |
+| A1 | `derived()` returns a frozen accessor view | C2 r2 | Store arrays must never be detachable |
+| A2 | Empty run only when a container's whole subtree emits nothing; `run-<k>-<n>` on collision | C8 r2 | The literal rule broke the unedited-export guarantee |
+| A3 | Clip origin = minimum transformed corner, extent = `|scale|` × size; contained intervals keep exact extents | C8 r2 | Corner min/max is not bit-exact |
+| Schema | `stylesById`, palette names, artboard background; TraceProvenance v1; export metadata semantics; effect stacks absent in v1; source provenance `local-file`; closed `decodePolicy` enum | C10 r1 | Missing provenance blocked G-DOC acceptance |
+| Container | Header-relative offsets; contiguous sections | C7 r2 | Absolute offsets would make the header length self-referential |
+| Tolerance | Transform entries `|v| ≤ 1e9`; condition number ≤ 1e8 | C10 r1 | Bounded non-singularity |
+
+**Version dispositions:**
+- `packetVersion` 1, `protocolVersion` 2 and container `formatVersion` 1 are unchanged.
+- `documentSchemaVersion` stays 1, because no file has been released (finalised before first release).
+- `provenanceVersion` 1 is new.
+- After the first public release, any change to these needs a version bump and a forward-only migration.
+
+**Shared by both gates.** This set lives on one branch, merged with merge commits into G-ENG (PR #10), G-DOC (PR #11) and the integration branch, so both gates implement the same text.
+
