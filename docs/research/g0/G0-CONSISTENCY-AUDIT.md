@@ -55,6 +55,20 @@
 | 36 | P-CI vs "G-CI" naming; stale "clippy not verified" sentence | RFC §19; plan | Unified to P-CI; baseline clippy exit 0 recorded | RFC §19; plan |
 | 37 | Debt dispositions said "closure: As above" with no antecedent (TD-PERF-006) | TECHNICAL-DEBT | Replaced with explicit closure text | TECHNICAL-DEBT |
 
+### Resolved by the G-0 closure clarifications (maintainer-requested, before the freeze)
+| # | Inconsistency | Location(s) | Resolution | Where resolved |
+|---|---|---|---|---|
+| 38 | Commit could accept a packet the caller still aliases, or one mutated after validation | C2 "takes ownership; must be validated and freshly received" | Shape check → detaching move → validate owned bytes → publish; explicit `copyIncoming` only | C2; RFC §5.2, §6 |
+| 39 | "Zero geometry copies for structural commands" vs legitimate render copies | C2 rule 4; next-gate brief | Host-driven render copies carved out; copies counted with no renderer attached; G-R0 checks held chunks | C2 rule 9; brief |
+| 40 | Declared-bytes formula `16·(pathCount+1)` disagreed with the section table (`16·pathCount + 8`); no checked-arithmetic, layout or manifest-size rule | C3 caps; "offsets recorded in the header" | Exact C3.2 accounting; u64 checked arithmetic; offsets computed, not stored; geometry record; manifest ≤ 16 MiB | C3.0, C3.2 |
+| 41 | `bytes().byOwnerKind` vs `total` undefined; shared geometry could bypass the anchor cap | C2; RFC §8.8 | Single-owner attribution (Σ = total); per-reference anchors via `pathAnchors` | C3.2; RFC §8.8 |
+| 42 | §10.3 rule 3 superseded *any* pending job, including explicit ones; §7 silently discarded stale results | RFC §7, §10.3; C5 | Supersession for previews and thumbnails only; bounded explicit queue or `busy`; visible stale outcome | RFC §7, §10.3; C5 |
+| 43 | Render-worker `ready{workerRaf}` had no build or protocol identity | C5 | Both workers hand-shake identity and generation before any post | C5; RFC §10.2 |
+| 44 | "save → load → save byte-identical" and "fixed codec parameters" assumed deterministic native deflate | C7; RFC §14; plan; brief; traceability A14 | Canonical uncompressed content across browsers; whole-container identity within a qualified environment, or everywhere with codec `none` | C7; RFC §14; plan; brief; traceability |
+| 45 | Dirty state defined by a content digest per edit, while high-water marks never move back (duplicate + undo would read dirty); chunk counter not persisted | C1; RFC §7 | State-identity dirty; `nextId` and `nextChunkId` persisted outside undoable state | C1, C7; RFC §5.1, §7 |
+| 46 | Rect clips under nested groups and transforms had no defined export semantics; scene v1 rejects zero-area clips | RFC §12.3; C8 | P1 rect-clip rules: local space, exact axis-preserving check, intersection, fully clipped omission, one evaluation | C8; RFC §12.3 |
+| 47 | Validator ownership was conditional ("if G-ENG lands first…"), with a path inside G-DOC's tree | Next-gate brief | One production validator (G-ENG, `src/geometry/packet/`); G-DOC uses a port and a test-only adapter; integration PR with a shared conformance test | Brief; plan |
+
 **Residual open items** (explicit dispositions, not contradictions):
 - lower-end and Safari qualification (owner prerequisites);
 - G-SB possible deferral;

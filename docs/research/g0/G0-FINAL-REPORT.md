@@ -1,6 +1,6 @@
 # G-0 — RFC-002 final reconciliation and architecture freeze
 
-**Recommendation: G-0 READY FOR OWNER ACCEPTANCE.** G-0 is **not closed** until the maintainer approves the reconciled RFC. **P1 has not started.**
+**Outcome: APPROVED by the maintainer (2026-11-25).** The approval came with a narrow contract clarification pass (C2, C3, C5, C7, C8). That pass is integrated (§11) and introduces no architectural departure or blocker. G-0 closes when this PR merges in the authorised order. The sections below record the reconciliation as submitted; §11 records the closure.
 
 | | |
 |---|---|
@@ -155,9 +155,9 @@ No contradiction is left without an explicit disposition.
 **Environment.** Machine load at verification was load average 1.3, with 3 unrelated `ngspice` processes. That is irrelevant to correctness checks; no timings are claimed here.
 
 ## 8. Remaining blockers and deferred qualification
-**Blocking G-0 closure:** maintainer approval only.
+**Blocking G-0 closure:** none; approved (§11). The merges are authorised.
 
-**Before P1-A merges:** P-CI configured (after approval).
+**Before P1-A merges:** P-CI configured.
 
 **Deferred qualification**, never implied by G-0:
 - **Real Safari** (TD-PLATFORM-002; owner authorisation): G-JOB, G-UI, G-R1.
@@ -178,7 +178,7 @@ No contradiction is left without an explicit disposition.
 | #6 | `review/rfc-002-architecture` → `docs/rfc-002-vector-studio` | Independent review (unchanged) |
 | this PR | `docs/g0-rfc-002-reconciliation` → `docs/rfc-002-vector-studio` | PR #6's commits (same SHAs) plus G-0 commits |
 
-**Proposed order** (requires maintainer authorisation):
+**Order** (authorised at closure):
 1. Merge **PR #6** into `docs/rfc-002-vector-studio` with a **merge commit**.
 2. The reconciliation PR's diff then shows only the G-0 commits. Merge it with a **merge commit**.
 3. Merge **PR #4** into `main`.
@@ -190,4 +190,39 @@ If the reconciliation PR is merged first, PR #6's head becomes reachable from th
 ## 10. Recommended next gate
 After approval, merge and P-CI: **G-ENG ‖ G-DOC**, as two independent PRs following [G0-NEXT-GATE-BRIEF](G0-NEXT-GATE-BRIEF.md).
 
-**Confirmation:** no P1 implementation, deployment, domain, DNS, Cloudflare, CI or runner change was made in G-0. The work stops here for owner acceptance.
+**Confirmation:** no P1 implementation, deployment, domain, DNS, Cloudflare, CI or runner change was made in G-0.
+
+## 11. G-0 closure (maintainer approval and contract clarifications)
+**Approved:**
+- the reconciled RFC-002;
+- C1–C9, subject to the clarifications;
+- all 20 dispositions;
+- the 13-gate plan;
+- the design system;
+- the debt register;
+- the provisional budgets;
+- the preset order;
+- the P-CI specification.
+
+All reconciliation interpretations were confirmed. The full record is in [G0-DECISION-REGISTER §5](G0-DECISION-REGISTER.md) and the [owner acceptance record](G0-OWNER-ACCEPTANCE-CHECKLIST.md).
+
+**Clarifications** (CL-1 to CL-9; contract versions unchanged because they precede the freeze):
+
+| Contract | Clarification |
+|---|---|
+| C2 | Commit = shape check → detaching move → validation of store-owned bytes → publish. The input is consumed; `copyIncoming` is the only (explicit) copy; fail-closed startup check; runtime tests. Commands never copy; render copies are host-driven (population, recovery, new chunks) |
+| C3 | Exact, checked accounting: `M_mem = V + 8C + 16P + 8` (the old formula overstated by 8 bytes); `D = 36P + 4S`; ledger cost; `B`; `G`. Caps before allocation, with u64 checked arithmetic in Rust (wasm32 `usize` is 32-bit). Offsets computed, not stored. Single-owner byte attribution (Σ = total). Anchors per PathObject reference (`pathAnchors`) |
+| C5 | Supersession for previews and thumbnails only. Explicit jobs: bounded queue or `busy` before acceptance, and always a visible outcome (including `stale`). Identity handshake for both workers before any post |
+| C7 | Canonical uncompressed content (RFC 8785; C3.0 records), identical across browsers. Whole-container byte identity within a qualified environment, or everywhere with codec `none`; native deflate never assumed deterministic. `nextId` and `nextChunkId` persisted. Dirty state is state identity, not per-edit digests |
+| C8 | One rect clip per Layer or Group, in local space. Axis-preserving composed transforms only (exact), else `clip_transform_unsupported` with Release clip. Intersection of nested clips; empty means fully clipped. One evaluation for preview, hit testing and export. No bounding-box approximation |
+
+Also: the next-gate brief now assigns **every shared file one owner**, fixes the single production validator in G-ENG (`src/geometry/packet/`), gives G-DOC a validator port and a test-only adapter, and defines the integration PR and its final shared conformance test. Audit rows 38–47.
+
+**Closure verification** (`artifacts/closure-verification.txt`; load average 0.49, no `ngspice` processes):
+- 267 relative links in 26 files resolve, 0 problems;
+- `cargo fmt` PASS, `clippy -D warnings` exit 0, `cargo test` 0 failures;
+- `regression_corpus` **326/326** identical; `geo_bundle` **72/72** identical;
+- `vp check` PASS, `vp test` 14/14;
+- review evidence and every production, dependency and lockfile path unchanged (empty diffs).
+
+The clarification pass changed documentation only.

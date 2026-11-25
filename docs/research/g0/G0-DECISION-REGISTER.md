@@ -2,11 +2,12 @@
 
 **Sources.**
 - Maintainer G-0 brief (2026-11-25).
+- Maintainer G-0 closure and P1-A authorisation (2026-11-25), recorded in §5.
 - Independent review [RFC-002-PROPOSED-AMENDMENTS](../rfc-002-review/RFC-002-PROPOSED-AMENDMENTS.md) and [FINAL-REPORT](../rfc-002-review/FINAL-REPORT.md).
 
 The review's recommendation ("RFC-002 READY SUBJECT TO SPECIFIED AMENDMENTS") is **accepted**, and all 20 amendments are accepted in principle with the qualifications below.
 
-**Status of these decisions.** Each records an **accepted architecture**, not a validated production implementation. Owner approval of the reconciled RFC closes G-0.
+**Status of these decisions.** Each records an **accepted architecture**, not a validated production implementation. The maintainer **approved** the reconciled RFC at G-0 closure (§5). All historical PARTIAL and NOT RUN results are unchanged.
 
 ## 1. Amendment dispositions
 | # | Amendment | Disposition | Qualification (maintainer) | Rationale | Implementation consequence |
@@ -56,7 +57,7 @@ The review's recommendation ("RFC-002 READY SUBJECT TO SPECIFIED AMENDMENTS") is
   - the interactive target and stress workloads apply per rendered snapshot;
   - history-retained geometry is budgeted in bytes.
 - **Single-build service-worker sessions** (RFC §15.3), adding TD-PLATFORM-006 (source inspection).
-- **Merge order** (proposed, needs authorisation):
+- **Merge order** (**authorised** at G-0 closure, §5):
   1. PR #6 into `docs/rfc-002-vector-studio` (merge commit);
   2. the reconciliation PR into the same branch (merge commit);
   3. PR #4 into `main`.
@@ -66,10 +67,56 @@ The review's recommendation ("RFC-002 READY SUBJECT TO SPECIFIED AMENDMENTS") is
 
 ## 4. Decisions still pending the maintainer
 See [G0-OWNER-ACCEPTANCE-CHECKLIST](G0-OWNER-ACCEPTANCE-CHECKLIST.md):
-- approval of the reconciled RFC (closes G-0);
-- merge authorisation;
 - lower-end hardware access;
 - local Safari automation authorisation;
 - Precision version allocation at geometry-gate acceptance;
 - the G-SB deferral decision if it arises;
 - ratification of the provisional budgets after measurement.
+
+## 5. G-0 closure (maintainer, 2026-11-25)
+**Approved:**
+- the reconciled RFC-002;
+- contracts C1–C9, subject to the clarifications below;
+- all 20 amendment dispositions;
+- the 13-gate plan;
+- the design-system specification;
+- the debt register (37 open items);
+- the provisional performance and resource budgets;
+- the core preset order;
+- the minimal CI specification.
+
+**Confirmed interpretations:**
+- the 1M-anchor cap applies per document (hidden layers included) and per job;
+- 250k anchors and ~40k paths are rendered-snapshot performance targets, not editing limits;
+- history is budgeted by retained bytes;
+- G-GEO allocates no Precision version, and v2 is the joint G-GEO + G-SB qualification. If G-SB defers, a separate maintainer decision governs a G-GEO-only release;
+- after commit, the document is authoritative for effective style, fill rule, transforms, visibility, order and clipping;
+- single-build service-worker sessions are mandatory;
+- the disclosed main-thread renderer fallback is acceptable, subject to qualification;
+- layered drag caches must preserve compositing;
+- the 24 MP B&W target is import → visible;
+- the colour final target includes committed-and-visible output;
+- the exact settled-frame target is set only after G-R1 measurement.
+
+**Authorised:**
+- the merge sequence (PR #6, PR #7, PR #4, merge commits only);
+- P-CI as a separate PR;
+- G-ENG and G-DOC after P-CI, as two independent PRs, neither merged without further acceptance.
+
+### 5.1 Contract clarifications (before the freeze; contract versions unchanged)
+These resolve implementation-level ambiguities named by the maintainer. **None departs from an accepted architectural decision.** They landed before the freeze, so C2, C3, C5, C7 and C8 stay at their initial versions.
+
+| ID | Ambiguity | Clarification | Rationale | Where |
+|---|---|---|---|---|
+| CL-1 | C2: a caller could keep a typed-array alias and mutate committed geometry. "Validated and freshly received" allowed validate → mutate → commit | Commit is a fixed sequence: shape check (whole-buffer, distinct, non-shared, non-resizable) → **move** with `structuredClone(…, {transfer})`, detaching every alias → **validate the store-owned bytes** (no pre-validated fast path) → publish. Commit consumes its input. Explicit `copyIncoming()` is the only copy; commit never copies implicitly. A fail-closed startup check covers endianness and detaching transfer. Runtime tests, not TypeScript `readonly` | A move is zero-copy, so it fits the 50 ms commit budget alongside the 8–20 ms validation (R01). Re-validating after the move removes the TOCTOU window. Detachment is observable and testable. No browser versions are frozen | C2; RFC §5.2, §6 |
+| CL-2 | C2: "no copies for structural commands" vs render copies | Commands never copy. Render copies are host-driven: initial population, recovery, a new chunk entering a snapshot. G-DOC tests count copies with no renderer attached; G-R0 asserts zero render copies for structural edits of held chunks | Separates command purity from renderer lifecycle | C2 rule 9; brief |
+| CL-3 | C3: inexact size formula, unchecked arithmetic, unspecified serialized layout | Exact section sizes; `M_mem = V + 8C + 16P + 8` (the old formula overstated by 8 bytes); derived `D = 36P + 4S`; ledger cost `M_mem + manifestBytes + D`; caps on `M_mem + D_max`, P, V ≤ 2A, C ≤ 6A, a manifest ≤ 16 MiB, table and string caps — all **before allocation**. Rust uses `u64` checked arithmetic (wasm32 `usize` is 32-bit); TS uses integer and range checks plus `isSafeInteger`. C3.0 block: offsets computed from counts (not stored), zero padding, `padding` code; geometry record layout | Overflow safety on wasm32; one unambiguous byte layout; the bounds follow from the scene-v1 grammar | C3.0, C3.2 |
+| CL-4 | C3: `byOwnerKind` vs `total`; shared geometry vs the anchor cap | Each chunk is counted once and attributed to its highest owner (document > snapshot > job > history), so Σ = total; history-only bytes = `byOwnerKind.history`. Anchors are counted **per PathObject reference** (`pathAnchors` added to the derived metadata). Commands that raise the count are checked before commit; exports re-validate | Storage deduplication must not bypass the product cap | C3.2; RFC §8.8 |
+| CL-5 | C5: "a newer submission supersedes the pending one" vs never cancelling explicit jobs; RFC §7 silently discarded stale results | Supersession for previews and thumbnails only. Explicit jobs are accepted into a bounded queue (capacity 4, provisional) or rejected with `busy` **before** acceptance. An accepted job always ends in a visible outcome (committed, delivered, failed, stale, cancelled). Stale explicit results offer "commit as a new layer" or "discard"; exports never go stale | Never silently discard an accepted explicit operation | C5; RFC §7, §10.3 |
+| CL-6 | C5: the render worker's `ready` carried no identity | Both workers hand-shake `{protocolVersion, buildId, packetVersion, generation}` (+ `engineVersion` for compute) at startup and on every recreation. Nothing is posted before it passes. A mismatch is fatal build skew (no requeue; `build_mismatch`; reload) | Build skew is possible through the service worker (TD-PLATFORM-006) | C5; RFC §10.2 |
+| CL-7 | C7: "byte-identical save/load/save" assumed deterministic native compression | Canonical content = uncompressed sections (RFC 8785 JSON with ID maps in JCS order; C3.0 records), identical across browsers along with `sha256`. Cross-browser files are semantically equal. Whole-container byte identity is required within one qualified environment (same build, engine and version) and across all environments with codec `none`. A deterministic compressed codec would be a new codec id | `CompressionStream` has no parameters and is not specified to be deterministic | C7; RFC §14 |
+| CL-8 | C7: high-water marks and dirty state | `nextId` and `nextChunkId` are persisted and sit outside undoable state. Dirty state is state identity (`currentState !== savedState`), with no per-edit hashing. Digests are computed at save time, for integrity, relink and "unchanged since save" | Duplicate followed by undo must be clean; hashing large documents per edit is too costly | C1, C7; RFC §5.1, §7 |
+| CL-9 | C8: nested and transformed rect clips through the scene-v1 adapter | One rect clip per Layer or Group, in local coordinates. Axis-preserving composed transforms only, checked exactly; anything else is rejected at command validation (`clip_transform_unsupported`) with Release clip offered. Nested clips intersect; an empty intersection is fully clipped (not drawn, hit or exported). One evaluation feeds preview, hit testing and export. No bounding-box approximation. Arbitrary and rotated clips need scene v2 (before Halftone ships, P2) | Scene v1 holds one axis-aligned clip per group and rejects zero-area clips; P1 presets emit no clips | C8; RFC §12.3 |
+
+**Blockers introduced:** none. **Architectural departures:** none.
+

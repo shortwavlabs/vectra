@@ -3,8 +3,8 @@ Documentation review precedes implementation.
 
 **P0 is accepted and complete** (2026-11-24) as an engineering baseline: P0, P0-R and P0-R-GEO were merged via PR #3. Records: docs/research/P0-ACCEPTANCE.md, docs/TECHNICAL-DEBT.md, docs/P1-HANDOFF.md.
 
-**Next** (RFC-002 reconciled at G-0, 2026-11-25; **pending maintainer approval**; gates in [G0-P1-IMPLEMENTATION-PLAN](research/g0/G0-P1-IMPLEMENTATION-PLAN.md)):
-1. **G-0** — maintainer approval of the reconciled RFC-002. Then **P-CI**, the minimal required CI job.
+**Next** (RFC-002 reconciled and **approved** at G-0, 2026-11-25; gates in [G0-P1-IMPLEMENTATION-PLAN](research/g0/G0-P1-IMPLEMENTATION-PLAN.md)):
+1. **G-0** — approved (closes on merge). Then **P-CI**, the minimal required CI job.
 2. **P1-A** — G-ENG (engine API, GeometryPacket) ‖ G-DOC (document, GeometryStore, history, `.vectra` serializer); then G-JOB (scheduler, worker lifecycle) and G-R0 (minimal renderer).
 3. **P1-B** — G-UI (design-system shell) and G-R1 (production rendering; lower-end and real Safari qualification).
 4. **P1-C** — G-TRACE (Artistic and Precision tracing; P1 core presets B&W, Full Colour, Limited Palette, Grayscale, Silhouette), G-EDIT, G-EXP, G-PRJ (Save/Open), G-GEO, G-SB (may defer to P2).

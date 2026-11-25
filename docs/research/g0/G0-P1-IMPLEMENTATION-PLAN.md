@@ -101,10 +101,10 @@ The graph has no cycles:
 ## Gates
 Each gate below lists: objective and scope; exclusions; dependencies; contracts; deliverables; automated tests; performance; owner acceptance; stop conditions; regressions; debt; prerequisites.
 
-### G-0 — Architecture reconciliation (current)
+### G-0 — Architecture reconciliation (closed)
 - **Scope:** reconcile RFC-002 with the review; decisions; contracts; this plan; the debt register; consistency.
 - **Excludes:** any implementation.
-- **Exit:** maintainer approval of the reconciled RFC. G-0 is **not closed** until then.
+- **Exit:** maintainer approval of the reconciled RFC. **Approved at G-0 closure**, subject to the C2, C3, C5, C7 and C8 clarifications, which are integrated. G-0 closes when PR #7 merges in the authorised order.
 
 ### G-ENG — Engine API and GeometryPacket (P1-A)
 - **Objective.** The engine produces, validates and consumes GeometryPacket v1; it offers a staged estimate API; diagnostics are gated.
@@ -117,7 +117,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
   - `segment → estimate → fit` (bw and colour) plus explicit handling for limited and halftone;
   - `diagnostics` cargo feature (TD-ARCH-004);
   - the shared adversarial fixture directory (≥ the 27 review cases);
-  - a TS validator conforming to C3, shared with G-DOC.
+  - the **only** production TS validator and the C3.0 byte codec (`src/geometry/packet/`), adopted by G-DOC at integration (ownership table in the next-gate brief).
 - **Automated tests:**
   - 326 and 72 hashes identical;
   - `fit(segment())` byte-identical to `vectorize`;
@@ -137,7 +137,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Objective.** An authoritative document model that is correct under every command, undo and redo, and that round-trips through container v1.
 - **Excludes:** renderer, workers, product UI, Save/Open UI.
 - **Depends on:** G-0. It is **independent of G-ENG**: it consumes C3 packets (fixture packets are generated from the regression scenes with the review's JS encoder until G-ENG lands).
-- **Contracts:** C1, C2, C3 (TS validator), C6, C7.
+- **Contracts:** C1, C2, C3 (through a validator port; G-ENG's validator is wired in at integration), C6, C7.
 - **Deliverables:**
   - a framework-neutral TS store;
   - the GeometryStore (C2);
@@ -149,17 +149,23 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Automated tests:**
   - property and fuzz tests of invariants over random command, undo and redo sequences;
   - every command undoable;
-  - zero geometry copies for structural commands;
+  - zero geometry copies for structural commands (C2 rule 9; renderer-driven copies are out of scope);
+  - C2 ownership: aliases detached after commit, validation of owned bytes, `ownership` rejections;
   - committed buffers never detached;
-  - save → load → save byte-identical;
+  - anchors counted per reference;
+  - state-identity dirty tracking;
+  - C7 determinism: whole-container byte identity in the qualified environment, codec-`none` goldens, canonical uncompressed sections;
   - the container adversarial suite (truncation, bad magic, oversize header, overlapping or out-of-range sections, duplicate IDs, decompression bomb, SHA mismatch, unknown kind, fields or version, invalid packets, dangling references, ID cycles, non-finite transform, bad source signature): typed error, document unchanged;
   - history cap and visible truncation.
-- **Performance:** committing a 1M-anchor result ≤ 50 ms on the main thread; structural undo and redo ≤ 16 ms (reference machine).
+- **Performance:** committing a 1M-anchor result ≤ 50 ms on the main thread, including the ownership move and the validation of owned bytes; structural undo and redo ≤ 16 ms (reference machine).
 - **Owner acceptance:** none beyond PR approval.
 - **Stop if:** the document needs renderer types or worker handles; a structural command copies geometry.
 - **Debt:** TD-ARCH-002 and TD-ARCH-003 (document side), TD-PERF-003 (ledger skeleton), TD-ARCH-005.
 - **Regressions:** global rule; no change to the existing workbench behaviour.
 - **Prerequisites:** none.
+
+### P1-A integration (after G-ENG and G-DOC are both accepted)
+A small PR wires G-ENG's validator into the G-DOC store, deletes the test-only adapter, and adds the final shared conformance test (Rust = TS = `commit` codes; Rust ↔ TS ↔ container byte round trip). Procedure: [G0-NEXT-GATE-BRIEF](G0-NEXT-GATE-BRIEF.md).
 
 ### G-JOB — Scheduler, protocol v2, worker lifecycle (P1-A)
 - **Objective.** A production compute-worker client that implements RFC §10.3 and C5, and replaces `client.ts` behind the workbench. Single-build service-worker sessions (RFC §15.3).
@@ -167,8 +173,8 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Depends on:** G-ENG (packet output, handshake fields) and G-DOC (revisions, commit path).
 - **Contracts:** C5, C1, C2.
 - **Deliverables:**
-  - the scheduler (only previews pre-emptible; never terminate before posting; start-up timeout and requeue-once);
-  - the protocol v2 handshake;
+  - the scheduler: only previews pre-emptible and supersedable; explicit jobs accepted into a bounded queue or rejected with `busy`; stale explicit results surfaced; never terminate before the handshake and post; start-up timeout and requeue-once;
+  - the protocol v2 handshake for both workers (build, protocol, packet and generation identity);
   - diagnostics counters;
   - revision-checked commits;
   - frozen export snapshots;

@@ -1,6 +1,6 @@
 # Vectra design system
 
-**Status:** RECONCILED (G-0); normative for G-UI, pending maintainer approval of RFC-002.
+**Status:** APPROVED (G-0 closure, 2026-11-25); normative for G-UI.
 
 | | |
 |---|---|

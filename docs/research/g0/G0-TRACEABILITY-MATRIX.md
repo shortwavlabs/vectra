@@ -32,7 +32,7 @@
 | A11 | §9 | SHARED-BOUNDARY-STRATEGY (reproduction, 326/72 hashes, oracle bound, graph prototype) | ACCEPT WITH QUALIFICATIONS | RFC §12; C6 | G-GEO, G-SB | §12.4 metrics; emitted-geometry validators; fresh pre-registered holdout run once after a freeze; owner visual bundle | TD-GEO-001/009/010; G-SB may defer to P2 |
 | A12 | §10 | CREATIVE-LAB-ARCHITECTURAL-REVIEW | ACCEPT | RFC §13 | P1 seam: G-ENG and G-DOC descriptors; full: P2-B | Seed reorder stability; side-input digest invalidation (CL-G4) | — |
 | A13 | §5 | R05-A D7 (5 commits for 5 keys) | ACCEPT | RFC §7 | G-DOC (API), G-UI | Keyboard edits produce one history entry per parameter run | TD-UI-002 |
-| A14 | §11 | PROJECT-PERSISTENCE-REVIEW; `compression.json` | ACCEPT | RFC §14; C7 | G-DOC, G-PRJ | save → load → save byte-identical; container adversarial suite; atomic failure | — |
+| A14 | §11 | PROJECT-PERSISTENCE-REVIEW; `compression.json` | ACCEPT | RFC §14; C7 | G-DOC, G-PRJ | C7 determinism (canonical uncompressed content; whole-container identity in the qualified environment); container adversarial suite; atomic failure | — |
 | A15 | §4 | R05-B relinking requirement | ACCEPT | RFC §5.1 | G-DOC | Required digest validated; relink by digest | — |
 | A16 | §12, DESIGN-SYSTEM | DESIGN-SYSTEM-FEASIBILITY (42/42; D1–D9; contrast; CSP) | ACCEPT WITH QUALIFICATIONS | RFC §16; DESIGN-SYSTEM (normative) | G-UI | CSP controls; repaired-control qualification; contrast; screen reader; bundle budgets | TD-UI-001..004 |
 | A17 | §13 | MEMORY-AND-RESOURCE-BUDGET; `timing-environment.txt` (load) | ACCEPT PROVISIONALLY | RFC §17, §11.3–11.4; C9 | All, sign-off in G-R1 | Benchmarks per C9 with recorded load; lower-end runs | TD-PLATFORM-003; TD-PERF-003 |

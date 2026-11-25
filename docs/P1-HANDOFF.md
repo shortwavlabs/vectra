@@ -3,7 +3,7 @@
 The entry point for the next engineering phase.
 - **Baseline status.** P0 (with P0-R and P0-R-GEO) is accepted as an engineering baseline, not a production release; see [P0-ACCEPTANCE](research/P0-ACCEPTANCE.md).
 - **Next step: RFC-002.** This document does not write RFC-002 or choose its architecture. It hands over what exists, what is decided and what RFC-002 must answer.
-- **G-0 update (2026-11-25):** RFC-002 has been independently reviewed (PR #6) and reconciled (G-0). It is pending maintainer approval; see [G0-FINAL-REPORT](research/g0/G0-FINAL-REPORT.md). After approval, the next gates are P-CI, then **G-ENG ‖ G-DOC**. P1 has not started.
+- **G-0 update (2026-11-25):** RFC-002 has been independently reviewed (PR #6) and reconciled (G-0). The maintainer approved it at G-0 closure; see [G0-FINAL-REPORT](research/g0/G0-FINAL-REPORT.md). The next gates are P-CI, then **G-ENG ‖ G-DOC**.
 
 ## 6.1 Accepted baseline
 **What runs today** (`main` after PR #3):
