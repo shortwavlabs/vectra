@@ -196,15 +196,15 @@ test("renderer disclosure: a recovery and the crash fallback are shown; healthy 
     await crash();
     await settled(page);
   }
-  // (The host state is not asserted here: after this crash fallback it stays "rendering" although
-  // the main-thread renderer has drawn the exact frame; a canvas-host matter, reported to the
-  // lead. The disclosure does not depend on it.)
   await crash();
   await expect(state).toHaveAttribute("role", "status");
   await expect(state).toBeVisible();
   await expect(state).toHaveText(
     /^Renderer: main thread \(fallback: the render worker crashed repeatedly \(.+\)\)$/,
   );
+  // The fallback renderer's exact frame settles the host: ready, on the main thread.
+  await expect(state).toHaveAttribute("data-state", "ready", { timeout: 30_000 });
+  await expect(state).toHaveAttribute("data-host", "main");
   test
     .info()
     .annotations.push({ type: "canvas-state texts", description: JSON.stringify(await seen()) });
