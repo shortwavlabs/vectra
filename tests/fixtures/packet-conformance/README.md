@@ -34,7 +34,7 @@ pnpm exec vp fmt tests/fixtures/packet-conformance/cases.json
   6. caps in the order P, V ≤ 2 × anchor cap, C ≤ 6 × anchor cap, `M_mem + D_max`.
 - **Steps 5–12 run per path, in path order:** offsets, references and group order, then per verb opcode, grammar, arity and coordinate, then surplus coordinates and the running anchor budget.
 - **Byte decoding.** For byte streams, steps 1–2 run on the manifest first, because the block length depends on validated counts. The block length (`length`) and zero padding (`padding`) are checked next, then steps 3–12.
-  - The C3 sentence "byte decoding precedes step 1" cannot hold literally. This is recorded as erratum E1 in the G-ENG report.
+  - The C3 sentence "byte decoding precedes step 1" cannot hold literally. This is amendment request AR-1 in the G-ENG report.
 
 ## Adaptations from the review's 27 cases
 - **Field name.** The manifest field is `packetVersion` (C3), not the prototype's `version`.

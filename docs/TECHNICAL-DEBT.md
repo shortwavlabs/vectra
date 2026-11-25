@@ -552,7 +552,7 @@ Counts:
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (packet-only transport; document v1) / IMPLEMENTATION PENDING**; gate G-ENG, G-DOC; closure: C3 conformance in TS and Rust; lossless Scene ↔ Packet; scene v1 exports byte-identical via the packet route; owner action: No. R01: same size as JSON; parse 97–198 ms vs validate 8–20 ms at ~1M anchors.
 - **G-ENG (2026-11-25), engine and validator half:** **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**.
   - GeometryPacket v1 in Rust and TS; 47 shared conformance cases, with matching codes.
-  - Lossless Scene ↔ Packet over the regression corpus (114 cases).
+  - Lossless Scene ↔ Packet over the regression corpus (106 scenes; the 8 over-budget cases fail identically in both routes).
   - Packet-route scene, SVG and PDF byte-identical to `a4cf172.sha256` (326/326).
   - The document half is G-DOC's; integration is pending. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 
@@ -797,6 +797,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Facts.**
   - For 3 of the 65 procedural default-mode cases, the WASM build traces different coordinates from the native build of the same commit: `sharp_corners`/mosaic, `nested_rings`/color and `nested_rings`/mosaic. The maximum differences are 2.0, 1.4 and 0.96 px.
   - The difference is reproduced with `main`'s own WASM build (`be101bca…`), so G-ENG did not introduce it. The WASM output digest (`68723671…`) is unchanged since P0.
+  - The inputs are identical: for all 13 fixtures, the Rust in-memory fixture pixels and the Node-decoded committed PNGs have the same checksum, and the committed PNGs equal freshly generated ones byte for byte.
   - Earlier checks compared WASM with WASM across hosts (65/65) and precision native with WASM (26/26). Default-mode native vs WASM had not been compared.
   - The C3 requirement "native and WASM builds produce byte-identical packets" therefore holds only where the scenes agree (62/65). The packet encoding adds no difference.
   - TD-GEO-007's "Current guarantee" sentence ("identical RGBA gives identical scene … in native and WASM") overstates the guarantee for Artistic mode.

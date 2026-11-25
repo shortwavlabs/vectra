@@ -51,14 +51,18 @@ Differences from the C4 sketch, all within "signatures finalised in G-ENG":
 - `paletteId` is part of the effective style (C3.1, C5 "effective … style"). It is required to reproduce P0 scenes, whose palette references are validated.
 - C8's render items (`fill`, `stroke`) are unaffected.
 
-## 3. Contract notes for the maintainer (no contract was changed)
-| # | Note | Handling |
-|---|---|---|
-| E1 | C3 says "Byte decoding (C3.0) precedes step 1". That cannot hold literally, because the block length `B` depends on the validated counts | Implemented as steps 1–2 on the manifest → block length (`length`) and padding (`padding`) → steps 3–12. **An editorial erratum to C3 is proposed** |
-| E2 | The step-2 sub-order and the per-path running of steps 5–12 were unspecified | Fixed identically in Rust and TS and documented in the fixture README; no behaviour beyond C3 |
-| E3 | The review's "declared 2³² coords → budget" case conflicts with C3's integer range `[0, 2³²−1]` | The fixture was adapted: `2^32` → `manifest`, `2^32−1` → `budget`. The review's evidence is unchanged |
-| E4 | Export items carry `paletteId` (§2) | Interpreted as part of C3.1's effective style; flagged for confirmation |
-| E5 | C3: "native and WASM builds produce byte-identical packets" | **Not met for 3/65 procedural cases.** The cause is a **pre-existing** native vs WASM difference in Artistic tracing, reproduced with `main`'s own WASM; the packet encoding adds none (§4). Recorded as **TD-PLATFORM-007** |
+## 3. Contract amendment requests (maintainer decision required; no contract was changed)
+Per the change-control rule, G-ENG did not edit the frozen contracts. Each request below names the proposed wording and what stays **unaccepted until it is decided**.
+
+| # | Contract | Issue | Proposed amendment | Unaccepted until decided |
+|---|---|---|---|---|
+| **AR-1** | C3 | Validation order: "Byte decoding (C3.0) precedes step 1 and may additionally return `length` or `padding`" cannot hold, because the block length `B` depends on the validated counts | Replace with: "For byte streams, steps 1–2 run on the manifest first; the block is then decoded (`length`, `padding`) before step 3." (editorial; no version bump proposed) | The byte-decoding order of the conformance suite (6 `bytes` cases). The implementation follows the proposed wording |
+| **AR-2** | C5 / C8 (export draw list) | C8's `RenderSnapshot` lists `drawList` items with `chunkId` and `fill`/`stroke`/`evenOdd`, and C5 `export` refers to it. Reproducing P0 scenes also needs the item's **`paletteId`**: scene v1 validates palette references, so it is part of C3.1's effective style. The Rust and WASM export input is `{width, height, runs: [{id, clip}], items: [{chunk, pathIndex, transform, fill, paletteId, stroke, evenOdd, groupRun}]}`, where `chunk` indexes the job's `PacketSet` | C5 `export.drawList` = C8 draw list **plus** `paletteId` per item and the artboard `width`/`height`; the WASM adapter maps `chunkId` → packet index. C8 render items are unchanged | `bake_draw_list` and `exportDrawListSvg`/`Pdf` as the frozen export input shape (G-EXP depends on it). They are implemented and tested, but not to be built upon until decided |
+| **AR-3** | C3 (determinism) | "Native and WASM builds produce byte-identical packets" is **not met for 3/65** procedural default-mode cases. The cause is a pre-existing native vs WASM difference in Artistic tracing (TD-PLATFORM-007): the inputs are verified identical, and `main`'s own WASM shows it. The packet encoding adds no difference | Either (a) narrow the clause to "identical scenes yield byte-identical packets in native, WASM and TS (verified); engine native/WASM output identity is tracked by TD-PLATFORM-007", or (b) keep it and make TD-PLATFORM-007 a blocker for the affected gate | The C3 determinism clause; TD-PLATFORM-007's priority |
+
+**Notes** (within the contracts; recorded for review):
+- **E2.** The step-2 sub-order and the per-path running of steps 5–12 are fixed identically in Rust and TS and documented in the fixture README.
+- **E3.** The review's "declared 2³² coordinates → `budget`" case conflicts with C3's integer range. The fixture was adapted (`2^32` → `manifest`, `2^32−1` → `budget`); the review's evidence itself is unchanged.
 
 ## 4. Verification (local; commands and results)
 **Frozen baselines:**
@@ -67,9 +71,9 @@ Differences from the C4 sketch, all within "signatures finalised in G-ENG":
 
 Both were run with the scratch script `regress.sh` (build the two examples, regenerate, compare), after the staged refactor and again at the final head (§8).
 
-**Packet route over the whole corpus** (`packet_regression`, 114 cases, photographic inputs included):
-- `fit(segment(x)) == vectorize(x)` for every case;
-- `Scene::from_packet(from_bytes(to_bytes(from_scene(s)))) == s` for every case;
+**Packet route over the whole corpus** (`packet_regression`, 114 cases, photographic inputs included: 106 produce scenes, and 8 end in the same `too_many_primitives` error in both routes):
+- `fit(segment(x)) == vectorize(x)` for all 106 scenes, and the same typed error for the 8 over-budget cases;
+- `Scene::from_packet(from_bytes(to_bytes(from_scene(s)))) == s` for all 106 scenes;
 - identity-bake scene, SVG and PDF: **326/326 hashes identical to `a4cf172.sha256`**.
 
 **Rust tests.** `cargo test --workspace --locked`: all pass, including 6 new integration tests and 3 new unit tests:
@@ -80,15 +84,15 @@ Both were run with the scratch script `regress.sh` (build the two examples, rege
 - f64 transform baking and stroke rules;
 - the tracer boundary check.
 
-**TS tests.** `pnpm exec vp test`: 68 tests in 4 files, all pass (54 new):
+**TS tests.** `pnpm exec vp test`: 69 tests in 4 files, all pass (55 new):
 - all 47 conformance cases;
 - C3.2 formulas;
 - the TS block equals the shared fixture bytes;
-- fresh whole-buffer decode;
+- fresh whole-buffer decode, including from pooled Node `Buffer` views (a bug found in self-review: `Buffer#slice` returns a view; fixed by copying with `ArrayBuffer#slice`);
 - record round trip and typed errors;
 - canonical JSON.
 
-**Checks:** `cargo fmt --all --check` PASS; `cargo clippy --workspace --all-targets --locked -- -D warnings` exit 0 (host and `--target wasm32-unknown-unknown` for the adapter); `pnpm exec vp check` PASS; `pnpm run build` PASS (notices verified, dist check passed).
+**Checks:** `cargo fmt --all --check` PASS; `cargo clippy --workspace --all-targets --locked -- -D warnings` exit 0. `--all-targets` unifies the self dev-dependency's `diagnostics` feature, so the library **without** the feature was also checked: `cargo clippy -p vector-engine --lib -- -D warnings` and `cargo clippy -p vector-engine-wasm --lib --target wasm32-unknown-unknown -- -D warnings` both exit 0. P-CI only runs the `--all-targets` form; adding the no-feature check is recommended. `pnpm exec vp check` PASS; `pnpm run build` PASS (notices verified, dist check passed).
 
 **WASM** (`node scripts/wasm-fingerprint.mjs` with `NATIVE_PACKETS_DIR`):
 - default-mode output digest `68723671…` and precision digest `07fdd00d…`, both **unchanged since P0**;
