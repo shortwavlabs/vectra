@@ -197,6 +197,33 @@ async function recreateWorker(page: Page, churn = false) {
   expect(after.buildMismatches).toBe(0);
 }
 
+/** Crashes the render worker and waits until a new one presents the current snapshot. */
+type RenderApi = {
+  crash(): boolean;
+  diag(): { client: { lastRecoveryMs: number | null; buildMismatches: number } };
+};
+const renderApi = (page: Page) => ({
+  crash: () =>
+    page.evaluate(() =>
+      (window as unknown as { __vectra: { canvas: RenderApi } }).__vectra.canvas.crash(),
+    ),
+  diag: () =>
+    page.evaluate(() =>
+      (window as unknown as { __vectra: { canvas: RenderApi } }).__vectra.canvas.diag(),
+    ),
+});
+async function recreateRenderWorker(page: Page) {
+  const r = renderApi(page);
+  expect(await r.crash()).toBe(true);
+  await expect
+    .poll(async () => (await r.diag()).client.lastRecoveryMs !== null, { timeout: 30_000 })
+    .toBe(true);
+  await expect(page.getByTestId("canvas-state")).toHaveText("Canvas: render worker", {
+    timeout: 30_000,
+  });
+  expect((await r.diag()).client.buildMismatches).toBe(0);
+}
+
 test("an old tab keeps its build across a deploy; the update waits, then replaces the old cache", async ({
   browser,
   browserName,
@@ -222,6 +249,7 @@ test("an old tab keeps its build across a deploy; the update waits, then replace
     await recreateWorker(old);
     await context.setOffline(true);
     await recreateWorker(old, true); // start-up churn, offline, in an old tab after a deploy
+    await recreateRenderWorker(old); // the render worker too, from the old version's cache
     await old.reload();
     await expect.poll(() => buildIdOf(old), { timeout: 30_000 }).toBe(b1);
     await loadSynthetic(old);
