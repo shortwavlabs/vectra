@@ -807,21 +807,21 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Description.** Every dispatched transaction copies the node map (`Draft`, `SealedMap`) and then runs the whole-state invariant pass (`validateState`). Both are linear in the node count, so a one-node edit costs as much as revalidating the document. Undo and redo stay below 0.03 ms because they reuse validated states.
 - **Evidence** (Apple M5 Max, Node 24.22.1, production validator, medians of 30). Primary run with no `ngspice` (load average 9–12; not quiet: another project's CPU-bound jobs were running):
 
-  | Workload | Nodes | Dispatch (median / p95, ms) | `validateState` | Node-map copy | Rest | Budget |
-  |---|---|---|---|---|---|---|
-  | Interactive target (§8.8): 41,666 paths × 6 anchors, 5 structural commands | 41,675 | 25.2–28.9 / 26.9–32.1 | — | — | — | ≤ 16 (frame) |
-  | same, phase profile (`setTransform` on the layer) | 41,675 | 20.8 | 16.6 (80 %) | 2.2 | 2.1 | |
-  | 250,000 paths × 4 anchors, phase profile | 250,009 | 156 | 122 (79 %) | 17 | 16 | |
-  | 50,000 paths × 20 anchors, 5 structural commands | 50,009 | 33.9–41.1 / 34.9–44.1 | — | — | — | |
+  | Workload | Nodes | Dispatch (median / p95, ms) | `validateState` | Node-map copy | Rest |
+  |---|---|---|---|---|---|
+  | Interactive target (§8.8): 41,666 paths × 6 anchors, 5 structural commands | 41,675 | 25.2–28.9 / 26.9–32.1 | — | — | — |
+  | same, phase profile (`setTransform` on the layer) | 41,675 | 20.8 | 16.6 (80 %) | 2.2 | 2.1 |
+  | 250,000 paths × 4 anchors, phase profile | 250,009 | 156 | 122 (79 %) | 17 | 16 |
+  | 50,000 paths × 20 anchors, 5 structural commands | 50,009 | 33.9–41.1 / 34.9–44.1 | — | — | — |
 
-  Under heavy `ngspice` load (load average 20–40), the same measurements were 1.1–2.7 times slower: 27–31 ms at the interactive target, and 418 ms in the 250k phase profile. Undo and redo stay ≤ 0.02 ms. Commands: `node docs/research/g-doc/bench/bench.mjs --reps 30` and `node docs/research/g-doc/bench/dispatch-profile.mjs [paths] [anchorsPerPath]` (P1-A integration branch; results in `docs/research/p1a-integration/bench/`). The 16 ms figure is the frame budget an interactive edit must fit in; G-DOC itself has no dispatch target.
+  Under heavy `ngspice` load (load average 20–40), the same measurements were 1.1–2.7 times slower: 27–31 ms at the interactive target, and 418 ms in the 250k phase profile. Undo and redo stay ≤ 0.02 ms. Commands: `node docs/research/g-doc/bench/bench.mjs --reps 30` and `node docs/research/g-doc/bench/dispatch-profile.mjs [paths] [anchorsPerPath]` (P1-A integration branch; results in `docs/research/p1a-integration/bench/`). **Budgets.** RFC-002 §17 sets no dispatch target. The applicable budgets are attributable main-thread blocking ≤ 50 ms and interaction frame time p95 ≤ 33 ms (16.7 ms aspirational). Against them: at the interactive target a dispatch stays within the 50 ms blocking budget, but it uses most of a 33 ms gesture frame if an edit has to be applied within a frame. At 250,000 paths and 1M anchors (B, 172–253 ms), it exceeds the 50 ms blocking budget.
 - **Disposition:** stage **ARCHITECTURE ACCEPTED** (immutable snapshots, validated transactions) / IMPLEMENTATION PENDING; gate **G-EDIT**. No store rewrite or new dependency is made in P1-A.
 - **Upgrade path.**
   1. Incremental invariants: validate only the nodes a transaction touched, their parents and the derived indices they change, against invariants stated per node.
   2. Structural sharing for the node, style and palette maps (persistent maps, or copy-on-write chunks), so a draft no longer copies the whole map.
   3. The whole-state pass stays authoritative for load, import and recovery, and as a test oracle: a property test compares incremental and full validation on random command sequences.
-- **Closure criteria.**
-  - A structural command (transform, rename, hide, recolour, delete group) dispatches in ≤ 16 ms median and ≤ 33 ms p95 at the interactive target (≈ 250k anchors, ≈ 40k paths) on the reference machine, clean run, production build.
+- **Closure criteria** (the numeric thresholds are **proposed**, for maintainer decision at G-EDIT; they derive from RFC-002 §17):
+  - a structural command (transform, rename, hide, recolour, delete group) dispatches in ≤ 16.7 ms median and ≤ 33 ms p95 at the interactive target (≈ 250k anchors, ≈ 40k paths), and in ≤ 50 ms at the 1M-anchor stress workloads, on the reference machine, quiet run, production build.
   - Incremental and full validation agree on every state of a randomized command-sequence suite (at least 10,000 transactions, including rejected ones).
   - Load still runs the full pass; no invariant is weakened.
 - **Dependencies:** G-DOC store and invariants (C8 r2); TD-ARCH-005.
