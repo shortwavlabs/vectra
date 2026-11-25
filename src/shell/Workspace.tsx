@@ -354,7 +354,7 @@ export function Workspace() {
         const m = out.result.metrics.stats;
         const ms = out.timings.queuedMs + out.timings.workerMs + out.timings.commitMs;
         setStatus({
-          text: `Traced ${file.name}: ${m.paths} paths, ${m.anchors} anchors in ${Math.round(ms)} ms`,
+          text: `Traced ${file.name}: ${m.paths.toLocaleString("en")} paths, ${m.anchors.toLocaleString("en")} anchors in ${Math.round(ms)} ms`,
         });
       } else if (out.status === "stale")
         setStatus({ text: `Trace discarded: the document changed (${out.reason})`, error: true });
@@ -746,7 +746,7 @@ export function Workspace() {
                         ) : (
                           <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
                             <Button
-                              className="ring-1 ring-background/25"
+                              className="ring-1 ring-background"
                               onClick={() => fileInput.current?.click()}
                             >
                               <Upload data-icon="inline-start" /> Choose image…
@@ -852,70 +852,69 @@ export function Workspace() {
               </Button>
             )}
           </div>
-          {totals && (
+          {/* Document items stay mounted (their test IDs are part of the contract), hidden
+              while there is no document. */}
+          <div hidden={!state} className="flex shrink-0 items-center gap-3">
             <span className="shrink-0 tabular-nums" data-testid="complexity">
-              {totals.paths.toLocaleString("en")} paths · {totals.anchors.toLocaleString("en")}{" "}
-              anchors
+              {totals
+                ? `${totals.paths.toLocaleString("en")} paths · ${totals.anchors.toLocaleString("en")} anchors`
+                : "No artwork"}
             </span>
-          )}
-          {state && (
-            <>
-              <Divider />
-              <span className="shrink-0 tabular-nums">
-                {state.artboard.width} × {state.artboard.height} px
+            <Divider />
+            <span className="shrink-0 tabular-nums">
+              {state ? `${state.artboard.width} × ${state.artboard.height} px` : "No artboard"}
+            </span>
+            <div role="group" aria-label="Zoom" className="flex shrink-0 items-center">
+              <Tip
+                label="Zoom out (−)"
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Zoom out"
+                    aria-keyshortcuts="-"
+                    disabled={!session}
+                    onClick={() => canvas.current?.zoomBy(0.8)}
+                  />
+                }
+              >
+                <Minus />
+              </Tip>
+              <span className="w-11 text-center text-foreground/85 tabular-nums" data-testid="zoom">
+                {session && zoom !== null ? `${zoom}%` : "—"}
               </span>
-              <div role="group" aria-label="Zoom" className="flex shrink-0 items-center">
-                <Tip
-                  label="Zoom out (−)"
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label="Zoom out"
-                      aria-keyshortcuts="-"
-                      onClick={() => canvas.current?.zoomBy(0.8)}
-                    />
-                  }
-                >
-                  <Minus />
-                </Tip>
-                <span
-                  className="w-11 text-center text-foreground/85 tabular-nums"
-                  data-testid="zoom"
-                >
-                  {zoom !== null ? `${zoom}%` : "—"}
-                </span>
-                <Tip
-                  label="Zoom in (+)"
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label="Zoom in"
-                      aria-keyshortcuts="+"
-                      onClick={() => canvas.current?.zoomBy(1.25)}
-                    />
-                  }
-                >
-                  <Plus />
-                </Tip>
-                <Tip
-                  label="Fit artboard (Shift+1)"
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      aria-label="Fit artboard"
-                      aria-keyshortcuts="Shift+1"
-                      onClick={() => canvas.current?.fitToView()}
-                    />
-                  }
-                >
-                  <Maximize />
-                </Tip>
-              </div>
-            </>
-          )}
+              <Tip
+                label="Zoom in (+)"
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Zoom in"
+                    aria-keyshortcuts="+"
+                    disabled={!session}
+                    onClick={() => canvas.current?.zoomBy(1.25)}
+                  />
+                }
+              >
+                <Plus />
+              </Tip>
+              <Tip
+                label="Fit artboard (Shift+1)"
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Fit artboard"
+                    aria-keyshortcuts="Shift+1"
+                    disabled={!session}
+                    onClick={() => canvas.current?.fitToView()}
+                  />
+                }
+              >
+                <Maximize />
+              </Tip>
+            </div>
+          </div>
           <Divider />
           <span
             data-testid="canvas-state"
