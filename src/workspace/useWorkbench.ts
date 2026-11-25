@@ -295,6 +295,7 @@ export function useWorkbench() {
         }
         if (src.revision !== revision.current) return void stop();
         let preview: DocumentSession;
+        const tCommit = performance.now();
         try {
           preview = previewSession(src, request, out.result);
         } catch (e) {
@@ -302,6 +303,8 @@ export function useWorkbench() {
           const code = (e as { code?: unknown }).code;
           return fail(typeof code === "string" ? code : "invalid_result", String(e));
         }
+        const previewCommitMs = performance.now() - tCommit;
+        const previewStoreCommit = preview.store.lastCommitTiming;
         const display = jobs.export("svg", null, {
           session: preview,
           kind: "preview",
@@ -365,6 +368,15 @@ export function useWorkbench() {
             svgBytes: blob.size,
             responsiveness,
             ready: scheduler.lastReady,
+            // Main-thread job handling (C9): the preview's commit into its session, the trace
+            // job's post (source copy), the SVG job's snapshot and post.
+            handling: {
+              previewCommitMs,
+              previewStoreCommit,
+              tracePostMs: out.timings.postMs,
+              svgSnapshotMs: svgOut.timings.snapshotMs,
+              svgPostMs: svgOut.timings.postMs,
+            },
           };
         });
       });

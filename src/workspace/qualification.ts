@@ -33,6 +33,7 @@ export interface Summary {
   workerMs?: number;
   postMs?: number;
   commitMs?: number;
+  storeCommit?: unknown;
   snapshotMs?: number;
   settledAt: number;
 }
@@ -75,7 +76,10 @@ export function installQualificationApi(jobs: JobController, source: () => Sourc
       s.queuedMs = o.timings.queuedMs;
       s.workerMs = o.timings.workerMs;
       s.postMs = o.timings.postMs;
-      if ("commitMs" in o.timings) s.commitMs = o.timings.commitMs;
+      if ("commitMs" in o.timings) {
+        s.commitMs = o.timings.commitMs;
+        s.storeCommit = o.timings.storeCommit;
+      }
       if ("snapshotMs" in o.timings) s.snapshotMs = o.timings.snapshotMs;
     }
     return s;

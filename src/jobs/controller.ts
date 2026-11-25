@@ -11,7 +11,7 @@
 // - Jobs reserve their input bytes at submission and release them at settle (RFC §11.3).
 import type { DocumentSession } from "../document/session.ts";
 import { buildExport, type ExportJob } from "../document/export.ts";
-import type { OwnerRef } from "../document/geometry-store.ts";
+import type { CommitTiming, OwnerRef } from "../document/geometry-store.ts";
 import type { ResourceLedger } from "../document/ledger.ts";
 import type { AssetId, ChunkId, LayerNode, NodeId } from "../document/model.ts";
 import {
@@ -78,8 +78,12 @@ export type CommitOutcome =
       readonly layerId: NodeId;
       readonly chunkId: ChunkId;
       readonly result: Omit<TraceResult, "packet">;
-      /** Main-thread time of the commit transaction (store validation and document checks). */
-      readonly timings: JobTimings & { readonly commitMs: number };
+      /** Main-thread time of the commit transaction (store validation and document checks),
+       *  with the store's own steps (C2: move, validate and derive, publish). */
+      readonly timings: JobTimings & {
+        readonly commitMs: number;
+        readonly storeCommit: CommitTiming | null;
+      };
     }
   | {
       readonly status: "stale";
@@ -233,6 +237,7 @@ export class JobController {
             ...(o.name === undefined ? {} : { name: o.name }),
           });
           const commitMs = performance.now() - t0;
+          const storeCommit = session.store.lastCommitTiming;
           const layerId =
             o.replaceLayerId ?? session.state.orderedRootIds.find((id) => !before.has(id))!;
           const layer = session.state.nodesById.get(layerId) as LayerNode;
@@ -243,7 +248,7 @@ export class JobController {
             layerId,
             chunkId: layer.traceProvenance!.chunkId,
             result: rest,
-            timings: { ...out.timings, commitMs },
+            timings: { ...out.timings, commitMs, storeCommit },
           };
         } catch (e) {
           // Commit validation (packet, document invariants, history budget) failed: nothing changed.

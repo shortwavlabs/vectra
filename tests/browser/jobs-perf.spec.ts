@@ -97,7 +97,8 @@ test("job handling: main-thread blocking and cancel acknowledgement", async ({
     const path = join(W, w.file);
     expect(existsSync(path), path).toBe(true);
     const sha256 = createHash("sha256").update(readFileSync(path)).digest("hex");
-    await page.getByTestId("max-pixels").fill(String(w.maxPixels));
+    await page.getByTestId("max-pixels").selectOption(String(w.maxPixels));
+    await page.getByTestId("mode").selectOption(w.mode); // the workbench preview traces the same workload
     await page.getByTestId("file").setInputFiles(path);
     await waitForState(page, "done", 300_000); // the workbench's own preview (trace + SVG)
     const preview = await page.evaluate(
@@ -109,6 +110,10 @@ test("job handling: main-thread blocking and cancel acknowledgement", async ({
       const s = await outcome(page, jobId(await api(page, "final", { mode: w.mode })));
       runs.push({ ...s, probe: await stopProbe(page) });
       expect(s.status, JSON.stringify(s)).toBe("committed");
+      // Undo, so every repetition commits into the same document (one layer at most: the
+      // document's 1M-anchor cap refuses a fourth interactive-size layer with `budget`). The
+      // next commit drops the redo entry, so history does not accumulate geometry.
+      if (r < w.reps - 1) expect(await api<boolean>(page, "undo")).toBe(true);
     }
     await startProbe(page);
     const exp = await outcome(page, jobId(await api(page, "exportDocument", "svg")));
@@ -144,9 +149,9 @@ test("job handling: main-thread blocking and cancel acknowledgement", async ({
       cancel: ack,
       machine: machine(),
     };
-    // A fresh document per workload keeps the commits comparable.
   }
   report.diag = await diag(page);
   report.machineEnd = machine();
-  writeOutput(`g-job/perf-${browserName}.json`, JSON.stringify(report, null, 2));
+  const label = process.env.GJOB_PERF_LABEL ? `${process.env.GJOB_PERF_LABEL}-` : "";
+  writeOutput(`g-job/perf-${label}${browserName}.json`, JSON.stringify(report, null, 2));
 });
