@@ -1,0 +1,1583 @@
+{
+  "script": "scripts/bench-td-perf-007.mjs --differential",
+  "commit": "056ff6cb04a1e0eedc8b33acbe0987be529a6329",
+  "argv": [
+    "--differential",
+    "--seeds",
+    "20261125,1,2,3,4",
+    "--transactions",
+    "16000",
+    "--out",
+    "docs/research/g-r1/td-perf-007/differential.json"
+  ],
+  "node": "v24.22.1",
+  "runs": [
+    {
+      "seed": 20261125,
+      "transactions": 16000,
+      "commandRejected": 3274,
+      "noOps": 330,
+      "compared": 12396,
+      "fullAccepted": 7710,
+      "fullRejected": 4686,
+      "decided": 7637,
+      "undecidedValid": 73,
+      "undecidedInvalid": 4686,
+      "byClass": {
+        "command": {
+          "compared": 6777,
+          "fullRejected": 1041,
+          "decided": 5736
+        },
+        "forged": {
+          "compared": 5619,
+          "fullRejected": 3645,
+          "decided": 1901
+        }
+      },
+      "byLabel": {
+        "forged:remove-palette": {
+          "compared": 177,
+          "fullRejected": 177,
+          "decided": 0
+        },
+        "command:setVisible": {
+          "compared": 335,
+          "fullRejected": 0,
+          "decided": 335
+        },
+        "command:reorder": {
+          "compared": 201,
+          "fullRejected": 0,
+          "decided": 201
+        },
+        "command:rotate90": {
+          "compared": 304,
+          "fullRejected": 0,
+          "decided": 304
+        },
+        "command:setLocked": {
+          "compared": 281,
+          "fullRejected": 0,
+          "decided": 281
+        },
+        "command:(multi)": {
+          "compared": 1264,
+          "fullRejected": 341,
+          "decided": 923
+        },
+        "command:delete": {
+          "compared": 327,
+          "fullRejected": 0,
+          "decided": 327
+        },
+        "forged:document-id": {
+          "compared": 166,
+          "fullRejected": 80,
+          "decided": 86
+        },
+        "forged:dangling-style": {
+          "compared": 160,
+          "fullRejected": 160,
+          "decided": 0
+        },
+        "forged:bad-local": {
+          "compared": 176,
+          "fullRejected": 176,
+          "decided": 0
+        },
+        "forged:move": {
+          "compared": 141,
+          "fullRejected": 6,
+          "decided": 135
+        },
+        "command:commitTrace": {
+          "compared": 689,
+          "fullRejected": 0,
+          "decided": 689
+        },
+        "forged:rename": {
+          "compared": 168,
+          "fullRejected": 49,
+          "decided": 119
+        },
+        "forged:bad-palette-ref": {
+          "compared": 181,
+          "fullRejected": 181,
+          "decided": 0
+        },
+        "forged:same-list-copy": {
+          "compared": 152,
+          "fullRejected": 0,
+          "decided": 152
+        },
+        "forged:(two)": {
+          "compared": 1356,
+          "fullRejected": 1098,
+          "decided": 244
+        },
+        "command:setTransform": {
+          "compared": 335,
+          "fullRejected": 115,
+          "decided": 220
+        },
+        "forged:kind": {
+          "compared": 185,
+          "fullRejected": 185,
+          "decided": 0
+        },
+        "forged:budget": {
+          "compared": 161,
+          "fullRejected": 39,
+          "decided": 122
+        },
+        "command:releaseClip": {
+          "compared": 21,
+          "fullRejected": 0,
+          "decided": 21
+        },
+        "command:setFill": {
+          "compared": 273,
+          "fullRejected": 21,
+          "decided": 252
+        },
+        "command:setPaletteColor": {
+          "compared": 347,
+          "fullRejected": 0,
+          "decided": 347
+        },
+        "command:reparent": {
+          "compared": 55,
+          "fullRejected": 0,
+          "decided": 55
+        },
+        "forged:orphan": {
+          "compared": 172,
+          "fullRejected": 172,
+          "decided": 0
+        },
+        "command:applyTransform": {
+          "compared": 315,
+          "fullRejected": 106,
+          "decided": 209
+        },
+        "forged:reorder": {
+          "compared": 108,
+          "fullRejected": 0,
+          "decided": 108
+        },
+        "forged:dangling-child": {
+          "compared": 152,
+          "fullRejected": 152,
+          "decided": 0
+        },
+        "command:setArtboard": {
+          "compared": 402,
+          "fullRejected": 316,
+          "decided": 86
+        },
+        "command:bake": {
+          "compared": 304,
+          "fullRejected": 0,
+          "decided": 304
+        },
+        "command:ungroup": {
+          "compared": 78,
+          "fullRejected": 0,
+          "decided": 78
+        },
+        "forged:dup-number": {
+          "compared": 154,
+          "fullRejected": 154,
+          "decided": 0
+        },
+        "command:attachSource": {
+          "compared": 357,
+          "fullRejected": 38,
+          "decided": 319
+        },
+        "forged:key-mismatch": {
+          "compared": 147,
+          "fullRejected": 147,
+          "decided": 0
+        },
+        "command:group": {
+          "compared": 116,
+          "fullRejected": 4,
+          "decided": 112
+        },
+        "forged:delete-max-id": {
+          "compared": 161,
+          "fullRejected": 0,
+          "decided": 161
+        },
+        "command:rename": {
+          "compared": 288,
+          "fullRejected": 94,
+          "decided": 194
+        },
+        "forged:recolour-style": {
+          "compared": 158,
+          "fullRejected": 0,
+          "decided": 158
+        },
+        "forged:cycle": {
+          "compared": 153,
+          "fullRejected": 153,
+          "decided": 0
+        },
+        "forged:transform": {
+          "compared": 173,
+          "fullRejected": 63,
+          "decided": 110
+        },
+        "command:duplicate": {
+          "compared": 341,
+          "fullRejected": 0,
+          "decided": 341
+        },
+        "forged:remove-style": {
+          "compared": 164,
+          "fullRejected": 105,
+          "decided": 0
+        },
+        "forged:remove-asset": {
+          "compared": 108,
+          "fullRejected": 108,
+          "decided": 0
+        },
+        "forged:add-path": {
+          "compared": 175,
+          "fullRejected": 0,
+          "decided": 175
+        },
+        "forged:delete-path": {
+          "compared": 139,
+          "fullRejected": 0,
+          "decided": 139
+        },
+        "forged:clip": {
+          "compared": 169,
+          "fullRejected": 71,
+          "decided": 98
+        },
+        "forged:second-parent": {
+          "compared": 163,
+          "fullRejected": 163,
+          "decided": 0
+        },
+        "forged:artboard": {
+          "compared": 147,
+          "fullRejected": 99,
+          "decided": 48
+        },
+        "command:setClip": {
+          "compared": 144,
+          "fullRejected": 6,
+          "decided": 138
+        },
+        "forged:deep-chain": {
+          "compared": 153,
+          "fullRejected": 107,
+          "decided": 46
+        }
+      },
+      "fullErrorCodes": {
+        "invariant": 4199,
+        "invalid_transform": 384,
+        "clip_transform_unsupported": 49,
+        "clip_unsupported": 54
+      },
+      "undecidedReasons": {
+        "palette entry removed": 269,
+        "style ref": 247,
+        "chunk": 32,
+        "name": 270,
+        "style palette ref": 263,
+        "parent kind": 230,
+        "maxNodes": 71,
+        "style": 32,
+        "child references (dangling, orphan or second parent)": 724,
+        "transform": 371,
+        "new id number not above the previous maximum": 210,
+        "id": 214,
+        "asset": 59,
+        "artboard": 641,
+        "depth or cycle": 279,
+        "style removed": 267,
+        "pathIndex": 19,
+        "removed asset still referenced": 142,
+        "clip transform": 49,
+        "trace provenance": 30,
+        "orderedChildIds": 18,
+        "documentId": 129,
+        "clip rect": 38,
+        "fillRule": 27,
+        "flags": 56,
+        "clip on a non-container": 52,
+        "depth": 11,
+        "asset ref": 4,
+        "composed transform": 5
+      },
+      "undecidedValidReasons": {
+        "style removed": 73
+      },
+      "disagreements": [],
+      "ms": 804.5
+    },
+    {
+      "seed": 1,
+      "transactions": 16000,
+      "commandRejected": 3206,
+      "noOps": 312,
+      "compared": 12482,
+      "fullAccepted": 7868,
+      "fullRejected": 4614,
+      "decided": 7784,
+      "undecidedValid": 84,
+      "undecidedInvalid": 4614,
+      "byClass": {
+        "command": {
+          "compared": 6855,
+          "fullRejected": 1035,
+          "decided": 5820
+        },
+        "forged": {
+          "compared": 5627,
+          "fullRejected": 3579,
+          "decided": 1964
+        }
+      },
+      "byLabel": {
+        "command:applyTransform": {
+          "compared": 321,
+          "fullRejected": 129,
+          "decided": 192
+        },
+        "forged:kind": {
+          "compared": 150,
+          "fullRejected": 150,
+          "decided": 0
+        },
+        "command:setFill": {
+          "compared": 277,
+          "fullRejected": 13,
+          "decided": 264
+        },
+        "forged:reorder": {
+          "compared": 104,
+          "fullRejected": 0,
+          "decided": 104
+        },
+        "forged:(two)": {
+          "compared": 1346,
+          "fullRejected": 1066,
+          "decided": 263
+        },
+        "command:(multi)": {
+          "compared": 1242,
+          "fullRejected": 340,
+          "decided": 902
+        },
+        "command:rotate90": {
+          "compared": 321,
+          "fullRejected": 0,
+          "decided": 321
+        },
+        "forged:same-list-copy": {
+          "compared": 178,
+          "fullRejected": 0,
+          "decided": 178
+        },
+        "forged:budget": {
+          "compared": 170,
+          "fullRejected": 40,
+          "decided": 130
+        },
+        "forged:deep-chain": {
+          "compared": 155,
+          "fullRejected": 94,
+          "decided": 61
+        },
+        "command:duplicate": {
+          "compared": 309,
+          "fullRejected": 0,
+          "decided": 309
+        },
+        "command:setLocked": {
+          "compared": 305,
+          "fullRejected": 0,
+          "decided": 305
+        },
+        "forged:transform": {
+          "compared": 141,
+          "fullRejected": 59,
+          "decided": 82
+        },
+        "forged:rename": {
+          "compared": 174,
+          "fullRejected": 43,
+          "decided": 131
+        },
+        "command:setArtboard": {
+          "compared": 374,
+          "fullRejected": 285,
+          "decided": 89
+        },
+        "command:bake": {
+          "compared": 323,
+          "fullRejected": 0,
+          "decided": 323
+        },
+        "command:rename": {
+          "compared": 346,
+          "fullRejected": 96,
+          "decided": 250
+        },
+        "command:setPaletteColor": {
+          "compared": 359,
+          "fullRejected": 0,
+          "decided": 359
+        },
+        "command:group": {
+          "compared": 89,
+          "fullRejected": 1,
+          "decided": 88
+        },
+        "forged:document-id": {
+          "compared": 180,
+          "fullRejected": 93,
+          "decided": 87
+        },
+        "command:commitTrace": {
+          "compared": 660,
+          "fullRejected": 0,
+          "decided": 660
+        },
+        "forged:artboard": {
+          "compared": 167,
+          "fullRejected": 119,
+          "decided": 48
+        },
+        "forged:delete-path": {
+          "compared": 163,
+          "fullRejected": 0,
+          "decided": 163
+        },
+        "forged:second-parent": {
+          "compared": 167,
+          "fullRejected": 167,
+          "decided": 0
+        },
+        "forged:bad-palette-ref": {
+          "compared": 159,
+          "fullRejected": 159,
+          "decided": 0
+        },
+        "command:reparent": {
+          "compared": 65,
+          "fullRejected": 0,
+          "decided": 65
+        },
+        "forged:bad-local": {
+          "compared": 171,
+          "fullRejected": 171,
+          "decided": 0
+        },
+        "forged:cycle": {
+          "compared": 170,
+          "fullRejected": 170,
+          "decided": 0
+        },
+        "forged:dangling-style": {
+          "compared": 170,
+          "fullRejected": 170,
+          "decided": 0
+        },
+        "command:attachSource": {
+          "compared": 397,
+          "fullRejected": 28,
+          "decided": 369
+        },
+        "command:setTransform": {
+          "compared": 362,
+          "fullRejected": 136,
+          "decided": 226
+        },
+        "forged:remove-asset": {
+          "compared": 130,
+          "fullRejected": 130,
+          "decided": 0
+        },
+        "forged:delete-max-id": {
+          "compared": 182,
+          "fullRejected": 0,
+          "decided": 182
+        },
+        "command:delete": {
+          "compared": 324,
+          "fullRejected": 0,
+          "decided": 324
+        },
+        "forged:key-mismatch": {
+          "compared": 174,
+          "fullRejected": 174,
+          "decided": 0
+        },
+        "forged:dangling-child": {
+          "compared": 179,
+          "fullRejected": 179,
+          "decided": 0
+        },
+        "forged:recolour-style": {
+          "compared": 137,
+          "fullRejected": 0,
+          "decided": 137
+        },
+        "command:ungroup": {
+          "compared": 89,
+          "fullRejected": 0,
+          "decided": 89
+        },
+        "command:setClip": {
+          "compared": 161,
+          "fullRejected": 7,
+          "decided": 154
+        },
+        "forged:clip": {
+          "compared": 165,
+          "fullRejected": 64,
+          "decided": 101
+        },
+        "forged:dup-number": {
+          "compared": 118,
+          "fullRejected": 118,
+          "decided": 0
+        },
+        "forged:remove-style": {
+          "compared": 162,
+          "fullRejected": 95,
+          "decided": 0
+        },
+        "forged:move": {
+          "compared": 159,
+          "fullRejected": 7,
+          "decided": 152
+        },
+        "forged:orphan": {
+          "compared": 152,
+          "fullRejected": 152,
+          "decided": 0
+        },
+        "forged:add-path": {
+          "compared": 145,
+          "fullRejected": 0,
+          "decided": 145
+        },
+        "command:reorder": {
+          "compared": 178,
+          "fullRejected": 0,
+          "decided": 178
+        },
+        "command:setVisible": {
+          "compared": 332,
+          "fullRejected": 0,
+          "decided": 332
+        },
+        "forged:remove-palette": {
+          "compared": 159,
+          "fullRejected": 159,
+          "decided": 0
+        },
+        "command:releaseClip": {
+          "compared": 21,
+          "fullRejected": 0,
+          "decided": 21
+        }
+      },
+      "fullErrorCodes": {
+        "invariant": 4068,
+        "invalid_transform": 444,
+        "clip_unsupported": 50,
+        "clip_transform_unsupported": 52
+      },
+      "undecidedReasons": {
+        "parent kind": 183,
+        "palette entry removed": 240,
+        "child references (dangling, orphan or second parent)": 725,
+        "style ref": 251,
+        "depth or cycle": 271,
+        "transform": 426,
+        "style palette ref": 247,
+        "style": 24,
+        "artboard": 635,
+        "pathIndex": 22,
+        "removed asset still referenced": 174,
+        "name": 255,
+        "id": 240,
+        "trace provenance": 33,
+        "clip on a non-container": 51,
+        "new id number not above the previous maximum": 179,
+        "documentId": 137,
+        "style removed": 251,
+        "maxNodes": 60,
+        "flags": 59,
+        "asset": 44,
+        "clip transform": 51,
+        "fillRule": 30,
+        "orderedChildIds": 16,
+        "clip rect": 38,
+        "chunk": 32,
+        "composed transform": 11,
+        "depth": 7,
+        "asset ref": 6
+      },
+      "undecidedValidReasons": {
+        "style removed": 84
+      },
+      "disagreements": [],
+      "ms": 679.6
+    },
+    {
+      "seed": 2,
+      "transactions": 16000,
+      "commandRejected": 3347,
+      "noOps": 296,
+      "compared": 12357,
+      "fullAccepted": 7778,
+      "fullRejected": 4579,
+      "decided": 7694,
+      "undecidedValid": 84,
+      "undecidedInvalid": 4579,
+      "byClass": {
+        "command": {
+          "compared": 6741,
+          "fullRejected": 959,
+          "decided": 5782
+        },
+        "forged": {
+          "compared": 5616,
+          "fullRejected": 3620,
+          "decided": 1912
+        }
+      },
+      "byLabel": {
+        "forged:(two)": {
+          "compared": 1353,
+          "fullRejected": 1089,
+          "decided": 242
+        },
+        "command:(multi)": {
+          "compared": 1232,
+          "fullRejected": 292,
+          "decided": 940
+        },
+        "forged:transform": {
+          "compared": 175,
+          "fullRejected": 64,
+          "decided": 111
+        },
+        "command:reparent": {
+          "compared": 57,
+          "fullRejected": 1,
+          "decided": 56
+        },
+        "forged:clip": {
+          "compared": 152,
+          "fullRejected": 50,
+          "decided": 102
+        },
+        "forged:recolour-style": {
+          "compared": 159,
+          "fullRejected": 0,
+          "decided": 159
+        },
+        "command:commitTrace": {
+          "compared": 695,
+          "fullRejected": 0,
+          "decided": 695
+        },
+        "forged:bad-palette-ref": {
+          "compared": 171,
+          "fullRejected": 171,
+          "decided": 0
+        },
+        "forged:orphan": {
+          "compared": 184,
+          "fullRejected": 184,
+          "decided": 0
+        },
+        "command:setArtboard": {
+          "compared": 370,
+          "fullRejected": 286,
+          "decided": 84
+        },
+        "command:rename": {
+          "compared": 354,
+          "fullRejected": 119,
+          "decided": 235
+        },
+        "forged:document-id": {
+          "compared": 142,
+          "fullRejected": 64,
+          "decided": 78
+        },
+        "forged:second-parent": {
+          "compared": 159,
+          "fullRejected": 159,
+          "decided": 0
+        },
+        "command:attachSource": {
+          "compared": 337,
+          "fullRejected": 30,
+          "decided": 307
+        },
+        "forged:budget": {
+          "compared": 137,
+          "fullRejected": 30,
+          "decided": 107
+        },
+        "command:bake": {
+          "compared": 317,
+          "fullRejected": 0,
+          "decided": 317
+        },
+        "forged:bad-local": {
+          "compared": 163,
+          "fullRejected": 163,
+          "decided": 0
+        },
+        "forged:dup-number": {
+          "compared": 139,
+          "fullRejected": 139,
+          "decided": 0
+        },
+        "command:setClip": {
+          "compared": 138,
+          "fullRejected": 8,
+          "decided": 130
+        },
+        "forged:remove-style": {
+          "compared": 153,
+          "fullRejected": 91,
+          "decided": 0
+        },
+        "forged:kind": {
+          "compared": 173,
+          "fullRejected": 173,
+          "decided": 0
+        },
+        "command:setPaletteColor": {
+          "compared": 370,
+          "fullRejected": 0,
+          "decided": 370
+        },
+        "command:setLocked": {
+          "compared": 326,
+          "fullRejected": 0,
+          "decided": 326
+        },
+        "command:setVisible": {
+          "compared": 319,
+          "fullRejected": 0,
+          "decided": 319
+        },
+        "forged:remove-asset": {
+          "compared": 113,
+          "fullRejected": 113,
+          "decided": 0
+        },
+        "command:setFill": {
+          "compared": 257,
+          "fullRejected": 15,
+          "decided": 242
+        },
+        "forged:delete-max-id": {
+          "compared": 157,
+          "fullRejected": 0,
+          "decided": 157
+        },
+        "forged:rename": {
+          "compared": 167,
+          "fullRejected": 49,
+          "decided": 118
+        },
+        "command:group": {
+          "compared": 115,
+          "fullRejected": 2,
+          "decided": 113
+        },
+        "command:duplicate": {
+          "compared": 302,
+          "fullRejected": 0,
+          "decided": 302
+        },
+        "forged:delete-path": {
+          "compared": 159,
+          "fullRejected": 0,
+          "decided": 159
+        },
+        "forged:deep-chain": {
+          "compared": 163,
+          "fullRejected": 100,
+          "decided": 63
+        },
+        "command:applyTransform": {
+          "compared": 308,
+          "fullRejected": 104,
+          "decided": 204
+        },
+        "forged:dangling-style": {
+          "compared": 171,
+          "fullRejected": 171,
+          "decided": 0
+        },
+        "command:delete": {
+          "compared": 326,
+          "fullRejected": 0,
+          "decided": 326
+        },
+        "forged:reorder": {
+          "compared": 108,
+          "fullRejected": 0,
+          "decided": 108
+        },
+        "forged:add-path": {
+          "compared": 152,
+          "fullRejected": 0,
+          "decided": 152
+        },
+        "forged:artboard": {
+          "compared": 162,
+          "fullRejected": 121,
+          "decided": 41
+        },
+        "forged:dangling-child": {
+          "compared": 164,
+          "fullRejected": 164,
+          "decided": 0
+        },
+        "command:ungroup": {
+          "compared": 80,
+          "fullRejected": 0,
+          "decided": 80
+        },
+        "forged:same-list-copy": {
+          "compared": 146,
+          "fullRejected": 0,
+          "decided": 146
+        },
+        "forged:key-mismatch": {
+          "compared": 162,
+          "fullRejected": 162,
+          "decided": 0
+        },
+        "command:rotate90": {
+          "compared": 299,
+          "fullRejected": 0,
+          "decided": 299
+        },
+        "command:reorder": {
+          "compared": 178,
+          "fullRejected": 0,
+          "decided": 178
+        },
+        "forged:cycle": {
+          "compared": 162,
+          "fullRejected": 162,
+          "decided": 0
+        },
+        "forged:move": {
+          "compared": 176,
+          "fullRejected": 7,
+          "decided": 169
+        },
+        "command:setTransform": {
+          "compared": 336,
+          "fullRejected": 102,
+          "decided": 234
+        },
+        "forged:remove-palette": {
+          "compared": 194,
+          "fullRejected": 194,
+          "decided": 0
+        },
+        "command:releaseClip": {
+          "compared": 25,
+          "fullRejected": 0,
+          "decided": 25
+        }
+      },
+      "fullErrorCodes": {
+        "invariant": 4100,
+        "invalid_transform": 387,
+        "clip_transform_unsupported": 45,
+        "clip_unsupported": 47
+      },
+      "undecidedReasons": {
+        "style palette ref": 279,
+        "child references (dangling, orphan or second parent)": 743,
+        "artboard": 622,
+        "transform": 357,
+        "documentId": 111,
+        "name": 287,
+        "trace provenance": 17,
+        "new id number not above the previous maximum": 195,
+        "style removed": 242,
+        "parent kind": 214,
+        "removed asset still referenced": 156,
+        "style": 23,
+        "asset": 50,
+        "maxNodes": 51,
+        "depth or cycle": 244,
+        "style ref": 253,
+        "id": 227,
+        "chunk": 25,
+        "clip rect": 31,
+        "palette entry removed": 297,
+        "clip transform": 45,
+        "fillRule": 20,
+        "orderedChildIds": 16,
+        "depth": 6,
+        "flags": 56,
+        "composed transform": 16,
+        "pathIndex": 25,
+        "asset ref": 9,
+        "clip on a non-container": 46
+      },
+      "undecidedValidReasons": {
+        "style removed": 81,
+        "palette entry removed": 3
+      },
+      "disagreements": [],
+      "ms": 680.1
+    },
+    {
+      "seed": 3,
+      "transactions": 16000,
+      "commandRejected": 3268,
+      "noOps": 318,
+      "compared": 12414,
+      "fullAccepted": 7797,
+      "fullRejected": 4617,
+      "decided": 7721,
+      "undecidedValid": 76,
+      "undecidedInvalid": 4617,
+      "byClass": {
+        "command": {
+          "compared": 6797,
+          "fullRejected": 1000,
+          "decided": 5797
+        },
+        "forged": {
+          "compared": 5617,
+          "fullRejected": 3617,
+          "decided": 1924
+        }
+      },
+      "byLabel": {
+        "command:bake": {
+          "compared": 295,
+          "fullRejected": 0,
+          "decided": 295
+        },
+        "command:commitTrace": {
+          "compared": 698,
+          "fullRejected": 0,
+          "decided": 698
+        },
+        "forged:rename": {
+          "compared": 152,
+          "fullRejected": 47,
+          "decided": 105
+        },
+        "command:(multi)": {
+          "compared": 1259,
+          "fullRejected": 302,
+          "decided": 957
+        },
+        "command:ungroup": {
+          "compared": 66,
+          "fullRejected": 1,
+          "decided": 65
+        },
+        "command:group": {
+          "compared": 92,
+          "fullRejected": 3,
+          "decided": 89
+        },
+        "command:setPaletteColor": {
+          "compared": 368,
+          "fullRejected": 0,
+          "decided": 368
+        },
+        "command:setArtboard": {
+          "compared": 376,
+          "fullRejected": 304,
+          "decided": 72
+        },
+        "command:rotate90": {
+          "compared": 339,
+          "fullRejected": 0,
+          "decided": 339
+        },
+        "forged:key-mismatch": {
+          "compared": 160,
+          "fullRejected": 160,
+          "decided": 0
+        },
+        "command:setClip": {
+          "compared": 147,
+          "fullRejected": 4,
+          "decided": 143
+        },
+        "command:rename": {
+          "compared": 334,
+          "fullRejected": 108,
+          "decided": 226
+        },
+        "forged:(two)": {
+          "compared": 1315,
+          "fullRejected": 1085,
+          "decided": 213
+        },
+        "forged:clip": {
+          "compared": 158,
+          "fullRejected": 44,
+          "decided": 114
+        },
+        "forged:orphan": {
+          "compared": 188,
+          "fullRejected": 188,
+          "decided": 0
+        },
+        "forged:kind": {
+          "compared": 167,
+          "fullRejected": 167,
+          "decided": 0
+        },
+        "command:applyTransform": {
+          "compared": 310,
+          "fullRejected": 112,
+          "decided": 198
+        },
+        "command:reorder": {
+          "compared": 184,
+          "fullRejected": 0,
+          "decided": 184
+        },
+        "command:delete": {
+          "compared": 298,
+          "fullRejected": 0,
+          "decided": 298
+        },
+        "command:duplicate": {
+          "compared": 327,
+          "fullRejected": 0,
+          "decided": 327
+        },
+        "command:setTransform": {
+          "compared": 351,
+          "fullRejected": 109,
+          "decided": 242
+        },
+        "command:attachSource": {
+          "compared": 354,
+          "fullRejected": 40,
+          "decided": 314
+        },
+        "forged:artboard": {
+          "compared": 151,
+          "fullRejected": 111,
+          "decided": 40
+        },
+        "forged:bad-local": {
+          "compared": 158,
+          "fullRejected": 158,
+          "decided": 0
+        },
+        "forged:bad-palette-ref": {
+          "compared": 169,
+          "fullRejected": 169,
+          "decided": 0
+        },
+        "command:setFill": {
+          "compared": 268,
+          "fullRejected": 17,
+          "decided": 251
+        },
+        "command:setLocked": {
+          "compared": 326,
+          "fullRejected": 0,
+          "decided": 326
+        },
+        "forged:move": {
+          "compared": 154,
+          "fullRejected": 10,
+          "decided": 144
+        },
+        "forged:same-list-copy": {
+          "compared": 166,
+          "fullRejected": 0,
+          "decided": 166
+        },
+        "forged:cycle": {
+          "compared": 187,
+          "fullRejected": 187,
+          "decided": 0
+        },
+        "forged:remove-asset": {
+          "compared": 125,
+          "fullRejected": 125,
+          "decided": 0
+        },
+        "forged:second-parent": {
+          "compared": 161,
+          "fullRejected": 161,
+          "decided": 0
+        },
+        "forged:delete-max-id": {
+          "compared": 163,
+          "fullRejected": 0,
+          "decided": 163
+        },
+        "forged:recolour-style": {
+          "compared": 166,
+          "fullRejected": 0,
+          "decided": 166
+        },
+        "forged:transform": {
+          "compared": 166,
+          "fullRejected": 51,
+          "decided": 115
+        },
+        "command:setVisible": {
+          "compared": 330,
+          "fullRejected": 0,
+          "decided": 330
+        },
+        "forged:delete-path": {
+          "compared": 172,
+          "fullRejected": 0,
+          "decided": 172
+        },
+        "forged:document-id": {
+          "compared": 160,
+          "fullRejected": 75,
+          "decided": 85
+        },
+        "forged:dangling-child": {
+          "compared": 158,
+          "fullRejected": 158,
+          "decided": 0
+        },
+        "forged:reorder": {
+          "compared": 98,
+          "fullRejected": 0,
+          "decided": 98
+        },
+        "forged:deep-chain": {
+          "compared": 168,
+          "fullRejected": 94,
+          "decided": 74
+        },
+        "forged:remove-style": {
+          "compared": 167,
+          "fullRejected": 108,
+          "decided": 0
+        },
+        "command:releaseClip": {
+          "compared": 23,
+          "fullRejected": 0,
+          "decided": 23
+        },
+        "forged:budget": {
+          "compared": 167,
+          "fullRejected": 45,
+          "decided": 122
+        },
+        "forged:add-path": {
+          "compared": 147,
+          "fullRejected": 0,
+          "decided": 147
+        },
+        "forged:dangling-style": {
+          "compared": 162,
+          "fullRejected": 162,
+          "decided": 0
+        },
+        "command:reparent": {
+          "compared": 52,
+          "fullRejected": 0,
+          "decided": 52
+        },
+        "forged:remove-palette": {
+          "compared": 171,
+          "fullRejected": 171,
+          "decided": 0
+        },
+        "forged:dup-number": {
+          "compared": 141,
+          "fullRejected": 141,
+          "decided": 0
+        }
+      },
+      "fullErrorCodes": {
+        "invariant": 4163,
+        "invalid_transform": 379,
+        "clip_unsupported": 43,
+        "clip_transform_unsupported": 32
+      },
+      "undecidedReasons": {
+        "artboard": 629,
+        "id": 223,
+        "name": 269,
+        "child references (dangling, orphan or second parent)": 751,
+        "parent kind": 216,
+        "documentId": 125,
+        "palette entry removed": 288,
+        "trace provenance": 26,
+        "style palette ref": 238,
+        "transform": 361,
+        "removed asset still referenced": 170,
+        "chunk": 37,
+        "clip on a non-container": 43,
+        "new id number not above the previous maximum": 201,
+        "depth or cycle": 268,
+        "clip transform": 32,
+        "style removed": 262,
+        "asset": 54,
+        "flags": 54,
+        "composed transform": 12,
+        "fillRule": 21,
+        "style ref": 239,
+        "style": 32,
+        "maxNodes": 65,
+        "orderedChildIds": 14,
+        "pathIndex": 23,
+        "clip rect": 28,
+        "depth": 7,
+        "asset ref": 5
+      },
+      "undecidedValidReasons": {
+        "style removed": 74,
+        "palette entry removed": 2
+      },
+      "disagreements": [],
+      "ms": 663.1
+    },
+    {
+      "seed": 4,
+      "transactions": 16000,
+      "commandRejected": 3252,
+      "noOps": 326,
+      "compared": 12422,
+      "fullAccepted": 7759,
+      "fullRejected": 4663,
+      "decided": 7683,
+      "undecidedValid": 76,
+      "undecidedInvalid": 4663,
+      "byClass": {
+        "command": {
+          "compared": 6788,
+          "fullRejected": 1005,
+          "decided": 5783
+        },
+        "forged": {
+          "compared": 5634,
+          "fullRejected": 3658,
+          "decided": 1900
+        }
+      },
+      "byLabel": {
+        "command:setPaletteColor": {
+          "compared": 308,
+          "fullRejected": 0,
+          "decided": 308
+        },
+        "command:commitTrace": {
+          "compared": 699,
+          "fullRejected": 0,
+          "decided": 699
+        },
+        "command:rotate90": {
+          "compared": 304,
+          "fullRejected": 0,
+          "decided": 304
+        },
+        "forged:cycle": {
+          "compared": 157,
+          "fullRejected": 157,
+          "decided": 0
+        },
+        "forged:recolour-style": {
+          "compared": 149,
+          "fullRejected": 0,
+          "decided": 149
+        },
+        "command:duplicate": {
+          "compared": 314,
+          "fullRejected": 0,
+          "decided": 314
+        },
+        "forged:move": {
+          "compared": 162,
+          "fullRejected": 6,
+          "decided": 156
+        },
+        "command:(multi)": {
+          "compared": 1310,
+          "fullRejected": 325,
+          "decided": 985
+        },
+        "forged:dangling-child": {
+          "compared": 171,
+          "fullRejected": 171,
+          "decided": 0
+        },
+        "forged:(two)": {
+          "compared": 1359,
+          "fullRejected": 1120,
+          "decided": 223
+        },
+        "forged:delete-path": {
+          "compared": 163,
+          "fullRejected": 0,
+          "decided": 163
+        },
+        "command:setFill": {
+          "compared": 262,
+          "fullRejected": 17,
+          "decided": 245
+        },
+        "command:reorder": {
+          "compared": 165,
+          "fullRejected": 0,
+          "decided": 165
+        },
+        "command:bake": {
+          "compared": 323,
+          "fullRejected": 0,
+          "decided": 323
+        },
+        "command:rename": {
+          "compared": 352,
+          "fullRejected": 100,
+          "decided": 252
+        },
+        "command:setVisible": {
+          "compared": 298,
+          "fullRejected": 0,
+          "decided": 298
+        },
+        "forged:clip": {
+          "compared": 171,
+          "fullRejected": 59,
+          "decided": 112
+        },
+        "forged:remove-style": {
+          "compared": 193,
+          "fullRejected": 133,
+          "decided": 0
+        },
+        "command:setLocked": {
+          "compared": 303,
+          "fullRejected": 0,
+          "decided": 303
+        },
+        "forged:bad-palette-ref": {
+          "compared": 166,
+          "fullRejected": 166,
+          "decided": 0
+        },
+        "forged:rename": {
+          "compared": 178,
+          "fullRejected": 53,
+          "decided": 125
+        },
+        "forged:key-mismatch": {
+          "compared": 162,
+          "fullRejected": 162,
+          "decided": 0
+        },
+        "command:applyTransform": {
+          "compared": 338,
+          "fullRejected": 126,
+          "decided": 212
+        },
+        "command:setTransform": {
+          "compared": 353,
+          "fullRejected": 101,
+          "decided": 252
+        },
+        "forged:add-path": {
+          "compared": 171,
+          "fullRejected": 0,
+          "decided": 171
+        },
+        "command:setArtboard": {
+          "compared": 377,
+          "fullRejected": 292,
+          "decided": 85
+        },
+        "command:attachSource": {
+          "compared": 352,
+          "fullRejected": 37,
+          "decided": 315
+        },
+        "forged:same-list-copy": {
+          "compared": 160,
+          "fullRejected": 0,
+          "decided": 160
+        },
+        "forged:deep-chain": {
+          "compared": 146,
+          "fullRejected": 106,
+          "decided": 40
+        },
+        "forged:document-id": {
+          "compared": 164,
+          "fullRejected": 91,
+          "decided": 73
+        },
+        "forged:transform": {
+          "compared": 157,
+          "fullRejected": 58,
+          "decided": 99
+        },
+        "forged:delete-max-id": {
+          "compared": 156,
+          "fullRejected": 0,
+          "decided": 156
+        },
+        "forged:orphan": {
+          "compared": 181,
+          "fullRejected": 181,
+          "decided": 0
+        },
+        "command:reparent": {
+          "compared": 65,
+          "fullRejected": 0,
+          "decided": 65
+        },
+        "forged:kind": {
+          "compared": 162,
+          "fullRejected": 162,
+          "decided": 0
+        },
+        "command:delete": {
+          "compared": 313,
+          "fullRejected": 0,
+          "decided": 313
+        },
+        "forged:second-parent": {
+          "compared": 154,
+          "fullRejected": 154,
+          "decided": 0
+        },
+        "forged:remove-palette": {
+          "compared": 172,
+          "fullRejected": 172,
+          "decided": 0
+        },
+        "command:group": {
+          "compared": 100,
+          "fullRejected": 1,
+          "decided": 99
+        },
+        "forged:reorder": {
+          "compared": 113,
+          "fullRejected": 0,
+          "decided": 113
+        },
+        "forged:bad-local": {
+          "compared": 153,
+          "fullRejected": 153,
+          "decided": 0
+        },
+        "forged:remove-asset": {
+          "compared": 110,
+          "fullRejected": 110,
+          "decided": 0
+        },
+        "forged:artboard": {
+          "compared": 167,
+          "fullRejected": 121,
+          "decided": 46
+        },
+        "forged:dup-number": {
+          "compared": 131,
+          "fullRejected": 131,
+          "decided": 0
+        },
+        "command:ungroup": {
+          "compared": 84,
+          "fullRejected": 0,
+          "decided": 84
+        },
+        "forged:budget": {
+          "compared": 152,
+          "fullRejected": 38,
+          "decided": 114
+        },
+        "command:setClip": {
+          "compared": 142,
+          "fullRejected": 6,
+          "decided": 136
+        },
+        "command:releaseClip": {
+          "compared": 26,
+          "fullRejected": 0,
+          "decided": 26
+        },
+        "forged:dangling-style": {
+          "compared": 154,
+          "fullRejected": 154,
+          "decided": 0
+        }
+      },
+      "fullErrorCodes": {
+        "invariant": 4175,
+        "invalid_transform": 404,
+        "clip_transform_unsupported": 43,
+        "clip_unsupported": 41
+      },
+      "undecidedReasons": {
+        "depth or cycle": 263,
+        "transform": 376,
+        "child references (dangling, orphan or second parent)": 735,
+        "documentId": 147,
+        "parent kind": 227,
+        "name": 275,
+        "style removed": 284,
+        "style palette ref": 255,
+        "id": 239,
+        "artboard": 629,
+        "new id number not above the previous maximum": 193,
+        "removed asset still referenced": 161,
+        "palette entry removed": 262,
+        "style ref": 224,
+        "clip transform": 41,
+        "maxNodes": 66,
+        "asset": 59,
+        "clip on a non-container": 41,
+        "trace provenance": 34,
+        "clip rect": 30,
+        "chunk": 26,
+        "orderedChildIds": 15,
+        "fillRule": 29,
+        "flags": 57,
+        "style": 27,
+        "asset ref": 3,
+        "pathIndex": 17,
+        "composed transform": 18,
+        "depth": 6
+      },
+      "undecidedValidReasons": {
+        "style removed": 76
+      },
+      "disagreements": [],
+      "ms": 692.1
+    }
+  ]
+}
