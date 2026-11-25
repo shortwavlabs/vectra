@@ -136,6 +136,19 @@ class Draft {
     if (parent === null) this.roots = ids;
     else this.update<ContainerNode>(parent, { orderedChildIds: ids });
   }
+  /** Detaches nodes from their parents' child lists: one filter per parent, O(n). */
+  detach(ids: readonly NodeId[], par: ReadonlyMap<NodeId, NodeId | null>): void {
+    const byParent = new Map<NodeId | null, Set<NodeId>>();
+    for (const id of ids) {
+      const parent = par.get(id) ?? null;
+      byParent.set(parent, (byParent.get(parent) ?? new Set()).add(id));
+    }
+    for (const [parent, set] of byParent)
+      this.setChildren(
+        parent,
+        this.children(parent).filter((x) => !set.has(x)),
+      );
+  }
   removeSubtree(id: NodeId): void {
     const n = this.nodes.get(id);
     if (isContainer(n)) for (const c of n.orderedChildIds) this.removeSubtree(c);
@@ -286,14 +299,11 @@ function remove(s: DocState, ids: readonly NodeId[]): DocState {
   const d = new Draft(s);
   const par = parents(s);
   const removedAssets = new Set<AssetId>();
-  for (const id of topLevel(s, ids)) {
+  const targets = topLevel(s, ids);
+  d.detach(targets, par);
+  for (const id of targets) {
     const n = s.nodesById.get(id)!;
     if (n.kind === "source") removedAssets.add(n.assetId);
-    const parent = par.get(id) ?? null;
-    d.setChildren(
-      parent,
-      d.children(parent).filter((x) => x !== id),
-    );
     d.removeSubtree(id);
   }
   if (!removedAssets.size) return d.finish();
@@ -317,13 +327,16 @@ function duplicate(s: DocState, ids: readonly NodeId[], ctx: CommandContext): Do
       d.nodes.set(copyId, { ...copy, orderedChildIds: n.orderedChildIds.map(clone) } as DocNode);
     return copyId; // PathObjects keep the same { chunkId, pathIndex } and styleRef (C2 rule 9)
   };
+  const copies = new Map<NodeId | null, Map<NodeId, NodeId>>();
   for (const id of topLevel(s, ids)) {
     const parent = par.get(id) ?? null;
-    const copyId = clone(id);
-    const siblings = d.children(parent);
-    siblings.splice(siblings.indexOf(id) + 1, 0, copyId);
-    d.setChildren(parent, siblings);
+    copies.set(parent, (copies.get(parent) ?? new Map()).set(id, clone(id)));
   }
+  for (const [parent, map] of copies)
+    d.setChildren(
+      parent,
+      d.children(parent).flatMap((x) => (map.has(x) ? [x, map.get(x)!] : [x])),
+    );
   return d.finish();
 }
 
@@ -359,13 +372,7 @@ function reparent(
     if (!ok) invalid(`${k} ${id} cannot move to ${parentId ?? "the root"}`);
   }
   const d = new Draft(s);
-  for (const id of targets) {
-    const old = par.get(id) ?? null;
-    d.setChildren(
-      old,
-      d.children(old).filter((x) => x !== id),
-    );
-  }
+  d.detach(targets, par);
   const dest = d.children(parentId);
   if (!(Number.isInteger(index) && index >= 0 && index <= dest.length))
     invalid(`index ${index} out of range`);
@@ -432,7 +439,10 @@ function group(
   const d = new Draft(s);
   const siblings = d.children(parent);
   const selected = new Set(targets);
-  const last = Math.max(...targets.map((id) => siblings.indexOf(id)));
+  let last = -1;
+  siblings.forEach((id, i) => {
+    if (selected.has(id)) last = i;
+  });
   const insertAt = last - targets.length + 1;
   const rest = siblings.filter((id) => !selected.has(id));
   const groupId = ctx.ids.alloc(KIND_PREFIX.group);

@@ -116,8 +116,9 @@ function idMap<T extends { id: string }>(
   where: string,
   parse: (k: string, v: unknown) => T,
 ) {
-  const o = obj(v, where, [], Object.keys((v as J | null) ?? {}));
-  return new Map(Object.entries(o).map(([k, x]) => [k, parse(k, x)] as const));
+  if (typeof v !== "object" || v === null || Array.isArray(v))
+    return fail(`${where}: expected an object`);
+  return new Map(Object.entries(v).map(([k, x]) => [k, parse(k, x)] as const));
 }
 
 export interface ParsedDocument {

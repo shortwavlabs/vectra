@@ -316,3 +316,20 @@ describe("GeometryStore lifetime and accounting (C2 rules 8, 11; C3.2)", () => {
     expect(s.derived(id).anchors).toBe(0);
   });
 });
+
+describe("GeometryStore commit hardening", () => {
+  test("each section is read once: a getter cannot swap in a different view after the check", () => {
+    const s = newStore();
+    const p = fixturePacket("circle-bw");
+    const whole = p.coords;
+    const offset = new Float64Array(whole.length + 1).subarray(1);
+    let reads = 0;
+    const tricky = { ...p } as Record<string, unknown>;
+    Object.defineProperty(tricky, "coords", { get: () => (reads++ === 0 ? whole : offset) });
+    const id = s.commit(tricky as unknown as IncomingPacket);
+    expect(reads).toBe(1);
+    expect(s.view(id).coordCount).toBe(p.manifest.coordCount);
+    expect(whole.byteLength).toBe(0); // the checked view is the one that was moved
+    expect(offset.byteLength).toBeGreaterThan(0);
+  });
+});

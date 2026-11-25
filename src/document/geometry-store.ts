@@ -88,13 +88,12 @@ const VIEW_CTORS: Record<string, ViewCtor> = {
 const tag = (v: unknown) => Object.prototype.toString.call(v);
 type BufferExt = ArrayBuffer & { resizable?: boolean; detached?: boolean };
 
-/** C2 rule 1. Returns the reason the packet cannot be moved, or null. */
-function shapeProblem(packet: unknown): string | null {
-  if (typeof packet !== "object" || packet === null) return "packet is not an object";
-  const p = packet as Record<string, unknown>;
+/** C2 rule 1 over the six section values (each read once). Returns the reason, or null. */
+function shapeProblem(views: readonly unknown[]): string | null {
   const seen = new Set<ArrayBufferLike>();
-  for (const key of SECTION_KEYS) {
-    const a = p[key];
+  for (let i = 0; i < views.length; i++) {
+    const a = views[i];
+    const key = SECTION_KEYS[i];
     if (!ArrayBuffer.isView(a) || !(tag(a) in VIEW_CTORS))
       return `${key} is not an ArrayBuffer view`;
     const buf = a.buffer as BufferExt;
@@ -214,11 +213,14 @@ export class GeometryStore {
   commit(packet: IncomingPacket): ChunkId {
     this.stats.commits++;
     const t0 = performance.now();
-    const problem = shapeProblem(packet);
+    if (typeof packet !== "object" || packet === null)
+      throw new DocumentError("ownership", "packet is not an object");
+    // Read each section once, so a getter cannot pass the check and then return another view.
+    const views = SECTION_KEYS.map((k) => (packet as unknown as Record<string, unknown>)[k]);
+    const problem = shapeProblem(views);
     if (problem) throw new DocumentError("ownership", problem);
-    const views = SECTION_KEYS.map((k) => packet[k] as ArrayBufferView);
     const ctors = views.map((v) => VIEW_CTORS[tag(v)]!);
-    const buffers = views.map((v) => v.buffer as ArrayBuffer);
+    const buffers = views.map((v) => (v as ArrayBufferView).buffer as ArrayBuffer);
     let moved: ArrayBuffer[];
     try {
       moved = structuredClone(buffers, { transfer: buffers });

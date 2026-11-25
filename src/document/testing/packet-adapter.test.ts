@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+import regressionHashes from "/docs/research/p0-r-geo/artifacts/regression/a4cf172.sha256?raw";
 import {
   DEFAULT_PACKET_LIMITS,
   type IncomingPacket,
@@ -213,5 +214,27 @@ describe("test-only adapter: C3.0 geometry record", () => {
     new DataView(b.buffer).setUint32(0, 4, true);
     b.set([0x7b, 0x7b, 0x7b, 0x7b], 4);
     expect(dcode(b)).toBe("manifest");
+  });
+});
+
+describe("fixture provenance", () => {
+  test("every fixture's bytes match its entry in a4cf172.sha256", async () => {
+    const expected = new Map(
+      regressionHashes
+        .trim()
+        .split("\n")
+        .map((line) => {
+          const [hash, name] = line.split(/\s+/);
+          return [name!, hash!] as const;
+        }),
+    );
+    expect(FIXTURE_SCENES.size).toBe(7);
+    for (const [name, { text }] of FIXTURE_SCENES) {
+      const digest = new Uint8Array(
+        await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)),
+      );
+      const hex = Array.from(digest, (b) => b.toString(16).padStart(2, "0")).join("");
+      expect(hex, name).toBe(expected.get(`${name}.scene.json`));
+    }
   });
 });
