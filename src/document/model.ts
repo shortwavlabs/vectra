@@ -157,17 +157,17 @@ export function createDocument(o: {
 }
 
 // --- 2×3 affine ---------------------------------------------------------------------------------
-/** m1 × m2 (apply m2, then m1). */
+/** m1 × m2 (apply m2, then m1). `+ 0` folds -0 to 0, so states stay JSON-equal after load. */
 export function multiply(m1: Matrix, m2: Matrix): Matrix {
   const [a, b, c, d, e, f] = m1;
   const [A, B, C, D, E, F] = m2;
   return [
-    a * A + c * B,
-    b * A + d * B,
-    a * C + c * D,
-    b * C + d * D,
-    a * E + c * F + e,
-    b * E + d * F + f,
+    a * A + c * B + 0,
+    b * A + d * B + 0,
+    a * C + c * D + 0,
+    b * C + d * D + 0,
+    a * E + c * F + e + 0,
+    b * E + d * F + f + 0,
   ];
 }
 
