@@ -20,10 +20,18 @@ describe("TD-PERF-007 incremental validator (prototype, not wired)", () => {
     expect(s.decided).toBeGreaterThanOrEqual(5_000); // fast-accepted and checked, not fallbacks
     expect(s.fullRejected).toBeGreaterThanOrEqual(2_000); // invalid states reach both validators
     expect(s.commandRejected).toBeGreaterThan(0); // reparent cycles, dangling ids, bad palette refs
-    for (const label of ["cycle", "second-parent", "orphan", "dangling-child", "bad-palette-ref"])
+    for (const label of [
+      "cycle",
+      "second-parent",
+      "orphan",
+      "dangling-child",
+      "bad-palette-ref",
+      "bad-entry",
+      "budget",
+    ])
       expect(s.byLabel[`forged:${label}`]?.fullRejected, label).toBeGreaterThan(0);
-    expect(s.fullErrorCodes.invalid_transform).toBeGreaterThan(0);
-    expect(s.fullErrorCodes.clip_transform_unsupported).toBeGreaterThan(0);
+    for (const code of ["invalid_transform", "clip_transform_unsupported", "budget"])
+      expect(s.fullErrorCodes[code], code).toBeGreaterThan(0);
   }, 120_000);
 
   test("the session, and therefore loadContainer, never use it", () => {

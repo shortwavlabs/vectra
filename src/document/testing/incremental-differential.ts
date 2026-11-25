@@ -205,6 +205,7 @@ const FORGERIES = [
   "reorder",
   "same-list-copy",
   "recolour-style",
+  "bad-entry",
   "cycle",
   "second-parent",
   "orphan",
@@ -334,6 +335,34 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
         if (!k.length) return false;
         const id = r.pick(k);
         styles.set(id, { ...styles.get(id)!, fill: r.int(2 ** 32), paletteRef: null });
+        return true;
+      }
+      case "bad-entry": {
+        // Palette and style entry rules (P1–P2, S1, S3–S5); some edits stay valid.
+        const p = [...palette.keys()];
+        const s = [...styles.keys()];
+        if (p.length && r.bool(0.5)) {
+          const id = r.bool(0.8) ? r.pick(p) : freshId("pal");
+          const e = palette.get(id) ?? { id, name: "fresh", color: 0xff };
+          palette.set(id, {
+            ...e,
+            ...r.pick([{ name: "bad name!" }, { color: -1 }, { color: 7 }]),
+          });
+          return true;
+        }
+        if (!s.length) return false;
+        const id = r.pick(s);
+        const st = styles.get(id)!;
+        styles.set(
+          id,
+          r.pick([
+            { ...st, fill: 0xff, paletteRef: p.length ? p[0]! : "pal_1" }, // both colour authorities
+            { ...st, fill: null, paletteRef: null, stroke: null }, // nothing to paint
+            { ...st, stroke: { color: 0xff, width: 0 } }, // bad stroke
+            { ...st, fill: 2 ** 32 }, // not RGBA8888
+            { ...st, stroke: { color: 0xff, width: 2 } }, // valid
+          ]),
+        );
         return true;
       }
       case "cycle": {
@@ -522,7 +551,8 @@ const sameDerived = (a: StateDerived, b: StateDerived) =>
 function episode(r: Rng): DocumentSession {
   const limits: DocLimits = {
     ...DEFAULT_DOC_LIMITS,
-    maxAnchors: 2_000 + r.int(20_000),
+    // A small cap in a third of the episodes, so duplicates, traces and forgeries cross it.
+    maxAnchors: r.pick([30 + r.int(300), 2_000 + r.int(20_000), 2_000 + r.int(20_000)]),
     maxDepth: r.pick([4, 5, 64, 64]),
     maxNodes: r.pick([150, 2_000_000, 2_000_000]),
   };
