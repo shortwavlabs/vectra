@@ -20,13 +20,24 @@
 - **Caching.** Cargo registry and `target` (keyed on the toolchain and `Cargo.lock`); the `wasm-bindgen` binary; the pnpm store (keyed on `pnpm-lock.yaml`).
 - **Hygiene.** `permissions: contents: read`; checkout without persisted credentials; no secrets; `concurrency: ci-${{ github.ref }}` with `cancel-in-progress`; 25-minute timeout; no retries.
 
-## 2. Path filter (fail-closed)
+## 2. Path filter (fail-closed; hardened before merge)
 - The job **always runs and always reports**, so it can never leave a required check pending.
-- A first step classifies the diff: `base...head` for pull requests, `before..sha` for pushes.
-- **Only** a successful, non-empty diff touching no code path turns the heavy steps into a no-op. The job then passes with a "docs-only" message.
-- Any error, an empty diff or an unknown range (for example a new branch, where `before` is all zeros) runs everything.
-- **Code paths:** `crates/`, `packages/`, `src/`, `public/`, `scripts/`, `tests/`, `docker/`, `.github/workflows/`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `rustfmt.toml`, `.node-version`, `index.html`, `vite.config.ts`, `tsconfig*.json`.
-  - This list is **broader than the specification**, in the safe direction: all of `tests/` instead of `tests/unit/`, plus `docker/`, `rustfmt.toml`, `.node-version` and `index.html`.
+- A first step classifies the diff with `git diff --no-renames --name-only`: `base...head` for pull requests, `before..sha` for pushes. With `--no-renames`, a rename shows both its old and new paths.
+- Only an **explicitly recognised documentation-only** diff skips the heavy steps. That means every changed path is one of:
+  - Markdown anywhere (`*.md`; no build step reads Markdown, and `vp check` ignores it);
+  - `LICENSE`;
+  - text, image, PDF or hash files under `docs/` (`.txt`, `.png`, `.jpg`/`.jpeg`, `.svg`, `.pdf`, `.sha256`).
+- **Everything else runs the full checks:** unknown paths, JSON or JS under `docs/` (which `vp check` formats and lints), binaries such as `.vectra`, deletions, any git error, an empty diff, and an unknown range.
+- The classifier was table-tested locally on 16 path sets: every docs-only and full case behaved as expected.
+
+**Toolchain values.**
+- The Rust, `wasm-bindgen` and pnpm versions are read from the repository and validated as plain `x.y.z`; anything else fails the job.
+- They reach later steps only as environment variables (`RUST_VERSION`, `WASM_BINDGEN_VERSION`, `PNPM_VERSION`) and are never interpolated into shell source.
+- GitHub event values reach the classifier through `env:` as well.
+
+**Production libraries.** `cargo clippy --all-targets` unifies the self dev-dependency's `diagnostics` feature into the engine library. A separate step therefore lints the shipped configuration, with `-D warnings`:
+- `cargo clippy -p vector-engine -p vector-engine-wasm --lib`, without dev-dependencies, so `diagnostics` is off;
+- the WASM adapter with `--target wasm32-unknown-unknown`.
 
 ## 3. Verification (actual runs)
 | Run | Trigger | Result | Duration | Notes |
