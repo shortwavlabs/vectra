@@ -96,7 +96,8 @@ for (const size of SIZES) {
     // Export dialog (modal focus management).
     await page.keyboard.press("Enter");
     await expect(page.getByRole("dialog", { name: "Export artwork" })).toBeVisible();
-    await shot(page, guard, "09-export-dialog");
+    // 1366 only: the blurred backdrop makes the 1920 PNG exceed the 400 KB evidence limit.
+    if (record) await shot(page, guard, "09-export-dialog");
     if (record) await aria(page, "09-export-dialog");
   });
 }

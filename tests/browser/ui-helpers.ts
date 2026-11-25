@@ -127,14 +127,6 @@ export async function canvasSettled(page: Page) {
   await expect(page.getByTestId("canvas-state")).toContainText("(ready)", { timeout: 30_000 });
 }
 
-export async function tabUntil(page: Page, pred: () => Promise<boolean>, max = 40) {
-  for (let i = 1; i <= max; i++) {
-    await page.keyboard.press("Tab");
-    if (await pred()) return i;
-  }
-  throw new Error("Tab never reached the target");
-}
-
 /** Clicks artboard points (fractions) until the interim box hit test selects a path. */
 export async function selectOnCanvas(page: Page, points: [number, number][] = DEFAULT_POINTS) {
   const art = (await page.getByTestId("artboard").boundingBox())!;
