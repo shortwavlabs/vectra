@@ -49,7 +49,14 @@ else {
 
 // No runtime dependency on a third-party origin: scan text assets for absolute http(s) URLs
 // other than XML namespace identifiers and documentation links in comments are not expected.
-const allowed = [/^http:\/\/www\.w3\.org\//, /^https:\/\/react\.dev\/errors\//];
+// Allowed: XML namespaces, error-documentation links embedded in thrown messages (React, Base UI)
+// and the licence banner comment Tailwind keeps in the emitted CSS. None is fetched.
+const allowed = [
+  /^http:\/\/www\.w3\.org\//,
+  /^https:\/\/react\.dev\/errors\//,
+  /^https:\/\/base-ui\.com\/production-error$/,
+  /^https:\/\/tailwindcss\.com$/,
+];
 for (const f of files.filter((x) => /\.(html|js|css)$/.test(x.path))) {
   const text = readFileSync(join(dist, f.path), "utf8");
   for (const m of text.matchAll(/https?:\/\/[^\s"'`)<>]+/g)) {
