@@ -164,6 +164,9 @@ interface Scan {
   c: number;
   cur: { v0: number; c0: number; b: [number, number, number, number] } | null;
   readonly subpaths: Subpath[];
+  /** After the scan: the item, and the next subpath to add as an index entry (bounded too). */
+  item?: Item | null;
+  added?: number;
 }
 
 /**
@@ -267,17 +270,29 @@ export class HitTester {
       }
       sc.c += n;
     }
-    if (sc.v >= sc.v1) {
+    if (sc.v >= sc.v1 && sc.item === undefined) {
       close(sc.v1);
-      this.#addItem(sc);
-      this.#scan = null;
-      this.#k++;
+      sc.item = this.#makeItem(sc);
+      sc.added = 0;
       used++;
+    }
+    if (sc.item !== undefined) {
+      // Entries are added in units too: a 195k-subpath path is one item with 195k entries.
+      used += this.#addEntries(sc, Math.max(1, budget - used));
+      if (sc.item === null || sc.added! >= this.#entryCount(sc.item)) {
+        this.#scan = null;
+        this.#k++;
+      }
     }
     return Math.max(1, used);
   }
 
-  #addItem(sc: Scan): void {
+  /** Entries an item contributes: one per subpath above the threshold, else one. */
+  #entryCount(item: Item): number {
+    return item.subpaths.length > SUBPATH_INDEX_ABOVE ? item.subpaths.length : 1;
+  }
+
+  #makeItem(sc: Scan): Item | null {
     const it = this.#ev.drawList[sc.k]!;
     const subpaths = sc.subpaths;
     const r = this.#ev.runs[it.groupRun]?.clip ?? null;
@@ -291,7 +306,16 @@ export class HitTester {
       view: sc.view,
       subpaths,
     };
-    if (!item.inverse || subpaths.length === 0) return;
+    return item.inverse && subpaths.length > 0 ? item : null;
+  }
+
+  /** Adds up to `budget` of the scanned item's entries; returns the units used. */
+  #addEntries(sc: Scan, budget: number): number {
+    const item = sc.item;
+    if (!item) return 0;
+    const it = this.#ev.drawList[item.k]!;
+    const r = item.clip;
+    const subpaths = item.subpaths;
     const add = (sub: number, local: [number, number, number, number]) => {
       let box = mapBox(it.transform, local);
       if (r)
@@ -308,17 +332,23 @@ export class HitTester {
       this.#x1 = Math.max(this.#x1, box[2]);
       this.#y1 = Math.max(this.#y1, box[3]);
     };
-    if (subpaths.length > SUBPATH_INDEX_ABOVE) subpaths.forEach((s, i) => add(i, s.bounds));
-    else {
-      const b: [number, number, number, number] = [Infinity, Infinity, -Infinity, -Infinity];
-      for (const s of subpaths) {
-        b[0] = Math.min(b[0], s.bounds[0]);
-        b[1] = Math.min(b[1], s.bounds[1]);
-        b[2] = Math.max(b[2], s.bounds[2]);
-        b[3] = Math.max(b[3], s.bounds[3]);
-      }
-      add(-1, b);
+    if (subpaths.length > SUBPATH_INDEX_ABOVE) {
+      const end = Math.min(subpaths.length, sc.added! + budget);
+      for (let i = sc.added!; i < end; i++) add(i, subpaths[i]!.bounds);
+      const used = end - sc.added!;
+      sc.added = end;
+      return used;
     }
+    const b: [number, number, number, number] = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const s of subpaths) {
+      b[0] = Math.min(b[0], s.bounds[0]);
+      b[1] = Math.min(b[1], s.bounds[1]);
+      b[2] = Math.max(b[2], s.bounds[2]);
+      b[3] = Math.max(b[3], s.bounds[3]);
+    }
+    add(-1, b);
+    sc.added = 1;
+    return Math.max(1, subpaths.length);
   }
 
   #startGrid(): void {

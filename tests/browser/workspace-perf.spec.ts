@@ -196,14 +196,22 @@ test("G-R1 workloads: stages, presentation, gestures, drags, hit index, recovery
     await expect.poll(() => page.evaluate(() => "__vectra" in window)).toBe(true);
     report.dpr = await page.evaluate(() => devicePixelRatio);
     await installMainProbe(page);
-    await installPresentationProbe(page);
+    // The sampler reads the displayed canvas back every frame; R1_SAMPLER=0 runs without it
+    // (to check that the probe itself does not change what is measured).
+    const sampling = process.env.R1_SAMPLER !== "0";
+    if (sampling) await installPresentationProbe(page);
     const load = await call<{ fetchMs: number; loadValidateMs: number; loadedAt: number }>(
       page,
       "workspace.loadContainerUrl",
       `/__workloads/${name}.vectra`,
     );
-    // A click before the hit index is ready: answered by the complete index, after it is built.
+    // A click before the hit index is ready (once the canvas has the document): answered by the
+    // complete index, after it is built.
     const art = manifest[name] as { width: number; height: number };
+    await expect
+      .poll(async () => (await diag(page)).snapshots as number, { intervals: [2] })
+      .toBeGreaterThan(0);
+    const readyBeforeClick = (await diag(page)).hitTestReadyMs !== null;
     const cold = await call<{ id: string | null; stale: boolean; ms: number }>(
       page,
       "canvas.hitAsync",
@@ -211,8 +219,13 @@ test("G-R1 workloads: stages, presentation, gestures, drags, hit index, recovery
       art.height * 0.5,
     );
     await settled(page);
-    const present = await stopPresentationProbe(page);
+    const present = sampling
+      ? await stopPresentationProbe(page)
+      : { supported: null, presentedAt: null };
     const loadMain = await stopMainProbe(page);
+    await expect
+      .poll(async () => (await diag(page)).hitTestReadyMs, { timeout: 60_000 })
+      .not.toBeNull();
     const d = await diag(page);
     // Warm queries on the complete index.
     const warm = await page.evaluate(
@@ -384,7 +397,11 @@ test("G-R1 workloads: stages, presentation, gestures, drags, hit index, recovery
         exactDrawRendererMs: d.lastExactDrawMs,
         previewMs: (d.lastExactAt as number) - load.loadedAt,
         presentation: {
-          sampler: present.supported ? "displayed canvas" : "unsupported in this engine",
+          sampler: !sampling
+            ? "off (R1_SAMPLER=0)"
+            : present.supported
+              ? "displayed canvas"
+              : "unsupported in this engine",
           visibleAfterLoadMs:
             present.supported && present.presentedAt !== null
               ? present.presentedAt - load.loadedAt
@@ -401,7 +418,7 @@ test("G-R1 workloads: stages, presentation, gestures, drags, hit index, recovery
         buildMs: d.hitTestBuildMs,
         slices: d.hitTestSlices,
         maxSliceMs: d.hitTestMaxSliceMs,
-        coldClick: cold,
+        coldClick: { ...cold, indexReadyBeforeClick: readyBeforeClick },
         warm,
       },
       pan,

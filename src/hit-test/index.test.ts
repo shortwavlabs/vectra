@@ -326,3 +326,48 @@ describe("bounded incremental build (G-R1)", () => {
     expect(h.steps).toBeGreaterThan(1);
   });
 });
+
+test("one compound path's 5,000 subpath entries are added in bounded steps, not at once", () => {
+  const verbs: string[] = [];
+  const coords: number[] = [];
+  for (let i = 0; i < 5000; i++) {
+    const x = (i % 100) * 2;
+    const y = Math.floor(i / 100) * 2;
+    verbs.push("MLLLZ");
+    coords.push(x, y, x + 1, y, x + 1, y + 1, x, y + 1);
+  }
+  const scene: SceneV1 = {
+    ...CORRECTNESS_SCENE,
+    width: 200,
+    height: 100,
+    groups: [
+      {
+        id: "g",
+        clip: null,
+        paths: [
+          {
+            fill: { color: "#000000" },
+            stroke: null,
+            fillRule: "nonzero",
+            verbs: verbs.join(""),
+            coords,
+          },
+        ],
+      },
+    ],
+  };
+  const s = session(scene);
+  const ev = evaluate(s.state);
+  const h = new HitTester(ev, s.store, { deferred: true });
+  // No step adds more entries than its unit budget (the old build added all 5,000 at once).
+  let maxGrowth = 0;
+  let before = h.size;
+  while (!h.step(64)) {
+    maxGrowth = Math.max(maxGrowth, h.size - before);
+    before = h.size;
+  }
+  maxGrowth = Math.max(maxGrowth, h.size - before);
+  expect(maxGrowth).toBeLessThanOrEqual(64);
+  expect(h.size).toBe(5000);
+  expect(h.hit(0.5, 0.5)).toBe(new HitTester(ev, s.store).hit(0.5, 0.5));
+});

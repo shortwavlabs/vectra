@@ -412,7 +412,7 @@ export class DocumentRenderHost {
     const hit = this.#hit;
     if (!hit || hit.ready) return;
     const t0 = performance.now();
-    hit.slice(HIT_SLICE_MS, 2048);
+    hit.slice(HIT_SLICE_MS, 512);
     const ms = performance.now() - t0;
     this.diag.hitTestSlices++;
     this.diag.hitTestMaxSliceMs = Math.max(this.diag.hitTestMaxSliceMs, ms);
