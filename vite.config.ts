@@ -1,4 +1,6 @@
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins, type Plugin } from "vite-plus";
 
@@ -43,7 +45,45 @@ function productionHeadersPlugin(): Plugin {
   };
 }
 
+/**
+ * Build identity (C5 handshake): a content hash of every input that shapes the bundle (sources,
+ * public files, the WASM package, the lockfile and the configuration), so two different builds
+ * never share an ID and a rebuild of identical inputs keeps it. `VECTRA_BUILD_SALT` is for the
+ * update-lifecycle tests only: it makes a genuinely different second build.
+ */
+function buildId(): string {
+  const root = new URL(".", import.meta.url).pathname;
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const name of readdirSync(join(root, dir)).sort()) {
+      const rel = `${dir}/${name}`;
+      if (statSync(join(root, rel)).isDirectory()) walk(rel);
+      else files.push(rel);
+    }
+  };
+  for (const dir of ["src", "public", "packages/vector-engine-wasm/pkg"]) walk(dir);
+  files.push("index.html", "package.json", "pnpm-lock.yaml", "vite.config.ts", "tsconfig.json");
+  const h = createHash("sha256").update(process.env.VECTRA_BUILD_SALT ?? "");
+  for (const f of files)
+    h.update(f)
+      .update("\0")
+      .update(readFileSync(join(root, f)));
+  return h.digest("hex").slice(0, 16);
+}
+
+/** The engine version the WASM reports (`engineVersion()` = the Cargo workspace version). */
+function engineVersion(): string {
+  const toml = readFileSync(new URL("./Cargo.toml", import.meta.url), "utf8");
+  const m = /\[workspace\.package\][^[]*?\nversion\s*=\s*"([^"]+)"/.exec(toml);
+  if (!m) throw new Error("Cargo.toml: workspace.package.version not found");
+  return m[1]!;
+}
+
 export default defineConfig({
+  define: {
+    __VECTRA_BUILD_ID__: JSON.stringify(buildId()),
+    __VECTRA_ENGINE_VERSION__: JSON.stringify(engineVersion()),
+  },
   fmt: {
     ignorePatterns: [
       "**/*.md",
