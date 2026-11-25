@@ -1,0 +1,88 @@
+@import "tailwindcss";
+/* Copied verbatim from shadcn@4.23.0 dist/tailwind.css (MIT): data-* custom variants used by base-nova sources. */
+@import "./shadcn-tailwind.css";
+
+/* Vectra semantic tokens (docs/DESIGN-SYSTEM.md), mapped to shadcn token names. Dark only. */
+:root {
+  --background: #191a1c;
+  --panel: #212224;
+  --elevated: #292a2c;
+  --canvas-surround: #303134;
+  --paper: #eee8d8;
+  --foreground: #eeeef0;
+  --muted-foreground: #a9abad;
+  --border: #414347;
+  --primary: #b9e87b;
+  --primary-foreground: #20251a;
+  --destructive: #ff8f85;
+  --warning: #f2c14e;
+  --card: var(--panel);
+  --card-foreground: var(--foreground);
+  --popover: var(--elevated);
+  --popover-foreground: var(--foreground);
+  --secondary: var(--elevated);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--elevated);
+  --accent: #36383b;
+  --accent-foreground: var(--foreground);
+  --input: var(--border);
+  --ring: var(--primary);
+  --radius: 0.5rem;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-elevated: var(--elevated);
+  --color-canvas-surround: var(--canvas-surround);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+}
+
+/* Replaces the inline <style> Base UI would inject (ScrollArea/Select) when CSPProvider
+   disableStyleElements is set; keeps style-src 'self' without hashes or 'unsafe-inline'. */
+.base-ui-disable-scrollbar {
+  scrollbar-width: none;
+}
+.base-ui-disable-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

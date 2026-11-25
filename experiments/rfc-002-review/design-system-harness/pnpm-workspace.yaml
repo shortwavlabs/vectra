@@ -1,0 +1,9 @@
+# Local workspace root: isolates this disposable harness from the repository root workspace,
+# so pnpm (including installs spawned by the shadcn CLI) never touches the root lockfile.
+packages: []
+overrides:
+  vite@*: npm:@voidzero-dev/vite-plus-core@8.3.8000
+allowBuilds:
+  core-js: false
+minimumReleaseAgeExclude:
+  - lucide-react@1.79.0
