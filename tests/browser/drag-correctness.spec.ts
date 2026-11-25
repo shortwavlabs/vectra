@@ -222,7 +222,9 @@ for (const c of CASES)
     expect(
       await page.evaluate(
         ([v, i]) =>
-          (window as unknown as Record<string, Api>)[v as string]!.canvas.beginDrag(i as string[]),
+          (window as unknown as Record<string, Api>)[v as string]!.canvas.beginDrag([
+            ...(i as readonly string[]),
+          ]),
         [V, ids] as const,
       ),
     ).toBe(true);
@@ -262,7 +264,9 @@ test("an edit during a drag invalidates the layers: the drag frame shows it", as
   const m: M6 = [1, 0, 0, 1, await dev(page, 30), await dev(page, 20)];
   await page.evaluate(
     ([v, i]) =>
-      (window as unknown as Record<string, Api>)[v as string]!.canvas.beginDrag(i as string[]),
+      (window as unknown as Record<string, Api>)[v as string]!.canvas.beginDrag([
+        ...(i as readonly string[]),
+      ]),
     [V, [s[6]!.id]] as const,
   );
   await page.evaluate(
