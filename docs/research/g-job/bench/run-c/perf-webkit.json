@@ -1,0 +1,749 @@
+{
+  "browser": "webkit 27.2",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "dpr": 2,
+  "machineStart": {
+    "loadavg": [10.13, 9.5, 9.54],
+    "ngspice": 0
+  },
+  "workloads": {
+    "interactive": {
+      "file": "bark-1224.png",
+      "sha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+      "mode": "color",
+      "anchors": 269996,
+      "preview": {
+        "jobId": 1,
+        "metrics": {
+          "dots": 0,
+          "height": 816,
+          "mode": "color",
+          "paletteSize": 13662,
+          "stats": {
+            "anchors": 269996,
+            "cubics": 253639,
+            "groups": 1,
+            "lines": 0,
+            "paths": 16056,
+            "subpaths": 16357
+          },
+          "timingsMs": {
+            "colorFit": 0,
+            "compose": 448,
+            "optimize": 8,
+            "preprocess": 7,
+            "scene": 71,
+            "segment": 1159,
+            "validate": 7
+          },
+          "width": 1224
+        },
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 185470,
+          "anchorsHigh": 314242,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "timings": {
+          "segmentMs": 1167,
+          "estimateMs": 35,
+          "fitMs": 550,
+          "parseMs": 3,
+          "wasmCallMs": 1752,
+          "svgMs": 246
+        },
+        "roundTripMs": 2033,
+        "memoryBytes": 205651968,
+        "svgBytes": 9702722,
+        "responsiveness": {
+          "maxFrameGapMs": 133,
+          "frames": 124,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "ready": {
+          "protocolVersion": 2,
+          "buildId": "d99de389eea28e4b",
+          "engineVersion": "0.0.0",
+          "packetVersion": 1,
+          "initMs": 8,
+          "memoryBytes": 1179648
+        },
+        "handling": {
+          "previewCommitMs": 74,
+          "previewStoreCommit": {
+            "moveMs": 5,
+            "validateMs": 9,
+            "publishMs": 9
+          },
+          "tracePostMs": 0,
+          "svgSnapshotMs": 32,
+          "svgPostMs": 19
+        },
+        "previewMs": 181,
+        "importToVisibleMs": 2550,
+        "previewResponsiveness": {
+          "maxFrameGapMs": 120,
+          "frames": 3,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "finals": [
+        {
+          "status": "committed",
+          "jobId": 3,
+          "settledAt": 4898,
+          "layerId": "lay_3",
+          "revision": 3,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 1,
+          "workerMs": 1770,
+          "postMs": 1,
+          "commitMs": 63,
+          "storeCommit": {
+            "moveMs": 5,
+            "validateMs": 8,
+            "publishMs": 9
+          },
+          "probe": {
+            "maxFrameGapMs": 73,
+            "frames": 109,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 4,
+          "settledAt": 6729,
+          "layerId": "lay_43385",
+          "revision": 5,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0,
+          "workerMs": 1762,
+          "postMs": 0,
+          "commitMs": 62,
+          "storeCommit": {
+            "moveMs": 6,
+            "validateMs": 8,
+            "publishMs": 8
+          },
+          "probe": {
+            "maxFrameGapMs": 72,
+            "frames": 107,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 5,
+          "settledAt": 8537,
+          "layerId": "lay_86767",
+          "revision": 7,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0,
+          "workerMs": 1743,
+          "postMs": 0,
+          "commitMs": 58,
+          "storeCommit": {
+            "moveMs": 6,
+            "validateMs": 5,
+            "publishMs": 8
+          },
+          "probe": {
+            "maxFrameGapMs": 79,
+            "frames": 105,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 6,
+          "settledAt": 10347,
+          "layerId": "lay_130149",
+          "revision": 9,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0,
+          "workerMs": 1749,
+          "postMs": 0,
+          "commitMs": 55,
+          "storeCommit": {
+            "moveMs": 6,
+            "validateMs": 4,
+            "publishMs": 8
+          },
+          "probe": {
+            "maxFrameGapMs": 73,
+            "frames": 106,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 7,
+          "settledAt": 12158,
+          "layerId": "lay_173531",
+          "revision": 11,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0,
+          "workerMs": 1747,
+          "postMs": 0,
+          "commitMs": 57,
+          "storeCommit": {
+            "moveMs": 6,
+            "validateMs": 4,
+            "publishMs": 8
+          },
+          "probe": {
+            "maxFrameGapMs": 66,
+            "frames": 107,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        }
+      ],
+      "summary": {
+        "postMs": {
+          "median": 0,
+          "max": 1
+        },
+        "commitMs": {
+          "median": 58,
+          "max": 63
+        },
+        "workerMs": {
+          "median": 1749
+        },
+        "maxFrameGapMs": {
+          "median": 73,
+          "max": 79
+        },
+        "longestTaskMs": 0
+      },
+      "export": {
+        "status": "delivered",
+        "jobId": 8,
+        "settledAt": 12448,
+        "form": "original",
+        "bytes": 9702722,
+        "bytesDigest": "35bf34ba66acdaee48913dad002581c2849ee978d746b377cc5753eb0c7e7c4b",
+        "queuedMs": 19,
+        "workerMs": 234,
+        "postMs": 19,
+        "snapshotMs": 31,
+        "probe": {
+          "maxFrameGapMs": 53,
+          "frames": 15,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "cancel": {
+        "ok": true,
+        "ackMs": 1
+      },
+      "machine": {
+        "loadavg": [10.18, 9.54, 9.56],
+        "ngspice": 0
+      }
+    },
+    "stress-1M": {
+      "file": "bark-2350.png",
+      "sha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+      "mode": "color",
+      "anchors": 812003,
+      "preview": {
+        "jobId": 10,
+        "metrics": {
+          "dots": 0,
+          "height": 1566,
+          "mode": "color",
+          "paletteSize": 30595,
+          "stats": {
+            "anchors": 812003,
+            "cubics": 766792,
+            "groups": 1,
+            "lines": 0,
+            "paths": 43621,
+            "subpaths": 45211
+          },
+          "timingsMs": {
+            "colorFit": 0,
+            "compose": 1461,
+            "optimize": 19,
+            "preprocess": 15,
+            "scene": 366,
+            "segment": 5817,
+            "validate": 14
+          },
+          "width": 2350
+        },
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 542267,
+          "anchorsHigh": 918761,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "timings": {
+          "segmentMs": 5834,
+          "estimateMs": 125,
+          "fitMs": 1897,
+          "parseMs": 7,
+          "wasmCallMs": 7856,
+          "svgMs": 661
+        },
+        "roundTripMs": 8616,
+        "memoryBytes": 430899200,
+        "svgBytes": 30829700,
+        "responsiveness": {
+          "maxFrameGapMs": 313,
+          "frames": 517,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "ready": {
+          "protocolVersion": 2,
+          "buildId": "d99de389eea28e4b",
+          "engineVersion": "0.0.0",
+          "packetVersion": 1,
+          "initMs": 6,
+          "memoryBytes": 1179648
+        },
+        "handling": {
+          "previewCommitMs": 166,
+          "previewStoreCommit": {
+            "moveMs": 15,
+            "validateMs": 12,
+            "publishMs": 18
+          },
+          "tracePostMs": 1,
+          "svgSnapshotMs": 87,
+          "svgPostMs": 56
+        }
+      },
+      "finals": [
+        {
+          "status": "committed",
+          "jobId": 12,
+          "settledAt": 31287,
+          "layerId": "lay_3",
+          "revision": 3,
+          "anchors": 812003,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 542267,
+            "anchorsHigh": 918761,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 1,
+          "workerMs": 7745,
+          "postMs": 1,
+          "commitMs": 146,
+          "storeCommit": {
+            "moveMs": 13,
+            "validateMs": 13,
+            "publishMs": 19
+          },
+          "probe": {
+            "maxFrameGapMs": 162,
+            "frames": 467,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 13,
+          "settledAt": 39360,
+          "layerId": "lay_104816",
+          "revision": 5,
+          "anchors": 812003,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 542267,
+            "anchorsHigh": 918761,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 1,
+          "workerMs": 7910,
+          "postMs": 1,
+          "commitMs": 150,
+          "storeCommit": {
+            "moveMs": 14,
+            "validateMs": 12,
+            "publishMs": 19
+          },
+          "probe": {
+            "maxFrameGapMs": 168,
+            "frames": 477,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 14,
+          "settledAt": 47344,
+          "layerId": "lay_209629",
+          "revision": 7,
+          "anchors": 812003,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 542267,
+            "anchorsHigh": 918761,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 1,
+          "workerMs": 7819,
+          "postMs": 1,
+          "commitMs": 151,
+          "storeCommit": {
+            "moveMs": 13,
+            "validateMs": 12,
+            "publishMs": 19
+          },
+          "probe": {
+            "maxFrameGapMs": 169,
+            "frames": 471,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        }
+      ],
+      "summary": {
+        "postMs": {
+          "median": 1,
+          "max": 1
+        },
+        "commitMs": {
+          "median": 150,
+          "max": 151
+        },
+        "workerMs": {
+          "median": 7819
+        },
+        "maxFrameGapMs": {
+          "median": 168,
+          "max": 169
+        },
+        "longestTaskMs": 0
+      },
+      "export": {
+        "status": "delivered",
+        "jobId": 15,
+        "settledAt": 48163,
+        "form": "original",
+        "bytes": 30829700,
+        "bytesDigest": "feec9fff1afa915ca3246f0e119db3df71181dd3df3beb174adfcec037ff3a8e",
+        "queuedMs": 59,
+        "workerMs": 668,
+        "postMs": 59,
+        "snapshotMs": 89,
+        "probe": {
+          "maxFrameGapMs": 149,
+          "frames": 42,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "cancel": {
+        "ok": true,
+        "ackMs": 0
+      },
+      "machine": {
+        "loadavg": [10.68, 9.77, 9.64],
+        "ngspice": 0
+      }
+    },
+    "source-23.5MP": {
+      "file": "portrait-large-q90.jpg",
+      "sha256": "952dbf0fcbffd41921d18430b7c8ca529d1f217f0cffce371c1895bc4bd14616",
+      "mode": "bw",
+      "anchors": 33360,
+      "preview": {
+        "jobId": 18,
+        "metrics": {
+          "dots": 0,
+          "height": 5415,
+          "mode": "bw",
+          "paletteSize": 1,
+          "stats": {
+            "anchors": 33360,
+            "cubics": 31100,
+            "groups": 1,
+            "lines": 0,
+            "paths": 504,
+            "subpaths": 2260
+          },
+          "timingsMs": {
+            "colorFit": 0,
+            "compose": 661,
+            "optimize": 1,
+            "preprocess": 435,
+            "scene": 1,
+            "segment": 340,
+            "validate": 1
+          },
+          "width": 4332
+        },
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 23698,
+          "anchorsHigh": 44614,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "timings": {
+          "segmentMs": 784,
+          "estimateMs": 92,
+          "fitMs": 666,
+          "parseMs": 1,
+          "wasmCallMs": 1542,
+          "svgMs": 30
+        },
+        "roundTripMs": 1590,
+        "memoryBytes": 703004672,
+        "svgBytes": 1299515,
+        "responsiveness": {
+          "maxFrameGapMs": 93,
+          "frames": 92,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "ready": {
+          "protocolVersion": 2,
+          "buildId": "d99de389eea28e4b",
+          "engineVersion": "0.0.0",
+          "packetVersion": 1,
+          "initMs": 4,
+          "memoryBytes": 1179648
+        },
+        "handling": {
+          "previewCommitMs": 2,
+          "previewStoreCommit": {
+            "moveMs": 0,
+            "validateMs": 0,
+            "publishMs": 0
+          },
+          "tracePostMs": 9,
+          "svgSnapshotMs": 1,
+          "svgPostMs": 0
+        },
+        "previewMs": 37,
+        "importToVisibleMs": 2029,
+        "previewResponsiveness": {
+          "maxFrameGapMs": 15,
+          "frames": 3,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "finals": [
+        {
+          "status": "committed",
+          "jobId": 20,
+          "settledAt": 58113,
+          "layerId": "lay_3",
+          "revision": 3,
+          "anchors": 33360,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 23698,
+            "anchorsHigh": 44614,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 6,
+          "workerMs": 1288,
+          "postMs": 6,
+          "commitMs": 1,
+          "storeCommit": {
+            "moveMs": 0,
+            "validateMs": 1,
+            "publishMs": 0
+          },
+          "probe": {
+            "maxFrameGapMs": 24,
+            "frames": 78,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 21,
+          "settledAt": 59431,
+          "layerId": "lay_511",
+          "revision": 5,
+          "anchors": 33360,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 23698,
+            "anchorsHigh": 44614,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 7,
+          "workerMs": 1306,
+          "postMs": 7,
+          "commitMs": 1,
+          "storeCommit": {
+            "moveMs": 0,
+            "validateMs": 0,
+            "publishMs": 0
+          },
+          "probe": {
+            "maxFrameGapMs": 18,
+            "frames": 79,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 22,
+          "settledAt": 60722,
+          "layerId": "lay_1019",
+          "revision": 7,
+          "anchors": 33360,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 23698,
+            "anchorsHigh": 44614,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 7,
+          "workerMs": 1279,
+          "postMs": 7,
+          "commitMs": 2,
+          "storeCommit": {
+            "moveMs": 0,
+            "validateMs": 1,
+            "publishMs": 0
+          },
+          "probe": {
+            "maxFrameGapMs": 18,
+            "frames": 77,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        }
+      ],
+      "summary": {
+        "postMs": {
+          "median": 7,
+          "max": 7
+        },
+        "commitMs": {
+          "median": 1,
+          "max": 2
+        },
+        "workerMs": {
+          "median": 1288
+        },
+        "maxFrameGapMs": {
+          "median": 18,
+          "max": 24
+        },
+        "longestTaskMs": 0
+      },
+      "export": {
+        "status": "delivered",
+        "jobId": 23,
+        "settledAt": 60752,
+        "form": "original",
+        "bytes": 1299515,
+        "bytesDigest": "735bff3174ab2e2c5bb41befd4ae66036328ff96141069ff549fb2f9e177ac67",
+        "queuedMs": 0,
+        "workerMs": 26,
+        "postMs": 0,
+        "snapshotMs": 1,
+        "probe": {
+          "maxFrameGapMs": 16,
+          "frames": 2,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "cancel": {
+        "ok": true,
+        "ackMs": 0
+      },
+      "machine": {
+        "loadavg": [10.7, 9.79, 9.64],
+        "ngspice": 0
+      }
+    }
+  },
+  "diag": {
+    "submitted": 24,
+    "workersCreated": 4,
+    "terminations": 4,
+    "handshakes": 4,
+    "buildMismatches": 0,
+    "startupTimeouts": 0,
+    "startupFailures": 0,
+    "startupRetries": 0,
+    "crashes": 0,
+    "fatalErrors": 0,
+    "recycles": 0,
+    "rejectedBusy": 0,
+    "superseded": 0,
+    "preempted": 1,
+    "cancelled": 3,
+    "succeeded": 20,
+    "failed": 0,
+    "staleGenerationDropped": 0,
+    "wrongGenerationDropped": 0,
+    "unmatchedDropped": 0,
+    "droppedResults": 0,
+    "droppedErrors": 0,
+    "droppedProgress": 0,
+    "settleViolations": 0,
+    "state": "ok",
+    "running": null,
+    "queued": [],
+    "reservedBytes": 0,
+    "lastMemoryBytes": 703004672,
+    "snapshotRefs": 0,
+    "jobRefs": 0
+  },
+  "machineEnd": {
+    "loadavg": [10.7, 9.79, 9.64],
+    "ngspice": 0
+  }
+}

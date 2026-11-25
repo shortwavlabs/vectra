@@ -1,0 +1,186 @@
+[
+  {
+    "run": 0,
+    "outcomes": [
+      {
+        "status": "cancelled",
+        "jobId": 4,
+        "settledAt": 1101.2000000029802,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 5,
+        "settledAt": 1101.2000000029802,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 6,
+        "settledAt": 1101.2000000029802,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 7,
+        "settledAt": 1101.2000000029802,
+        "reason": "preempted"
+      },
+      {
+        "status": "succeeded",
+        "jobId": 8,
+        "settledAt": 1432.7999999970198,
+        "anchors": 1377,
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 3855,
+          "anchorsHigh": 7260,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "queuedMs": 7.299999997019768,
+        "workerMs": 324.29999999701977,
+        "postMs": 1.4000000059604645
+      }
+    ],
+    "workersCreated": 2,
+    "terminations": 1
+  },
+  {
+    "run": 1,
+    "outcomes": [
+      {
+        "status": "cancelled",
+        "jobId": 10,
+        "settledAt": 1439.9000000059605,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 11,
+        "settledAt": 1439.9000000059605,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 12,
+        "settledAt": 1439.9000000059605,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 13,
+        "settledAt": 1439.9000000059605,
+        "reason": "preempted"
+      },
+      {
+        "status": "succeeded",
+        "jobId": 14,
+        "settledAt": 1772.0999999940395,
+        "anchors": 1377,
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 3855,
+          "anchorsHigh": 7260,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "queuedMs": 6.799999997019768,
+        "workerMs": 325.29999999701977,
+        "postMs": 1.4000000059604645
+      }
+    ],
+    "workersCreated": 3,
+    "terminations": 2
+  },
+  {
+    "run": 2,
+    "outcomes": [
+      {
+        "status": "cancelled",
+        "jobId": 16,
+        "settledAt": 1779,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 17,
+        "settledAt": 1779,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 18,
+        "settledAt": 1779,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 19,
+        "settledAt": 1779,
+        "reason": "preempted"
+      },
+      {
+        "status": "succeeded",
+        "jobId": 20,
+        "settledAt": 2148.2000000029802,
+        "anchors": 1377,
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 3855,
+          "anchorsHigh": 7260,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "queuedMs": 7.299999997019768,
+        "workerMs": 361.79999999701977,
+        "postMs": 1.5
+      }
+    ],
+    "workersCreated": 4,
+    "terminations": 3
+  },
+  {
+    "run": 3,
+    "outcomes": [
+      {
+        "status": "cancelled",
+        "jobId": 22,
+        "settledAt": 2156.0999999940395,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 23,
+        "settledAt": 2156.0999999940395,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 24,
+        "settledAt": 2156.0999999940395,
+        "reason": "preempted"
+      },
+      {
+        "status": "cancelled",
+        "jobId": 25,
+        "settledAt": 2156.0999999940395,
+        "reason": "preempted"
+      },
+      {
+        "status": "succeeded",
+        "jobId": 26,
+        "settledAt": 2526.2999999970198,
+        "anchors": 1377,
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 3855,
+          "anchorsHigh": 7260,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "queuedMs": 7,
+        "workerMs": 363.20000000298023,
+        "postMs": 1.5
+      }
+    ],
+    "workersCreated": 5,
+    "terminations": 4
+  }
+]

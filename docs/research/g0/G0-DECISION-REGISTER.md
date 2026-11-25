@@ -143,3 +143,52 @@ These resolve implementation-level ambiguities named by the maintainer. **None d
 
 **Shared by both gates.** This set lives on one branch, merged with merge commits into G-ENG (PR #10), G-DOC (PR #11) and the integration branch, so both gates implement the same text.
 
+
+## 7. P1-A foundation acceptance (maintainer, 2026-11-25)
+**Disposition.** The integrated G-ENG and G-DOC foundation is accepted for merge with explicit performance exceptions. Correctness, ownership, persistence, provenance, packet integration and end-to-end export evidence are accepted. Historical dispositions are preserved: **G-ENG PARTIAL, G-DOC PARTIAL**; P1-A integration correctness accepted. Unmet performance requirements are not marked PASS. No further broad architecture review is required. The P1-A phase is not complete until its remaining gates are accepted.
+
+**Merges** (merge commits only; heads verified before each merge):
+
+| PR | Approved head | Merge commit |
+|---|---|---|
+| #13 AM-1 | `801155523adbd028ea00d93417fc4eb018fc24a0` | `cb6646feb651e73bdbd387069a59c7976698b1b9` |
+| #10 G-ENG | `ed3994efd0334cebce4ce2b7ebd29789da7fb3e1` | `f83f880895a1939574ade8ecc9e620f5ed27bf67` |
+| #14 Integration | `bb95b1694a9f7a6da690aa17eb3c67927b87b142` | `80a1d1ad8a1ddad8ae2218bf5a86897f1b7d4ebd` |
+| #11 G-DOC | `38afd35c18e87e7fac97543b5e1d8d65780a54f8` | accepted as part of #14; GitHub marked it merged (recorded merge commit `b7f3580`, the integration branch's merge of `38afd35`) |
+
+**Integrated P1-A baseline:** `80a1d1ad8a1ddad8ae2218bf5a86897f1b7d4ebd` (tree identical to #14's head `bb95b16`).
+
+**Branch protection (`main`).** Tightened as approved: `strict: true`, `enforce_admins: true`; required GitHub Actions check `ci` (app 15368) retained; force pushes and deletions prohibited (already so); every other setting preserved. No external approval requirement.
+
+**Accepted performance exceptions** (non-blocking for G-JOB; targets retained, never lowered):
+
+| Exception | Decision | Obligation | Owner gate |
+|---|---|---|---|
+| WASM copy-out at 1M anchors above 2 ms (TD-PERF-008) | Keep the single-copy implementation. Do not redesign GeometryPacket v1, reduce coordinate precision or weaken buffer ownership | Re-run the existing benchmark on a quiet reference machine when available: median, p95, workload hashes, byte counts, runtime, timer resolution | performance follow-up |
+| Project open at 250k paths above 1 s (TD-PERF-009) | Bounded compact Document v1 serialization follow-up, before public release: omit canonical default-valued node properties without changing the in-memory model | Pre-registered workloads; the original representation kept as a benchmark control; unambiguous canonical defaults; strict schema validation, deterministic canonical sections, integrity checks and decompression limits, project semantics, export hashes, provenance and ID high-water marks preserved; cross-browser interchange; explicit compatibility with development fixtures; frozen-contract amendment for any adopted schema change; no binary format or new dependency without approval. Measure 50k and 250k paths at 1M anchors against ≤ 1 s, and explain the single-pass profile vs repeated end-to-end gap (allocation, GC, warm-up, instrumentation boundaries). The earlier scratch experiment is preliminary evidence only | before G-PRJ qualification and public Document v1 release; independent of G-JOB |
+| Structural transactions O(nodes) (TD-PERF-007) | Closure criteria approved: median ≤ 16.7 ms and p95 ≤ 33 ms at the interactive target; ≤ 50 ms at the designated 1M-anchor stress workloads; incremental and full validation agree over ≥ 10,000 randomized transactions; full validation stays mandatory for untrusted loads | Investigate structural sharing and incremental validation during G-R1; no document-store rewrite during G-JOB | qualification before G-EDIT acceptance |
+| Main-thread responsiveness | G-TRACE and G-PRJ must qualify ≤ 50 ms attributable main-thread blocking; total wall-clock time does not establish responsiveness | Bounded scheduling, time slicing or worker preparation, preserving atomic commits and loads; real browser task durations | G-TRACE, G-PRJ |
+
+**Other accepted exceptions:**
+- **TD-PLATFORM-007** stays open. Identical validated scenes must keep producing identical packets across Rust, WASM and TS; native/WASM Artistic differences remain a separate unresolved issue. Artistic and Precision v1 are not modified.
+- **Malformed-manifest-text error codes** (G-ENG corrective finding 5): accepted as a bounded exception to cross-runtime error-code equivalence. Scope and the pinned regression test: `tests/fixtures/packet-conformance/README.md`. Malformed inputs must remain rejected by every runtime.
+
+**Benchmark conditions.** Never terminate or interfere with unrelated Shortwav Labs processes. A run is labelled quiet only when its recorded machine conditions support it; otherwise quiet runs stay NOT RUN and independent work continues.
+
+## 8. G-JOB conditional acceptance (maintainer, 2026-11-25)
+**Disposition.** G-JOB is accepted in principle for downstream engineering, subject to bounded service-worker corrections (template-only update regression; never serving another build's shell when the controlling cache lacks it; first-install claiming and non-hashed fallbacks reviewed). Historical dispositions are preserved: **G-ENG PARTIAL, G-DOC PARTIAL, G-JOB PARTIAL**; P1-A integration correctness accepted. Merging PR #15 with a merge commit is authorised once the corrections pass, the report is updated, the required check passes and the regression evidence and final diff are verified.
+
+**TD-PERF-010 accepted as a temporary, non-blocking performance exception for G-JOB.** The ≤ 50 ms attributable main-thread blocking target is unchanged; the measured misses stay in the debt register. No document-store rewrite or broad optimisation inside G-JOB.
+
+**Corrective-work ownership:**
+
+| Gate | Obligation |
+|---|---|
+| G-R1 | Investigate TD-PERF-007: structural sharing, incremental invariant validation, efficient immutable state preparation, no unnecessary full-document traversals. Keep the approved thresholds and the independent full-state validation oracle |
+| G-TRACE | Qualify responsive trace-result preparation and atomic commit (off-thread preparation or bounded time slicing). Publication is atomic, revalidates revisions, preserves source and geometry provenance, rejects stale prepared results, preserves undo/redo, and leaves committed artwork unchanged on failure or cancel; covers cancellation and revision changes during preparation |
+| G-EXP | Qualify responsive frozen-snapshot construction and geometry copy-out; an accepted export stays independent of later edits; snapshot ownership and immutable geometry are not weakened |
+| G-PRJ | Qualify responsive project opening, including the compact Document v1 follow-up; ≤ 1 s open and ≤ 50 ms blocking are separate requirements |
+
+**General.** No performance threshold is lowered. Quiet-machine measurements remain required, never obtained by terminating unrelated processes. Performance debt is not closed merely because an implementation merged.
+
+**Real Safari.** The maintainer enabled `safaridriver` on the reference Mac (2026-11-25); real Safari qualification is authorised for G-JOB, G-R0 and G-UI.
