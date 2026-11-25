@@ -93,6 +93,16 @@ test("job handling: main-thread blocking and cancel acknowledgement", async ({
     workloads: {},
   };
   await openWorkbench(page, context, false);
+  // Any navigation or renderer crash after this point invalidates the run: record it.
+  const events: string[] = [];
+  page.on(
+    "framenavigated",
+    (f) => f === page.mainFrame() && events.push(`navigated ${f.url()} at ${Date.now()}`),
+  );
+  page.on("crash", () => events.push(`renderer crashed at ${Date.now()}`));
+  page.on("console", (m) => m.type() === "error" && events.push(`console error: ${m.text()}`));
+  page.on("pageerror", (e) => events.push(`page error: ${e.message}`));
+  report.events = events;
   for (const w of WORKLOADS) {
     const path = join(W, w.file);
     expect(existsSync(path), path).toBe(true);
@@ -106,6 +116,10 @@ test("job handling: main-thread blocking and cancel acknowledgement", async ({
     );
     const runs: (Summary & { probe: Record<string, number> })[] = [];
     for (let r = 0; r < w.reps; r++) {
+      expect(
+        events.filter((e) => !e.startsWith("console")),
+        events.join("\n"),
+      ).toEqual([]);
       await startProbe(page);
       const s = await outcome(page, jobId(await api(page, "final", { mode: w.mode })));
       runs.push({ ...s, probe: await stopProbe(page) });
