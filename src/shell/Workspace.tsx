@@ -2,10 +2,15 @@
 // inspector and layers, status bar. It binds to the document session through commands only.
 // Controls for features that do not exist yet are shown disabled with an explanation; none
 // pretends to work.
+// G-UI-R layout: docked panels separated by hairlines (no floating cards), the view switch in
+// the top bar and zoom in the status bar (DESIGN-SYSTEM §9), so the canvas takes every pixel
+// the chrome does not need.
 import {
+  CircleAlert,
   Download,
   Eraser,
   Keyboard,
+  LoaderCircle,
   Maximize,
   Minimize2,
   Minus,
@@ -52,6 +57,7 @@ import { Input } from "../ui/registry/input";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/registry/resizable";
 import { ScrollArea } from "../ui/registry/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/registry/tooltip";
+import { Tip } from "../ui/tip.tsx";
 import {
   displayName,
   isLocked,
@@ -62,7 +68,13 @@ import {
   transformable as canTransform,
   worldTransformCommands,
 } from "./document.ts";
-import { DocumentInspector, RecolorInspector, Section, SelectionInspector } from "./Inspector.tsx";
+import {
+  DocumentInspector,
+  EmptyInspector,
+  RecolorInspector,
+  Section,
+  SelectionInspector,
+} from "./Inspector.tsx";
 import {
   associate,
   createJobs,
@@ -82,18 +94,34 @@ interface Tool {
   key?: string;
   /** Why the tool is unavailable; undefined when it works. */
   unavailable?: string;
+  /** Rail group: selection and tracing, path refinement, colour (a divider between groups). */
+  group: 0 | 1 | 2;
 }
-// RFC-002 §16 P1 tools only (nodes, booleans and offset are P2-A).
+// RFC-002 §16 P1 tools only (nodes, booleans and offset are P2-A). The order is the keyboard
+// order the shell and Safari suites check; groups only add dividers.
 const TOOLS: readonly Tool[] = [
-  { id: "select", label: "Select", icon: MousePointer2, key: "V" },
-  { id: "trace", label: "Trace", icon: ScanLine, key: "T" },
-  { id: "smooth", label: "Smooth", icon: Spline, unavailable: "not available yet" },
-  { id: "simplify", label: "Simplify", icon: Minimize2, unavailable: "not available yet" },
-  { id: "cleanup", label: "Cleanup", icon: Eraser, unavailable: "not available yet" },
-  { id: "recolor", label: "Recolor", icon: Palette, key: "R" },
+  { id: "select", label: "Select", icon: MousePointer2, key: "V", group: 0 },
+  { id: "trace", label: "Trace", icon: ScanLine, key: "T", group: 0 },
+  { id: "smooth", label: "Smooth", icon: Spline, unavailable: "not available yet", group: 1 },
+  {
+    id: "simplify",
+    label: "Simplify",
+    icon: Minimize2,
+    unavailable: "not available yet",
+    group: 1,
+  },
+  { id: "cleanup", label: "Cleanup", icon: Eraser, unavailable: "not available yet", group: 1 },
+  { id: "recolor", label: "Recolor", icon: Palette, key: "R", group: 2 },
 ];
+const PRESET_NOTES: Record<PresetId, string> = {
+  bw: "One ink on paper",
+  color: "Every colour region",
+  limited: "A small palette of inks",
+};
 
 const ACCEPT = "image/png,image/jpeg,image/webp";
+/** The side column starts narrower on small laptops (under 1440 px wide): more canvas. */
+const SIDE_WIDTH = typeof innerWidth === "number" && innerWidth < 1440 ? 296 : 320;
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 const debugMode = new URLSearchParams(location.search).get("debug") === "1";
 const forceMainThread = new URLSearchParams(location.search).get("renderer") === "main";
@@ -156,23 +184,30 @@ function IconAction(p: {
   pressed?: boolean;
   disabled?: boolean;
   side?: "right" | "bottom" | "top";
-  className?: string;
+  size?: "icon-lg" | "icon";
   onClick?: () => void;
 }) {
   const name = p.unavailable ? `${p.label}, ${p.unavailable}` : p.label;
+  const off = p.unavailable || p.disabled;
   return (
     <Tooltip>
       <TooltipTrigger
         render={
           <Button
             variant="ghost"
-            size="icon-lg"
+            size={p.size ?? "icon-lg"}
             aria-label={name}
             aria-pressed={p.pressed}
             aria-keyshortcuts={p.ariaShortcut}
-            aria-disabled={p.unavailable || p.disabled ? true : undefined}
-            className={`${p.pressed ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : "text-foreground/80"} ${p.unavailable || p.disabled ? "opacity-45" : ""} ${p.className ?? ""}`}
-            onClick={p.unavailable || p.disabled ? undefined : p.onClick}
+            aria-disabled={off ? true : undefined}
+            className={
+              p.pressed
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                : off
+                  ? "text-muted-foreground opacity-40 hover:bg-transparent hover:text-muted-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+            }
+            onClick={off ? undefined : p.onClick}
           />
         }
       >
@@ -190,9 +225,17 @@ function IconAction(p: {
   );
 }
 
+/** A hairline between groups of controls. */
+const Divider = ({ vertical = true }: { vertical?: boolean }) => (
+  <span
+    aria-hidden="true"
+    className={vertical ? "h-4 w-px shrink-0 bg-border" : "my-1 h-px w-6 shrink-0 bg-border"}
+  />
+);
+
 function LogoMark() {
   return (
-    <svg viewBox="0 0 40 34" className="h-6 w-7" aria-hidden="true">
+    <svg viewBox="0 0 40 34" className="h-5 w-6" aria-hidden="true">
       <path d="M0 0h9l11 21L31 0h9L20 34z" fill="var(--primary)" />
     </svg>
   );
@@ -444,23 +487,32 @@ export function Workspace() {
   const inspector = (() => {
     if (tool === "trace")
       return (
-        <Section title="Trace preset">
+        <Section title="Preset">
           <div role="radiogroup" aria-label="Trace preset" className="grid gap-1">
             {PRESETS.map((p) => (
-              <label
+              <div
                 key={p.id}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-elevated"
+                className="grid rounded-md border border-transparent hover:bg-elevated has-checked:border-control-border has-checked:bg-elevated"
               >
-                <input
-                  type="radio"
-                  name="preset"
-                  value={p.id}
-                  checked={preset === p.id}
-                  onChange={() => setPreset(p.id)}
-                  className="accent-primary"
-                />
-                {p.label}
-              </label>
+                <label className="flex cursor-pointer items-center gap-2.5 px-2 pt-1.5 text-xs font-medium">
+                  <input
+                    type="radio"
+                    name="preset"
+                    value={p.id}
+                    checked={preset === p.id}
+                    onChange={() => setPreset(p.id)}
+                    aria-describedby={`preset-note-${p.id}`}
+                    className="accent-primary"
+                  />
+                  {p.label}
+                </label>
+                <span
+                  id={`preset-note-${p.id}`}
+                  className="pr-2 pb-1.5 pl-[1.85rem] text-2xs text-muted-foreground"
+                >
+                  {PRESET_NOTES[p.id]}
+                </span>
+              </div>
             ))}
           </div>
           <Button
@@ -471,20 +523,13 @@ export function Workspace() {
           >
             <Upload data-icon="inline-start" /> Import and trace…
           </Button>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-2xs text-pretty text-muted-foreground">
             Each import is traced with the engine defaults of the chosen preset and added as a new
             layer. Trace parameters cannot be adjusted in this build yet.
           </p>
         </Section>
       );
-    if (!session || !snap)
-      return (
-        <Section title="No document">
-          <p className="text-xs text-muted-foreground">
-            Import an image to create a document: it is traced on this device and added as a layer.
-          </p>
-        </Section>
-      );
+    if (!session || !snap) return <EmptyInspector />;
     if (tool === "recolor") return <RecolorInspector snap={snap} run={run} />;
     if (selection.length)
       return (
@@ -500,99 +545,150 @@ export function Workspace() {
     return <DocumentInspector snap={snap} />;
   })();
 
+  const presetLabel = PRESETS.find((p) => p.id === preset)!.label;
+  const statusText = tracing
+    ? `Tracing ${tracing.name} (${tracing.stage})…`
+    : preparing
+      ? `Preparing ${preparing.name}…`
+      : status.text;
+
   return (
     <TooltipProvider delay={300}>
-      <div className="grid h-full grid-rows-[48px_minmax(0,1fr)_28px] bg-background">
-        {/* Top bar */}
-        <header className="flex items-center gap-3 border-b border-border bg-panel px-3">
-          <div className="flex items-center gap-2">
-            <LogoMark />
-            <span className="text-lg font-bold tracking-tight">vectra</span>
-            <span className="text-xs text-muted-foreground">/ Studio</span>
+      <div className="grid h-full grid-rows-[44px_minmax(0,1fr)_28px] bg-background">
+        {/* Top bar: identity and document, view, history and file actions */}
+        <header className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-b border-border bg-panel px-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex shrink-0 items-center gap-1.5">
+              <LogoMark />
+              <span className="text-[15px] font-bold tracking-tight">vectra</span>
+              <span className="text-2xs text-muted-foreground">Studio</span>
+            </div>
+            <Divider />
+            <p className="min-w-0 truncate text-ui" data-testid="document-title">
+              {session ? (
+                "Untitled artwork"
+              ) : (
+                <span className="text-muted-foreground">No document</span>
+              )}
+              {snap?.dirty && <span className="text-muted-foreground"> · Edited</span>}
+            </p>
           </div>
-          <div className="flex-1" />
-          <p className="text-sm text-foreground/85" data-testid="document-title">
-            {session ? "Untitled artwork" : "No document"}
-            {snap?.dirty && <span className="text-muted-foreground"> · Edited</span>}
-          </p>
-          <div className="flex-1" />
-          <div className="flex items-center gap-0.5" role="group" aria-label="History">
-            <IconAction
-              label="Undo"
-              icon={<Undo2 />}
-              shortcut={isMac ? "⌘Z" : "Ctrl+Z"}
-              ariaShortcut={`${MOD}+Z`}
-              disabled={!snap?.canUndo}
-              side="bottom"
-              onClick={undo}
-            />
-            <IconAction
-              label="Redo"
-              icon={<Redo2 />}
-              shortcut={isMac ? "⇧⌘Z" : "Ctrl+Shift+Z"}
-              ariaShortcut={`${MOD}+Shift+Z`}
-              disabled={!snap?.canRedo}
-              side="bottom"
-              onClick={redo}
-            />
-            <IconAction
-              label="Keyboard shortcuts"
-              icon={<Keyboard />}
-              shortcut="?"
-              ariaShortcut="Shift+?"
-              side="bottom"
-              onClick={() => setShortcutsOpen(true)}
-            />
+          <div
+            role="group"
+            aria-label="View"
+            className="flex gap-0.5 rounded-lg bg-background p-0.5"
+          >
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-pressed="true"
+              className="h-7 bg-elevated px-3 text-xs"
+            >
+              Artwork
+            </Button>
+            {["Paths", "Compare"].map((v) => (
+              <Tip
+                key={v}
+                side="bottom"
+                label={`${v} view: not available yet`}
+                render={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-disabled="true"
+                    aria-label={`${v} view, not available yet`}
+                    className="h-7 px-3 text-xs text-muted-foreground opacity-60 hover:bg-transparent hover:text-muted-foreground"
+                  />
+                }
+              >
+                {v}
+              </Tip>
+            ))}
           </div>
-          <input
-            ref={fileInput}
-            type="file"
-            accept={ACCEPT}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
-            data-testid="import-input"
-            onChange={(e) => {
-              const f = e.currentTarget.files?.[0];
-              e.currentTarget.value = "";
-              if (f) void importFile(f);
-            }}
-          />
-          <Button
-            variant="outline"
-            className="h-8 border-control-border"
-            disabled={busy}
-            onClick={() => fileInput.current?.click()}
-          >
-            <Upload data-icon="inline-start" /> Import
-          </Button>
-          <Button
-            className="h-8 px-4 font-semibold"
-            disabled={!session}
-            onClick={() => setExportOpen(true)}
-          >
-            <Download data-icon="inline-start" /> Export
-          </Button>
+          <div className="flex min-w-0 items-center justify-end gap-1.5">
+            <div className="flex items-center" role="group" aria-label="History">
+              <IconAction
+                label="Undo"
+                icon={<Undo2 />}
+                shortcut={isMac ? "⌘Z" : "Ctrl+Z"}
+                ariaShortcut={`${MOD}+Z`}
+                disabled={!snap?.canUndo}
+                side="bottom"
+                size="icon"
+                onClick={undo}
+              />
+              <IconAction
+                label="Redo"
+                icon={<Redo2 />}
+                shortcut={isMac ? "⇧⌘Z" : "Ctrl+Shift+Z"}
+                ariaShortcut={`${MOD}+Shift+Z`}
+                disabled={!snap?.canRedo}
+                side="bottom"
+                size="icon"
+                onClick={redo}
+              />
+              <IconAction
+                label="Keyboard shortcuts"
+                icon={<Keyboard />}
+                shortcut="?"
+                ariaShortcut="Shift+?"
+                side="bottom"
+                size="icon"
+                onClick={() => setShortcutsOpen(true)}
+              />
+            </div>
+            <Divider />
+            <input
+              ref={fileInput}
+              type="file"
+              accept={ACCEPT}
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
+              data-testid="import-input"
+              onChange={(e) => {
+                const f = e.currentTarget.files?.[0];
+                e.currentTarget.value = "";
+                if (f) void importFile(f);
+              }}
+            />
+            <Button
+              variant="outline"
+              className="h-8 border-control-border"
+              disabled={busy}
+              onClick={() => fileInput.current?.click()}
+            >
+              <Upload data-icon="inline-start" /> Import
+            </Button>
+            <Button
+              className="h-8 px-3.5 font-semibold disabled:bg-elevated disabled:text-muted-foreground disabled:opacity-100"
+              disabled={!session}
+              onClick={() => setExportOpen(true)}
+            >
+              <Download data-icon="inline-start" /> Export
+            </Button>
+          </div>
         </header>
 
-        <div className="flex min-h-0 gap-2 p-2">
+        <div className="flex min-h-0">
           {/* Tool rail */}
           <nav
             aria-label="Tools"
-            className="flex w-14 shrink-0 flex-col items-center gap-1.5 rounded-md bg-panel py-2"
+            className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-border bg-panel py-2"
           >
-            {TOOLS.map((t) => (
-              <IconAction
-                key={t.id}
-                label={t.label}
-                icon={<t.icon className="size-5" />}
-                shortcut={t.key}
-                ariaShortcut={t.key}
-                unavailable={t.unavailable}
-                pressed={t.unavailable ? undefined : tool === t.id}
-                className={tool === t.id ? undefined : "bg-elevated"}
-                onClick={() => setTool(t.id)}
-              />
+            {TOOLS.map((t, i) => (
+              <div key={t.id} className="contents">
+                {i > 0 && TOOLS[i - 1]!.group !== t.group && <Divider vertical={false} />}
+                <IconAction
+                  label={t.label}
+                  icon={<t.icon className="size-[18px]" />}
+                  shortcut={t.key}
+                  ariaShortcut={t.key}
+                  unavailable={t.unavailable}
+                  pressed={t.unavailable ? undefined : tool === t.id}
+                  onClick={() => setTool(t.id)}
+                />
+              </div>
             ))}
           </nav>
 
@@ -600,138 +696,96 @@ export function Workspace() {
             <ResizablePanel id="canvas" minSize={360}>
               <section
                 aria-label="Canvas"
-                className="flex h-full min-w-0 flex-col overflow-hidden rounded-md bg-canvas-surround"
+                className="vx-canvas-frame relative h-full min-w-0 overflow-hidden bg-canvas-surround"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const f = e.dataTransfer.files[0];
+                  if (f) void importFile(f);
+                }}
               >
-                <div className="flex h-11 shrink-0 items-center justify-center gap-1 bg-panel">
-                  <div role="group" aria-label="View" className="flex gap-1">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      aria-pressed="true"
-                      className="bg-accent px-3"
-                    >
-                      Artwork
-                    </Button>
-                    {["Paths", "Compare"].map((v) => (
-                      <Button
-                        key={v}
-                        variant="ghost"
-                        size="sm"
-                        aria-disabled="true"
-                        aria-label={`${v} view, available with the production renderer`}
-                        title={`${v} view: available with the production renderer`}
-                        className="px-3 text-muted-foreground"
-                      >
-                        {v}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                <div
-                  className="relative min-h-0 flex-1"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const f = e.dataTransfer.files[0];
-                    if (f) void importFile(f);
-                  }}
-                >
-                  <VectorCanvas
-                    key={canvasKey}
-                    ref={canvas}
-                    session={session}
-                    selection={selection}
-                    onSelect={onSelect}
-                    onStateChange={setHostState}
-                    onViewChange={onView}
-                    onHost={setHost}
-                    paper={colors.paper}
-                    workspace={colors.surround}
-                    selectionColor={colors.selection}
-                    haloColor={colors.halo}
-                    transformable={transformable}
-                    onTransform={onTransform}
-                    forceMainThread={forceMainThread}
-                    label="Artwork canvas"
-                    describe={describe}
-                    className="vectra-canvas absolute inset-0"
-                  />
+                <VectorCanvas
+                  key={canvasKey}
+                  ref={canvas}
+                  session={session}
+                  selection={selection}
+                  onSelect={onSelect}
+                  onStateChange={setHostState}
+                  onViewChange={onView}
+                  onHost={setHost}
+                  paper={colors.paper}
+                  workspace={colors.surround}
+                  selectionColor={colors.selection}
+                  haloColor={colors.halo}
+                  transformable={transformable}
+                  onTransform={onTransform}
+                  forceMainThread={forceMainThread}
+                  label="Artwork canvas"
+                  describe={describe}
+                  className="vectra-canvas absolute inset-0"
+                />
 
-                  {!session && (
-                    <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
-                      <div className="pointer-events-auto grid max-w-sm justify-items-center gap-3 rounded-lg border border-dashed border-control-border bg-background/40 px-8 py-10 text-center">
-                        <Upload className="size-7 text-muted-foreground" aria-hidden="true" />
-                        <h2 className="text-base font-semibold">Import an image to start</h2>
-                        <p className="text-xs text-muted-foreground">
-                          PNG, JPEG or WebP, traced on this device with the{" "}
-                          {PRESETS.find((p) => p.id === preset)!.label} preset. Drop a file here or
-                          choose one.
+                {!session && (
+                  // The empty canvas: a blank ivory sheet, the artboard to come, is the drop target.
+                  <div className="pointer-events-none absolute inset-0 grid place-items-center bg-canvas-surround p-8">
+                    <div className="pointer-events-auto grid aspect-[4/3] w-full max-w-[34rem] rounded-[3px] bg-paper p-5 text-background shadow-2xl shadow-black/40">
+                      <div className="grid place-content-center justify-items-center gap-3 border border-dashed border-background/30 px-6 text-center">
+                        <Upload className="size-6" aria-hidden="true" />
+                        <h2 className="text-lg font-semibold tracking-tight">
+                          Drop an image to start
+                        </h2>
+                        <p className="max-w-[22rem] text-xs text-pretty text-ink-muted">
+                          PNG, JPEG or WebP. It is traced on this device with the {presetLabel}{" "}
+                          preset and becomes the first layer; nothing is uploaded.
                         </p>
-                        <Button disabled={busy} onClick={() => fileInput.current?.click()}>
-                          <Upload data-icon="inline-start" /> Choose image…
-                        </Button>
+                        {busy ? (
+                          <p className="flex items-center gap-2 text-xs font-medium">
+                            <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />
+                            {statusText}
+                          </p>
+                        ) : (
+                          <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
+                            <Button
+                              className="ring-1 ring-background/25"
+                              onClick={() => fileInput.current?.click()}
+                            >
+                              <Upload data-icon="inline-start" /> Choose image…
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              className="text-background hover:bg-background/10 hover:text-background"
+                              onClick={() => setTool("trace")}
+                            >
+                              Change preset
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
-                <div className="flex h-10 shrink-0 items-center gap-1 bg-panel px-2 text-xs">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Zoom out"
-                    aria-keyshortcuts="-"
-                    disabled={!session}
-                    onClick={() => canvas.current?.zoomBy(0.8)}
-                  >
-                    <Minus />
-                  </Button>
-                  <span className="w-12 text-center tabular-nums" data-testid="zoom">
-                    {session && zoom !== null ? `${zoom}%` : "—"}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Zoom in"
-                    aria-keyshortcuts="+"
-                    disabled={!session}
-                    onClick={() => canvas.current?.zoomBy(1.25)}
-                  >
-                    <Plus />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Fit artboard"
-                    aria-keyshortcuts="Shift+1"
-                    disabled={!session}
-                    onClick={() => canvas.current?.fitToView()}
-                  >
-                    <Maximize />
-                  </Button>
-                  <div className="flex-1" />
-                  <span className="text-muted-foreground tabular-nums">
-                    {state
-                      ? `Artboard ${state.artboard.width} × ${state.artboard.height} px`
-                      : "No artboard"}
-                  </span>
-                </div>
+                  </div>
+                )}
               </section>
             </ResizablePanel>
             <ResizableHandle
               withHandle
               aria-label="Resize inspector"
-              className="w-2 bg-transparent [&>div]:bg-control-border"
+              className="bg-border after:w-2 [&>div]:bg-control-border"
             />
-            <ResizablePanel id="side" defaultSize={320} minSize={288} maxSize={336}>
+            <ResizablePanel id="side" defaultSize={SIDE_WIDTH} minSize={288} maxSize={336}>
               <ResizablePanelGroup orientation="vertical">
                 <ResizablePanel id="inspector" minSize={160}>
                   <aside
                     aria-label="Inspector"
-                    className="flex h-full flex-col overflow-hidden rounded-md bg-panel"
+                    className="flex h-full flex-col overflow-hidden bg-panel"
                   >
-                    <div className="flex items-center gap-2 px-4 pt-3 pb-1">
-                      <activeTool.icon className="size-4 text-primary" aria-hidden="true" />
-                      <h2 className="text-sm font-semibold">{activeTool.label}</h2>
+                    <div className="flex h-9 shrink-0 items-center gap-2 border-b border-border px-3">
+                      <activeTool.icon className="size-3.5 text-primary" aria-hidden="true" />
+                      <h2 className="text-ui font-semibold">{activeTool.label}</h2>
+                      {activeTool.key && (
+                        <kbd className="ml-auto rounded border border-border px-1.5 text-2xs text-muted-foreground">
+                          {activeTool.key}
+                        </kbd>
+                      )}
                     </div>
                     <ScrollArea className="min-h-0 flex-1">{inspector}</ScrollArea>
                   </aside>
@@ -739,10 +793,10 @@ export function Workspace() {
                 <ResizableHandle
                   withHandle
                   aria-label="Resize layers"
-                  className="h-2 bg-transparent [&>div]:bg-control-border"
+                  className="bg-border aria-[orientation=horizontal]:after:h-2 [&>div]:bg-control-border"
                 />
-                <ResizablePanel id="layers" defaultSize="40" minSize={120}>
-                  <div className="flex h-full flex-col overflow-hidden rounded-md bg-panel">
+                <ResizablePanel id="layers" defaultSize="30" minSize={120}>
+                  <div className="flex h-full flex-col overflow-hidden bg-panel">
                     <LayersPanel
                       state={state}
                       selection={selection}
@@ -756,57 +810,139 @@ export function Workspace() {
           </ResizablePanelGroup>
         </div>
 
-        {/* Status bar */}
-        <footer className="flex items-center gap-4 border-t border-border bg-panel px-3 text-xs text-muted-foreground">
-          <span>RGB · Vector document</span>
-          <span className="tabular-nums" data-testid="complexity">
-            {totals ? `${totals.paths} paths · ${totals.anchors} anchors` : "No artwork"}
-          </span>
-          <span
-            role={status.error ? "alert" : "status"}
-            data-testid="status"
-            className={status.error ? "text-destructive" : "text-foreground/85"}
-          >
-            {status.error ? "Error: " : ""}
-            {tracing
-              ? `Tracing ${tracing.name} (${tracing.stage})…`
-              : preparing
-                ? `Preparing ${preparing.name}…`
-                : status.text}
-          </span>
-          {refused && (
-            <span role="status" data-testid="import-refused" className="text-warning">
-              {refused}
+        {/* Status bar: what is happening (left); the document, view and app state (right) */}
+        <footer className="flex min-w-0 items-center gap-3 border-t border-border bg-panel pr-2 pl-3 text-xs text-muted-foreground">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {busy ? (
+              <LoaderCircle
+                className="size-3.5 shrink-0 animate-spin text-primary"
+                aria-hidden="true"
+              />
+            ) : (
+              status.error && (
+                <CircleAlert className="size-3.5 shrink-0 text-destructive" aria-hidden="true" />
+              )
+            )}
+            <span
+              role={status.error ? "alert" : "status"}
+              data-testid="status"
+              title={statusText}
+              className={`min-w-0 truncate ${status.error ? "text-destructive" : "text-foreground/85"}`}
+            >
+              {status.error ? "Error: " : ""}
+              {statusText}
+            </span>
+            {refused && (
+              <span
+                role="status"
+                data-testid="import-refused"
+                className="min-w-0 truncate text-warning"
+              >
+                {refused}
+              </span>
+            )}
+            {(tracing || preparing) && (
+              <Button
+                variant="outline"
+                size="xs"
+                className="shrink-0 border-control-border"
+                onClick={() => (tracing ? jobs.cancel(tracing.jobId) : preparing?.abort.abort())}
+              >
+                <X data-icon="inline-start" /> Cancel import
+              </Button>
+            )}
+          </div>
+          {totals && (
+            <span className="shrink-0 tabular-nums" data-testid="complexity">
+              {totals.paths.toLocaleString("en")} paths · {totals.anchors.toLocaleString("en")}{" "}
+              anchors
             </span>
           )}
-          {(tracing || preparing) && (
-            <Button
-              variant="outline"
-              size="xs"
-              className="border-control-border"
-              onClick={() => (tracing ? jobs.cancel(tracing.jobId) : preparing?.abort.abort())}
-            >
-              <X data-icon="inline-start" /> Cancel import
-            </Button>
+          {state && (
+            <>
+              <Divider />
+              <span className="shrink-0 tabular-nums">
+                {state.artboard.width} × {state.artboard.height} px
+              </span>
+              <div role="group" aria-label="Zoom" className="flex shrink-0 items-center">
+                <Tip
+                  label="Zoom out (−)"
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Zoom out"
+                      aria-keyshortcuts="-"
+                      onClick={() => canvas.current?.zoomBy(0.8)}
+                    />
+                  }
+                >
+                  <Minus />
+                </Tip>
+                <span
+                  className="w-11 text-center text-foreground/85 tabular-nums"
+                  data-testid="zoom"
+                >
+                  {zoom !== null ? `${zoom}%` : "—"}
+                </span>
+                <Tip
+                  label="Zoom in (+)"
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Zoom in"
+                      aria-keyshortcuts="+"
+                      onClick={() => canvas.current?.zoomBy(1.25)}
+                    />
+                  }
+                >
+                  <Plus />
+                </Tip>
+                <Tip
+                  label="Fit artboard (Shift+1)"
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Fit artboard"
+                      aria-keyshortcuts="Shift+1"
+                      onClick={() => canvas.current?.fitToView()}
+                    />
+                  }
+                >
+                  <Maximize />
+                </Tip>
+              </div>
+            </>
           )}
-          <div className="flex-1" />
-          <span data-testid="canvas-state" data-state={hostState.kind}>
+          <Divider />
+          <span
+            data-testid="canvas-state"
+            data-state={hostState.kind}
+            className={`shrink-0 ${hostState.kind === "error" ? "text-destructive" : ""}`}
+          >
             {rendererLabel(hostState, host?.client.diag.fallbackReason ?? null)}
           </span>
           {offline?.updateWaiting && (
-            <span data-testid="update-waiting" className="text-foreground/85">
+            <span data-testid="update-waiting" className="shrink-0 text-foreground/85">
               Update ready: it is used once every Vectra tab has closed
             </span>
           )}
           <span
             data-testid="offline-status"
             data-state={offline?.ready ? "ready" : offline?.mismatch ? "mismatch" : "none"}
+            className={`flex shrink-0 items-center gap-1.5 ${offline?.mismatch ? "text-warning" : ""}`}
             title={
               offline?.mismatch
                 ? "A different version of Vectra is installed for offline use. This tab keeps working while online; reload it when convenient."
                 : undefined
             }
           >
+            <span
+              aria-hidden="true"
+              className={`size-1.5 rounded-full ${offline?.ready ? "bg-primary" : offline?.mismatch ? "bg-warning" : "bg-control-border"}`}
+            />
             {offline?.ready
               ? "Offline ready"
               : offline?.mismatch
@@ -820,6 +956,11 @@ export function Workspace() {
         <ExportDialog
           open={exportOpen}
           onOpenChange={setExportOpen}
+          summary={
+            state && totals
+              ? `${state.artboard.width} × ${state.artboard.height} px artboard · ${totals.paths.toLocaleString("en")} paths`
+              : null
+          }
           onExport={async (format, pdf, name) => {
             setStatus({ text: `Exporting ${format.toUpperCase()}…` });
             try {
@@ -848,15 +989,15 @@ export function Workspace() {
               Shortcuts are ignored while typing in a field, in dialogs and in open menus.
             </DialogDescription>
           </DialogHeader>
-          <dl className="grid grid-cols-[7rem_1fr] gap-x-4 gap-y-1.5 text-sm">
+          <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 text-xs">
             {SHORTCUTS.map(([k, v]) => (
               <div key={k} className="contents">
-                <dt>
-                  <kbd className="rounded border border-control-border px-1.5 py-0.5 text-xs">
+                <dt className="border-t border-border py-1.5 text-muted-foreground">{v}</dt>
+                <dd className="border-t border-border py-1.5 text-right">
+                  <kbd className="rounded border border-control-border bg-background px-1.5 py-0.5 text-2xs tabular-nums">
                     {k}
                   </kbd>
-                </dt>
-                <dd className="text-muted-foreground">{v}</dd>
+                </dd>
               </div>
             ))}
           </dl>
@@ -866,9 +1007,16 @@ export function Workspace() {
   );
 }
 
+const FORMATS = {
+  svg: { label: "SVG", note: "Editable vector" },
+  pdf: { label: "PDF", note: "Vector, physical size" },
+} as const;
+
 function ExportDialog(p: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** What is exported, e.g. "640 × 430 px artboard · 1,613 paths". */
+  summary: string | null;
   onExport: (format: "svg" | "pdf", pdf: { width: number; unit: LengthUnit }, name: string) => void;
 }) {
   const [format, setFormat] = useState<"svg" | "pdf">("svg");
@@ -876,6 +1024,7 @@ function ExportDialog(p: {
   const [width, setWidth] = useState(200);
   const [unit, setUnit] = useState<LengthUnit>("mm");
   const valid = name.trim() !== "" && (format === "svg" || width > 0);
+  const field = "h-8 rounded-md border-control-border bg-background text-sm dark:bg-background";
   return (
     <Dialog open={p.open} onOpenChange={p.onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -885,6 +1034,11 @@ function ExportDialog(p: {
             Vector paths only, generated on this device by the engine. Nothing is uploaded.
           </DialogDescription>
         </DialogHeader>
+        {p.summary && (
+          <p className="rounded-md bg-background px-3 py-2 text-xs text-muted-foreground tabular-nums">
+            {p.summary}
+          </p>
+        )}
         <form
           className="grid gap-4"
           onSubmit={(e) => {
@@ -894,24 +1048,45 @@ function ExportDialog(p: {
             p.onExport(format, { width, unit }, name.trim());
           }}
         >
-          <fieldset className="grid gap-1.5">
+          <fieldset className="grid grid-cols-2 gap-2">
             <legend className="mb-1.5 text-xs text-muted-foreground">Format</legend>
             {(["svg", "pdf"] as const).map((f) => (
-              <label key={f} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="format"
-                  checked={format === f}
-                  onChange={() => setFormat(f)}
-                  className="accent-primary"
-                />
-                {f === "svg" ? "SVG (editable vector)" : "PDF (vector, physical size)"}
-              </label>
+              <div
+                key={f}
+                className="grid rounded-md border border-control-border px-3 py-2 has-checked:border-primary has-checked:bg-primary/10"
+              >
+                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                  <input
+                    type="radio"
+                    name="format"
+                    checked={format === f}
+                    onChange={() => setFormat(f)}
+                    aria-describedby={`format-note-${f}`}
+                    className="accent-primary"
+                  />
+                  {FORMATS[f].label}
+                </label>
+                <span id={`format-note-${f}`} className="pl-5 text-2xs text-muted-foreground">
+                  {FORMATS[f].note}
+                </span>
+              </div>
             ))}
           </fieldset>
           <label className="grid gap-1 text-xs text-muted-foreground">
             File name
-            <Input value={name} onChange={(e) => setName(e.target.value)} className="text-sm" />
+            <span className="relative">
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={`${field} pr-12 text-foreground`}
+              />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground"
+              >
+                .{format}
+              </span>
+            </span>
           </label>
           {format === "pdf" && (
             <div className="grid grid-cols-[1fr_6rem] gap-2">
@@ -922,7 +1097,7 @@ function ExportDialog(p: {
                   min={1}
                   value={width}
                   onChange={(e) => setWidth(e.target.valueAsNumber)}
-                  className="text-sm"
+                  className={`${field} text-foreground tabular-nums`}
                 />
               </label>
               <label className="grid gap-1 text-xs text-muted-foreground">
@@ -941,8 +1116,8 @@ function ExportDialog(p: {
           )}
           <DialogFooter>
             <DialogClose render={<Button variant="outline" type="button" />}>Cancel</DialogClose>
-            <Button type="submit" disabled={!valid}>
-              Export {format.toUpperCase()}
+            <Button type="submit" disabled={!valid} className="font-semibold">
+              <Download data-icon="inline-start" /> Export {format.toUpperCase()}
             </Button>
           </DialogFooter>
         </form>

@@ -225,6 +225,7 @@ test("tokens: contrast table from the running build; dual focus ring", async ({
       "primary-foreground",
       "destructive",
       "warning",
+      "ink-muted",
     ];
     const probe = document.createElement("i");
     document.body.append(probe);
@@ -252,6 +253,9 @@ test("tokens: contrast table from the running build; dual focus ring", async ({
     add("primary", s, 3); // focus ring outer (lime)
   }
   add("primary-foreground", "primary", 4.5);
+  // G-UI-R empty state: ink text printed on the paper sheet.
+  add("background", "paper", 4.5);
+  add("ink-muted", "paper", 4.5);
   add("background", "paper", 3); // focus ring inner ring on the artwork surface
   add("background", "primary", 3); // inner ring against a lime-filled control
   for (const s of surfaces)

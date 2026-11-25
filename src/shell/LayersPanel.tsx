@@ -10,12 +10,13 @@ import {
   Eye,
   EyeOff,
   GripVertical,
+  Layers,
   Lock,
   LockOpen,
   MoreHorizontal,
 } from "lucide-react";
 import { useState } from "react";
-import type { Command } from "../document/commands.ts";
+import { type Command, parents } from "../document/commands.ts";
 import { type DocState, isContainer, type NodeId } from "../document/model.ts";
 import { Button } from "../ui/registry/button";
 import {
@@ -33,6 +34,7 @@ import {
   SortableItem,
   SortableItemHandle,
 } from "../ui/registry/sortable";
+import { Tip } from "../ui/tip.tsx";
 import { displayName, isLocked, moveCommand, pathCount, stepCommand } from "./document.ts";
 
 export interface LayersPanelProps {
@@ -42,20 +44,25 @@ export interface LayersPanelProps {
   run: (c: Command | Command[]) => void;
 }
 
+const HEADER = "flex h-9 shrink-0 items-center gap-1.5 border-b border-border pr-1.5 pl-3";
+
 export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProps) {
   const [expanded, setExpanded] = useState<ReadonlySet<NodeId>>(new Set());
   const [renaming, setRenaming] = useState<NodeId | null>(null);
   if (!state)
     return (
       <section aria-labelledby="layers-heading" className="flex min-h-0 flex-1 flex-col">
-        <div className="flex h-10 shrink-0 items-center border-b border-border px-3">
-          <h2 id="layers-heading" className="text-sm font-semibold">
+        <div className={HEADER}>
+          <h2 id="layers-heading" className="text-ui font-semibold">
             Layers
           </h2>
         </div>
-        <p className="px-3 py-2 text-xs text-muted-foreground">
-          No document. Imported artwork appears here as layers.
-        </p>
+        <div className="grid flex-1 content-center justify-items-center gap-2 px-6 pb-6 text-center">
+          <Layers className="size-5 text-muted-foreground" aria-hidden="true" />
+          <p className="text-xs text-pretty text-muted-foreground">
+            No document yet. Imported artwork appears here as layers.
+          </p>
+        </div>
       </section>
     );
   const roots = [...state.orderedRootIds].reverse();
@@ -81,11 +88,28 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
   const canStep = (step: 1 | -1) =>
     selected !== null && !isLocked(state, selected) && stepCommand(state, selected, step) !== null;
 
+  // Rows that hold a selected path (paths are not listed): marked so the selection has a place.
+  const par = parents(state);
+  const holdsSelection = new Set<NodeId>();
+  for (const id of selection)
+    for (let p = par.get(id) ?? null; p !== null; p = par.get(p) ?? null) holdsSelection.add(p);
+
   const row = (id: NodeId, depth: number, handle: boolean) => {
     const n = state.nodesById.get(id)!;
     const locked = isLocked(state, id);
     const label = name(id);
     const isSel = selection.includes(id);
+    const holds = !isSel && holdsSelection.has(id);
+    const count = pathCount(state, id);
+    const meta = [
+      holds && "Selection inside",
+      !n.visible && "Hidden",
+      n.kind === "source"
+        ? "Source image"
+        : `${n.kind === "group" ? "Group · " : ""}${count.toLocaleString("en")} ${count === 1 ? "path" : "paths"}`,
+    ]
+      .filter(Boolean)
+      .join(" · ");
     const children = isContainer(n)
       ? n.orderedChildIds.filter((c) => state.nodesById.get(c)?.kind === "group")
       : [];
@@ -95,8 +119,9 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
         data-testid="layer-row"
         data-node={id}
         data-selected={isSel || undefined}
-        className={`group/row flex h-9 items-center gap-1 rounded-md pr-1 ${isSel ? "bg-primary/15 ring-1 ring-primary/60 ring-inset" : "hover:bg-elevated"}`}
-        style={{ paddingLeft: 4 + depth * 16 }}
+        data-holds-selection={holds || undefined}
+        className={`group/row flex h-10 items-center gap-0.5 rounded-md pr-1 ${isSel ? "bg-primary/15 ring-1 ring-primary/60 ring-inset" : holds ? "bg-primary/5 ring-1 ring-primary/25 ring-inset hover:bg-elevated" : "hover:bg-elevated"}`}
+        style={{ paddingLeft: 2 + depth * 14 }}
       >
         {handle ? (
           <SortableItemHandle
@@ -132,7 +157,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
             autoFocus
             aria-label={`Name of ${label}`}
             defaultValue={n.name}
-            className="h-7 flex-1 text-xs"
+            className="h-7 flex-1 rounded-md bg-background text-xs md:text-xs dark:bg-background"
             onKeyDown={(e) => {
               if (e.key === "Enter") e.currentTarget.blur();
               if (e.key === "Escape") {
@@ -150,7 +175,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
           <button
             type="button"
             aria-pressed={isSel}
-            className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-1 text-left"
+            className="grid min-w-0 flex-1 gap-px rounded px-1.5 py-1 text-left"
             onClick={(e) =>
               onSelect([id], e.shiftKey || e.metaKey || e.ctrlKey ? "toggle" : "replace")
             }
@@ -159,11 +184,14 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
               if (e.key === "F2" && !locked) setRenaming(id);
             }}
           >
-            <span className={`truncate ${n.visible ? "" : "text-muted-foreground line-through"}`}>
+            <span
+              title={label}
+              className={`truncate text-ui leading-4 ${n.visible ? "" : "text-muted-foreground line-through"}`}
+            >
               {label}
             </span>
-            <span className="shrink-0 text-[11px] text-muted-foreground">
-              {n.kind === "source" ? "source" : `${pathCount(state, id)} paths`}
+            <span className="truncate text-2xs leading-3.5 text-muted-foreground tabular-nums">
+              {meta}
             </span>
           </button>
         )}
@@ -171,6 +199,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
           variant="ghost"
           size="icon-xs"
           aria-label={`${n.visible ? "Hide" : "Show"} ${label}`}
+          className={n.visible ? "text-muted-foreground" : "text-foreground"}
           onClick={() => run({ type: "setVisible", ids: [id], visible: !n.visible })}
         >
           {n.visible ? <Eye /> : <EyeOff />}
@@ -187,7 +216,12 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button variant="ghost" size="icon-xs" aria-label={`More actions for ${label}`} />
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="text-muted-foreground"
+                aria-label={`More actions for ${label}`}
+              />
             }
           >
             <MoreHorizontal />
@@ -230,34 +264,51 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
 
   return (
     <section aria-labelledby="layers-heading" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-10 shrink-0 items-center gap-1 border-b border-border px-3">
-        <h2 id="layers-heading" className="flex-1 text-sm font-semibold">
+      <div className={HEADER}>
+        <h2 id="layers-heading" className="text-ui font-semibold">
           Layers
         </h2>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={selected ? `Move ${name(selected)} up` : "Move up (select a layer or group)"}
-          disabled={!canStep(1)}
-          onClick={() => run(stepCommand(state, selected!, 1)!)}
+        <span className="flex-1 text-2xs text-muted-foreground tabular-nums">{roots.length}</span>
+        <Tip
+          label="Move up"
+          side="bottom"
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={
+                selected ? `Move ${name(selected)} up` : "Move up (select a layer or group)"
+              }
+              disabled={!canStep(1)}
+              onClick={() => run(stepCommand(state, selected!, 1)!)}
+            />
+          }
         >
           <ArrowUp />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={
-            selected ? `Move ${name(selected)} down` : "Move down (select a layer or group)"
+        </Tip>
+        <Tip
+          label="Move down"
+          side="bottom"
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={
+                selected ? `Move ${name(selected)} down` : "Move down (select a layer or group)"
+              }
+              disabled={!canStep(-1)}
+              onClick={() => run(stepCommand(state, selected!, -1)!)}
+            />
           }
-          disabled={!canStep(-1)}
-          onClick={() => run(stepCommand(state, selected!, -1)!)}
         >
           <ArrowDown />
-        </Button>
+        </Tip>
       </div>
       <ScrollArea className="min-h-0 flex-1">
         {roots.length === 0 ? (
-          <p className="px-3 py-2 text-xs text-muted-foreground">The document has no layers.</p>
+          <p className="px-3 py-3 text-xs text-pretty text-muted-foreground">
+            The document has no layers. Import an image to add one.
+          </p>
         ) : (
           <Sortable
             value={roots}
@@ -274,7 +325,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
             }}
           >
             <SortableContent
-              render={<ul aria-label="Layers" className="flex flex-col gap-0.5 p-1.5" />}
+              render={<ul aria-label="Layers" className="flex flex-col gap-px p-1.5" />}
             >
               {roots.map((id) => {
                 const n = state.nodesById.get(id)!;

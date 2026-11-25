@@ -327,7 +327,7 @@ test("keyboard only: select a layer in Layers and fill its paths", async ({ page
   await rowNamed(page, "adjacent_colors").locator("button[aria-pressed]").focus();
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
-  await expect(page.getByTestId("fill-note")).toContainText(/Applies to \d+ paths/);
+  await expect(page.getByTestId("fill-note")).toContainText(/Applies to [\d,]+ paths/);
   await fillTrigger(page).focus();
   await page.keyboard.press("Enter");
   await page.getByRole("textbox", { name: "Hex" }).focus();
@@ -544,6 +544,41 @@ test("layer rows fit the panel at its minimum and maximum width", async ({ page 
       expect(more.x + more.width).toBeLessThanOrEqual(panel.x + panel.width + 0.5);
     }
     note(`layers panel width after ${key}`, panel.width);
+  }
+});
+
+// G-UI-R: at 1366×768 the Fill section was cut off at the inspector/layers split. On small
+// laptops the whole Fill section (trigger and note) must be visible without scrolling.
+test("small laptops: the inspector shows Fill without scrolling", async ({ page }) => {
+  for (const size of [
+    { width: 1366, height: 768 },
+    { width: 1280, height: 720 },
+  ]) {
+    await page.setViewportSize(size);
+    await openWorkspace(page);
+    await importFixture(page, "external/hokusai-great-wave-640.jpg"); // the layer is selected
+    const viewport = page
+      .getByRole("complementary", { name: "Inspector" })
+      .locator('[data-slot="scroll-area-viewport"]');
+    const visible = async (what: string) => {
+      const v = (await viewport.boundingBox())!;
+      for (const el of [fillTrigger(page), page.getByTestId("fill-note")]) {
+        const b = (await el.boundingBox())!;
+        expect(b.y + b.height, `${what} at ${size.width}×${size.height}`).toBeLessThanOrEqual(
+          v.y + v.height + 0.5,
+        );
+      }
+      note(`inspector space left below Fill, ${what}, ${size.width}×${size.height}`, {
+        px: Math.round(
+          v.y +
+            v.height -
+            (await page.getByTestId("fill-note").evaluate((e) => e.getBoundingClientRect().bottom)),
+        ),
+      });
+    };
+    await visible("layer selected");
+    await selectOnCanvas(page);
+    await visible("path selected");
   }
 });
 
