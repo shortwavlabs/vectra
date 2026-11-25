@@ -2,6 +2,8 @@
 // packets, and explicit failure on PacketResult misuse.
 import { readFileSync } from "node:fs";
 import { expect, test } from "vite-plus/test";
+import { PacketError } from "../../src/geometry/packet/types.ts";
+import { validatePacket as validateTs } from "../../src/geometry/packet/validate.ts";
 import {
   initSync,
   sceneToPacket,
@@ -99,4 +101,48 @@ test("taking an array twice, or reading the block after a take, fails explicitly
   expect(codeOf(() => p.takeVerbs())).toBe("invalid_params");
   expect(codeOf(() => p.blockBytes())).toBe("invalid_params");
   p.free();
+});
+
+// Review finding 5 (LOW, documented in tests/fixtures/packet-conformance/README.md): text the
+// TS side never produces. serde_json refuses it at parse time (`manifest`, before step 1);
+// JSON.parse accepts it, so the TS validator reports the first contract step that fails.
+// Both refuse; only the code differs.
+test("text-level JSON failures: WASM says manifest, TS reports a later step", () => {
+  const tsCode = (text: string) => {
+    try {
+      const empty = new Uint32Array(0);
+      validateTs({
+        manifest: JSON.parse(text),
+        verbs: new Uint8Array(0),
+        coords: new Float64Array(0),
+        verbOffsets: new Uint32Array([0]),
+        coordOffsets: new Uint32Array([0]),
+        styleIndex: empty,
+        groupIndex: empty,
+      });
+      return "ok";
+    } catch (e) {
+      return e instanceof PacketError ? e.code : `untyped:${String(e)}`;
+    }
+  };
+  const nested = `${"[".repeat(130)}${"]".repeat(130)}`;
+  for (const text of [
+    '{"packetVersion":2,"x":1e400}',
+    `{"packetVersion":2,"x":${nested}}`,
+    '{"packetVersion":2,"x":"\\ud800"}',
+  ]) {
+    const e = new Uint32Array(0);
+    const wasmCode = codeOf(() =>
+      validatePacket(
+        text,
+        new Uint8Array(0),
+        new Float64Array(0),
+        new Uint32Array([0]),
+        new Uint32Array([0]),
+        e,
+        e,
+      ),
+    );
+    expect([wasmCode, tsCode(text)], text).toEqual(["manifest", "version"]);
+  }
 });

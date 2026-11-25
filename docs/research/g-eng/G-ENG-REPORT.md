@@ -187,3 +187,52 @@ At engine head `23440c0`; the later commits change only TS and documentation:
 The single production validator and codec are in `src/geometry/packet/`. G-DOC's test-only adapter is replaced in the P1-A integration PR, as described in the brief.
 - **Two small helpers will be duplicated until then:** canonical JSON (G-DOC's container code versus `canonicalJson` here). The integration PR keeps one.
 - **`docs/TECHNICAL-DEBT.md`:** G-ENG and G-DOC both append lines under TD-ARCH-003. Whichever PR merges second resolves the trivial adjacent-line conflict by keeping both lines.
+
+## 10. P1-A corrective review (AM-1)
+This section records the corrective work on this branch after the P1-A corrective-review brief. The production wiring with G-DOC, the end-to-end export proof and the browser persistence suite are on the integration branch (`p1a/integration`, report `docs/research/p1a-integration/P1A-INTEGRATION-REPORT.md`). Isolated results on this branch do not close the gate.
+
+### 10.1 Amendments (AM-1, PR #13)
+The §3 amendment requests were accepted and processed as AM-1 through the frozen-contract mechanism: AR-1 (C3 byte-decoding order), AR-2 (export draw list with `paletteId` and artboard size; C5 r2 and C8 r2), AR-3 qualified (C3 r2 determinism wording, below), A1–A3, `stylesById`, palette names, the artboard background, header-relative offsets with contiguous sections, and the transform tolerance. Spec revisions (C2 r2 … C8 r2, new C10 r1) are separate from serialized versions, which did not change: `packetVersion` 1, `protocolVersion` 2, `formatVersion` 1, `documentSchemaVersion` 1. `provenanceVersion` 1 is new.
+
+### 10.2 Packet determinism (C3 r2)
+New wording: identical validated scenes must produce byte-identical geometry packets across Rust, WASM and TypeScript.
+- **Producers.** Rust `GeometryPacket::from_scene` (native), WASM `sceneToPacket`, and TS `packetFromScene` (`src/geometry/packet/scene.ts`). `SceneMeta::from_json` and `exportDrawListScene` complete the scene ↔ packet ↔ export loop.
+- **Proof.** `tests/fixtures/packet-determinism/` holds 8 frozen G-0 scenes (including the three TD-PLATFORM-007 cases) with native golden blocks. The Rust test, the built WASM and the TS producer all reproduce them (`tests/unit/geometry-determinism.test.ts`). `node scripts/packet-determinism.mjs <packet_regression output>` runs the same proof over the corpus: **106/106** scenes identical in all three.
+- **Native vs WASM tracing** is not covered by this wording and stays open as **TD-PLATFORM-007**: 62/65 default-mode cases agree. The first divergent values for the 3 others are recorded in the debt entry, confirmed against the frozen G-0 baseline. Artistic and Precision v1 algorithms were not changed.
+
+### 10.3 Independent review findings
+| # | Severity | Finding | Fix | Test |
+|---|---|---|---|---|
+| 1 | HIGH | A trace `vectorize` accepts, with more than 65,536 distinct styles or groups, produced an invalid packet | `from_scene` refuses it up front with a typed `budget` (the C3 table cap is unchanged) | `crates/vector-engine/tests/packet.rs` |
+| 2 | MEDIUM | Sparse `styles`/`groups` arrays slipped past the TS validator; `canonicalJson` serialised holes | index loops; sparse arrays refused | `geometry-packet.test.ts` |
+| 3 | MEDIUM | Rust parsed JavaScript's shortest float text inexactly | serde_json `float_roundtrip` | `crates/vector-engine/tests/packet.rs` |
+| 4 | MEDIUM | `bake_draw_list` copied geometry before enforcing the anchor cap (OOM abort in wasm32) | per-reference anchor sum before copying | `crates/vector-engine/tests/bake_alloc.rs` (counting allocator: 347 MB → 0) |
+| 5 | LOW | Text-level JSON failures: Rust `manifest`, TS a later step | documented, not changed (`tests/fixtures/packet-conformance/README.md`) | `wasm-packet-adapter.test.ts` |
+| 6 | LOW | WASM produced packets above the limits it accepts | packet route capped at the product limits | `wasm-packet-adapter.test.ts` |
+| 7 | LOW | `PacketResult` allowed a second take, or `blockBytes` after a take | explicit `invalid_params` | `wasm-packet-adapter.test.ts` |
+| 8 | LOW | `decodeRecord` stripped a BOM; Rust parsed manifest text above the 16 MiB cap; non-`Uint8Array` input was untyped | BOM kept (refused as non-canonical); cap before parsing; typed `type` error | codec tests |
+
+A CI step now runs `cargo clippy -p vector-engine -p vector-engine-wasm --lib --locked -- -D warnings` (native and `wasm32-unknown-unknown`), so production Rust builds without diagnostics.
+
+### 10.4 Copy-out at 1M anchors (P1-A performance item)
+Workload: a 2318² gradient halftone at pitch 5.2, **995,405 anchors**, 42,603,358 packet bytes, block SHA-256 `b318ecfc…9e79`. 30 measured repetitions after one warm-up; production TS validator. Apple M5 Max, macOS. **Not a clean run:** 26–28 `ngspice` processes were running, load average 20–26.
+
+| Runtime | Compute | **Copy-out** (median / p95) | Transport | Main-thread validation |
+|---|---|---|---|---|
+| Node 24.22.1 (`worker_threads`) | 195.6 | **1.37** / 9.87 | 1.38 | 26.8 |
+| Chromium 159.0.8154.6 (dedicated worker) | 123.0 | **3.4** / 3.5 | 0.0 | 12.4 |
+| Firefox 159.0 | 188 | **4** / 15 | 0 | 16 |
+| Playwright WebKit 27.2 (not Safari) | 134 | **1** / 4 | 1 | 9 |
+
+All values are medians in ms unless stated. Firefox and WebKit report `performance.now()` to the millisecond in this context, Chromium to 0.1 ms.
+- **Target ≤ 2 ms: met** in Node and WebKit at the median; **missed** in Chromium (3.4 ms, tight p95) and Firefox (4 ms, coarse timer). The p95 misses everywhere; Chromium's spread is tight (3.2–3.6 ms), while the others widen under load.
+- **Avoidable copies.** Copy-out is one `slice` per section from WASM linear memory into a fresh `ArrayBuffer` (42.6 MB). WASM memory cannot be transferred, so this copy is the one the design requires. Transport is a zero-copy transfer (≈ 0 ms), and no further copy happens on the main thread. Chromium's 3.4 ms is about 12.5 GB/s for that one copy. Reducing it would need fewer bytes (a smaller packet encoding) or producing directly into a transferable buffer, which is a C2/C4 change outside this gate.
+- Commands: `node scripts/bench-packet-copyout.mjs 30 2318 5.2` and `node tests/browser/perf/run-copyout.mjs 30`.
+
+### 10.5 Checks on this head
+- `pnpm exec vp check`: PASS (110 files formatted; 51 files without lint or type errors).
+- `pnpm exec vp test run`: 85/85 PASS (6 files).
+- Earlier on `3ae7c09`: the Rust regression corpus 326/326 and its 72/72 precision cases, the packet route 326/326, and unchanged WASM output digests (`68723671…`, `07fdd00d…`). The CI run for this head is listed in the integration report.
+
+### 10.6 Disposition
+**PARTIAL.** The corrective items are done and tested. The copy-out target is missed in Chromium and Firefox under load, clean runs are NOT RUN, and gate closure depends on the integration branch.

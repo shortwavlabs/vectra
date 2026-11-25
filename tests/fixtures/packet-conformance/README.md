@@ -41,3 +41,16 @@ pnpm exec vp fmt tests/fixtures/packet-conformance/cases.json
 - **Declared 2³² coordinates.** The review expected `budget`. Under C3, counts are integers in `[0, 2³²−1]`, so `2^32` is a `manifest` error (`declared-2pow32-coords`), and `2^32−1` exercises the coordinate cap (`declared-max-u32-coords`, `budget`).
 - **Anchor budget.** The anchor-budget case lowers the limit to 13; the base packet has 14 anchors.
 - **Base packet.** A hand-built 4-path, 2-group packet replaces the review's generated synthetic scene, so the suite is self-contained.
+
+## Known divergence: text-level JSON failures (corrective review finding 5, LOW)
+The Rust validator receives the manifest as text and parses it with serde_json; the TS validator receives a parsed object. For text that serde_json refuses but `JSON.parse` accepts, the two return different codes. Both refuse the packet.
+
+| Text | Rust / WASM | TS (after `JSON.parse`) |
+|---|---|---|
+| a number out of f64 range (`1e400`) | `manifest` (parse error, before step 1) | the first failing contract step (`Infinity` is not a valid member) |
+| nesting deeper than 128 (serde's recursion limit) | `manifest` | the first failing contract step |
+| a lone surrogate escape (`"\ud800"`) | `manifest` | the first failing contract step |
+
+- **Why it is accepted.** The TS side never produces such text: manifests are built from validated values and written by `JSON.stringify`/`canonicalJson`. The container path decodes record text with `JSON.parse` and validates in TS only, so the same file gets the same code in every engine.
+- **Pinned by** `tests/unit/wasm-packet-adapter.test.ts` (WASM `manifest`, TS `version`, for each row with `packetVersion` 2).
+- **Not in `cases.json`**, because the suite's cases are manifest objects that both sides can represent. Closing the gap would mean pre-classifying text in TS (non-finite numbers, depth, well-formed strings) before step 1; that is left until a path feeds the same untrusted text to both validators.
