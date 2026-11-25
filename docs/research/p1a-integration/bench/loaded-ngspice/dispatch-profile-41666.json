@@ -1,0 +1,15 @@
+{
+  "node": "v24.22.1",
+  "loadavg": [13.63, 26.3, 24.58],
+  "paths": 41666,
+  "anchorsPerPath": 6,
+  "nodes": 41675,
+  "reps": 30,
+  "medianMs": {
+    "dispatch": 20.463,
+    "validateState": 16.5,
+    "nodeMapCopy": 2.197,
+    "rest": 1.766
+  },
+  "validateShare": 0.81
+}

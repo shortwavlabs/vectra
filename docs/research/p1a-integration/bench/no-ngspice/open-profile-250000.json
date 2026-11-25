@@ -1,0 +1,32 @@
+{
+  "node": "v24.22.1",
+  "loadavg": [10.26, 19.68, 22.14],
+  "paths": 250000,
+  "anchorsPerPath": 4,
+  "none": {
+    "fileBytes": 88082285,
+    "documentBytes": 54808308,
+    "phasesMs": {
+      "header": 0.3,
+      "inflate+sha256": 31.9,
+      "strict JSON": 349.9,
+      "schema": 258.4,
+      "decode+commit": 25.5,
+      "session+invariants": 157.4
+    },
+    "totalMs": 823.4
+  },
+  "deflate-raw": {
+    "fileBytes": 25744715,
+    "documentBytes": 54808308,
+    "phasesMs": {
+      "header": 0.1,
+      "inflate+sha256": 395.4,
+      "strict JSON": 483.7,
+      "schema": 321.7,
+      "decode+commit": 25.1,
+      "session+invariants": 156.9
+    },
+    "totalMs": 1382.9
+  }
+}

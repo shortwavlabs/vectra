@@ -561,6 +561,7 @@ Counts:
   - Packet-route scene, SVG and PDF byte-identical to `a4cf172.sha256` (326/326).
   - The document half is G-DOC's; integration is pending. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 - **G-DOC disposition (2026-11-25), document half:** separate editable Document v1 (C1 IDs, transforms, styles, rect clips) with packet-only geometry storage and `.vectra` container v1 implemented on `gate/g-doc-document-store`, against the packet port with the **test-only** C3 adapter (`src/document/testing`). It is not PRODUCTION VERIFIED: that needs G-ENG's production validator and codec wired in at the P1-A integration step and the shared conformance test passing. Stage: **IMPLEMENTATION PENDING** (document half implemented, integration pending). Not closed.
+- **P1-A integration (2026-11-25), both halves on one path:** **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING** on `p1a/integration`. G-DOC uses G-ENG's validator and codec as its only path (the test adapter is deleted). P0 scene → packet → document commit → `.vectra` (both codecs) → strict load → export draw list → Rust bake reproduces `a4cf172.sha256` for 636/636 corpus files. Closure needs PRs #13, #10, #11 and the integration PR merged. [P1A-INTEGRATION-REPORT](research/p1a-integration/P1A-INTEGRATION-REPORT.md).
 
 <a id="td-arch-004"></a>
 ### TD-ARCH-004 — Engineering-only engine entry points
@@ -656,6 +657,7 @@ Counts:
 - **Acceptance criteria:** documented decision; if adopted, a required check on `main`.
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (policy decided at G-0) / IMPLEMENTATION PENDING**; gate P-CI (before P1-A PRs merge); closure: One required lightweight Linux job per the P-CI specification, fail-closed; owner action: No (decided); configuring it is engineering work after G-0 approval. Specification only at G-0; no workflow created.
 - **P-CI (2026-11-25):** stage **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**. `.github/workflows/ci.yml` (one `ci` job, fail-closed path filter) ran green on PR #8 (run 45535732214). Merging and making `ci` a required check are maintainer actions; branch protection is **not** configured. Not closed. [P-CI-REPORT](research/p-ci/P-CI-REPORT.md).
+- **P1-A (2026-11-25):** PR #8 merged with a merge commit (`d6c1cbf`) after the hardened classifier passed. `main` had no protection and no rulesets; it now requires the `ci` status check (GitHub Actions), with `strict: false` and `enforce_admins: false` and no other rule. Stage **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**: the owner confirms or tightens these settings.
 
 
 ## Added at G-0 (from the independent review and reconciliation)
