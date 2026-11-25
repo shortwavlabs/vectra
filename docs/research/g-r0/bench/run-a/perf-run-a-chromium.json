@@ -1,0 +1,173 @@
+{
+  "browser": "chromium 159.0.8154.6",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "dpr": 1,
+  "machineStart": {
+    "loadavg": [1.48, 1.82, 1.74],
+    "ngspice": 0
+  },
+  "workloads": {
+    "interactive": {
+      "file": "bark-1224.png",
+      "sha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+      "anchors": 269996,
+      "paths": 16056,
+      "stages": {
+        "traceWorkerMs": 1719.7000000029802,
+        "tracePostMs": 1.699999988079071,
+        "previewCommitMs": 60,
+        "snapshotPrepareMs": 6.699999988079071,
+        "renderCopyMs": 0.7000000029802322,
+        "renderPostMs": 2.9000000059604645,
+        "bytesCopied": 12851193,
+        "firstFrameMs": 68.19999998807907,
+        "exactFrameMs": 95.8999999910593,
+        "exactDrawWorkerMs": 39.8999999910593
+      },
+      "previewMs": 97.3999999910593,
+      "importToVisibleMs": 2106.0999999940395,
+      "loadMainThread": {
+        "frames": 137,
+        "maxGapMs": 48.09999999999991,
+        "p50": 16.699999999999818,
+        "p95": 17.600000000000023,
+        "longTasks": 1,
+        "longestTaskMs": 65
+      },
+      "pan": {
+        "p50": 16.59999999999991,
+        "p95": 18.5,
+        "max": 18.600000000000364,
+        "exactSettleMs": 28.399999991059303
+      },
+      "zoom": {
+        "p50": 16.699999999999818,
+        "p95": 18.5,
+        "max": 18.5,
+        "exactSettleMs": 30.299999997019768
+      },
+      "gestureMainThread": {
+        "frames": 122,
+        "maxGapMs": 18.600000000000364,
+        "p50": 16.699999999999818,
+        "p95": 18.399999999999636,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "hits": {
+        "coldMs": 30.69999998807907,
+        "buildMs": 29.599999994039536,
+        "warmP50": 0,
+        "warmP95": 0.014999999850988387,
+        "warmMax": 0.075
+      },
+      "cache": {
+        "workerHeld": {
+          "chunks": 1,
+          "paths": 16056,
+          "bytes": 13364985
+        },
+        "backingStoreBytes": 1743360
+      },
+      "recoveryMs": 59.8999999910593,
+      "host": "worker",
+      "machine": {
+        "loadavg": [1.77, 1.87, 1.76],
+        "ngspice": 0
+      }
+    },
+    "stress": {
+      "file": "bark-2350.png",
+      "sha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+      "anchors": 812003,
+      "paths": 43621,
+      "stages": {
+        "traceWorkerMs": 6945.100000008941,
+        "tracePostMs": 2.7000000029802322,
+        "previewCommitMs": 122.20000000298023,
+        "snapshotPrepareMs": 13.799999997019768,
+        "renderCopyMs": 2.2000000029802322,
+        "renderPostMs": 7.0999999940395355,
+        "bytesCopied": 64437968,
+        "firstFrameMs": 93.19999998807907,
+        "exactFrameMs": 268,
+        "exactDrawWorkerMs": 164.3999999910593
+      },
+      "previewMs": 268.90000000596046,
+      "importToVisibleMs": 7591.70000000298,
+      "loadMainThread": {
+        "frames": 451,
+        "maxGapMs": 116.70000000000073,
+        "p50": 16.69999999999891,
+        "p95": 16.800000000000182,
+        "longTasks": 1,
+        "longestTaskMs": 126
+      },
+      "pan": {
+        "p50": 16.69999999999891,
+        "p95": 18.400000000001455,
+        "max": 18.600000000000364,
+        "exactSettleMs": 51.400000005960464
+      },
+      "zoom": {
+        "p50": 16.69999999999891,
+        "p95": 18.600000000000364,
+        "max": 18.700000000000728,
+        "exactSettleMs": 51.5
+      },
+      "gestureMainThread": {
+        "frames": 126,
+        "maxGapMs": 18.700000000000728,
+        "p50": 16.69999999999891,
+        "p95": 18.5,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "hits": {
+        "coldMs": 72.70000000298023,
+        "buildMs": 72.70000000298023,
+        "warmP50": 0,
+        "warmP95": 0.014999999850988387,
+        "warmMax": 0.225
+      },
+      "cache": {
+        "workerHeld": {
+          "chunks": 1,
+          "paths": 43621,
+          "bytes": 40131454
+        },
+        "backingStoreBytes": 1743360
+      },
+      "recoveryMs": 59.8999999910593,
+      "host": "worker",
+      "machine": {
+        "loadavg": [1.78, 1.88, 1.76],
+        "ngspice": 0
+      }
+    }
+  },
+  "pathScaling": [
+    {
+      "anchors": 25000,
+      "ms": 0.29999999701976776,
+      "ok": true
+    },
+    {
+      "anchors": 125000,
+      "ms": 2,
+      "ok": true
+    },
+    {
+      "anchors": 250000,
+      "ms": 4,
+      "ok": true
+    }
+  ],
+  "machineEnd": {
+    "loadavg": [1.78, 1.88, 1.76],
+    "ngspice": 0
+  }
+}
