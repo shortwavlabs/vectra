@@ -1,0 +1,42 @@
+# R-COLOR feasibility prototypes (research only, never shipped).
+# Standalone workspace with its own lockfile; the root workspace excludes experiments/*.
+[package]
+name = "r-color-cmm"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[workspace]
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = ["native", "simd"]
+# moxcms aarch64 NEON paths (its default features); off = scalar, as on wasm32 without simd128.
+# moxcms tetrahedral interpolation (needs its `options` feature; its default is trilinear).
+tetra = ["moxcms/options"]
+simd = ["moxcms/neon_luts", "moxcms/neon_shaper_paths", "moxcms/neon_shaper_fixed_point_paths"]
+# Native-only tools: the Little CMS reference, PDF prototypes and file I/O.
+native = ["dep:lcms2", "dep:pdf-writer", "dep:miniz_oxide", "dep:tiff", "dep:png", "dep:vector-engine", "dep:serde_json", "dep:resvg"]
+
+[dependencies]
+moxcms = { version = "=0.9.2", default-features = false, features = ["lut"] }
+lcms2 = { version = "=6.3.0", optional = true }
+pdf-writer = { version = "=0.15.0", optional = true }
+miniz_oxide = { version = "=0.9.1", optional = true }
+tiff = { version = "=0.11.3", optional = true }
+png = { version = "=0.18.1", optional = true }
+serde_json = { version = "=1.0.154", optional = true }
+# Same pin as the production test-only renderer; here it rasterises for the raster-export probe.
+resvg = { version = "=0.50.0", default-features = false, optional = true }
+# Read-only use of the production engine (scene types and the unmodified PDF writer as baseline).
+vector-engine = { path = "../../../crates/vector-engine", optional = true }
+
+[profile.release]
+# Same settings as the production WASM build (root Cargo.toml).
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"

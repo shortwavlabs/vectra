@@ -1,0 +1,52 @@
+[
+  {
+    "base": "lcms-generated-srgb-v4",
+    "baseBytes": 588,
+    "cases": 2000,
+    "inspectIccRejected": 1558,
+    "littleCms": {
+      "parsed": 1421,
+      "processCrashes": 0,
+      "transformedOk": 801
+    },
+    "moxcms": {
+      "panicsCaught": 0,
+      "parsed": 769,
+      "transformedOk": 651
+    },
+    "mutationKinds": {
+      "bit-flips": 326,
+      "declared-size": 340,
+      "tag-body": 315,
+      "tag-count": 345,
+      "tag-offset-or-size": 325,
+      "truncate": 349
+    },
+    "slowestCaseMs": 2
+  },
+  {
+    "base": "local-cmyk-lut-v2",
+    "baseBytes": 55280,
+    "cases": 2000,
+    "inspectIccRejected": 1295,
+    "littleCms": {
+      "parsed": 1692,
+      "processCrashes": 0,
+      "transformedOk": 1435
+    },
+    "moxcms": {
+      "panicsCaught": 0,
+      "parsed": 1059,
+      "transformedOk": 1059
+    },
+    "mutationKinds": {
+      "bit-flips": 348,
+      "declared-size": 324,
+      "tag-body": 359,
+      "tag-count": 307,
+      "tag-offset-or-size": 343,
+      "truncate": 319
+    },
+    "slowestCaseMs": 9
+  }
+]

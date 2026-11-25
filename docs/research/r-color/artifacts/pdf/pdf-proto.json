@@ -1,0 +1,169 @@
+{
+  "conversion": "moxcms 0.9.2, sRGB -> CMYK profile, relative colorimetric, 8-bit integer path",
+  "conversionTable": [
+    {
+      "cmykPercent": [5.5, 5.9, 11.8, 0.0],
+      "srgb": "#eee8d8"
+    },
+    {
+      "cmykPercent": [72.5, 70.6, 64.3, 86.7],
+      "srgb": "#000000"
+    },
+    {
+      "cmykPercent": [25.1, 0.0, 54.1, 0.0],
+      "srgb": "#b9e87b"
+    },
+    {
+      "cmykPercent": [0.4, 83.5, 93.7, 0.8],
+      "srgb": "#ff0000"
+    },
+    {
+      "cmykPercent": [41.6, 0.0, 60.4, 0.0],
+      "srgb": "#00ff00"
+    },
+    {
+      "cmykPercent": [87.5, 67.8, 0.0, 0.0],
+      "srgb": "#0000ff"
+    },
+    {
+      "cmykPercent": [76.5, 71.0, 67.1, 27.5],
+      "srgb": "#404040"
+    },
+    {
+      "cmykPercent": [50.6, 42.7, 39.6, 2.0],
+      "srgb": "#808080"
+    },
+    {
+      "cmykPercent": [22.4, 17.3, 14.9, 0.0],
+      "srgb": "#c0c0c0"
+    },
+    {
+      "cmykPercent": [0.0, 0.4, 0.4, 0.0],
+      "srgb": "#ffffff"
+    },
+    {
+      "cmykPercent": [76.9, 72.2, 63.1, 68.2],
+      "srgb": "#191a1c"
+    }
+  ],
+  "raster": {
+    "cmykBytes": 14880600,
+    "megapixels": 3.72,
+    "ms": {
+      "parseAndRender": 32,
+      "pngEncode": 35,
+      "rgbToCmyk": 31,
+      "tiffEncode": 12
+    },
+    "pixels": [2362, 1575],
+    "pixmapBytes": 14880600,
+    "png": {
+      "bytes": 42330,
+      "deterministic": true
+    },
+    "tiff": {
+      "bytes": 102037,
+      "deterministic": true
+    }
+  },
+  "scene": {
+    "distinctColours": 11,
+    "groups": 2,
+    "height": 400.0,
+    "paths": 13,
+    "width": 600.0
+  },
+  "translucentOverlaps": [
+    {
+      "dE00_cmykComposite_vs_rgbCompositeConverted": 11.08,
+      "dE00_cmykComposite_vs_srgbPreview": 12.52,
+      "dE00_rgbCompositeConverted_vs_srgbPreview": 3.3,
+      "overlap": "red-over-ivory"
+    },
+    {
+      "dE00_cmykComposite_vs_rgbCompositeConverted": 17.6,
+      "dE00_cmykComposite_vs_srgbPreview": 19.08,
+      "dE00_rgbCompositeConverted_vs_srgbPreview": 2.3,
+      "overlap": "red+green"
+    },
+    {
+      "dE00_cmykComposite_vs_rgbCompositeConverted": 18.26,
+      "dE00_cmykComposite_vs_srgbPreview": 18.4,
+      "dE00_rgbCompositeConverted_vs_srgbPreview": 0.84,
+      "overlap": "red+green+blue"
+    },
+    {
+      "dE00_cmykComposite_vs_rgbCompositeConverted": 11.5,
+      "dE00_cmykComposite_vs_srgbPreview": 11.92,
+      "dE00_rgbCompositeConverted_vs_srgbPreview": 1.55,
+      "overlap": "green+blue"
+    }
+  ],
+  "variants": [
+    {
+      "bytes": 1216,
+      "variant": "A-device-rgb",
+      "writer": "production to_pdf (unmodified)"
+    },
+    {
+      "artworkGeometryTokensEqualToProduction": true,
+      "bytes": 1412,
+      "differingTokens": 0,
+      "firstDifference": null,
+      "firstDifferenceAt": null,
+      "geometryTokenCount": 311,
+      "productionTokenCount": 311,
+      "variant": "A2-device-rgb-group"
+    },
+    {
+      "artworkGeometryTokensEqualToProduction": true,
+      "bytes": 4598,
+      "differingTokens": 0,
+      "firstDifference": null,
+      "firstDifferenceAt": null,
+      "geometryTokenCount": 311,
+      "productionTokenCount": 311,
+      "variant": "B-icc-rgb"
+    },
+    {
+      "artworkGeometryTokensEqualToProduction": true,
+      "bytes": 4679,
+      "differingTokens": 0,
+      "firstDifference": null,
+      "firstDifferenceAt": null,
+      "geometryTokenCount": 311,
+      "productionTokenCount": 311,
+      "variant": "B2-icc-rgb-group"
+    },
+    {
+      "artworkGeometryTokensEqualToProduction": false,
+      "bytes": 57539,
+      "differingTokens": 4,
+      "firstDifference": "-9 vs 0",
+      "firstDifferenceAt": 9,
+      "geometryTokenCount": 311,
+      "productionTokenCount": 311,
+      "variant": "C-cmyk"
+    },
+    {
+      "artworkGeometryTokensEqualToProduction": false,
+      "bytes": 57595,
+      "differingTokens": 4,
+      "firstDifference": "-9 vs 0",
+      "firstDifferenceAt": 9,
+      "geometryTokenCount": 311,
+      "productionTokenCount": 311,
+      "variant": "D-cmyk-spot"
+    },
+    {
+      "artworkGeometryTokensEqualToProduction": false,
+      "bytes": 56947,
+      "differingTokens": 25,
+      "firstDifference": "20 vs 0",
+      "firstDifferenceAt": 9,
+      "geometryTokenCount": 36,
+      "productionTokenCount": 311,
+      "variant": "E-plate-spot"
+    }
+  ]
+}

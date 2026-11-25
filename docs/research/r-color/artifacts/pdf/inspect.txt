@@ -1,0 +1,91 @@
+== A-device-rgb
+checking A-device-rgb.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   566.93   377.95
+CropBox:             0.00     0.00   566.93   377.95
+BleedBox:            0.00     0.00   566.93   377.95
+TrimBox:             0.00     0.00   566.93   377.95
+ArtBox:              0.00     0.00   566.93   377.95
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0
+== A2-device-rgb-group
+checking A2-device-rgb-group.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   566.93   377.95
+CropBox:             0.00     0.00   566.93   377.95
+BleedBox:            0.00     0.00   566.93   377.95
+TrimBox:             0.00     0.00   566.93   377.95
+ArtBox:              0.00     0.00   566.93   377.95
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0
+== B-icc-rgb
+checking B-icc-rgb.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   566.93   377.95
+CropBox:             0.00     0.00   566.93   377.95
+BleedBox:            0.00     0.00   566.93   377.95
+TrimBox:             0.00     0.00   566.93   377.95
+ArtBox:              0.00     0.00   566.93   377.95
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0
+== B2-icc-rgb-group
+checking B2-icc-rgb-group.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   566.93   377.95
+CropBox:             0.00     0.00   566.93   377.95
+BleedBox:            0.00     0.00   566.93   377.95
+TrimBox:             0.00     0.00   566.93   377.95
+ArtBox:              0.00     0.00   566.93   377.95
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0
+== C-cmyk
+checking C-cmyk.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   623.62   434.65
+CropBox:             0.00     0.00   623.62   434.65
+BleedBox:           19.84    19.84   603.78   414.80
+TrimBox:            28.35    28.35   595.28   406.30
+ArtBox:              0.00     0.00   623.62   434.65
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0
+== D-cmyk-spot
+checking D-cmyk-spot.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   623.62   434.65
+CropBox:             0.00     0.00   623.62   434.65
+BleedBox:           19.84    19.84   603.78   414.80
+TrimBox:            28.35    28.35   595.28   406.30
+ArtBox:              0.00     0.00   623.62   434.65
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0
+== E-plate-spot
+checking E-plate-spot.pdf
+PDF Version: 1.7
+File is not encrypted
+MediaBox:            0.00     0.00   623.62   434.65
+CropBox:             0.00     0.00   623.62   434.65
+BleedBox:           19.84    19.84   603.78   414.80
+TrimBox:            28.35    28.35   595.28   406.30
+ArtBox:              0.00     0.00   623.62   434.65
+PDF version:     1.7
+pdfimages rows: 0
+pdffonts rows: 0
+GTS_PDFXVersion keys: 0

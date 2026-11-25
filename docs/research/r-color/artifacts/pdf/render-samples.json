@@ -1,0 +1,806 @@
+[
+  {
+    "imagePx": [567, 378],
+    "renderer": "poppler",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "lime-solid",
+        "renderedSrgb": "#b9e87b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.52,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#eee8d8"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 12.56,
+        "dE00_vs_srgbComposite": 0.16,
+        "point": "red-only",
+        "renderedSrgb": "#f6736b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 19.13,
+        "dE00_vs_srgbComposite": 0.17,
+        "point": "red+green",
+        "renderedSrgb": "#7ab935"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 18.56,
+        "dE00_vs_srgbComposite": 0.24,
+        "point": "red+green+blue",
+        "renderedSrgb": "#3c5c9a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.42,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.55,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 17.0,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000ff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "spot-lime",
+        "renderedSrgb": "#b9e87b"
+      }
+    ],
+    "variant": "A-device-rgb"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "quartz",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "lime-solid",
+        "renderedSrgb": "#c2e788"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.82,
+        "dE00_vs_srgbComposite": 0.31,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#ede8da"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 9.49,
+        "dE00_vs_srgbComposite": 4.53,
+        "point": "red-only",
+        "renderedSrgb": "#eb8e7f"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 13.58,
+        "dE00_vs_srgbComposite": 8.08,
+        "point": "red+green",
+        "renderedSrgb": "#b0c565"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.14,
+        "dE00_vs_srgbComposite": 5.6,
+        "point": "red+green+blue",
+        "renderedSrgb": "#5862ad"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.41,
+        "dE00_vs_srgbComposite": 0.02,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.56,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.99,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000f5"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "spot-lime",
+        "renderedSrgb": "#c2e788"
+      }
+    ],
+    "variant": "A-device-rgb"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "poppler",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "lime-solid",
+        "renderedSrgb": "#b9e87b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.52,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#eee8d8"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 12.56,
+        "dE00_vs_srgbComposite": 0.16,
+        "point": "red-only",
+        "renderedSrgb": "#f6736b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 19.13,
+        "dE00_vs_srgbComposite": 0.17,
+        "point": "red+green",
+        "renderedSrgb": "#7ab935"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 18.56,
+        "dE00_vs_srgbComposite": 0.24,
+        "point": "red+green+blue",
+        "renderedSrgb": "#3c5c9a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.42,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.55,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 17.0,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000ff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "spot-lime",
+        "renderedSrgb": "#b9e87b"
+      }
+    ],
+    "variant": "A2-device-rgb-group"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "quartz",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "lime-solid",
+        "renderedSrgb": "#c2e788"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.82,
+        "dE00_vs_srgbComposite": 0.31,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#ede8da"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 9.49,
+        "dE00_vs_srgbComposite": 4.53,
+        "point": "red-only",
+        "renderedSrgb": "#eb8e7f"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 13.58,
+        "dE00_vs_srgbComposite": 8.08,
+        "point": "red+green",
+        "renderedSrgb": "#b0c565"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.14,
+        "dE00_vs_srgbComposite": 5.6,
+        "point": "red+green+blue",
+        "renderedSrgb": "#5862ad"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.41,
+        "dE00_vs_srgbComposite": 0.02,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.56,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.99,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000f5"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "spot-lime",
+        "renderedSrgb": "#c2e788"
+      }
+    ],
+    "variant": "A2-device-rgb-group"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "poppler",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "lime-solid",
+        "renderedSrgb": "#b9e87b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.52,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#eee8d8"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 12.56,
+        "dE00_vs_srgbComposite": 0.16,
+        "point": "red-only",
+        "renderedSrgb": "#f6736b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 19.01,
+        "dE00_vs_srgbComposite": 0.17,
+        "point": "red+green",
+        "renderedSrgb": "#7bb935"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 18.46,
+        "dE00_vs_srgbComposite": 0.16,
+        "point": "red+green+blue",
+        "renderedSrgb": "#3d5c9a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.42,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.55,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 17.0,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000ff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "spot-lime",
+        "renderedSrgb": "#b9e87b"
+      }
+    ],
+    "variant": "B-icc-rgb"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "quartz",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "lime-solid",
+        "renderedSrgb": "#c2e788"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.82,
+        "dE00_vs_srgbComposite": 0.31,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#ede8da"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 9.49,
+        "dE00_vs_srgbComposite": 4.53,
+        "point": "red-only",
+        "renderedSrgb": "#eb8e7f"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 13.58,
+        "dE00_vs_srgbComposite": 8.08,
+        "point": "red+green",
+        "renderedSrgb": "#b0c565"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.14,
+        "dE00_vs_srgbComposite": 5.6,
+        "point": "red+green+blue",
+        "renderedSrgb": "#5862ad"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.41,
+        "dE00_vs_srgbComposite": 0.02,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.56,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.99,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000f5"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "spot-lime",
+        "renderedSrgb": "#c2e788"
+      }
+    ],
+    "variant": "B-icc-rgb"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "poppler",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "lime-solid",
+        "renderedSrgb": "#b9e87b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.52,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#eee8d8"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 12.56,
+        "dE00_vs_srgbComposite": 0.16,
+        "point": "red-only",
+        "renderedSrgb": "#f6736b"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 19.01,
+        "dE00_vs_srgbComposite": 0.17,
+        "point": "red+green",
+        "renderedSrgb": "#7bb935"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 18.46,
+        "dE00_vs_srgbComposite": 0.16,
+        "point": "red+green+blue",
+        "renderedSrgb": "#3d5c9a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.42,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.55,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 17.0,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000ff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.92,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "spot-lime",
+        "renderedSrgb": "#b9e87b"
+      }
+    ],
+    "variant": "B2-icc-rgb-group"
+  },
+  {
+    "imagePx": [567, 378],
+    "renderer": "quartz",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 2.24,
+        "dE00_vs_srgbComposite": 0.0,
+        "point": "black-bar",
+        "renderedSrgb": "#000000"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "lime-solid",
+        "renderedSrgb": "#c2e788"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.82,
+        "dE00_vs_srgbComposite": 0.31,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#ede8da"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 9.49,
+        "dE00_vs_srgbComposite": 4.53,
+        "point": "red-only",
+        "renderedSrgb": "#eb8e7f"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 13.58,
+        "dE00_vs_srgbComposite": 8.08,
+        "point": "red+green",
+        "renderedSrgb": "#b0c565"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.14,
+        "dE00_vs_srgbComposite": 5.6,
+        "point": "red+green+blue",
+        "renderedSrgb": "#5862ad"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.41,
+        "dE00_vs_srgbComposite": 0.02,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.56,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "white",
+        "renderedSrgb": "#ffffff"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 16.99,
+        "dE00_vs_srgbComposite": 0.04,
+        "point": "oog-blue",
+        "renderedSrgb": "#0000f5"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 6.07,
+        "dE00_vs_srgbComposite": 0.2,
+        "point": "spot-lime",
+        "renderedSrgb": "#c2e788"
+      }
+    ],
+    "variant": "B2-icc-rgb-group"
+  },
+  {
+    "imagePx": [624, 435],
+    "renderer": "poppler",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 1.99,
+        "dE00_vs_srgbComposite": 3.63,
+        "point": "black-bar",
+        "renderedSrgb": "#141110"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.53,
+        "dE00_vs_srgbComposite": 1.86,
+        "point": "lime-solid",
+        "renderedSrgb": "#bfe47e"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.64,
+        "dE00_vs_srgbComposite": 0.78,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#f0ebdb"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.94,
+        "dE00_vs_srgbComposite": 7.91,
+        "point": "red-only",
+        "renderedSrgb": "#ee9480"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.17,
+        "dE00_vs_srgbComposite": 18.34,
+        "point": "red+green",
+        "renderedSrgb": "#c1b57a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 3.58,
+        "dE00_vs_srgbComposite": 20.31,
+        "point": "red+green+blue",
+        "renderedSrgb": "#7d8695"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 3.3,
+        "dE00_vs_srgbComposite": 3.43,
+        "point": "grey-128",
+        "renderedSrgb": "#828389"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.31,
+        "dE00_vs_srgbComposite": 0.54,
+        "point": "white",
+        "renderedSrgb": "#fffefe"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 3.73,
+        "dE00_vs_srgbComposite": 16.53,
+        "point": "oog-blue",
+        "renderedSrgb": "#3a58b0"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.53,
+        "dE00_vs_srgbComposite": 1.86,
+        "point": "spot-lime",
+        "renderedSrgb": "#bfe47e"
+      }
+    ],
+    "variant": "C-cmyk"
+  },
+  {
+    "imagePx": [624, 435],
+    "renderer": "quartz",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 1.13,
+        "dE00_vs_srgbComposite": 2.56,
+        "point": "black-bar",
+        "renderedSrgb": "#0f0d0d"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.4,
+        "dE00_vs_srgbComposite": 5.76,
+        "point": "lime-solid",
+        "renderedSrgb": "#c5d995"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.12,
+        "dE00_vs_srgbComposite": 0.84,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#eee8d8"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.64,
+        "dE00_vs_srgbComposite": 10.46,
+        "point": "red-only",
+        "renderedSrgb": "#dd9f8a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 2.07,
+        "dE00_vs_srgbComposite": 20.33,
+        "point": "red+green",
+        "renderedSrgb": "#beb38a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.13,
+        "dE00_vs_srgbComposite": 19.73,
+        "point": "red+green+blue",
+        "renderedSrgb": "#7b838e"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.41,
+        "dE00_vs_srgbComposite": 0.02,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.29,
+        "dE00_vs_srgbComposite": 0.8,
+        "point": "white",
+        "renderedSrgb": "#fffefd"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.7,
+        "dE00_vs_srgbComposite": 16.79,
+        "point": "oog-blue",
+        "renderedSrgb": "#395491"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.4,
+        "dE00_vs_srgbComposite": 5.76,
+        "point": "spot-lime",
+        "renderedSrgb": "#c5d995"
+      }
+    ],
+    "variant": "C-cmyk"
+  },
+  {
+    "imagePx": [624, 435],
+    "renderer": "poppler",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 3.63,
+        "dE00_vs_srgbComposite": 7.99,
+        "point": "black-bar",
+        "renderedSrgb": "#231f20"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.53,
+        "dE00_vs_srgbComposite": 1.86,
+        "point": "lime-solid",
+        "renderedSrgb": "#bfe47e"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.64,
+        "dE00_vs_srgbComposite": 0.78,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#f0ebdb"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 5.94,
+        "dE00_vs_srgbComposite": 7.91,
+        "point": "red-only",
+        "renderedSrgb": "#ee9480"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.17,
+        "dE00_vs_srgbComposite": 18.34,
+        "point": "red+green",
+        "renderedSrgb": "#c1b57a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 3.58,
+        "dE00_vs_srgbComposite": 20.31,
+        "point": "red+green+blue",
+        "renderedSrgb": "#7d8695"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 3.3,
+        "dE00_vs_srgbComposite": 3.43,
+        "point": "grey-128",
+        "renderedSrgb": "#828389"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.31,
+        "dE00_vs_srgbComposite": 0.54,
+        "point": "white",
+        "renderedSrgb": "#fffefe"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 3.73,
+        "dE00_vs_srgbComposite": 16.53,
+        "point": "oog-blue",
+        "renderedSrgb": "#3a58b0"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.53,
+        "dE00_vs_srgbComposite": 1.86,
+        "point": "spot-lime",
+        "renderedSrgb": "#bfe47e"
+      }
+    ],
+    "variant": "D-cmyk-spot"
+  },
+  {
+    "imagePx": [624, 435],
+    "renderer": "quartz",
+    "samples": [
+      {
+        "dE00_vs_cmykCompositeProof": 0.97,
+        "dE00_vs_srgbComposite": 5.37,
+        "point": "black-bar",
+        "renderedSrgb": "#1a1919"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.4,
+        "dE00_vs_srgbComposite": 5.76,
+        "point": "lime-solid",
+        "renderedSrgb": "#c5d995"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.12,
+        "dE00_vs_srgbComposite": 0.84,
+        "point": "evenodd-hole",
+        "renderedSrgb": "#eee8d8"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.64,
+        "dE00_vs_srgbComposite": 10.46,
+        "point": "red-only",
+        "renderedSrgb": "#dd9f8a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 2.07,
+        "dE00_vs_srgbComposite": 20.33,
+        "point": "red+green",
+        "renderedSrgb": "#beb38a"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 4.13,
+        "dE00_vs_srgbComposite": 19.73,
+        "point": "red+green+blue",
+        "renderedSrgb": "#7b838e"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 1.41,
+        "dE00_vs_srgbComposite": 0.02,
+        "point": "grey-128",
+        "renderedSrgb": "#808080"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.29,
+        "dE00_vs_srgbComposite": 0.8,
+        "point": "white",
+        "renderedSrgb": "#fffefd"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.7,
+        "dE00_vs_srgbComposite": 16.79,
+        "point": "oog-blue",
+        "renderedSrgb": "#395491"
+      },
+      {
+        "dE00_vs_cmykCompositeProof": 0.4,
+        "dE00_vs_srgbComposite": 5.76,
+        "point": "spot-lime",
+        "renderedSrgb": "#c5d995"
+      }
+    ],
+    "variant": "D-cmyk-spot"
+  }
+]
