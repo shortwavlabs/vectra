@@ -32,7 +32,7 @@
 | `PRODUCT.md` (new, project root) | `## Platform: web`, plus users, purpose, positioning, constraints, principles and accessibility, each taken from PRD, PRD-002 (as amended at G-0), RFC-002 and DESIGN-SYSTEM, with links to them | It removes `NO_PRODUCT_MD`, and it records the platform, which was unknown before. It adds no claim: no customers, benchmarks, pricing or new direction |
 | `docs/DESIGN.md` | unchanged | It is a historical record outside this gate's files. It is no longer the resolved design record |
 
-No `.impeccable/` folder, config or sidecar was written. No dependency was added. Nothing outside the worktree was written.
+No `.impeccable/` folder, config or sidecar was written, and no dependency was added. I wrote nothing outside the worktree. The engine's own cache was checked: `find ~/.impeccable -newermt "2026-11-25 17:10"` lists no file. No other location was inspected.
 
 ## After
 `productPath: PRODUCT.md`, `designPath: DESIGN.md`, `platform: web`. `design-md-coverage` is gone. The loader prints the approved palette, the type roles and the do's and don'ts, and maps `src/ui/styles.css`, DESIGN-SYSTEM and RFC-002.

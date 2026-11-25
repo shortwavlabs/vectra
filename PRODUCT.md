@@ -35,7 +35,7 @@ A desktop browser workspace (`workspace.html`): import a PNG, JPEG or WebP, choo
 
 ## Brand Commitments
 
-The name Vectra and the line "From pixels to paths". The approved charcoal, lime and ivory print-studio identity and the workspace layout in docs/DESIGN-SYSTEM.md §9 and §13; DESIGN.md at the project root maps them for Impeccable.
+The name Vectra and the line "From pixels to paths." as the README uses it (the wider identity, domains and the second half of the tagline in docs/BRAND-AND-BUSINESS.md are a provisional proposal, not a commitment). The approved charcoal, lime and ivory print-studio identity and the workspace layout in docs/DESIGN-SYSTEM.md §9 and §13; DESIGN.md at the project root maps them for Impeccable.
 
 ## Evidence on Hand
 
