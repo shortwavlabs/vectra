@@ -15,6 +15,7 @@
 //        publish = copy+publish − copy; command (cold/warm) = apply − copy+publish;
 //        history+publish residual = dispatch − apply cold − validate.
 // `gc()` (with --expose-gc) runs between phases, outside timed sections.
+import { execFileSync } from "node:child_process";
 import { cpus, loadavg, totalmem } from "node:os";
 import { writeFileSync } from "node:fs";
 import { applyCommand, parents } from "../src/document/commands.ts";
@@ -169,11 +170,14 @@ function profile(doc, name) {
       const ids = new IdAllocator(session.nextId);
       return { store, ids, commit: (p) => store.commit(p) };
     };
+    const same = { type: "setArtboard", width: C.artboard.width, height: C.artboard.height };
+    // Untimed warm-up (run 2 onwards): the first large allocation after gc() was slower, which
+    // made the probe exceed one-node applies (negative command medians in run 1).
+    applyCommand(C, same, ctx()); // setArtboard never calls parents(): C stays cold
     const [copy] = time(() => {
       new SealedMap(C.nodesById);
       return [...C.orderedRootIds];
     });
-    const same = { type: "setArtboard", width: C.artboard.width, height: C.artboard.height };
     const [copyPublish] = time(() => applyCommand(C, same, ctx()));
     const cmdCold = make();
     const ctxCold = ctx();
@@ -320,11 +324,11 @@ function sharing(nodes) {
       copyOneWriteMs: stats(copies),
       get100kMs: stats(gets),
       iterateMs: stats(its),
-      heap100OneChangeStatesMiB: +(bytes / 2 ** 20).toFixed(2),
+      heapPerOneChangeStateMiB: +(bytes / 20 / 2 ** 20).toFixed(3),
     };
   };
   run("native Map (current)", nodes, native.copy1Set, () =>
-    Array.from({ length: 100 }, () => new Map(nodes).set(k0, { ...v0 })),
+    Array.from({ length: 20 }, () => new Map(nodes).set(k0, { ...v0 })),
   );
   for (const B of [256, 1024, 4096]) {
     const cm = ChunkedMap.from(nodes, B);
@@ -333,7 +337,7 @@ function sharing(nodes) {
       d.set(k0, { ...v0 });
       return d;
     };
-    run(`chunked COW map, ${B} buckets`, cm, one, () => Array.from({ length: 100 }, one));
+    run(`chunked COW map, ${B} buckets`, cm, one, () => Array.from({ length: 20 }, one));
   }
   return result;
 }
@@ -365,6 +369,10 @@ if (process.argv.includes("--differential")) {
 // --- run ----------------------------------------------------------------------------------------
 const result = {
   script: "scripts/bench-td-perf-007.mjs",
+  commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+  trackedChanges:
+    execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8" }) !==
+    "",
   argv: process.argv.slice(2),
   node: process.version,
   cpu: cpus()[0]?.model,

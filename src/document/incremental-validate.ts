@@ -290,10 +290,14 @@ function run(
       pk === "root" ? kind === "layer" || kind === "source" : kind === "group" || kind === "path";
     if (!allowed) no("parent kind");
   }
+  // After the delta check a next root has exactly one reference: the root list. Checking it
+  // first spares the O(nodes) parent map when a chain ends at an unchanged root (a layer).
+  const rootSet = new Set(nr);
   let prevParents: ReadonlyMap<NodeId, NodeId | null> | null = null;
   const parentOf = (id: NodeId): NodeId | null => {
     const p = patch.get(id);
     if (p !== undefined) return p;
+    if (rootSet.has(id)) return null;
     let pp = prevParents;
     if (!pp) {
       const t = performance.now();
