@@ -1,0 +1,30 @@
+{
+  "cancelAckMs": 0,
+  "clickToVisibleMs": 55,
+  "stats": {
+    "submitted": 3,
+    "workersCreated": 2,
+    "terminations": 1,
+    "handshakes": 2,
+    "buildMismatches": 0,
+    "startupTimeouts": 0,
+    "startupFailures": 0,
+    "startupRetries": 0,
+    "crashes": 0,
+    "fatalErrors": 0,
+    "recycles": 0,
+    "rejectedBusy": 0,
+    "superseded": 0,
+    "preempted": 0,
+    "cancelled": 1,
+    "succeeded": 2,
+    "failed": 0,
+    "staleGenerationDropped": 0,
+    "wrongGenerationDropped": 0,
+    "unmatchedDropped": 0,
+    "droppedResults": 0,
+    "droppedErrors": 0,
+    "droppedProgress": 0,
+    "settleViolations": 0
+  }
+}

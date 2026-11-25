@@ -1,0 +1,757 @@
+{
+  "browser": "chromium 159.0.8154.6",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "dpr": 1,
+  "machineStart": {
+    "loadavg": [3.06, 6.85, 11.66],
+    "ngspice": 0
+  },
+  "workloads": {
+    "interactive": {
+      "file": "bark-1224.png",
+      "sha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+      "mode": "color",
+      "anchors": 269996,
+      "preview": {
+        "jobId": 1,
+        "metrics": {
+          "dots": 0,
+          "height": 816,
+          "mode": "color",
+          "paletteSize": 13662,
+          "stats": {
+            "anchors": 269996,
+            "cubics": 253639,
+            "groups": 1,
+            "lines": 0,
+            "paths": 16056,
+            "subpaths": 16357
+          },
+          "timingsMs": {
+            "colorFit": 0,
+            "compose": 668,
+            "optimize": 9,
+            "preprocess": 7.299999997019768,
+            "scene": 92.5,
+            "segment": 1125.5,
+            "validate": 6.299999997019768
+          },
+          "width": 1224
+        },
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 185470,
+          "anchorsHigh": 314242,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "timings": {
+          "segmentMs": 1134,
+          "estimateMs": 117.30000001192093,
+          "fitMs": 796.5999999940395,
+          "parseMs": 2.7999999970197678,
+          "wasmCallMs": 2047.9000000059605,
+          "svgMs": 245.29999999701977
+        },
+        "roundTripMs": 2321.6000000089407,
+        "memoryBytes": 205651968,
+        "svgBytes": 9702722,
+        "responsiveness": {
+          "maxFrameGapMs": 68.60000000000036,
+          "frames": 142,
+          "longTasks": 1,
+          "longestTaskMs": 90
+        },
+        "ready": {
+          "protocolVersion": 2,
+          "buildId": "7444744341723f77",
+          "engineVersion": "0.0.0",
+          "packetVersion": 1,
+          "initMs": 2.5,
+          "memoryBytes": 1179648
+        },
+        "handling": {
+          "previewCommitMs": 63.900000005960464,
+          "previewStoreCommit": {
+            "moveMs": 4,
+            "validateMs": 10.200000002980232,
+            "publishMs": 9.5
+          },
+          "tracePostMs": 0.5999999940395355,
+          "svgSnapshotMs": 15,
+          "svgPostMs": 8.900000005960464
+        },
+        "previewMs": 110.6000000089407,
+        "importToVisibleMs": 2731.7999999970198,
+        "previewResponsiveness": {
+          "maxFrameGapMs": 83.30000000000018,
+          "frames": 3,
+          "longTasks": 1,
+          "longestTaskMs": 87
+        }
+      },
+      "finals": [
+        {
+          "status": "committed",
+          "jobId": 3,
+          "settledAt": 4920.5,
+          "layerId": "lay_3",
+          "revision": 3,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0.3999999910593033,
+          "workerMs": 1899.7999999970198,
+          "postMs": 0.3999999910593033,
+          "commitMs": 54.20000000298023,
+          "storeCommit": {
+            "moveMs": 3.7000000029802322,
+            "validateMs": 9,
+            "publishMs": 7.200000002980232
+          },
+          "probe": {
+            "maxFrameGapMs": 35.400000000000546,
+            "frames": 117,
+            "longTasks": 1,
+            "longestTaskMs": 60
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 4,
+          "settledAt": 6901.4000000059605,
+          "layerId": "lay_43385",
+          "revision": 5,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0.20000000298023224,
+          "workerMs": 1910.5,
+          "postMs": 0.20000000298023224,
+          "commitMs": 55.900000005960464,
+          "storeCommit": {
+            "moveMs": 3.5999999940395355,
+            "validateMs": 8.700000002980232,
+            "publishMs": 5.9000000059604645
+          },
+          "probe": {
+            "maxFrameGapMs": 50,
+            "frames": 116,
+            "longTasks": 1,
+            "longestTaskMs": 61
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 5,
+          "settledAt": 8907.29999999702,
+          "layerId": "lay_86767",
+          "revision": 7,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0.29999999701976776,
+          "workerMs": 1953.2000000029802,
+          "postMs": 0.29999999701976776,
+          "commitMs": 45.8999999910593,
+          "storeCommit": {
+            "moveMs": 3.699999988079071,
+            "validateMs": 4.300000011920929,
+            "publishMs": 5.5999999940395355
+          },
+          "probe": {
+            "maxFrameGapMs": 33.399999999999636,
+            "frames": 119,
+            "longTasks": 1,
+            "longestTaskMs": 51
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 6,
+          "settledAt": 10922.70000000298,
+          "layerId": "lay_130149",
+          "revision": 9,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0.29999999701976776,
+          "workerMs": 1960,
+          "postMs": 0.29999999701976776,
+          "commitMs": 48.79999999701977,
+          "storeCommit": {
+            "moveMs": 4,
+            "validateMs": 4.5,
+            "publishMs": 6.200000002980232
+          },
+          "probe": {
+            "maxFrameGapMs": 33.29999999999927,
+            "frames": 120,
+            "longTasks": 1,
+            "longestTaskMs": 53
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 7,
+          "settledAt": 12969.90000000596,
+          "layerId": "lay_173531",
+          "revision": 11,
+          "anchors": 269996,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 185470,
+            "anchorsHigh": 314242,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0.4000000059604645,
+          "workerMs": 1984.8999999910593,
+          "postMs": 0.30000001192092896,
+          "commitMs": 45.5,
+          "storeCommit": {
+            "moveMs": 3.699999988079071,
+            "validateMs": 4.200000002980232,
+            "publishMs": 5.700000002980232
+          },
+          "probe": {
+            "maxFrameGapMs": 33.29999999999927,
+            "frames": 121,
+            "longTasks": 1,
+            "longestTaskMs": 52
+          }
+        }
+      ],
+      "summary": {
+        "postMs": {
+          "median": 0.29999999701976776,
+          "max": 0.3999999910593033
+        },
+        "commitMs": {
+          "median": 48.79999999701977,
+          "max": 55.900000005960464
+        },
+        "workerMs": {
+          "median": 1953.2000000029802
+        },
+        "maxFrameGapMs": {
+          "median": 33.399999999999636,
+          "max": 50
+        },
+        "longestTaskMs": 61
+      },
+      "export": {
+        "status": "delivered",
+        "jobId": 8,
+        "settledAt": 13267.40000000596,
+        "form": "original",
+        "bytes": 9702722,
+        "bytesDigest": "35bf34ba66acdaee48913dad002581c2849ee978d746b377cc5753eb0c7e7c4b",
+        "queuedMs": 9.599999994039536,
+        "workerMs": 270,
+        "postMs": 9.599999994039536,
+        "snapshotMs": 14.700000002980232,
+        "probe": {
+          "maxFrameGapMs": 17.19999999999891,
+          "frames": 18,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "cancel": {
+        "ok": true,
+        "ackMs": 0
+      },
+      "machine": {
+        "loadavg": [4.96, 7.09, 11.66],
+        "ngspice": 0
+      }
+    },
+    "stress-1M": {
+      "file": "bark-2350.png",
+      "sha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+      "mode": "color",
+      "anchors": 812003,
+      "preview": {
+        "jobId": 10,
+        "metrics": {
+          "dots": 0,
+          "height": 1566,
+          "mode": "color",
+          "paletteSize": 30595,
+          "stats": {
+            "anchors": 812003,
+            "cubics": 766792,
+            "groups": 1,
+            "lines": 0,
+            "paths": 43621,
+            "subpaths": 45211
+          },
+          "timingsMs": {
+            "colorFit": 0,
+            "compose": 2413.7000000029802,
+            "optimize": 19.900000005960464,
+            "preprocess": 18.099999994039536,
+            "scene": 252.5,
+            "segment": 5749.29999999702,
+            "validate": 12.5
+          },
+          "width": 2350
+        },
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 542267,
+          "anchorsHigh": 918761,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "timings": {
+          "segmentMs": 5768.5,
+          "estimateMs": 144.09999999403954,
+          "fitMs": 2735.2000000029802,
+          "parseMs": 8,
+          "wasmCallMs": 8647.79999999702,
+          "svgMs": 780.0999999940395
+        },
+        "roundTripMs": 9512.89999999106,
+        "memoryBytes": 430899200,
+        "svgBytes": 30829700,
+        "responsiveness": {
+          "maxFrameGapMs": 216.59999999999854,
+          "frames": 571,
+          "longTasks": 1,
+          "longestTaskMs": 223
+        },
+        "ready": {
+          "protocolVersion": 2,
+          "buildId": "7444744341723f77",
+          "engineVersion": "0.0.0",
+          "packetVersion": 1,
+          "initMs": 1.7999999970197678,
+          "memoryBytes": 1179648
+        },
+        "handling": {
+          "previewCommitMs": 149.70000000298023,
+          "previewStoreCommit": {
+            "moveMs": 10.200000002980232,
+            "validateMs": 13.799999997019768,
+            "publishMs": 29.600000008940697
+          },
+          "tracePostMs": 1.1000000089406967,
+          "svgSnapshotMs": 43.400000005960464,
+          "svgPostMs": 25.299999997019768
+        },
+        "previewMs": 380.79999999701977,
+        "importToVisibleMs": 10337.40000000596,
+        "previewResponsiveness": {
+          "maxFrameGapMs": 333.40000000000146,
+          "frames": 4,
+          "longTasks": 2,
+          "longestTaskMs": 296
+        }
+      },
+      "finals": [
+        {
+          "status": "committed",
+          "jobId": 12,
+          "settledAt": 33694,
+          "layerId": "lay_3",
+          "revision": 3,
+          "anchors": 812003,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 542267,
+            "anchorsHigh": 918761,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 1,
+          "workerMs": 8639.199999988079,
+          "postMs": 0.9000000059604645,
+          "commitMs": 136,
+          "storeCommit": {
+            "moveMs": 11.200000002980232,
+            "validateMs": 21.400000005960464,
+            "publishMs": 19.099999994039536
+          },
+          "probe": {
+            "maxFrameGapMs": 150.09999999999854,
+            "frames": 520,
+            "longTasks": 1,
+            "longestTaskMs": 156
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 13,
+          "settledAt": 42517.90000000596,
+          "layerId": "lay_104816",
+          "revision": 5,
+          "anchors": 812003,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 542267,
+            "anchorsHigh": 918761,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 1.1000000089406967,
+          "workerMs": 8655.09999999404,
+          "postMs": 1.1000000089406967,
+          "commitMs": 138.40000000596046,
+          "storeCommit": {
+            "moveMs": 11.699999988079071,
+            "validateMs": 23,
+            "publishMs": 18.100000008940697
+          },
+          "probe": {
+            "maxFrameGapMs": 133.3000000000029,
+            "frames": 521,
+            "longTasks": 1,
+            "longestTaskMs": 157
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 14,
+          "settledAt": 51326.29999999702,
+          "layerId": "lay_209629",
+          "revision": 7,
+          "anchors": 812003,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 542267,
+            "anchorsHigh": 918761,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 0.9000000059604645,
+          "workerMs": 8625.699999988079,
+          "postMs": 0.9000000059604645,
+          "commitMs": 146.29999999701977,
+          "storeCommit": {
+            "moveMs": 10.600000008940697,
+            "validateMs": 23.399999991059303,
+            "publishMs": 19.799999997019768
+          },
+          "probe": {
+            "maxFrameGapMs": 18.30000000000291,
+            "frames": 519,
+            "longTasks": 1,
+            "longestTaskMs": 167
+          }
+        }
+      ],
+      "summary": {
+        "postMs": {
+          "median": 0.9000000059604645,
+          "max": 1.1000000089406967
+        },
+        "commitMs": {
+          "median": 138.40000000596046,
+          "max": 146.29999999701977
+        },
+        "workerMs": {
+          "median": 8639.199999988079
+        },
+        "maxFrameGapMs": {
+          "median": 133.3000000000029,
+          "max": 150.09999999999854
+        },
+        "longestTaskMs": 167
+      },
+      "export": {
+        "status": "delivered",
+        "jobId": 15,
+        "settledAt": 52203.59999999404,
+        "form": "original",
+        "bytes": 30829700,
+        "bytesDigest": "feec9fff1afa915ca3246f0e119db3df71181dd3df3beb174adfcec037ff3a8e",
+        "queuedMs": 24.600000008940697,
+        "workerMs": 791.8999999910593,
+        "postMs": 24.600000008940697,
+        "snapshotMs": 35.3999999910593,
+        "probe": {
+          "maxFrameGapMs": 66.59999999999854,
+          "frames": 50,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "cancel": {
+        "ok": true,
+        "ackMs": 0
+      },
+      "machine": {
+        "loadavg": [7.95, 7.59, 11.64],
+        "ngspice": 0
+      }
+    },
+    "source-23.5MP": {
+      "file": "portrait-large-q90.jpg",
+      "sha256": "952dbf0fcbffd41921d18430b7c8ca529d1f217f0cffce371c1895bc4bd14616",
+      "mode": "bw",
+      "anchors": 33182,
+      "preview": {
+        "jobId": 17,
+        "metrics": {
+          "dots": 0,
+          "height": 5415,
+          "mode": "bw",
+          "paletteSize": 1,
+          "stats": {
+            "anchors": 33182,
+            "cubics": 30948,
+            "groups": 1,
+            "lines": 0,
+            "paths": 502,
+            "subpaths": 2234
+          },
+          "timingsMs": {
+            "colorFit": 0,
+            "compose": 1123.7000000029802,
+            "optimize": 0.5,
+            "preprocess": 503,
+            "scene": 0.29999999701976776,
+            "segment": 474,
+            "validate": 0.20000000298023224
+          },
+          "width": 4332
+        },
+        "estimate": {
+          "kind": "range",
+          "anchorsLow": 23671,
+          "anchorsHigh": 44563,
+          "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+        },
+        "timings": {
+          "segmentMs": 984,
+          "estimateMs": 101.09999999403954,
+          "fitMs": 1125.300000011921,
+          "parseMs": 0.3999999910593033,
+          "wasmCallMs": 2210.4000000059605,
+          "svgMs": 27.400000005960464
+        },
+        "roundTripMs": 2251.199999988079,
+        "memoryBytes": 703004672,
+        "svgBytes": 1292733,
+        "responsiveness": {
+          "maxFrameGapMs": 17.19999999999709,
+          "frames": 137,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "ready": {
+          "protocolVersion": 2,
+          "buildId": "7444744341723f77",
+          "engineVersion": "0.0.0",
+          "packetVersion": 1,
+          "initMs": 2.1000000089406967,
+          "memoryBytes": 1179648
+        },
+        "handling": {
+          "previewCommitMs": 3.5,
+          "previewStoreCommit": {
+            "moveMs": 0.10000000894069672,
+            "validateMs": 2.5999999940395355,
+            "publishMs": 0
+          },
+          "tracePostMs": 6.0999999940395355,
+          "svgSnapshotMs": 0.29999999701976776,
+          "svgPostMs": 0.29999999701976776
+        },
+        "previewMs": 29.5,
+        "importToVisibleMs": 2604.7000000029802,
+        "previewResponsiveness": {
+          "maxFrameGapMs": 16.80000000000291,
+          "frames": 2,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "finals": [
+        {
+          "status": "committed",
+          "jobId": 19,
+          "settledAt": 63152,
+          "layerId": "lay_3",
+          "revision": 3,
+          "anchors": 33182,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 23671,
+            "anchorsHigh": 44563,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 6.700000002980232,
+          "workerMs": 2115,
+          "postMs": 6.700000002980232,
+          "commitMs": 1.2000000029802322,
+          "storeCommit": {
+            "moveMs": 0,
+            "validateMs": 0.5999999940395355,
+            "publishMs": 0.09999999403953552
+          },
+          "probe": {
+            "maxFrameGapMs": 17.10000000000582,
+            "frames": 129,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 21,
+          "settledAt": 65290.40000000596,
+          "layerId": "lay_509",
+          "revision": 5,
+          "anchors": 33182,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 23671,
+            "anchorsHigh": 44563,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 10.400000005960464,
+          "workerMs": 2122.7999999970198,
+          "postMs": 5.4000000059604645,
+          "commitMs": 1.300000011920929,
+          "storeCommit": {
+            "moveMs": 0.10000000894069672,
+            "validateMs": 0.7000000029802322,
+            "publishMs": 0
+          },
+          "probe": {
+            "maxFrameGapMs": 17.19999999999709,
+            "frames": 129,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        },
+        {
+          "status": "committed",
+          "jobId": 22,
+          "settledAt": 67455,
+          "layerId": "lay_1015",
+          "revision": 7,
+          "anchors": 33182,
+          "estimate": {
+            "kind": "range",
+            "anchorsLow": 23671,
+            "anchorsHigh": 44563,
+            "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+          },
+          "queuedMs": 5.600000008940697,
+          "workerMs": 2144.7999999970198,
+          "postMs": 5.600000008940697,
+          "commitMs": 3.9000000059604645,
+          "storeCommit": {
+            "moveMs": 0,
+            "validateMs": 3.0999999940395355,
+            "publishMs": 0
+          },
+          "probe": {
+            "maxFrameGapMs": 16.80000000000291,
+            "frames": 129,
+            "longTasks": 0,
+            "longestTaskMs": 0
+          }
+        }
+      ],
+      "summary": {
+        "postMs": {
+          "median": 5.600000008940697,
+          "max": 6.700000002980232
+        },
+        "commitMs": {
+          "median": 1.300000011920929,
+          "max": 3.9000000059604645
+        },
+        "workerMs": {
+          "median": 2122.7999999970198
+        },
+        "maxFrameGapMs": {
+          "median": 17.10000000000582,
+          "max": 17.19999999999709
+        },
+        "longestTaskMs": 0
+      },
+      "export": {
+        "status": "delivered",
+        "jobId": 24,
+        "settledAt": 67494,
+        "form": "original",
+        "bytes": 1292733,
+        "bytesDigest": "1f13daae078a77aa1d5786e698ff81baa4c7e61bde41c36f6663e85750d030a5",
+        "queuedMs": 4.899999991059303,
+        "workerMs": 29.400000005960464,
+        "postMs": 0.29999999701976776,
+        "snapshotMs": 0.4000000059604645,
+        "probe": {
+          "maxFrameGapMs": 16.60000000000582,
+          "frames": 2,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        }
+      },
+      "cancel": {
+        "ok": true,
+        "ackMs": 0
+      },
+      "machine": {
+        "loadavg": [8.49, 7.72, 11.63],
+        "ngspice": 0
+      }
+    }
+  },
+  "diag": {
+    "submitted": 25,
+    "workersCreated": 5,
+    "terminations": 5,
+    "handshakes": 5,
+    "buildMismatches": 0,
+    "startupTimeouts": 0,
+    "startupFailures": 0,
+    "startupRetries": 0,
+    "crashes": 0,
+    "fatalErrors": 0,
+    "recycles": 0,
+    "rejectedBusy": 0,
+    "superseded": 0,
+    "preempted": 2,
+    "cancelled": 3,
+    "succeeded": 20,
+    "failed": 0,
+    "staleGenerationDropped": 0,
+    "wrongGenerationDropped": 0,
+    "unmatchedDropped": 0,
+    "droppedResults": 0,
+    "droppedErrors": 0,
+    "droppedProgress": 0,
+    "settleViolations": 0,
+    "state": "ok",
+    "running": null,
+    "queued": [],
+    "reservedBytes": 0,
+    "lastMemoryBytes": 8060928,
+    "snapshotRefs": 0,
+    "jobRefs": 0
+  },
+  "machineEnd": {
+    "loadavg": [8.49, 7.72, 11.63],
+    "ngspice": 0
+  }
+}
