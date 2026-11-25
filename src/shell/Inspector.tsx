@@ -162,6 +162,7 @@ export function SelectionInspector(p: {
               aria-label="Scale"
               min={10}
               max={400}
+              format={{ style: "unit", unit: "percent" }}
               step={1}
               disabled={locked}
               value={[Math.round(draftScale ?? scalePct)]}

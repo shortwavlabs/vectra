@@ -75,12 +75,11 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
     onDragCancel: ({ active }) => `Move cancelled; ${name(String(active.id))} returned.`,
   };
 
-  const selected = selection.length === 1 ? selection[0]! : null;
+  // Move up/down act on one selected layer, group or source (paths are not listed here).
+  const one = selection.length === 1 ? selection[0]! : null;
+  const selected = one !== null && state.nodesById.get(one)?.kind !== "path" ? one : null;
   const canStep = (step: 1 | -1) =>
-    selected !== null &&
-    state.nodesById.get(selected)?.kind !== "path" &&
-    !isLocked(state, selected) &&
-    stepCommand(state, selected, step) !== null;
+    selected !== null && !isLocked(state, selected) && stepCommand(state, selected, step) !== null;
 
   const row = (id: NodeId, depth: number, handle: boolean) => {
     const n = state.nodesById.get(id)!;

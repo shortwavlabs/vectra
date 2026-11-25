@@ -102,6 +102,7 @@ export default defineConfig({
       "docs/research/p0-r-geo/artifacts/**",
       "docs/research/p0-r-geo/owner-acceptance-bundle-v2/**",
       "docs/mockups/**",
+      "docs/research/g-ui/aria/**",
       // Copied registry sources stay byte-identical to upstream (SHA-256 provenance in
       // src/ui/registry/PROVENANCE.json); they are still linted and type-checked.
       "src/ui/registry/**",
