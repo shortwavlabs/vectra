@@ -1,7 +1,7 @@
 # G-JOB — Scheduler, protocol v2, worker lifecycle and single-build sessions
 
 **Status:** **PARTIAL**, waiting for maintainer review. The scheduler, protocol v2, lifecycle, cancellation, recovery, ownership, export snapshots and single-build service-worker sessions are implemented and pass every functional qualification in Chromium, Firefox and Playwright WebKit, online, offline and across application updates (§6–§9). Two things keep the gate PARTIAL:
-- **Main-thread blocking above 50 ms in job handling** (TD-PERF-010): committing a trace result blocks the main thread above 50 ms at the interactive target in every engine (Chromium 47–57 ms, Firefox 71–77 ms, WebKit 55–63 ms), and at the stress level both the commit and the export snapshot and copy exceed it. Cancel acknowledgement (≤ 1 ms) and job posting (≤ 7 ms at 23.5 MP) meet their targets (§10).
+- **Main-thread blocking above 50 ms in job handling** (TD-PERF-010): committing a trace result blocks the main thread above 50 ms at the interactive target in every engine (Chromium 47–57 ms, Firefox 71–77 ms, WebKit 55–63 ms), and at the stress level both the commit and the export snapshot and copy exceed it. Cancel acknowledgement (30–55 ms from click to "cancelled" shown; the scheduler call itself ≤ 1 ms) and job posting (≤ 7 ms at 23.5 MP) meet their targets (§10).
 - **Real Safari NOT RUN** (owner part; needs `safaridriver` authorisation, TD-PLATFORM-002).
 
 The full P1-A phase is not complete: G-ENG and G-DOC remain PARTIAL as accepted, and G-R0, G-UI and later gates are open.
@@ -38,7 +38,7 @@ The API diff of the full protection object before and after shows exactly these 
 
 ## 3. CI results
 - `main`: see §1.
-- G-JOB PR: see §14 (run ID and result recorded there).
+- G-JOB PR: [shortwavlabs/vectra#15](https://github.com/shortwavlabs/vectra/pull/15); its head and CI run are recorded in the PR description.
 
 ## 4. Outstanding performance exceptions and ownership
 | Item | Status | Owner / gate |
@@ -94,6 +94,8 @@ Recorded in the [decision register §7](../g0/G0-DECISION-REGISTER.md) and the [
 7. The service worker claims pages only on a first install (see §8).
 8. **Render-worker handshake not implemented**: the render worker does not exist until G-R0. The identity check in the scheduler is the one G-R0 must apply (C5).
 9. Not implemented here: `estimate` and `op` request types (G-TRACE, G-EDIT), production export UI (G-EXP).
+12. **Geometry digests are not carried in the protocol.** Trace jobs carry `sourceDigest`; the "relevant geometry digests" belong to `op`/Apply jobs, which do not exist until G-EDIT. Replace staleness uses chunk identity instead (deviation 10).
+13. **The `job` owner kind is unused.** No G-JOB path retains a chunk as `job`: a pending trace owns only its byte reservation, and an export holds `snapshot` references plus its reservation. The tests' "`job` counts return to 0" are therefore trivially true; the `job` kind becomes meaningful with op jobs (G-EDIT).
 10. **Replace staleness compares chunk IDs, not content digests.** Chunks are immutable and IDs are never reused, so a real geometry change is always detected; but re-committing byte-identical geometry under a new chunk ID makes a pending replace of that layer `stale` (conservative: the user is asked). Per-chunk content digests exist only at save time (C1).
 11. Exports reserve the C3 cost of the chunks they will copy (RFC §11.3), so the reservation budget covers export and display copies too.
 
@@ -103,7 +105,7 @@ Unit tests (`vp test`, Node 24.22.1, `vite-plus/test`):
 - **Mutation checks** (at 62 tests): terminating starting workers on cancel → 42 failures; allowing explicit jobs to be pre-empted → 48 failures.
 
 ## 7. Ownership and recovery
-- `src/jobs/controller.test.ts` — **21 tests**: new-layer commit from a job copy; an unrelated edit does not make it stale; undoing the source attachment does; document replacement; replace with a changed vs unchanged target; an invalid packet fails commit validation with the document unchanged; an export frozen before concurrent edits (fill change and deletion); `snapshot` and `job` reference counts return to 0 after delivered, cancelled while running, crash, fatal and engine errors, dispose, cancelled while queued, build mismatch and start-up failure; a `busy` rejection retains and reserves nothing; resource budgets (traces and exports); typed failure for a wrong-type result or unreadable metadata; previews never commit; and a property test (400 random steps) ending with no reservation, no snapshot or job reference and an intact store. Mutation checks (at 19 tests): removing the snapshot release → 8 failures; removing the source check → 1 failure.
+- `src/jobs/controller.test.ts` — **21 tests**: new-layer commit from a job copy; an unrelated edit does not make it stale; undoing the source attachment does; document replacement; replace with a changed vs unchanged target; an invalid packet fails commit validation with the document unchanged; an export frozen before concurrent edits (fill change and deletion); `snapshot` reference counts (and the unused `job` counts, deviation 13) return to 0 after delivered, cancelled while running, crash, fatal and engine errors, dispose, cancelled while queued, build mismatch and start-up failure; a `busy` rejection retains and reserves nothing; resource budgets (traces and exports); typed failure for a wrong-type result or unreadable metadata; previews never commit; and a property test (400 random steps) ending with no reservation, no snapshot or job reference and an intact store. Mutation checks (at 19 tests): removing the snapshot release → 8 failures; removing the source check → 1 failure.
 - Browser (§9): committed geometry, history and provenance are byte-identical (canonical container SHA-256) after six cancels of running traces plus six injected crashes, offline; undo/redo still restore the same digest; failed or cancelled explicit jobs never change the digest; `snapshotRefs` and `reservedBytes` end at 0.
 
 ## 7a. Independent review
@@ -152,23 +154,23 @@ Production build (`vp build`, `_headers` CSP via `vp preview`), Playwright 1.65.
 | P0: `smoke`, `csp`, `privacy`, `workbench`, `offline-recovery`, `precision`, `sw-update` | 17 | pass | pass | pass |
 | `owner-bundle` (bundle v1 regenerated through the workbench, Chromium) | 1 | 14/14 byte-identical | — | — |
 
-**Full run on the final code (`e5b1814`): 99/99 passed** (4.6 min): 33 tests × 3 engines. Artefacts: `docs/research/g-job/artifacts/`. R03 lifecycle diagnostics were identical in all six engine × online/offline runs: 5 workers, 4 terminations, 4 pre-empted previews, 1 crash, 1 fatal error, 1 late error dropped, 0 start-up failures, 0 settle violations. Churn: 4 of 4 runs per engine, one worker per run, no start-up failure.
+**Full run on the final code (`e5b1814`): 99/99 passed** (4.6 min): 33 tests × 3 engines. The PR head `403585c` adds only the perf spec's event logging (gated, not in this run), documentation and whitespace formatting of the JSON artefacts. Artefacts: `docs/research/g-job/artifacts/`. R03 lifecycle diagnostics were identical in all six engine × online/offline runs: 5 workers, 4 terminations, 4 pre-empted previews, 1 crash, 1 fatal error, 1 late error dropped, 0 start-up failures, 0 settle violations. Churn: 4 of 4 runs per engine, one worker per run, no start-up failure.
 
 ## 10. Performance
-**Conditions.** Apple M5 Max (18 cores), macOS. Headed browsers, viewport 1280×720 with Playwright's desktop device defaults (DPR 1; WebKit DPR 2) — not C9's 1280×800 at DPR 2. Main-thread job handling does not depend on the viewport; rendering is out of scope. Production build. **Not quiet:** no `ngspice`, but unrelated CPU-bound processes were running (load average recorded per run). Workloads (local, hashed, from the licensed regression inputs with macOS `sips-316`): `bark-1224.png` `a4629ed3…` (colour, **269,996 anchors**, interactive target), `bark-2350.png` `daa939de…` (colour, **812,003 anchors**, stress; the 1M cap refuses larger), `portrait-large-q90.jpg` `952dbf0f…` (B&W, 23.5 MP source copy). Method: `GJOB_PERF=1 GJOB_PERF_LABEL=run-c pnpm exec playwright test tests/browser/jobs-perf.spec.ts --headed`; 5 / 3 / 3 committed finals per workload (undo between repetitions), one export, one cancel during `fit`; per-step main-thread times from the controller, rAF gaps and Long Tasks (Chromium only; Firefox and WebKit use the rAF probe).
+**Conditions.** Apple M5 Max (18 cores), macOS. Headed browsers, viewport 1280×720 with Playwright's desktop device defaults (DPR 1; WebKit DPR 2) — not C9's 1280×800 at DPR 2. Main-thread job handling does not depend on the viewport; rendering is out of scope. Production build. **Not quiet:** no `ngspice`, but unrelated CPU-bound processes were running (load average recorded per run). Workloads (local, hashed, from the licensed regression inputs with macOS `sips-316`): `bark-1224.png` `a4629ed3…` (colour, **269,996 anchors, 16,056 paths**: at the interactive target's anchor count but with fewer paths than its ~40k, so the per-node part of a commit is smaller here than at the target), `bark-2350.png` `daa939de…` (colour, **812,003 anchors, 43,621 paths**, stress; the 1M cap refuses larger), `portrait-large-q90.jpg` `952dbf0f…` (B&W, 23.5 MP source copy). Method: `GJOB_PERF=1 GJOB_PERF_LABEL=run-c pnpm exec playwright test tests/browser/jobs-perf.spec.ts --headed`; 5 / 3 / 3 committed finals per workload (undo between repetitions), one export, one cancel during `fit`; per-step main-thread times from the controller, rAF gaps and Long Tasks (Chromium only; Firefox and WebKit use the rAF probe).
 
-**Cancellation acknowledgement (≤ 200 ms): met.** 0–1 ms in every engine and workload, at the browsers' coarsened timer resolution (pages are not cross-origin isolated), including cancel during `fit` at 812k anchors; R03 lifecycle runs 0 ms.
+**Cancellation acknowledgement (≤ 200 ms): met.** At the C9 boundary (cancel clicked → "cancelled" shown), `workbench.spec.ts` in the final run (`e5b1814`, `artifacts/*-workbench-cancel.json`): **30 ms** Chromium, **55 ms** Firefox, **33 ms** WebKit, including Playwright's click dispatch. The scheduler's `cancel()` call itself returns in 0–1 ms in every engine and workload (at the browsers' coarsened timer resolution; pages are not cross-origin isolated), including cancel during `fit` at 812k anchors.
 
 **Attributable main-thread blocking (≤ 50 ms): not met.** Run C on the final code (`docs/research/g-job/bench/run-c/`; load average 8.7 → 10.7, five unrelated CPU-bound processes), ranges over the repetitions, ms; run B (`run-b/`, earlier code with the same main-thread steps; load 2.4 → 12.4) agrees within about ±25 %:
 
 | Workload | Step (one task) | Chromium | Firefox | WebKit |
 |---|---|---|---|---|
-| Interactive 270k | trace job copy + post | 0.3–0.4 | 0–1 | 0–1 |
+| Interactive 270k / 16k paths | trace job copy + post | 0.3–0.4 | 0–1 | 0–1 |
 | | **final commit** | **47.2–56.7** (Long Task 62) | **71–77** | **55–63** |
 | | of which store commit (move + validate + publish) | 13.6–20.0 | 20–27 | 18–22 |
 | | export snapshot / post | 15.1 / 9.0 | 17 / 13 | 31 / 19 |
 | | workbench preview commit | **69.5** | **83** | **74** |
-| Stress 812k | **final commit** | **129.5–135.5** (Long Task 156) | **174–238** | **146–151** |
+| Stress 812k / 44k paths | **final commit** | **129.5–135.5** (Long Task 156) | **174–238** | **146–151** |
 | | **export snapshot / post** | 33.8 / 22.4 | **55** / 32 | **89 / 59** |
 | | workbench preview commit | **149** | **185** | **166** |
 | 23.5 MP B&W | job copy + post | 5.1–5.2 | 5–6 | 7 |
@@ -177,14 +179,14 @@ Production build (`vp build`, `_headers` CSP via `vp preview`), Playwright 1.65.
 - The misses are the steps that touch a whole packet or a whole document on the main thread: the commit (about a third is the C2 store commit, the rest is the document transaction's whole-state pass, TD-PERF-007) and the export snapshot (`buildExport`) and copy (`jobCopy`). When the worker is idle, snapshot and post run in the same task.
 - Registered as **TD-PERF-010** (High) for G-TRACE (commit) and G-EXP (export), consistent with the maintainer's obligation that G-TRACE and G-PRJ qualify ≤ 50 ms with bounded scheduling, time slicing or worker preparation. Nothing was rewritten in G-JOB (no store rewrite).
 
-**Other measures** (run C): worker time per final, colour: 1.7–2.0 s at 270k, 7.8–8.6 s at 812k. Workbench preview (trace + SVG) round trip: 2.0–2.4 s at 270k, 8.6–10.0 s at 812k. Run C's first Chromium attempt ended with "execution context was destroyed"; a rerun with navigation and crash logging recorded no event and passed; the cause was not found (`bench/README.md`).
+**Other measures** (run C): worker time per final, colour: 1.7–2.0 s at 270k, 7.8–8.6 s at 812k. Workbench preview (trace + SVG) round trip: 2.0–2.4 s at 270k, 8.6–10.0 s at 812k. Run C's first Chromium attempt ended with "execution context was destroyed"; a rerun with navigation and crash logging recorded no event and passed. The app has no navigation path (`src/` only reads `location.search`); interference with the headed window cannot be ruled out (another user session was logged in). The cause was not found (`bench/README.md`).
 
 ## 11. Regression results
 | Check | Result |
 |---|---|
 | `regression_corpus` (326) and `geo_bundle` (72) on `80a1d1a` | **326/326**, **72/72** identical |
 | Same on the G-JOB branch (`d32f27c`; `crates/` and `packages/` unchanged since `main`) | **326/326**, **72/72** identical |
-| Document export regression (636) on `80a1d1a` and on the G-JOB head (`e5b1814`) | **636/636** both (83.7 s, 55.0 s) |
+| Document export regression (636) on `80a1d1a` and on the G-JOB code (`e5b1814`) | **636/636** both (83.7 s, 55.0 s) |
 | Bundle v1 regenerated through the new workbench path (`OWNER_BUNDLE=1 OWNER_BUNDLE_DIR=…`) | **14/14** files byte-identical to `docs/research/p0-r/owner-acceptance-bundle/` |
 | `vp test` | 337/337, 18 files (the 200-line P0 client test is deleted with the client) |
 | `vp check` | pass |
@@ -209,7 +211,7 @@ Production build (`vp build`, `_headers` CSP via `vp preview`), Playwright 1.65.
 - **Blocker for closing G-JOB:** TD-PERF-010 (main-thread blocking) needs a maintainer decision: accept it as an exception owned by G-TRACE and G-EXP (the work is already obligated there), or require it fixed within G-JOB.
 
 ## 14. Pull request
-See the PR description for the URL, head SHA and CI run.
+[shortwavlabs/vectra#15](https://github.com/shortwavlabs/vectra/pull/15), branch `gate/g-job-scheduler`. The head SHA and the CI run for it are in the PR description (recording them here would change the head).
 
 ## 15. Recommended next gate
 **G-R0** (minimal renderer with worker host): it depends on G-DOC (merged) and on G-JOB's handshake, and it owns the render-worker half of protocol v2 and the display path that replaces the workbench's SVG preview job. **G-UI** can start in parallel. The compact Document v1 follow-up (TD-PERF-009) can run independently on its own branch.
