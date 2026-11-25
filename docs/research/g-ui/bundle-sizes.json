@@ -3,15 +3,15 @@
     "files": [
       {
         "file": "assets/workspace.js",
-        "raw": 382667,
-        "gzip": 127621,
-        "brotli": 108044
+        "raw": 382963,
+        "gzip": 127745,
+        "brotli": 108168
       },
       {
         "file": "assets/scheduler.js",
         "raw": 282398,
         "gzip": 88670,
-        "brotli": 77346
+        "brotli": 77203
       },
       {
         "file": "assets/workspace.css",
@@ -21,9 +21,9 @@
       }
     ],
     "js": {
-      "raw": 665065,
-      "gzip": 216291,
-      "brotli": 185390
+      "raw": 665361,
+      "gzip": 216415,
+      "brotli": 185371
     },
     "css": {
       "raw": 46461,
@@ -37,13 +37,13 @@
         "file": "assets/index.js",
         "raw": 25640,
         "gzip": 8655,
-        "brotli": 7842
+        "brotli": 7833
       },
       {
         "file": "assets/scheduler.js",
         "raw": 282398,
         "gzip": 88670,
-        "brotli": 77346
+        "brotli": 77203
       },
       {
         "file": "assets/index.css",
@@ -55,7 +55,7 @@
     "js": {
       "raw": 308038,
       "gzip": 97325,
-      "brotli": 85188
+      "brotli": 85036
     },
     "css": {
       "raw": 1603,
@@ -66,8 +66,8 @@
   "separate": {
     "compute.worker.js": {
       "raw": 13529,
-      "gzip": 3927,
-      "brotli": 3533
+      "gzip": 3926,
+      "brotli": 3529
     },
     "vector_engine_wasm_bg.wasm": {
       "raw": 646325,
@@ -101,7 +101,7 @@
         "file": "assets/index.js",
         "raw": 307237,
         "gzip": 95893,
-        "brotli": 83544
+        "brotli": 83682
       },
       {
         "file": "assets/index.css",
@@ -113,7 +113,7 @@
     "js": {
       "raw": 307237,
       "gzip": 95893,
-      "brotli": 83544
+      "brotli": 83682
     },
     "css": {
       "raw": 1603,
@@ -137,8 +137,8 @@
     {
       "chunk": "domain",
       "raw": 61945,
-      "gzip": 21072,
-      "brotli": 19038
+      "gzip": 21071,
+      "brotli": 19018
     },
     {
       "chunk": "react-resizable-panels",
@@ -154,9 +154,9 @@
     },
     {
       "chunk": "shell",
-      "raw": 37767,
-      "gzip": 12339,
-      "brotli": 11138
+      "raw": 38062,
+      "gzip": 12467,
+      "brotli": 11241
     },
     {
       "chunk": "cn-cva-clsx",
@@ -179,8 +179,8 @@
     {
       "chunk": "workspace",
       "raw": 698,
-      "gzip": 412,
-      "brotli": 351
+      "gzip": 413,
+      "brotli": 348
     },
     {
       "chunk": "rolldown-runtime",
@@ -191,11 +191,11 @@
   ],
   "summary": {
     "baselineJsGzipKiB": 66.2,
-    "workspaceInitialJsGzipKiB": 211.2,
+    "workspaceInitialJsGzipKiB": 211.3,
     "workspaceInitialCssGzipKiB": 8.2,
-    "additionalOverBaselineJsGzipKiB": 145.1,
+    "additionalOverBaselineJsGzipKiB": 145.2,
     "designSystemJsGzipKiB": 113.8,
-    "shellJsGzipKiB": 12,
+    "shellJsGzipKiB": 12.2,
     "domainJsGzipKiB": 20.6,
     "workbenchInitialJsGzipKiB": 95,
     "workbenchAloneInitialJsGzipKiB": 93.6,

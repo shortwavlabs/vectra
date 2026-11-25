@@ -20,7 +20,7 @@
     - button "Paths view, available with the production renderer" [disabled]: Paths
     - button "Compare view, available with the production renderer" [disabled]: Compare
   - region "Artwork canvas":
-    - paragraph: Interim preview. Click an object to select it (bounding-box hit test); select with the keyboard in the Layers panel.
+    - paragraph: Interim preview. Click a path to select it (bounding-box hit test). With the keyboard, select layers and groups in the Layers panel; single paths are not keyboard-selectable yet.
     - img "Artwork preview, document revision 2"
   - button "Zoom out"
   - text: 123%
@@ -47,7 +47,8 @@
   - button "Rotate 90° counter-clockwise"
   - button "Rotate 90° clockwise"
   - heading "Fill" [level=3]
-  - paragraph: "Fill applies to paths: select a path on the canvas, or use Recolor (R) to edit palette colours."
+  - 'button "Fill colour: #000000. Edit colour"': "#000000"
+  - paragraph: Applies to 80 paths; locked paths are skipped. Uses palette colour ink; Apply sets a custom fill instead. Recolor (R) edits palette colours everywhere.
 - separator "Resize layers"
 - region "Layers":
   - heading "Layers" [level=2]
@@ -70,5 +71,5 @@
   - status
 - contentinfo:
   - text: RGB · Vector document 80 paths · 2107 anchors
-  - status: "Traced hokusai-great-wave-640.jpg: 80 paths, 2107 anchors in 30 ms"
+  - status: "Traced hokusai-great-wave-640.jpg: 80 paths, 2107 anchors in 32 ms"
   - text: "Preview: interim SVG host (ready); production renderer pending Offline ready"

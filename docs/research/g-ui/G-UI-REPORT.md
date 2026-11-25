@@ -1,7 +1,11 @@
 # G-UI — Design-system workspace shell (P1-B)
 
 **Status:** ready for review, 2026-11-25. Branch `gate/g-ui-shell` (base `origin/main` 80a1d1a; `main` be74819, which includes G-JOB, is merged in). Nothing is merged or deployed.
-**Disposition: PARTIAL.** The engineering criteria that can be run here pass. Three items stay open: the VoiceOver smoke test and real Safari are NOT RUN, and the maintainer's visual review is pending. Acceptance needs that review against the mockups.
+**Disposition: PARTIAL.** The engineering criteria that can be run here pass. Four items stay open:
+- the VoiceOver smoke test is NOT RUN;
+- real Safari is NOT RUN (the lead adds the real-Safari G-UI evidence on top of this head);
+- single paths are not keyboard-selectable while the interim host is in place (§5.4); this needs a maintainer decision;
+- the maintainer's visual review against the mockups is pending.
 
 | Gate criterion (G0-P1 plan, G-UI) | Result |
 |---|---|
@@ -11,13 +15,13 @@
 | Accessible slider; owned colour picker with commit/cancel | **PASS** in 3 Playwright engines (§5) |
 | Corrected tokens and the dual focus ring | **PASS**: contrast table from the running build (§5.3) |
 | Notices extended for copied sources and CSS | **PASS**: `pnpm run build` verifies the notices (55 components) |
-| Bundle against the fixed baseline | **PASS**: 113.8 / 8.2 / 211.2 KiB against budgets of 150 / 15 / 250 (§6) |
-| R05-A suite promoted, 3 engines, 0 CSP violations, zero network | **PASS**: 72 passed, 0 failed, 0 flaky; repeat run 144/144 (§7) |
+| Bundle against the fixed baseline | **PASS**: 113.8 / 8.2 / 211.3 KiB against budgets of 150 / 15 / 250 (§6) |
+| R05-A suite promoted, 3 engines, 0 CSP violations, zero network | **PASS**: 75 passed, 0 failed, 0 flaky (§7) |
 | Reduced motion | **PASS** (3 engines) |
 | Screen-reader smoke test (VoiceOver) | **NOT RUN**. Aria snapshots are a proxy only (§8) |
 | Real Safari | **NOT RUN** (Playwright WebKit is not Safari) |
 | Owner visual review against the mockups | **PENDING** (screenshots in §9) |
-| Stop conditions: `unsafe-inline`, a Radix primitive, an unresolved a11y gap | None hit: CSP unchanged, 0 `@radix-ui` packages. The screen-reader gap is open, not waived |
+| Stop conditions: `unsafe-inline`, a Radix primitive, an unresolved a11y gap | `unsafe-inline` and Radix: not hit (CSP unchanged, 0 `@radix-ui` packages). **Accessibility: two gaps are open and not waived**: the screen-reader pass (§8) and keyboard selection of single paths (§5.4). Either needs a fix or an approved exception before acceptance |
 
 ## 1. Stack (exact pins, as DESIGN-SYSTEM §2 / R05-A)
 - **Runtime:** `@base-ui/react` 1.9.0, `@base-ui/utils` 0.5.0, `@dnd-kit/core` 6.3.1, `@dnd-kit/sortable` 10.0.0, `@dnd-kit/modifiers` 9.0.0, `@dnd-kit/utilities` 3.2.2, `react-resizable-panels` 4.24.1, `lucide-react` 1.79.0, `class-variance-authority` 0.7.1, `cn` 0.5.2. React 19.3.1 is unchanged.
@@ -55,7 +59,7 @@
 | Inspector X / Y (numeric) | `applyTransform` with a world translation (P⁻¹·T·P) on the top-level targets. Enter commits; arrows step and coalesce. |
 | Scale slider and numeric field, Reset | `applyTransform` with a uniform scale about the selection centre. A drag commits once on release, Escape cancels the drag, and keyboard steps coalesce. |
 | Rotate 90° (both directions) | `applyTransform` with exact quarter turns about the centre |
-| Fill colour picker (paths) | `setFill` with the alpha kept; one commit on Apply |
+| Fill colour picker (selected paths, or the unlocked paths inside selected layers and groups) | `setFill` with the first target's alpha kept; one commit on Apply. The inspector states how many paths it affects and when their fills differ |
 | Recolor tool: palette colours | `setPaletteColor`; one commit on Apply |
 | Undo / Redo (buttons, Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z, Ctrl+Y) | `session.undo()` / `redo()` |
 
@@ -90,6 +94,13 @@
 10. **Workbench chunking:** with two inputs, the workbench loads `index-*.js` plus a shared chunk (`scheduler-*.js`: React, document, jobs). Its code is unchanged, and the initial gzip JS goes from 93.6 to 95.0 KiB (+1.4 KiB of chunk overhead, §6).
 11. **Hit testing:** the interim hit test uses bounding boxes (smallest containing box, visible and unlocked paths). This is disclosed in the canvas's accessible description and replaced by G-R0/G-R1 exact hit testing.
 12. **No source layer on import:** traces commit without attaching the source (see §2). The mockup's "Original image · locked" row arrives with a renderer that can show it (G-R1).
+
+## 3a. File ownership
+- **Owned and changed:** `workspace.html`, `src/shell/**`, `src/ui/**`, `src/canvas-host/types.ts` (the agreed copy), `tests/browser/ui-*.spec.ts` and `ui-helpers.ts`, `docs/research/g-ui/**`, `vite.config.ts`, `package.json`, `pnpm-lock.yaml`, the notices script and supplements, and the regenerated `public/THIRD-PARTY-NOTICES.txt`.
+- **Docs edited as instructed:** the TD-UI-* rows and sections of `docs/TECHNICAL-DEBT.md` only (Counts untouched).
+- **Outside both lists, changed and disclosed:** `scripts/check-dist.mjs` (two allowed URL strings, §3 item 8) and `docs/DESIGN-SYSTEM.md` (a new §12 recording the deviations; §1–§11 untouched).
+- **Forbidden paths untouched:** `git diff origin/main` is empty for `index.html`, `src/main.tsx`, `src/App.tsx`, `src/workspace`, `src/jobs`, `src/renderer`, `src/document`, `src/persistence`, `scripts/generate-sw.mjs`, `public/_headers`, `playwright.config.ts`, `tsconfig.app.json` and every pre-existing spec under `tests/browser/`.
+- **Needed change outside G-UI (not made):** `tests/browser/sw-update-lifecycle.spec.ts` line 368 expects the precache to hold `assets + 2` files (`index.html` and the notices). With `workspace.html` it holds `assets + 3`, so that test fails in Chromium and Firefox on this branch (§7). The fix is to count the HTML pages, for example `+ 3`, or to derive the count from `dist/`.
 
 ## 4. Canvas-host interface
 - `src/canvas-host/types.ts` is byte-identical to the agreed file (SHA-256 `c9a3006054e0a0ec53ff398c3445e722d292bac0adf1c833a0257834debdf02c`, `cmp` clean).
@@ -143,14 +154,20 @@
 - **Measured on real elements** (computed colours, 3 engines, identical): X input border against the panel 3.70; slider track against the panel 3.70; resize grip against the background 4.05.
 - The light and dark OS colour schemes produce identical computed colours.
 
+### 5.4 Open keyboard gap: single paths
+- The Layers panel lists layers and groups, not paths (a trace has hundreds; DESIGN-SYSTEM §3). Only a canvas click (interim box hit test) selects a single path.
+- By keyboard, the fill and transform of a layer or group are reachable (tested: Layers row, Enter, Fill picker, Apply recolours every unlocked path of the layer). The per-path fill and transform are not.
+- The canvas's accessible description says so.
+- Fix path: keyboard object navigation on the canvas with the G-R0/G-R1 renderer (exact hit testing), or a virtualised path list. Until then this is an open gap, not a waiver.
+
 ## 6. Bundle (gzip -9; `node docs/research/g-ui/measure-bundle.mjs` → `bundle-sizes.json`)
 | | Measured | Budget |
 |---|---|---|
 | Baseline: minimal React 19.3.1 app, same toolchain | 66.2 KiB JS (R05-A also measured 66.2) | — |
 | **Additional design-system JS** (Base UI with Floating UI and friends 62.4, react-resizable-panels 15.0, dnd-kit 14.5, cn/cva/clsx 10.8, owned and copied `src/ui` 7.5, lucide 3.5) | **113.8 KiB** (R05-A harness: +121.9) | ≤ 150 KiB, **PASS** |
 | **Design-system CSS** (Tailwind preflight and utilities, tokens) | **8.2 KiB** (46.5 KiB raw) | ≤ 15 KiB, **PASS** |
-| **Total initial UI JS** of `workspace.html` (React 65.8, design system, shell 12.0, document and jobs 20.6) | **211.2 KiB** (665 KiB raw) | ≤ 250 KiB, **PASS** |
-| Additional JS over the baseline, everything (design system, shell, domain) | 145.1 KiB | — |
+| **Total initial UI JS** of `workspace.html` (React 65.8, design system, shell 12.2, document and jobs 20.6) | **211.3 KiB** (665 KiB raw) | ≤ 250 KiB, **PASS** |
+| Additional JS over the baseline, everything (design system, shell, domain) | 145.2 KiB | — |
 | WASM (separate) | 253.8 KiB gzip / 646.3 KiB raw | not in the UI budget |
 | Compute worker (separate) | 3.9 KiB gzip | not in the UI budget |
 | Lazy chunks | none (nothing is lazy-loaded) | — |
@@ -163,11 +180,12 @@ Chromium 159.0.8154.6, Firefox 159.0 and Playwright WebKit 27.2. **Playwright We
 
 | Run (final head) | Result |
 |---|---|
-| `pnpm exec playwright test ui-` (3 engines) | **72 passed**, 6 skipped (screenshot spec, Chromium-only and opt-in), 0 failed, 0 flaky, 46.2 s. Every test asserts 0 CSP violations, 0 console errors and 0 off-host requests |
-| `… ui-shell ui-document --repeat-each=2` | **144/144**, 1.5 min |
-| P0 regression `smoke csp privacy offline-recovery` (3 engines) | **21/21**, 39.3 s |
-| `pnpm exec vp check` | pass: 236 files formatted; 131 files with no lint or type issues |
-| `pnpm exec vp test` | 21 files, **348/348** (adds `src/shell/document.test.ts`, `src/ui/color.test.ts`, `src/ui/supply-chain.test.ts`) |
+| `pnpm exec playwright test ui-` (3 engines) | **75 passed**, 6 skipped (screenshot spec, Chromium-only and opt-in), 0 failed, 0 flaky, 47.2 s. Every test asserts 0 off-host requests; every test except the positive control (which expects them) asserts 0 CSP violations and 0 console errors |
+| `… ui-shell ui-document --repeat-each=2`, at the earlier head `c85c5c8` (before the keyboard-fill change) | **144/144**, 1.5 min |
+| P0 regression `smoke csp privacy offline-recovery` (3 engines) | **21/21**, 39.5 s |
+| Workbench and G-JOB suites `workbench jobs-adversarial jobs-lifecycle sw-update sw-update-lifecycle` (3 engines; `jobs-perf` not run) | **81 passed, 3 failed**, 3.8 min. The failure is the same test in all 3 engines: `sw-update-lifecycle.spec.ts:368` expects `assets + 2` precached files and gets `assets + 3`, because `workspace.html` is now precached (expected 9, got 10). The spec hard-codes one HTML page and is not G-UI's to change (§3a). The other 27 tests per engine pass, including the update and offline lifecycles |
+| `pnpm exec vp check` | pass: 239 files formatted; 131 files with no lint or type issues |
+| `pnpm exec vp test` | 21 files, **349/349** (adds `src/shell/document.test.ts`, `src/ui/color.test.ts`, `src/ui/supply-chain.test.ts`) |
 | `pnpm run build` | pass: WASM build, notices verified (55 components), `sw.js` (10 precached files), `check-dist` passed |
 
 **Specs.**
@@ -175,13 +193,13 @@ Chromium 159.0.8154.6, Firefox 159.0 and Playwright WebKit 27.2. **Playwright We
   - CSP equality, clean load, the scrollbar rule, and the negative and positive controls;
   - tool rail; shortcuts dialog; shortcut guards; resizable panels;
   - reduced motion; tokens, contrast and focus ring.
-- `tests/browser/ui-document.spec.ts` (16 tests):
+- `tests/browser/ui-document.spec.ts` (17 tests):
   - import (keyboard-opened chooser, no upload);
   - layers; selection and Delete;
-  - slider (keyboard), slider (pointer and Escape), numeric field, colour picker, recolor;
+  - slider (keyboard), slider (pointer and Escape), numeric field, colour picker, keyboard-only layer fill, recolor;
   - export; offline import, trace, edit and export;
   - drop, cancel and failure;
-  - layer menu; row width; zoom, fit, rotate and reset; preview catch-up;
+  - layer menu; row width; zoom and fit (buttons and +, −, Shift+1), rotate and reset; preview catch-up;
   - control contrast and colour-scheme independence.
 - `tests/browser/ui-screenshots.spec.ts`: evidence only, with `UI_SCREENSHOTS=1`.
 - Per-test results and annotations: `browser-results.json`.
@@ -215,6 +233,8 @@ Chromium 159.0.8154.6, Firefox 159.0 and Playwright WebKit 27.2. **Playwright We
 - An offline reload of `workspace.html`. Offline after load is tested, and the G-JOB service worker serves precached `.html` shells.
 - The coalescing window length (1000 ms) as a usability parameter.
 - Exact hit testing and the Paths/Compare views (renderer gates).
+- Keyboard selection of single paths (an open gap, §5.4).
+- `jobs-perf.spec.ts` (benchmark; not a regression gate here).
 - Owner visual review.
 
 ## 11. Technical debt (TD-UI-*)
@@ -232,8 +252,10 @@ No new debt item was added. The interim host and box hit test are G-R1 scope, an
 ## 12. For the lead at integration
 - **Conflict points:** `package.json`, `pnpm-lock.yaml`, `vite.config.ts` (Tailwind plugin, two inputs, `workspace.html` in `buildId()`, fmt and lint entries), `public/THIRD-PARTY-NOTICES.txt` (regenerate after merging), `scripts/generate-notices.mjs`, `scripts/check-dist.mjs`.
 - **G-R0:** `src/canvas-host/types.ts` is identical on both branches. Replace `InterimCanvasHost` in `src/shell/Workspace.tsx` (one element) and drop `renderSvg`.
-- **Service worker:** `scripts/generate-sw.mjs` is unchanged; `workspace.html` is precached. No change is needed.
-- **Workbench:** its scripts are now split into `index-*.js` plus a shared chunk. Behaviour and P0 suites are unchanged (21/21).
+- **Service worker:** `scripts/generate-sw.mjs` is unchanged and needs no change; `workspace.html` is precached.
+- **`tests/browser/sw-update-lifecycle.spec.ts:368`** must count the HTML pages (`assets + 3`, or derive the count from `dist/`). Until then it fails in all 3 engines on this branch (§7).
+- **Workbench:** its scripts are now split into `index-*.js` plus a shared chunk. The P0 suites (21/21) and the workbench and G-JOB suites (81/84; the 3 failures are the precache count above) pass.
+- **Real Safari:** the lead adds the real-Safari G-UI evidence on top of this head.
 - **Port:** the default Playwright config (port 4173) also picks up `ui-*.spec.ts`. Those specs need nothing beyond the production build.
 
 ## 13. Reproduction and environment
@@ -249,5 +271,5 @@ node docs/research/g-ui/measure-bundle.mjs > docs/research/g-ui/bundle-sizes.jso
 
 **Environment.**
 - macOS 26.6.2 (25G83), arm64; Node 24.22.1; pnpm 12.23.0; vp 1.7.0 (vite-plus-core 8.3.8000); TypeScript 7.0.2; Playwright 1.65.1; Rust per `rust-toolchain.toml`; wasm-bindgen 0.2.130.
-- Machine load (`uptime`): 1.96–3.54 (1-minute load average) during the final runs, from 11:28 to 11:34. Other projects were running; no process was touched.
-- All runs used the final source head `c85c5c8`; later commits change only test dead code, the screenshot spec and docs.
+- Machine load (`uptime`): 0.82–1.96 (1-minute load average) during the final runs, from 11:40 to 11:50. Other projects were running; no process was touched.
+- The final runs used source head `b9ad382` (before the commit-message reword; trees are identical). Later commits add only docs and evidence.

@@ -20,7 +20,7 @@
     - button "Paths view, available with the production renderer" [disabled]: Paths
     - button "Compare view, available with the production renderer" [disabled]: Compare
   - region "Artwork canvas":
-    - paragraph: Interim preview. Click an object to select it (bounding-box hit test); select with the keyboard in the Layers panel.
+    - paragraph: Interim preview. Click a path to select it (bounding-box hit test). With the keyboard, select layers and groups in the Layers panel; single paths are not keyboard-selectable yet.
   - heading "Import an image to start" [level=2]
   - paragraph: PNG, JPEG or WebP, traced on this device with the Black & White preset. Drop a file here or choose one.
   - button "Choose image…"
