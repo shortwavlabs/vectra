@@ -40,9 +40,11 @@ export interface LayersPanelProps {
   selection: readonly NodeId[];
   onSelect: (ids: readonly NodeId[], mode: "replace" | "toggle") => void;
   run: (c: Command | Command[]) => void;
+  /** Deletes through the shell's lock policy (refused while a locked descendant remains). */
+  onDelete: (ids: readonly NodeId[]) => void;
 }
 
-export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProps) {
+export function LayersPanel({ state, selection, onSelect, run, onDelete }: LayersPanelProps) {
   const [expanded, setExpanded] = useState<ReadonlySet<NodeId>>(new Set());
   const [renaming, setRenaming] = useState<NodeId | null>(null);
   if (!state)
@@ -218,7 +220,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
             <DropdownMenuItem
               disabled={locked}
               variant="destructive"
-              onClick={() => run({ type: "delete", ids: [id] })}
+              onClick={() => onDelete([id])}
             >
               Delete
             </DropdownMenuItem>

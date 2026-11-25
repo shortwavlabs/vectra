@@ -63,6 +63,40 @@ export function transformable(s: DocState, ids: readonly NodeId[]): boolean {
   return top.length > 0 && top.every((id) => !isLocked(s, id) && !containsLocked(s, id));
 }
 
+/** Locked nodes in a subtree (each node whose own lock is set). */
+function lockedIn(s: DocState, id: NodeId): number {
+  const n = s.nodesById.get(id);
+  if (!n) return 0;
+  const own = n.locked ? 1 : 0;
+  return isContainer(n) ? own + n.orderedChildIds.reduce((k, c) => k + lockedIn(s, c), 0) : own;
+}
+
+/** The shell's deletion policy (maintainer review, G-R1). A lock protects an object from deletion
+ *  as it does from transforms: deleting a container that holds locked descendants would delete
+ *  them with it, so the whole deletion is refused with an explanation until they are unlocked.
+ *  Directly locked items in the selection are kept (not deleted) and reported. Commands do not
+ *  enforce locks; every delete entry point in the shell goes through this. */
+export function planDeletion(
+  s: DocState,
+  ids: readonly NodeId[],
+): { refused: string } | { ids: NodeId[]; kept: number } {
+  const top = topLevel(s, ids);
+  const rest = top.filter((id) => !isLocked(s, id));
+  const blocking = rest.filter((id) => containsLocked(s, id));
+  if (blocking.length) {
+    const n = blocking.reduce((k, id) => k + lockedIn(s, id), 0);
+    const holder =
+      blocking.length === 1
+        ? `"${displayName(s.nodesById.get(blocking[0]!)!, s)}" contains`
+        : `${blocking.length} selected items contain`;
+    const objects = n === 1 ? "1 locked object" : `${n} locked objects`;
+    return {
+      refused: `Not deleted: ${holder} ${objects}. Unlock ${n === 1 ? "it" : "them"} to delete.`,
+    };
+  }
+  return { ids: rest, kept: top.length - rest.length };
+}
+
 export function isVisible(s: DocState, id: NodeId): boolean {
   const par = parents(s);
   for (let n: NodeId | null = id; n !== null; n = par.get(n) ?? null)
