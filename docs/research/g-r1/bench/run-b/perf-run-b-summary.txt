@@ -1,0 +1,66 @@
+
+== chromium 159.0.8154.6 viewport {'width': 1280, 'height': 720} dpr 1 load [1.45, 1.51, 1.6] -> [1.75, 1.57, 1.62] ngspice 0
+ synthetic-many-250k            preview 145.9 exact 130.4 first 83.8 drawR 75.4 pathB 142.1 eval 11.2 snap 4 copy 0.7 post 7.1 load 123.1
+   present displayed canvas vis 147.3 afterMsg 1.4 | loadMain max 114.7 longest 123
+   hit ready 50.8 slices 8 maxSlice 4 cold 23.4 readyBefore False warmP95 0.004999999701976776
+   pan p95 18.5 max 18.6 settle 54.9 | zoom p95 18.5 max 18.6 settle 51.7
+   drag layers start 27.1 frames 61 lag 3.1 raf p95 18.4 max 18.6 mainMax 18.6 layers 3 3.6MiB settle 91.1 | recovery 83.1
+ bark-1224                      preview 104.6 exact 92.4 first 69.3 drawR 55.2 pathB 96 eval 5.4 snap 2.1 copy 0.7 post 2.6 load 133.7
+   present displayed canvas vis None afterMsg None | loadMain max 116.7 longest 133
+   hit ready 35.6 slices 6 maxSlice 4.1 cold 16.2 readyBefore False warmP95 0.015000000596046448
+   pan p95 18.5 max 18.6 settle 30.3 | zoom p95 17.8 max 18.5 settle 28.6
+   drag layers start 17.1 frames 61 lag 2.6 raf p95 18.5 max 18.6 mainMax 18.6 layers 3 3.6MiB settle 71.5 | recovery 71.4
+ bark-2350                      preview 298.2 exact 283.1 first 95.2 drawR 191.3 pathB 1013.4 eval 12.3 snap 5.3 copy 2 post 7.7 load 296
+   present displayed canvas vis 304.9 afterMsg 6.7 | loadMain max 283.4 longest 296
+   hit ready 95.5 slices 16 maxSlice 4.4 cold 66.3 readyBefore False warmP95 0.020000000298023225
+   pan p95 18.5 max 18.6 settle 73.7 | zoom p95 16.8 max 17.7 settle 75
+   drag layers start 52.2 frames 61 lag 3 raf p95 18.5 max 18.6 mainMax 33.4 layers 3 3.6MiB settle 133.9 | recovery 215.4
+ architecture-street-halftone   preview 280.7 exact 269.4 first 269.4 drawR 0 pathB 0 eval 0 snap 0.1 copy 2.4 post 0.2 load 68.6
+   present displayed canvas vis 291.5 afterMsg 10.8 | loadMain max 50 longest 68
+   hit ready 89.8 slices 18 maxSlice 6.9 cold 69.2 readyBefore False warmP95 0.004999999701976776
+   pan p95 18.5 max 18.6 settle 6 | zoom p95 18.6 max 18.7 settle 5.3
+   drag layers start 11.2 frames 61 lag 3.5 raf p95 18.5 max 18.6 mainMax 18.6 layers 3 5.0MiB settle 16.4 | recovery 237.3
+
+== firefox 159.0 viewport {'width': 1280, 'height': 720} dpr 1 load [1.75, 1.57, 1.62] -> [2.52, 1.76, 1.69] ngspice 0
+ synthetic-many-250k            preview 270 exact 248 first 104 drawR 160 pathB 657 eval 10 snap 7 copy 1 post 15 load 145
+   present displayed canvas vis 252.6 afterMsg -17.4 | loadMain max 116.7 longest 0
+   hit ready 113 slices 9 maxSlice 9 cold 28 readyBefore False warmP95 0
+   pan p95 18.1 max 18.6 settle 55 | zoom p95 16.9 max 18.2 settle 52
+   drag layers start 36 frames 61 lag 5 raf p95 18.0 max 18.5 mainMax 38.6 layers 3 3.6MiB settle 127 | recovery 164
+ bark-1224                      preview 204 exact 192 first 71 drawR 140 pathB 341 eval 4 snap 2 copy 1 post 6 load 136
+   present displayed canvas vis 203.7 afterMsg -0.3 | loadMain max 100 longest 0
+   hit ready 86 slices 8 maxSlice 4 cold 27 readyBefore False warmP95 0.05
+   pan p95 18.5 max 18.6 settle 79 | zoom p95 18.5 max 18.7 settle 60
+   drag layers start 40 frames 61 lag 3 raf p95 18.5 max 18.5 mainMax 30.4 layers 3 3.6MiB settle 106 | recovery 148
+ bark-2350                      preview 582 exact 560 first 114 drawR 411 pathB 3540 eval 13 snap 6 copy 4 post 14 load 327
+   present displayed canvas vis 573.0 afterMsg -9.0 | loadMain max 233.3 longest 0
+   hit ready 180 slices 18 maxSlice 11 cold 92 readyBefore False warmP95 0.05
+   pan p95 18.2 max 18.5 settle 137 | zoom p95 18.2 max 18.6 settle 119
+   drag layers start 92 frames 61 lag 4 raf p95 18.5 max 18.5 mainMax 38.2 layers 3 3.6MiB settle 218 | recovery 429
+ architecture-street-halftone   preview 842 exact 832 first 832 drawR 0 pathB 0 eval 0 snap 0 copy 2 post 0 load 75
+   present displayed canvas vis 14.5 afterMsg -827.5 | loadMain max 833.3 longest 0
+   hit ready 896 slices 20 maxSlice 4 cold 68 readyBefore False warmP95 0
+   pan p95 18.3 max 18.5 settle 171 | zoom p95 18.6 max 18.7 settle 169
+   drag layers start 230 frames 61 lag 2 raf p95 18.2 max 18.7 mainMax 18.7 layers 3 5.0MiB settle 88 | recovery 624
+
+== webkit 27.2 viewport {'width': 1280, 'height': 720} dpr 2 load [2.52, 1.76, 1.69] -> [2.02, 1.7, 1.66] ngspice 0
+ synthetic-many-250k            preview 147 exact 130 first 88 drawR 75 pathB 137 eval 14 snap 3 copy 1 post 13 load 148
+   present displayed canvas vis 151 afterMsg 4 | loadMain max 128 longest 0
+   hit ready 74 slices 13 maxSlice 5 cold 42 readyBefore False warmP95 0
+   pan p95 18 max 23 settle 57 | zoom p95 18 max 19 settle 27
+   drag layers start 18 frames 61 lag 3 raf p95 18 max 19 mainMax 23 layers 3 14.5MiB settle 118 | recovery 83
+ bark-1224                      preview 116 exact 101 first 79 drawR 52 pathB 91 eval 7 snap 2 copy 0 post 5 load 123
+   present displayed canvas vis None afterMsg None | loadMain max 102 longest 0
+   hit ready 54 slices 10 maxSlice 4 cold 34 readyBefore False warmP95 0.05
+   pan p95 18 max 19 settle 56 | zoom p95 18 max 18 settle 52
+   drag layers start 17 frames 61 lag 3 raf p95 18 max 19 mainMax 19 layers 3 14.5MiB settle 85 | recovery 74
+ bark-2350                      preview 296 exact 279 first 114 drawR 187 pathB 955 eval 23 snap 4 copy 1 post 14 load 304
+   present displayed canvas vis 304 afterMsg 8 | loadMain max 247 longest 0
+   hit ready 130 slices 26 maxSlice 4 cold 95 readyBefore False warmP95 0.05
+   pan p95 18 max 19 settle 101 | zoom p95 18 max 19 settle 99
+   drag layers start 65 frames 61 lag 3 raf p95 18 max 18 mainMax 26 layers 3 14.5MiB settle 183 | recovery 203
+ architecture-street-halftone   preview 247 exact 235 first 235 drawR 0 pathB 0 eval 0 snap 0 copy 2 post 0 load 62
+   present unsupported in this engine vis None afterMsg None | loadMain max 97 longest 0
+   hit ready 71 slices 17 maxSlice 4 cold 58 readyBefore False warmP95 0
+   pan p95 19 max 140 settle 76 | zoom p95 19 max 92 settle 74
+   drag layers start 99 frames 61 lag 3 raf p95 18 max 19 mainMax 19 layers 3 19.8MiB settle 60 | recovery 192

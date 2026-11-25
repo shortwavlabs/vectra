@@ -1,0 +1,49 @@
+{
+  "synthetic-many-250k": {
+    "input": "tests/output/rfc-002-review/scenes/synthetic-many-250k.scene.json",
+    "inputSha256": "46280a24968b63f4f8ce3729b46212d7642911076d153bd113be5a56a4981b3c",
+    "containerSha256": "0bc510d1c3fe62fe8be74d0a7008c46f95b9717864d62c58b6e8fc6334acab13",
+    "containerBytes": 3455756,
+    "width": 4000,
+    "height": 3000,
+    "paths": 41853,
+    "anchors": 250000,
+    "subpaths": 50000,
+    "provenanceMode": "color (metadata only; scene params are empty)"
+  },
+  "architecture-street-halftone": {
+    "input": "tests/output/regression-a4cf172/architecture-street-halftone.scene.json",
+    "inputSha256": "482181c827c32c7a6fb6969bbe515beea8e34fca4e7a72fa5b5888c0d68d4e2b",
+    "containerSha256": "d01b050d20a6247f59e388ee722e870bc107a9a56a7740f5b3bcb831a6f9c5d1",
+    "containerBytes": 10039710,
+    "width": 4080,
+    "height": 3060,
+    "paths": 1,
+    "anchors": 977505,
+    "subpaths": 195501
+  },
+  "bark-1224": {
+    "input": "tests/output/g-job-workloads/bark-1224.png",
+    "inputSha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+    "containerSha256": "db61246e467e1fd5793ffd9027c119e135b2821df48343657d58c1294c987d17",
+    "containerBytes": 4544646,
+    "width": 1224,
+    "height": 816,
+    "paths": 16056,
+    "anchors": 269996,
+    "subpaths": 16357,
+    "trace": "Full Colour defaults (DEFAULT_SETTINGS.color), seed 1"
+  },
+  "bark-2350": {
+    "input": "tests/output/g-job-workloads/bark-2350.png",
+    "inputSha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+    "containerSha256": "a3181da441835f61684d2d8b6c208444a2eff4a61c38a5ed00a889ac3749c458",
+    "containerBytes": 13151909,
+    "width": 2350,
+    "height": 1566,
+    "paths": 43621,
+    "anchors": 812003,
+    "subpaths": 45211,
+    "trace": "Full Colour defaults (DEFAULT_SETTINGS.color), seed 1"
+  }
+}
