@@ -6,11 +6,7 @@
   },
   "dpr": 1,
   "machineStart": {
-    "loadavg": [
-      9.48,
-      9.25,
-      9.46
-    ],
+    "loadavg": [9.48, 9.25, 9.46],
     "ngspice": 0
   },
   "workloads": {
@@ -284,11 +280,7 @@
         "ackMs": 0
       },
       "machine": {
-        "loadavg": [
-          9.75,
-          9.32,
-          9.48
-        ],
+        "loadavg": [9.75, 9.32, 9.48],
         "ngspice": 0
       }
     },
@@ -496,11 +488,7 @@
         "ackMs": 0
       },
       "machine": {
-        "loadavg": [
-          10.16,
-          9.49,
-          9.54
-        ],
+        "loadavg": [10.16, 9.49, 9.54],
         "ngspice": 0
       }
     },
@@ -708,11 +696,7 @@
         "ackMs": 0
       },
       "machine": {
-        "loadavg": [
-          10.13,
-          9.5,
-          9.54
-        ],
+        "loadavg": [10.13, 9.5, 9.54],
         "ngspice": 0
       }
     }
@@ -751,11 +735,7 @@
     "jobRefs": 0
   },
   "machineEnd": {
-    "loadavg": [
-      10.13,
-      9.5,
-      9.54
-    ],
+    "loadavg": [10.13, 9.5, 9.54],
     "ngspice": 0
   }
 }

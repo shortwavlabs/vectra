@@ -1,12 +1,6 @@
 {
   "priorities": {
-    "order": [
-      "f1",
-      "e1",
-      "e2",
-      "f2",
-      "p2"
-    ],
+    "order": ["f1", "e1", "e2", "f2", "p2"],
     "outcomes": {
       "p1": {
         "status": "cancelled",
