@@ -70,6 +70,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PERF-008](#td-perf-008) | WASM copy-out at 1M anchors above 2 ms | Limitation (measured; accepted exception) | Low | OPEN | quiet re-run | performance follow-up |
 | [TD-PERF-009](#td-perf-009) | Document v1 open above 1 s at 250k paths | Limitation (measured; accepted exception) | Medium | OPEN | before G-PRJ and public Document v1 | compact Document v1 follow-up |
 | [TD-PERF-010](#td-perf-010) | Job handling blocks the main thread above 50 ms | Defect (budget not met, measured; accepted temporary exception) | **High** | OPEN | G-R1, G-TRACE, G-EXP, G-PRJ | G-TRACE/G-EXP/G-PRJ |
+| [TD-PERF-011](#td-perf-011) | History retains a full node-map table per entry | Limitation (measured) | **High** | OPEN | G-EDIT | G-EDIT |
 | [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
 | [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
 | [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
@@ -103,6 +104,7 @@ Counts:
 - **G-DOC (2026-11-25):** one item added, TD-PERF-007 (High, gate G-EDIT): 38 open items and 13 High on this branch; 39 open and 13 High once G-ENG's TD-PLATFORM-007 (Medium) is also merged. None is closed by G-DOC.
 - **P1-A foundation acceptance and G-JOB (2026-11-25):** three items added. TD-PERF-008 (Low) and TD-PERF-009 (Medium) register the accepted P1-A performance exceptions ([decision register §7](research/g0/G0-DECISION-REGISTER.md)); TD-PERF-010 (High) is measured by G-JOB. **42 open items, 14 High.** None is closed by G-JOB: every G-JOB item still needs real Safari (TD-PLATFORM-002) or a later gate.
 - **G-R0/G-UI acceptance (2026-11-25):** TD-REN-001 **closed** by maintainer approval. **41 open items, 13 High.** No item added. Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and keyboard path selection are qualified.
+- **G-R1 (2026-11-25):** one item added, TD-PERF-011 (High, measured by the TD-PERF-007 investigation). **42 open items, 14 High.** None is closed by G-R1. TD-REN-003 has met its closure criteria on the reference machine and TD-REN-004 in substance; both are proposed for closure, maintainer to confirm.
 
 ---
 
@@ -388,6 +390,7 @@ Counts:
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) finding 4, [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md).
 - **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R02: Canvas 2D + cache + worker host) / IMPLEMENTATION PENDING**; gate G-R0 (architecture), G-R1 (closure candidate); closure: RFC §17 budgets on the reference machine **and** lower-end devices; real Safari or a documented restriction; owner action: Yes: lower-end hardware access; Safari authorisation. Renderer decided (D04).
 - **G-R0 disposition (2026-11-25), first part:** retained Canvas 2D in an OffscreenCanvas worker with the display cache. At 270k anchors / 16k paths the exact frame takes 96 / 181 / 103 ms (Chromium / Firefox / Playwright WebKit) and 116 ms in real Safari: the ≤ 100 ms preview target is met only in Chromium. Gestures p95 18–19 ms everywhere, main thread ≤ 21 ms during gestures. Closure stays with G-R1 and lower-end hardware. [G-R0 report](research/g-r0/G-R0-REPORT.md).
+- **G-R1 disposition (2026-11-25):** measured on the registered interactive target (synthetic-many-250k: 250,000 anchors, 41,853 paths), validated document to exact frame: **146 / 270 / 147 ms** (Chromium / Firefox / Playwright WebKit). **NOT MET**; covered by the temporary exception accepted at G-R0. Per the G-R1 stop condition this needs an owner decision; no target is lowered. Path construction (137–657 ms summed) and progressive drawing dominate. Lower-end hardware NOT RUN. [G-R1 report](research/g-r1/G-R1-REPORT.md).
 
 <a id="td-perf-002"></a>
 ### TD-PERF-002 — Late geometry budget enforcement
@@ -614,6 +617,7 @@ Counts:
 - **References:** [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [OWNER-ACCEPTANCE-CHECKLIST (P0-R) §C](research/p0-r/OWNER-ACCEPTANCE-CHECKLIST.md).
 - **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate G-JOB, G-UI, G-R1 (owner parts); closure: Real Safari coverage per G0-P1-IMPLEMENTATION-PLAN; iOS and Android are separate future gates; owner action: **Yes:** the maintainer runs `sudo safaridriver --enable` locally (approved in principle; never run by an agent). Raised by R03 and R02 WebKit-only findings.
 - **Real Safari, G-UI scope (2026-11-25):** Safari 26.6.2 on the G-UI workspace (`tests/safari/gui.mjs`): 14/14 scenarios covering strict CSP with negative and positive controls, the design-system components (tool rail, dialogs, slider, numeric field, colour picker, resizable panels, layers with keyboard reorder), tokens and focus ring, and import through the file input. Keyboard navigation under stock Safari settings is not shown, because automation sessions enable full keyboard access; VoiceOver, reduced-motion emulation and export download bytes were not run in Safari. [G-UI report §7](research/g-ui/G-UI-REPORT.md).
+- **Real Safari, G-R1 scope (2026-11-25):** in the integrated workspace (`tests/safari/gr1.mjs`), 4 of 4 functional scenarios pass: rendering through the worker, RFC §8.4 drag frames equal exact frames (6 cases), keyboard path selection, and workspace offline reload with worker recovery. Timing (presentation, gestures) is **NOT RUN**: the automation window was hidden. Status unchanged: **PARTIALLY RUN**. [G-R1 report](research/g-r1/G-R1-REPORT.md).
 - **G-JOB disposition (2026-11-25):** real Safari was NOT RUN for G-JOB (no `safaridriver` authorisation). The G-JOB owner part is open: a Safari run, or a documented Safari restriction until it runs. Every G-JOB browser result is Chromium 159, Firefox 159 or Playwright WebKit 27.2. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 - **Real Safari, G-JOB scope (2026-11-25):** run with `safaridriver` (maintainer-enabled) in **Safari 26.6.2 (21624.5.1.11.3)**, macOS 26.6.2: 10/10 G-JOB scenarios pass (worker start-up and handshake, start-up churn online and offline, cancellation, offline reload and recreation, single-build sessions across a deploy, template-only update, interrupted install, cache-eviction recovery, frozen exports, document integrity after termination, build-mismatch refusal). "Offline" was an unreachable origin (WebDriver has no network emulation). Still NOT RUN: G-R0 and G-UI in Safari (pending their gates), iOS/iPadOS Safari, Android Chrome, Safari performance. Status: **PARTIALLY RUN**; not closed. [G-JOB report §18](research/g-job/G-JOB-REPORT.md).
 - **Real Safari, G-R0 and persistence (2026-11-25):** Safari 26.6.2: G-R0 7/7 (OffscreenCanvas worker host, 0 geometry-error pixels on 10 fixtures for worker and fallback, first-frame presentation, recovery online and offline, pan/zoom p95 18–19 ms, fallback disclosed) and `.vectra` interchange 23/23 (Safari ↔ Node ↔ 3 Playwright engines, both codecs; typed atomic failures). G-UI in Safari pending its gate. Status unchanged: **PARTIALLY RUN**. [G-R0 report](research/g-r0/G-R0-REPORT.md).
@@ -630,6 +634,7 @@ Counts:
 - **Acceptance criteria:** the native and geometry benchmarks run on the target device; the P1 budget is ratified or revised from those measurements.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) ("Device support").
 - **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate G-R1 sign-off; closure: Benchmarks on an M1 8 GB and a 4c/8t ~8 GB laptop; until then no broad performance-compatibility claims; owner action: **Yes:** obtain or borrow hardware (does not block G-ENG or G-DOC). CPU throttling is not a substitute.
+- **G-R1 (2026-11-25):** NOT RUN; still required for G-R1 qualification. G-R1 stays PARTIAL.
 
 <a id="td-platform-004"></a>
 ### TD-PLATFORM-004 — Real deployment
@@ -730,6 +735,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Maintainer disposition (2026-11-25):** "Record real Safari worker-canvas feasibility as demonstrated under TD-REN-002, retaining end-to-end presentation-latency qualification in G-R1." Stage: **real Safari worker-canvas feasibility DEMONSTRATED**; **OPEN** for end-to-end presentation latency (G-R1). The G-R0 screenshot-bounded Safari figure (47–58 ms) shares the WebDriver capture lag found at G-UI, so G-R1 measures presentation explicitly. [Decision register §9](research/g0/G0-DECISION-REGISTER.md).
 - **Dependencies:** TD-PLATFORM-002.
 - **Owner action:** Safari authorisation.
+- **G-R1 disposition (2026-11-25):** end-to-end presentation is measured in the integrated workspace by sampling the displayed canvas every frame. Where the sampler works, the visible frame follows the renderer's exact-frame message within one animation frame (Chromium, Firefox, Playwright WebKit). **Real Safari presentation: NOT RUN**: the automation window was hidden (0 animation frames), so the Safari timings are flagged invalid. Still **OPEN** for Safari presentation latency. [G-R1 report](research/g-r1/G-R1-REPORT.md).
 
 <a id="td-ren-003"></a>
 ### TD-REN-003 — Layered drag-cache correctness and cost
@@ -741,6 +747,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** the RFC §8.4 qualification matrix matches exact frames, with drag performance within budget.
 - **Dependencies:** G-R0.
 - **Owner action:** hands-on review.
+- **G-R1 disposition (2026-11-25):** compositing-preserving layered caches implemented: static layers below, between and above the selection; moving layers per fixed clip; scale poses redrawn as vectors; a capped memory fallback. The RFC §8.4 matrix (12 cases, including an edit during a drag) matches exact frames with **0 geometry-error pixels** in Chromium, Firefox and Playwright WebKit, and 6 cases in real Safari. Mutation: flattening fails 5 of 12. Drag frame p95 ≤ 18.5 ms and drag start 11–230 ms on the four registered workloads (reference machine). Closure criteria **met on the reference machine**; the owner's hands-on review and lower-end hardware are pending. [G-R1 report](research/g-r1/G-R1-REPORT.md).
 
 <a id="td-ren-004"></a>
 ### TD-REN-004 — Large compound paths as single objects
@@ -753,6 +760,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **G-R0 disposition (2026-11-25):** subpath index (paths with more than 8 subpaths) and band index (subpaths above 2,048 points) implemented in `src/hit-test`. Warm p95 ≤ 0.05 ms on the 270k and 812k workloads in 3 engines. Not closed: the 977k-anchor halftone stress case was not measured, and the index is built lazily on the first query, so a cold first click blocks the main thread 30–93 ms (above 50 ms at 812k anchors); idle pre-flattening remains to do (G-R1). [G-R0 report](research/g-r0/G-R0-REPORT.md).
 - **Dependencies:** C2.
 - **Owner action:** no.
+- **G-R1 disposition (2026-11-25):** the index is prepared after each evaluation in bounded slices (≤ 4 ms of 512 units, pausing inside a path, entries added in units). A click before it is ready is answered only by the complete index. The 977k halftone is measured: ready in 71–896 ms, longest slice 4–7 ms, a click before ready answered 58–69 ms later, warm p95 ≤ 0.005 ms. Flattening for the winding test stays lazy per hit subpath (bounded by subpath size; band index above 2,048 points); that is a substitute for idle pre-flattening, recorded. Closure criteria **met in substance; proposed for closure, maintainer to confirm**. [G-R1 report](research/g-r1/G-R1-REPORT.md).
 
 <a id="td-ui-001"></a>
 ### TD-UI-001 — Base UI inline `<style>` vs strict CSP
@@ -785,6 +793,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Dependencies:** RFC §7.
 - **Owner action:** no.
 - **G-UI disposition (2026-11-25):** the Dice colour picker is replaced by an owned picker built from Base UI sliders (`src/ui/color-picker.tsx`): named thumbs (D3), a free-text hex draft committed on Enter or blur (D4), a keyboard-operable saturation/brightness area (D5) and one commit on Apply, none on Cancel, Escape, outside click or an unchanged colour (D6). The shadcn Slider keeps the D1 patch and is always given array values (D2). Keyboard steps carry a coalesce key and focus changes end the run (D7, RFC §7; session window 1000 ms, unchanged). dnd-kit announcements are name-based (D8). Qualified in `tests/browser/ui-document.spec.ts` in 3 Playwright engines (names, values, keyboard, commit/cancel, one undo entry per gesture or keyboard run). Screen-reader (VoiceOver) smoke test NOT RUN; Playwright aria snapshots are recorded as a proxy only. Stage: **PRODUCTION VERIFIED (automated) / screen-reader pass pending**. Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
+- **G-R1 note (2026-11-25):** keyboard selection of single paths on the canvas is implemented (it was G-UI §5.4's open gap), with announcements (`workspace-a11y`, 3 engines; real Safari keyboard scenario PASS). The VoiceOver smoke test is still **NOT RUN**: the owner checklist is [VOICEOVER-CHECKLIST.md](research/g-r1/VOICEOVER-CHECKLIST.md). Not closed.
 
 <a id="td-ui-003"></a>
 ### TD-UI-003 — Border, slider-track and focus-ring contrast
@@ -863,6 +872,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - Load still runs the full pass; no invariant is weakened.
 - **Dependencies:** G-DOC store and invariants (C8 r2); TD-ARCH-005.
 - **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT.
+- **G-R1 investigation (2026-11-25):** whole-state validation is 62–89 % of a structural transaction and copying 10–18 %. A one-node edit: 22 ms at 43k paths, 144 ms at 250k. A prototype incremental validator (not wired) agrees with the full validator on 62,124 randomized comparisons over 5 seeds, invalid transactions included, with 0 disagreements. Options B (wire it, with a comparison mode), C (Draft key tracking) and D (a chunked copy-on-write map, the only route found to ≤ 50 ms at 250k) are an owner decision. **OPEN.** [Investigation](research/g-r1/TD-PERF-007-INVESTIGATION.md).
 
 <a id="td-perf-008"></a>
 ### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms
@@ -913,6 +923,15 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 
 ## Added at G-ENG
 
+
+<a id="td-perf-011"></a>
+### TD-PERF-011 — History retains a full node-map table per entry
+- **Category / severity / status:** Limitation (measured) · **High** · OPEN.
+- **Description.** Each history state keeps its own complete node map: about 7 MiB per state at 251k nodes, 1.75 MiB at 44k. One hundred entries would hold about 700 MiB. The 128 MiB history budget counts chunks and sources only, not this.
+- **Evidence:** [TD-PERF-007 investigation](research/g-r1/TD-PERF-007-INVESTIGATION.md) (G-R1, 2026-11-25).
+- **Disposition:** stage **MEASURED**; gate **G-EDIT**. Option D of the investigation (a chunked copy-on-write node map) measured about 0.02 MiB per state; it needs approval.
+- **Closure criteria:** history memory bounded and counted in the budget, with the full validator still the oracle.
+- **Owner action:** a decision on the TD-PERF-007 options.
 <a id="td-platform-007"></a>
 ### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs
 - **Category / severity / status:** Defect (determinism) · Medium · OPEN TECHNICAL DEBT (found by G-ENG; pre-existing).
