@@ -11,6 +11,7 @@ import {
   type Matrix,
   multiply,
   type NodeId,
+  type PaletteId,
   type Rect,
   SCENE_ID_RE,
 } from "./model.ts";
@@ -25,6 +26,8 @@ export interface Run {
     readonly w: number;
     readonly h: number;
   } | null;
+  /** The root Layer the run belongs to (export attribution; not part of the C8 snapshot). */
+  readonly layerId: NodeId;
 }
 export interface DrawItem {
   readonly chunkId: ChunkId;
@@ -34,6 +37,10 @@ export interface DrawItem {
   readonly stroke?: { readonly color: number; readonly width: number };
   readonly evenOdd: boolean;
   readonly groupRun: number;
+  /** Effective palette entry, or null for a literal fill (the export's `paletteId` source). */
+  readonly paletteRef: PaletteId | null;
+  /** The root Layer the item belongs to (export attribution; not part of the C8 snapshot). */
+  readonly layerId: NodeId;
 }
 export interface Evaluation {
   readonly runs: readonly Run[];
@@ -52,13 +59,18 @@ export function evaluate(s: DocState): Evaluation {
   const drawList: DrawItem[] = [];
   const used = new Set<string>();
   let runOwner: NodeId | null = null;
+  let layerId: NodeId = "";
 
   const startRun = (node: ContainerNode, clip: Rect | null) => {
     const k = runs.length;
     let id = SCENE_ID_RE.test(node.name) && !used.has(node.name) ? node.name : `run-${k}`;
     for (let n = 1; used.has(id); n++) id = `run-${k}-${n}`; // only if a container took run-<k>
     used.add(id);
-    runs.push({ id, clip: clip && { x: clip.x, y: clip.y, w: clip.width, h: clip.height } });
+    runs.push({
+      id,
+      clip: clip && { x: clip.x, y: clip.y, w: clip.width, h: clip.height },
+      layerId,
+    });
     runOwner = node.id;
   };
 
@@ -80,6 +92,8 @@ export function evaluate(s: DocState): Evaluation {
           ...(style.stroke ? { stroke: style.stroke } : {}),
           evenOdd: child.fillRule === "evenodd",
           groupRun: runs.length - 1,
+          paletteRef: style.paletteRef,
+          layerId,
         });
         emitted = true;
       } else if (child.kind === "group") {
@@ -98,6 +112,7 @@ export function evaluate(s: DocState): Evaluation {
     if (n.kind !== "layer" || !n.visible) continue; // sources are never in the draw list
     const clip = n.clipRef ? mapRect(n.localTransform, n.clipRef) : null;
     if (clip && isEmpty(clip)) continue;
+    layerId = n.id;
     visit(n, n.localTransform, clip);
   }
   return { runs, drawList };
