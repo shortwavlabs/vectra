@@ -4,7 +4,7 @@ These two checks need a person at the Mac. Automated tests cover keyboard behavi
 
 **Setup**
 - Use real Safari on macOS with stock settings.
-- Open the workspace from the G-R1 build:
+- Open the workspace from the G-R1 build, or from the G-UI-R build stacked on it (E1 and E2 describe the G-UI-R inspector and picker; the names are unchanged):
   ```bash
   pnpm run build && pnpm exec vp preview --port 4173
   ```
@@ -53,8 +53,8 @@ In Safari's default settings, "Press Tab to highlight each item on a webpage" is
 ## E. Transform controls, colour picker, undo/redo, export
 | # | Step | Expected |
 |---|---|---|
-| E1 | With a path selected, Tab to the inspector: X, Y, Scale slider, Rotate | Each control's name and value are announced. Arrow keys change the slider; its value is announced |
-| E2 | Fill colour: open the picker | Focus lands on "Saturation and brightness" with its value text. "Hue" is a named slider. "Hex" is a text field. Apply and Escape work; focus returns to the trigger |
+| E1 | With a path selected, Tab to the inspector: X, Y, Scale value, Reset, Scale slider, Rotate 90° counter-clockwise, Rotate 90° clockwise (the G-UI-R order) | Each control's name and value are announced. Arrow keys change the slider; its value is announced |
+| E2 | Fill colour: open the picker | Focus lands on "Saturation and brightness" with its value text. "Hue" is a named slider. "Hex" is a text field. The "Document colours" group holds swatch buttons named "Use p0, #rrggbb" (pressed for the current draft). Apply and Escape work; focus returns to the trigger |
 | E3 | ⌘Z, then ⇧⌘Z | The edit is undone and redone. The Undo and Redo buttons announce disabled or enabled states |
 | E4 | Activate Export | The dialog "Export artwork" is announced. Focus stays inside it. Escape closes it and focus returns to Export |
 
