@@ -877,7 +877,7 @@ export function Workspace() {
               </Tip>
             </div>
           </div>
-          <Divider />
+          {state && <Divider />}
           {/* The renderer speaks only when it is not healthy: the main-thread fallback, a
               recovery or a failure. It stays mounted (empty while healthy) as a live region, with
               its state and host for the tests and the debug API. */}
