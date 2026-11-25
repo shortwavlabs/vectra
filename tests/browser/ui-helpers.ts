@@ -143,7 +143,13 @@ export async function selectOnCanvas(page: Page, points: [number, number][] = DE
       .then(() => true)
       .catch(() => false);
     if (hit) return [fx, fy] as const;
-    seen.push(await page.getByTestId("selection-name").textContent());
+    // Absent when the probe selected nothing: a bounded read, never a wait for the element.
+    seen.push(
+      await page
+        .getByTestId("selection-name")
+        .textContent({ timeout: 500 })
+        .catch(() => null),
+    );
   }
   // Diagnosable if it recurs: what each probe left selected, and the hit counters (debug pages).
   const diag = await page.evaluate(() => {
