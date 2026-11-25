@@ -41,7 +41,7 @@ test("import: keyboard-opened chooser, local trace, no upload", async ({ page, g
     timeout: 90_000,
   });
   await canvasSettled(page);
-  await expect(page.getByTestId("canvas-image")).toBeVisible();
+  await expect(page.getByTestId("canvas-host")).toBeVisible();
   await expect(page.getByTestId("layer-row")).toHaveCount(1);
   await expect(page.getByTestId("document-title")).toContainText("Untitled artwork · Edited");
   await expect(page.getByTestId("complexity")).toContainText("paths");
@@ -145,12 +145,12 @@ test("selection: canvas click, Escape, layer row; Delete is undoable and skips l
   await openWorkspace(page);
   await importFixture(page, "procedural/adjacent_colors.png");
   await page.keyboard.press("Escape");
-  await expect(page.getByTestId("selection-outline")).toHaveCount(0);
+  await expect(page.getByTestId("selection-bounds")).toHaveCount(0);
   await selectOnCanvas(page);
-  await expect(page.getByTestId("selection-outline")).toHaveCount(1);
+  await expect(page.getByTestId("selection-bounds")).toHaveCount(1);
   await expect(page.getByTestId("selection-name")).toHaveText(/^Path \d+$/);
   await page.keyboard.press("Escape");
-  await expect(page.getByTestId("selection-outline")).toHaveCount(0);
+  await expect(page.getByTestId("selection-bounds")).toHaveCount(0);
   await rowNamed(page, "adjacent_colors").locator("button[aria-pressed]").click();
   await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
   await page.getByRole("button", { name: "Lock adjacent_colors" }).click();
@@ -456,7 +456,7 @@ async function dropGenerated(page: Page, o: { width: number; height: number; nam
     const blob = await canvas.convertToBlob({ type: "image/png" });
     const dt = new DataTransfer();
     dt.items.add(new File([blob], name, { type: "image/png" }));
-    const target = document.querySelector('[data-host="interim"]')!;
+    const target = document.querySelector('[data-testid="canvas-host"]')!;
     target.dispatchEvent(
       new DragEvent("drop", { dataTransfer: dt, bubbles: true, cancelable: true }),
     );
@@ -479,7 +479,9 @@ test("drop, cancel and failure: a cancelled or failed import leaves no document"
   await page.getByRole("button", { name: "Trace", exact: true }).click();
   await page.getByRole("radio", { name: "Full Colour" }).check();
   await dropGenerated(page, { width: 3000, height: 3000, name: "large.png" });
-  await page.getByRole("button", { name: "Cancel trace" }).click({ timeout: 30_000 });
+  // Cancel during the trace itself (the same button also cancels during preparation).
+  await expect(page.getByTestId("status")).toContainText("Tracing large.png", { timeout: 30_000 });
+  await page.getByRole("button", { name: "Cancel import" }).click();
   await expect(page.getByTestId("status")).toContainText(
     "Trace cancelled; the document is unchanged",
   );
@@ -581,18 +583,45 @@ test("canvas zoom and fit; rotate and reset in the inspector", async ({ page }) 
   await expect(scale(page)).toHaveAttribute("aria-valuenow", "100");
 });
 
-test("the interim preview catches up with rapid keyboard edits", async ({ page }) => {
-  await openWorkspace(page);
+test("the canvas catches up with rapid keyboard edits; no export job is involved", async ({
+  page,
+}) => {
+  await openWorkspace(page, "?debug=1");
   await importFixture(page, "external/hokusai-great-wave-640.jpg", "Limited Palette");
-  const img = page.getByTestId("canvas-image");
-  const r0 = Number(await img.getAttribute("data-revision"));
+  type Probe = {
+    canvas: {
+      diag(): {
+        lastExact: { renderRevision: number } | null;
+        renderRevision: number;
+        documentRevision: number;
+      };
+    };
+    workspace: { revision(): number; jobsSubmitted(): number };
+  };
+  const probe = () =>
+    page.evaluate(() => {
+      const v = (window as unknown as { __vectra: Probe }).__vectra;
+      const d = v.canvas.diag();
+      return {
+        revision: v.workspace.revision(),
+        drawn: d.documentRevision,
+        exactIsLatest: d.lastExact?.renderRevision === d.renderRevision,
+        jobs: v.workspace.jobsSubmitted(),
+      };
+    });
+  const before = await probe();
   await scale(page).focus();
   for (let i = 0; i < 10; i++) {
     await page.keyboard.press("ArrowRight");
     await page.waitForTimeout(50);
   }
-  await expect(img).toHaveAttribute("data-revision", String(r0 + 10), { timeout: 30_000 });
   await canvasSettled(page);
+  await expect.poll(probe, { timeout: 30_000 }).toEqual({
+    revision: before.revision + 10,
+    drawn: before.revision + 10,
+    exactIsLatest: true,
+    jobs: before.jobs, // the canvas renders the document directly: no job per edit
+  });
   // Undo works from the focused slider (a range input edits no text).
   await page.keyboard.press("ControlOrMeta+z");
   await expect(scale(page)).toHaveAttribute("aria-valuenow", "100");

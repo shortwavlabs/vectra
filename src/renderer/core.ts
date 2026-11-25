@@ -31,7 +31,9 @@ interface Held {
   readonly paths: (Path2D | undefined)[];
 }
 
-export const SELECTION_COLOR = "#c8f031";
+/** Defaults when the surface names no selection colours (the design system's lime and ink). */
+export const SELECTION_COLOR = "#b9e87b";
+export const HALO_COLOR = "#191a1c";
 
 const css = (rgba: number) =>
   `rgba(${rgba >>> 24},${(rgba >>> 16) & 255},${(rgba >>> 8) & 255},${(rgba & 255) / 255})`;
@@ -242,17 +244,23 @@ export class CanvasRenderer {
     const snap = this.#snapshot;
     if (!snap || snap.selection.length === 0) return;
     ctx.save();
-    ctx.strokeStyle = SELECTION_COLOR;
-    for (const k of snap.selection) {
-      const it = snap.drawList[k];
-      if (!it) continue;
-      const path = this.#path(it.chunkId, it.pathIndex);
-      if (!path) continue;
-      const M = mul(D, it.transform);
-      ctx.setTransform(M[0], M[1], M[2], M[3], M[4], M[5]);
-      const scale = Math.sqrt(Math.abs(M[0] * M[3] - M[1] * M[2])) || 1;
-      ctx.lineWidth = (1.5 * this.#surface.dpr) / scale;
-      ctx.stroke(path);
+    // A dark halo under the lime outline: lime alone is near-invisible on the ivory paper.
+    for (const [color, px] of [
+      [this.#surface.halo ?? HALO_COLOR, 3.5],
+      [this.#surface.selection ?? SELECTION_COLOR, 1.5],
+    ] as const) {
+      ctx.strokeStyle = color;
+      for (const k of snap.selection) {
+        const it = snap.drawList[k];
+        if (!it) continue;
+        const path = this.#path(it.chunkId, it.pathIndex);
+        if (!path) continue;
+        const M = mul(D, it.transform);
+        ctx.setTransform(M[0], M[1], M[2], M[3], M[4], M[5]);
+        const scale = Math.sqrt(Math.abs(M[0] * M[3] - M[1] * M[2])) || 1;
+        ctx.lineWidth = (px * this.#surface.dpr) / scale;
+        ctx.stroke(path);
+      }
     }
     ctx.restore();
   }

@@ -260,8 +260,8 @@ async function importFixture(file, preset) {
   );
   await until(
     () =>
-      __vis(document.querySelector('[data-testid="canvas-image"]')) &&
-      document.querySelector('[data-testid="canvas-state"]')?.textContent.includes("(ready)"),
+      __vis(document.querySelector('[data-testid="canvas-host"]')) &&
+      document.querySelector('[data-testid="canvas-state"]')?.dataset.state === "ready",
     "canvas ready",
   );
 }
@@ -277,7 +277,10 @@ async function selectOnCanvas() {
   ]) {
     await clickAt(art.x + art.w * fx, art.y + art.h * fy);
     await sleep(100);
-    if ((await count("selection-outline")) > 0) return;
+    const name = await x(
+      () => document.querySelector('[data-testid="selection-name"]')?.textContent ?? "",
+    );
+    if (/^Path \d+$/.test(name)) return;
   }
   throw new Error("no path under any probe point");
 }
@@ -851,10 +854,9 @@ try {
     await s.setWindowRect(w, h);
     await open();
     await importFixture("nested_rings.png");
-    // A capture taken as the DOM turns ready shows the previous frame (measured: rings absent at
-    // "ready", present 4 s later, with the image decoded throughout), so settle first.
+    // A WebDriver capture taken as the DOM turns ready can show an earlier frame (measured at
+    // G-UI), so settle before capturing; screenshot timing is never used as evidence.
     await s.execAsync(async () => {
-      await document.querySelector('[data-testid="canvas-image"]').decode();
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     });
     await sleep(1500);

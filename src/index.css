@@ -99,6 +99,7 @@ figure img {
   height: auto;
 }
 .canvas-host {
+  position: relative;
   height: 480px;
   cursor: default;
 }

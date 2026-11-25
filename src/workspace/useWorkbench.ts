@@ -15,6 +15,7 @@ import {
   type PreviewOutcome,
   type TraceSource,
 } from "../jobs/controller.ts";
+import { watchOfflineStatus } from "../jobs/offline-status.ts";
 import type { TraceResult } from "../jobs/protocol.ts";
 import { JobScheduler, type WorkerLike } from "../jobs/scheduler.ts";
 import { DEFAULT_SETTINGS, makeRequest } from "../presets/defaults.ts";
@@ -135,23 +136,6 @@ function previewSession(src: Source, request: TraceRequest, out: TraceResult) {
   return session;
 }
 
-/** The controlling service worker's version and build ID, or null when uncontrolled. */
-function controllerBuild(): Promise<{ version: string; buildId: string | null } | null> {
-  const controller = navigator.serviceWorker?.controller;
-  if (!controller) return Promise.resolve(null);
-  return new Promise((resolve) => {
-    const timer = setTimeout(() => resolve({ version: "unknown", buildId: null }), 5000);
-    const onMessage = (e: MessageEvent) => {
-      if (e.data?.type !== "vectra-sw-version") return;
-      clearTimeout(timer);
-      navigator.serviceWorker.removeEventListener("message", onMessage);
-      resolve({ version: String(e.data.version), buildId: e.data.buildId ?? null });
-    };
-    navigator.serviceWorker.addEventListener("message", onMessage);
-    controller.postMessage("vectra-sw-version");
-  });
-}
-
 const emptyDocument = (width = 1, height = 1) =>
   new DocumentSession(new GeometryStore(), {
     state: createDocument({ documentId: "workbench", width, height }),
@@ -229,32 +213,20 @@ export function useWorkbench() {
     void scheduler.warmup().then((ready) => {
       if (ready) debug.current.ready = scheduler.lastReady;
     });
-    // Offline recovery needs the service worker to control this page (production builds).
-    void navigator.serviceWorker?.ready.then((reg) => {
-      const update = async () => {
-        const waiting = reg.waiting !== null;
-        debug.current.updateWaiting = waiting;
-        setUpdateWaiting(waiting);
-        // Offline-ready only if the controlling worker caches *this* build (a worker of another
-        // build can claim a page on first install after a deploy raced the page load).
-        const info = await controllerBuild();
-        const ready = info !== null && info.buildId === BUILD_IDENTITY.buildId;
-        debug.current.offlineReady = ready;
-        debug.current.controllerBuild = info;
-        setOfflineReady(ready);
-        setOfflineMismatch(info !== null && !ready);
-      };
-      void update();
-      navigator.serviceWorker.addEventListener("controllerchange", () => void update());
-      reg.addEventListener("updatefound", () => {
-        const w = reg.installing;
-        w?.addEventListener("statechange", () => void update());
-      });
+    // Offline recovery needs the service worker to control this page with this build.
+    const stopOffline = watchOfflineStatus((o) => {
+      debug.current.updateWaiting = o.updateWaiting;
+      debug.current.offlineReady = o.ready;
+      debug.current.controllerBuild = o.controller;
+      setUpdateWaiting(o.updateWaiting);
+      setOfflineReady(o.ready);
+      setOfflineMismatch(o.mismatch);
     });
     const mounts = live; // a counter, not a DOM ref: the same object in setup and cleanup
     mounts.current++;
     return () => {
       mounts.current--;
+      stopOffline();
       // React StrictMode (development) runs this cleanup and the setup again at once with the
       // same state: dispose only if no setup followed, so the scheduler survives the remount.
       setTimeout(() => {

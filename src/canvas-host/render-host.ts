@@ -8,7 +8,16 @@
 // - keeps per-stage timings so document preparation, geometry transfer and drawing are reported
 //   separately (C9).
 import { type Evaluation, evaluate } from "../document/evaluate.ts";
-import type { DocState, NodeId } from "../document/model.ts";
+import {
+  type DocState,
+  intersectRects,
+  isContainer,
+  mapRect,
+  type Matrix,
+  multiply,
+  type NodeId,
+  type Rect,
+} from "../document/model.ts";
 import type { DocumentSession } from "../document/session.ts";
 import { HitTester } from "../hit-test/index.ts";
 import { type ClientState, type HostMode, RenderClient } from "../renderer/client.ts";
@@ -22,9 +31,37 @@ export interface RenderHostOptions {
   forceMainThread?: boolean;
   paper?: string;
   workspace?: string;
+  /** Selection outline and halo colours (defaults: the renderer's). */
+  selection?: string;
+  halo?: string;
   onState(state: CanvasHostState): void;
   onView?(view: CanvasView): void;
   onFrame?(frame: FrameInfo & { host: HostMode }): void;
+}
+
+/** Parent of every node, per immutable state (read-only; the canvas host imports no commands). */
+const parentMaps = new WeakMap<DocState, Map<NodeId, NodeId | null>>();
+function parents(s: DocState): Map<NodeId, NodeId | null> {
+  let m = parentMaps.get(s);
+  if (!m) {
+    m = new Map();
+    for (const id of s.orderedRootIds) m.set(id, null);
+    for (const n of s.nodesById.values())
+      if (isContainer(n)) for (const c of n.orderedChildIds) m.set(c, n.id);
+    parentMaps.set(s, m);
+  }
+  return m;
+}
+
+/** Selected paths outlined by the renderer, at most (beyond it: the bounds overlay only). A
+ *  selected container is never outlined path by path: its bounds are drawn by the caller. */
+export const OUTLINE_LIMIT = 2000;
+
+export interface Bounds {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 interface Pending {
@@ -69,7 +106,10 @@ export class DocumentRenderHost {
   #hit: HitTester | null = null;
   #renderRevision = 0;
   #selection: readonly NodeId[] = [];
+  /** Draw-list indices per PathObject (a path can draw more than once only if duplicated). */
   #itemsOf = new Map<NodeId, number[]>();
+  /** Draw-list indices per container (its visible descendants), built on the first query. */
+  #itemsUnder: Map<NodeId, number[]> | null = null;
   #fitOnNext = true;
   #pending: Pending | null = null;
   /** The session whose chunks the renderer holds: chunk IDs are unique only within one store. */
@@ -84,6 +124,8 @@ export class DocumentRenderHost {
       dpr: 1,
       workspace: o.workspace ?? "#2b2b2b",
       paper: o.paper ?? "#ffffff",
+      ...(o.selection ? { selection: o.selection } : {}),
+      ...(o.halo ? { halo: o.halo } : {}),
     };
     this.client = new RenderClient({
       container: o.container,
@@ -211,6 +253,7 @@ export class DocumentRenderHost {
     this.#hit = null;
     if (!state) {
       this.#ev = null;
+      this.#itemsUnder = null;
       this.#itemsOf.clear();
       this.#emit({ kind: "empty" });
       return;
@@ -219,10 +262,114 @@ export class DocumentRenderHost {
     if (this.#fitOnNext) this.fitToView();
   }
 
+  /** Outlined items: those of selected PathObjects only (containers are shown by bounds). */
   #selectionIndices(): number[] {
     const out: number[] = [];
     for (const id of this.#selection) for (const k of this.#itemsOf.get(id) ?? []) out.push(k);
-    return out;
+    return out.length > OUTLINE_LIMIT ? [] : out;
+  }
+
+  /** Draw-list indices of everything a node draws: itself (a path) or its visible descendants. */
+  itemsOf(id: NodeId): readonly number[] {
+    const own = this.#itemsOf.get(id);
+    if (own) return own;
+    if (!this.#ev || !this.#state) return [];
+    if (!this.#itemsUnder) {
+      const under = new Map<NodeId, number[]>();
+      const par = parents(this.#state);
+      this.#ev.drawList.forEach((it, k) => {
+        for (let n = par.get(it.nodeId) ?? null; n !== null; n = par.get(n) ?? null) {
+          const l = under.get(n);
+          if (l) l.push(k);
+          else under.set(n, [k]);
+        }
+      });
+      this.#itemsUnder = under;
+    }
+    return this.#itemsUnder.get(id) ?? [];
+  }
+
+  /** Composed (document-space) matrix of a container, cached per evaluated state. */
+  #worldOf(id: NodeId, cache: Map<NodeId, Matrix>): Matrix {
+    const hit = cache.get(id);
+    if (hit) return hit;
+    const state = this.#state!;
+    const p = parents(state).get(id) ?? null;
+    const local = state.nodesById.get(id)!.localTransform;
+    const m = p === null ? local : multiply(this.#worldOf(p, cache), local);
+    cache.set(id, m);
+    return m;
+  }
+
+  /** The clip a node's own subtree applies to path `pathId` (its clips, not its ancestors'). */
+  #innerClip(pathId: NodeId, owner: NodeId, cache: Map<NodeId, Matrix>): Rect | null {
+    if (pathId === owner) return null;
+    const state = this.#state!;
+    const par = parents(state);
+    let clip: Rect | null = null;
+    for (let n = par.get(pathId) ?? null; n !== null; n = par.get(n) ?? null) {
+      const node = state.nodesById.get(n);
+      if (node && "clipRef" in node && node.clipRef)
+        clip = intersectRects(clip, mapRect(this.#worldOf(n, cache), node.clipRef));
+      if (n === owner) break;
+    }
+    return clip;
+  }
+
+  /**
+   * Document-space bounds of what the nodes draw: each visible item's control-point box under
+   * its composed transform. Hidden descendants are excluded. Clips owned inside a selected
+   * subtree bound it; a clip owned by an ancestor of the selection does not (it stays fixed when
+   * the selection moves). This box is the one the overlay, the handles and the inspector use.
+   */
+  boundsOf(ids: readonly NodeId[]): Bounds | null {
+    const ev = this.#ev;
+    const session = this.#session;
+    if (!ev || !session) return null;
+    const worlds = new Map<NodeId, Matrix>();
+    let x0 = Infinity;
+    let y0 = Infinity;
+    let x1 = -Infinity;
+    let y1 = -Infinity;
+    const seen = new Set<number>();
+    for (const owner of ids)
+      for (const k of this.itemsOf(owner)) {
+        if (seen.has(k)) continue;
+        seen.add(k);
+        const it = ev.drawList[k]!;
+        const [bx0, by0, bx1, by1] = session.store.derived(it.chunkId).bounds(it.pathIndex);
+        const m = it.transform;
+        let ix0 = Infinity;
+        let iy0 = Infinity;
+        let ix1 = -Infinity;
+        let iy1 = -Infinity;
+        for (const [px, py] of [
+          [bx0, by0],
+          [bx1, by0],
+          [bx0, by1],
+          [bx1, by1],
+        ] as const) {
+          const X = m[0] * px + m[2] * py + m[4];
+          const Y = m[1] * px + m[3] * py + m[5];
+          ix0 = Math.min(ix0, X);
+          iy0 = Math.min(iy0, Y);
+          ix1 = Math.max(ix1, X);
+          iy1 = Math.max(iy1, Y);
+        }
+        const clip = this.#innerClip(it.nodeId, owner, worlds);
+        if (clip) {
+          ix0 = Math.max(ix0, clip.x);
+          iy0 = Math.max(iy0, clip.y);
+          ix1 = Math.min(ix1, clip.x + clip.width);
+          iy1 = Math.min(iy1, clip.y + clip.height);
+          if (ix1 < ix0 || iy1 < iy0) continue;
+        }
+        x0 = Math.min(x0, ix0);
+        y0 = Math.min(y0, iy0);
+        x1 = Math.max(x1, ix1);
+        y1 = Math.max(y1, iy1);
+      }
+    return x0 <= x1 ? { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } : null;
   }
 
   /** Sends the current document as a snapshot; `full` re-sends every chunk (after a restart). */
@@ -231,7 +378,10 @@ export class DocumentRenderHost {
     const session = this.#session;
     if (!state || !session) return;
     const t0 = performance.now();
-    if (!this.#ev || full === false) this.#ev = evaluate(state);
+    if (!this.#ev || full === false) {
+      this.#ev = evaluate(state);
+      this.#itemsUnder = null;
+    }
     const ev = this.#ev;
     this.#itemsOf = new Map();
     ev.drawList.forEach((it, k) => {

@@ -17,6 +17,9 @@ export interface Surface {
   /** CSS colours of the area outside the artboard and of a transparent artboard. */
   readonly workspace: string;
   readonly paper: string;
+  /** Selection outline colour, drawn over a darker halo so it reads on any artwork. */
+  readonly selection?: string;
+  readonly halo?: string;
 }
 
 export type RenderRequest =

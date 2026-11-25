@@ -12,6 +12,7 @@ import { NumericField } from "../ui/numeric-field.tsx";
 import { Button } from "../ui/registry/button";
 import { Slider } from "../ui/registry/slider";
 import {
+  type Box,
   displayName,
   isLocked,
   pathFill,
@@ -72,6 +73,9 @@ export function SelectionInspector(p: {
   session: DocumentSession;
   snap: SessionSnapshot;
   ids: readonly NodeId[];
+  /** The box of what the selection draws (the canvas overlay's box). When it draws nothing
+   *  (hidden), the document geometry's box is used, so the fields still edit. */
+  bounds: Box | null;
   run: Run;
 }) {
   const { session, snap, ids, run } = p;
@@ -79,7 +83,7 @@ export function SelectionInspector(p: {
   const top = topLevel(s, ids);
   const key = top.join(",");
   const locked = ids.some((id) => isLocked(s, id));
-  const b = selectionBounds(s, session.store, top);
+  const b = p.bounds ?? selectionBounds(s, session.store, top);
   const first = s.nodesById.get(ids[0]!)!;
   const paths = fillTargets(s, ids);
   const fill = paths.length ? pathFill(s, paths[0]!) : null;

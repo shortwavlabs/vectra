@@ -10,6 +10,9 @@ export interface VectorCanvasProps extends CanvasHostProps {
   readonly forceMainThread?: boolean;
   readonly paper?: string;
   readonly workspace?: string;
+  /** Selection outline and halo colours. */
+  readonly selectionColor?: string;
+  readonly haloColor?: string;
   /** Engineering access to the host (qualification API). */
   readonly onHost?: (host: DocumentRenderHost | null) => void;
 }
@@ -44,6 +47,8 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
         ...(latest.current.forceMainThread ? { forceMainThread: true } : {}),
         ...(latest.current.paper ? { paper: latest.current.paper } : {}),
         ...(latest.current.workspace ? { workspace: latest.current.workspace } : {}),
+        ...(latest.current.selectionColor ? { selection: latest.current.selectionColor } : {}),
+        ...(latest.current.haloColor ? { halo: latest.current.haloColor } : {}),
         onState: (s) => latest.current.onStateChange?.(s),
         onView: (v) => latest.current.onViewChange?.(v),
       });
@@ -152,7 +157,8 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
         role="img"
         aria-label={props.label ?? "Vector artwork"}
         data-testid="canvas-host"
-        style={{ position: "relative", overflow: "hidden", touchAction: "none" }}
+        // Positioning comes from the caller's class (the canvases inside are absolutely placed).
+        style={{ overflow: "hidden", touchAction: "none" }}
       />
     );
   },

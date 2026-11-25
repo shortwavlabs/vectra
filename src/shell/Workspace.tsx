@@ -29,11 +29,14 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { VectorCanvas } from "../canvas-host/CanvasHost.tsx";
+import type { DocumentRenderHost } from "../canvas-host/render-host.ts";
 import type { CanvasHostHandle, CanvasHostState, CanvasView } from "../canvas-host/types.ts";
 import type { Command } from "../document/commands.ts";
 import type { NodeId } from "../document/model.ts";
 import type { DispatchOptions, DocumentSession, SessionSnapshot } from "../document/session.ts";
 import { downloadBlob } from "../export/download.ts";
+import { type OfflineStatus, watchOfflineStatus } from "../jobs/offline-status.ts";
 import type { LengthUnit } from "../vectorization/types.ts";
 import { Button } from "../ui/registry/button";
 import {
@@ -51,16 +54,18 @@ import { ScrollArea } from "../ui/registry/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/registry/tooltip";
 import { isLocked, pathCount, topLevel } from "./document.ts";
 import { DocumentInspector, RecolorInspector, Section, SelectionInspector } from "./Inspector.tsx";
-import { InterimCanvasHost, type RenderSvg } from "./InterimCanvasHost.tsx";
 import {
+  associate,
   createJobs,
   exportDocument,
   PRESETS,
   type PresetId,
-  renderPreviewSvg,
   startTrace,
 } from "./jobs.ts";
 import { LayersPanel } from "./LayersPanel.tsx";
+import { installWorkspaceQualification } from "./qualification.ts";
+import { ArtboardFrame, SelectionBounds } from "./SelectionBounds.tsx";
+import { createViewStore } from "./view-store.ts";
 
 type ToolId = "select" | "trace" | "smooth" | "simplify" | "cleanup" | "recolor";
 interface Tool {
@@ -83,6 +88,42 @@ const TOOLS: readonly Tool[] = [
 
 const ACCEPT = "image/png,image/jpeg,image/webp";
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
+const debugMode = new URLSearchParams(location.search).get("debug") === "1";
+const forceMainThread = new URLSearchParams(location.search).get("renderer") === "main";
+
+/** A design token resolved to a canvas colour (the renderer cannot read CSS variables). */
+function tokenColor(name: string, fallback: string): string {
+  const probe = document.createElement("i");
+  probe.style.color = `var(--${name})`;
+  document.body.append(probe);
+  const c = getComputedStyle(probe).color;
+  probe.remove();
+  return c || fallback;
+}
+
+/** The status-bar description of the renderer: state, and the host (worker or fallback). */
+function rendererLabel(s: CanvasHostState, fallbackReason: string | null): string {
+  const host =
+    s.kind === "ready"
+      ? s.host === "worker"
+        ? "worker"
+        : `main thread${fallbackReason ? ` (fallback: ${fallbackReason})` : ""}`
+      : null;
+  switch (s.kind) {
+    case "empty":
+      return "Renderer: no document";
+    case "starting":
+      return "Renderer: starting";
+    case "rendering":
+      return "Renderer: rendering";
+    case "ready":
+      return `Renderer: ${host} · ready`;
+    case "recovering":
+      return `Renderer: recovering (${s.reason})`;
+    case "error":
+      return `Renderer error: ${s.message}`;
+  }
+}
 
 const noSubscribe = () => () => {};
 const noSnapshot = () => null;
@@ -169,11 +210,26 @@ export function Workspace() {
     createJobs((detail) => setStatus({ text: `This page is out of date: ${detail}`, error: true })),
   );
   const [session, setSession] = useState<DocumentSession | null>(null);
-  const renderSvg = useMemo<RenderSvg>(() => (s) => renderPreviewSvg(jobs, s), [jobs]);
+  // The document as of now, for async work (state is a render-time copy).
+  const sessionRef = useRef<DocumentSession | null>(null);
+  /** Shows a document; the job controller always targets the document the workspace shows. */
+  const adopt = useCallback(
+    (s: DocumentSession | null) => {
+      sessionRef.current = s;
+      associate(jobs, s);
+      setSession(s);
+    },
+    [jobs],
+  );
   const [preset, setPreset] = useState<PresetId>("bw");
   const [tracing, setTracing] = useState<{ jobId: number; name: string; stage: string } | null>(
     null,
   );
+  // Set synchronously when an import starts, before any await: a second import (a rapid
+  // repeat, or a drop while the first file is still decoding) is refused, never interleaved.
+  const importing = useRef(false);
+  const [preparing, setPreparing] = useState<{ name: string; abort: AbortController } | null>(null);
+  const busy = tracing !== null || preparing !== null;
   const [exportOpen, setExportOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const snap: SessionSnapshot | null = useSyncExternalStore(
@@ -187,36 +243,64 @@ export function Workspace() {
     [state, rawSelection],
   );
   const [tool, setTool] = useState<ToolId>("select");
-  const [hostState, setHostState] = useState<CanvasHostState>({ kind: "empty" });
-  const [view, setView] = useState<CanvasView | null>(null);
+  const [hostState, setHostState] = useState<CanvasHostState>({ kind: "starting" });
+  const [host, setHost] = useState<DocumentRenderHost | null>(null);
+  // The camera goes to a store read by the overlay; the workspace keeps only the zoom label,
+  // so a pan does not re-render the whole workspace every frame.
+  const [views] = useState(createViewStore);
+  const [zoom, setZoom] = useState<number | null>(null);
+  const onView = useCallback(
+    (v: CanvasView) => {
+      views.set(v);
+      setZoom(Math.round(v.scale * 100));
+    },
+    [views],
+  );
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [offline, setOffline] = useState(false);
+  const [offline, setOffline] = useState<OfflineStatus | null>(null);
   const canvas = useRef<CanvasHostHandle>(null);
+  // Resolved once, before the canvas mounts: the renderer draws with these colours.
+  const [colors] = useState(() => ({
+    paper: tokenColor("paper", "#eee8d8"),
+    surround: tokenColor("canvas-surround", "#303134"),
+    selection: tokenColor("primary", "#b9e87b"),
+    halo: tokenColor("background", "#191a1c"),
+  }));
 
   useEffect(() => {
-    // Offline use needs the service worker to control this page (it claims on first install).
-    const sw = navigator.serviceWorker;
-    const update = () => setOffline(sw.controller !== null);
-    sw?.addEventListener("controllerchange", update);
-    void sw?.ready.then(update);
     // Start the compute worker early, so the first import does not wait for the engine.
     void jobs.scheduler.warmup();
-    return () => sw?.removeEventListener("controllerchange", update);
+    // Offline-ready only when the controlling service worker caches this page's build.
+    return watchOfflineStatus(setOffline);
   }, [jobs]);
 
   const importFile = async (file: File) => {
-    if (tracing) return;
+    if (importing.current) {
+      setStatus({ text: `${file.name} was not imported: another import is in progress` });
+      return;
+    }
+    importing.current = true;
+    const abort = new AbortController();
+    setPreparing({ name: file.name, abort });
     setStatus({ text: `Reading ${file.name}…` });
     try {
-      const t = await startTrace(jobs, file, preset, session, (stage) =>
-        setTracing((cur) => cur && { ...cur, stage }),
+      const t = await startTrace(
+        jobs,
+        file,
+        preset,
+        () => sessionRef.current,
+        abort.signal,
+        (stage) => setTracing((cur) => cur && { ...cur, stage }),
       );
+      setPreparing(null);
       setTracing({ jobId: t.jobId, name: file.name, stage: "queued" });
       setStatus({ text: `Tracing ${file.name}…` });
       const out = await t.done;
       setTracing(null);
+      // A document created for this import is adopted only if the trace committed into it.
+      if (out.status !== "committed" && t.created) associate(jobs, sessionRef.current);
       if (out.status === "committed") {
-        setSession(t.session);
+        if (t.created) adopt(t.session);
         setRawSelection([out.layerId]);
         const m = out.result.metrics.stats;
         const ms = out.timings.queuedMs + out.timings.workerMs + out.timings.commitMs;
@@ -230,9 +314,27 @@ export function Workspace() {
       else setStatus({ text: "Trace cancelled; the document is unchanged" });
     } catch (e) {
       setTracing(null);
-      setStatus({ text: `Import failed: ${message(e)}`, error: true });
+      const code = (e as { code?: string }).code;
+      if (code === "cancelled") setStatus({ text: message(e) });
+      else if (code === "document_replaced") setStatus({ text: message(e), error: true });
+      else setStatus({ text: `Import failed: ${message(e)}`, error: true });
+    } finally {
+      setPreparing(null);
+      importing.current = false;
     }
   };
+
+  useEffect(() => {
+    if (!debugMode) return;
+    return installWorkspaceQualification({
+      jobs,
+      host: () => host,
+      session: () => sessionRef.current,
+      adopt,
+      selection: () => selection,
+      select: (ids) => setRawSelection(ids),
+    });
+  }, [jobs, host, adopt, selection]);
 
   const run = useCallback(
     (c: Command | Command[], o?: DispatchOptions) => {
@@ -326,7 +428,7 @@ export function Workspace() {
           <Button
             variant="outline"
             className="border-control-border"
-            disabled={tracing !== null}
+            disabled={busy}
             onClick={() => fileInput.current?.click()}
           >
             <Upload data-icon="inline-start" /> Import and trace…
@@ -353,6 +455,7 @@ export function Workspace() {
           session={session}
           snap={snap}
           ids={selection}
+          bounds={host?.boundsOf(topLevel(snap.state, selection)) ?? null}
           run={run}
         />
       );
@@ -420,7 +523,7 @@ export function Workspace() {
           <Button
             variant="outline"
             className="h-8 border-control-border"
-            disabled={tracing !== null}
+            disabled={busy}
             onClick={() => fileInput.current?.click()}
           >
             <Upload data-icon="inline-start" /> Import
@@ -495,17 +598,24 @@ export function Workspace() {
                     if (f) void importFile(f);
                   }}
                 >
-                  <InterimCanvasHost
+                  <VectorCanvas
                     ref={canvas}
                     session={session}
                     selection={selection}
                     onSelect={onSelect}
                     onStateChange={setHostState}
-                    onViewChange={setView}
-                    renderSvg={renderSvg}
+                    onViewChange={onView}
+                    onHost={setHost}
+                    paper={colors.paper}
+                    workspace={colors.surround}
+                    selectionColor={colors.selection}
+                    haloColor={colors.halo}
+                    forceMainThread={forceMainThread}
                     label="Artwork canvas"
                     className="absolute inset-0"
                   />
+                  <ArtboardFrame artboard={state?.artboard ?? null} views={views} />
+                  <SelectionBounds host={host} state={state} ids={selection} views={views} />
                   {!session && (
                     <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
                       <div className="pointer-events-auto grid max-w-sm justify-items-center gap-3 rounded-lg border border-dashed border-control-border bg-background/40 px-8 py-10 text-center">
@@ -516,10 +626,7 @@ export function Workspace() {
                           {PRESETS.find((p) => p.id === preset)!.label} preset. Drop a file here or
                           choose one.
                         </p>
-                        <Button
-                          disabled={tracing !== null}
-                          onClick={() => fileInput.current?.click()}
-                        >
+                        <Button disabled={busy} onClick={() => fileInput.current?.click()}>
                           <Upload data-icon="inline-start" /> Choose image…
                         </Button>
                       </div>
@@ -538,7 +645,7 @@ export function Workspace() {
                     <Minus />
                   </Button>
                   <span className="w-12 text-center tabular-nums" data-testid="zoom">
-                    {session && view ? `${Math.round(view.scale * 100)}%` : "—"}
+                    {session && zoom !== null ? `${zoom}%` : "—"}
                   </span>
                   <Button
                     variant="ghost"
@@ -620,23 +727,46 @@ export function Workspace() {
             className={status.error ? "text-destructive" : "text-foreground/85"}
           >
             {status.error ? "Error: " : ""}
-            {tracing ? `Tracing ${tracing.name} (${tracing.stage})…` : status.text}
+            {tracing
+              ? `Tracing ${tracing.name} (${tracing.stage})…`
+              : preparing
+                ? `Preparing ${preparing.name}…`
+                : status.text}
           </span>
-          {tracing && (
+          {(tracing || preparing) && (
             <Button
               variant="outline"
               size="xs"
               className="border-control-border"
-              onClick={() => jobs.cancel(tracing.jobId)}
+              onClick={() => (tracing ? jobs.cancel(tracing.jobId) : preparing?.abort.abort())}
             >
-              <X data-icon="inline-start" /> Cancel trace
+              <X data-icon="inline-start" /> Cancel import
             </Button>
           )}
           <div className="flex-1" />
-          <span data-testid="canvas-state">
-            Preview: interim SVG host ({hostState.kind}); production renderer pending
+          <span data-testid="canvas-state" data-state={hostState.kind}>
+            {rendererLabel(hostState, host?.client.diag.fallbackReason ?? null)}
           </span>
-          <span>{offline ? "Offline ready" : "Offline not ready"}</span>
+          {offline?.updateWaiting && (
+            <span data-testid="update-waiting" className="text-foreground/85">
+              Update ready: it is used once every Vectra tab has closed
+            </span>
+          )}
+          <span
+            data-testid="offline-status"
+            data-state={offline?.ready ? "ready" : offline?.mismatch ? "mismatch" : "none"}
+            title={
+              offline?.mismatch
+                ? "A different version of Vectra is installed for offline use. This tab keeps working while online; reload it when convenient."
+                : undefined
+            }
+          >
+            {offline?.ready
+              ? "Offline ready"
+              : offline?.mismatch
+                ? "Offline unavailable: another version is installed"
+                : "Offline not ready"}
+          </span>
         </footer>
       </div>
 

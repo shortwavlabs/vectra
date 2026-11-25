@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vite-plus/test";
 import { fixtureSession } from "../document/testing/helpers.ts";
+import { isContainer } from "../document/model.ts";
 import type { DocumentSession } from "../document/session.ts";
 import {
   fillTargets,
-  hitTestBoxes,
   isLocked,
   moveCommand,
   quarterTurnAbout,
@@ -101,19 +101,17 @@ describe("world transforms", () => {
   });
 });
 
-describe("interim box hit test and locks", () => {
-  test("picks the smallest containing box and skips locked or hidden paths", () => {
+describe("locks and document bounds", () => {
+  // Canvas picking is the exact hit-test service (src/hit-test, tested there).
+  test("a lock is inherited from an ancestor; document bounds union the selection", () => {
     const s = twoLayers();
     const [limited, circle] = roots(s);
-    expect(hitTestBoxes(s.state, s.store, 128, 128)).not.toBeNull();
     expect(selectionBounds(s.state, s.store, [limited!, circle!])!.width).toBe(256);
+    const layer = s.state.nodesById.get(circle!);
+    const child = isContainer(layer) ? layer.orderedChildIds[0]! : circle!;
+    expect(isLocked(s.state, child)).toBe(false);
     s.dispatch({ type: "setLocked", ids: [circle!], locked: true });
-    const hit = hitTestBoxes(s.state, s.store, 128, 128);
-    expect(hit).not.toBeNull();
-    expect(isLocked(s.state, hit!)).toBe(false); // a path of the unlocked layer
-    s.dispatch({ type: "setVisible", ids: [limited!], visible: false });
-    expect(hitTestBoxes(s.state, s.store, 128, 128)).toBeNull();
-    expect(hitTestBoxes(s.state, s.store, -50, -50)).toBeNull();
+    expect(isLocked(s.state, child)).toBe(true);
   });
 });
 

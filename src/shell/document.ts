@@ -127,29 +127,6 @@ export function selectionBounds(s: DocState, store: GeometryStore, ids: readonly
   return b;
 }
 
-/**
- * INTERIM hit test (bounding boxes, not geometry): the visible, unlocked path with the
- * smallest box containing the point; ties go to the later (top-most) path. The G-R0/G-R1
- * renderer replaces this with exact hit testing (RFC-002 §9).
- */
-export function hitTestBoxes(s: DocState, store: GeometryStore, x: number, y: number) {
-  let best: NodeId | null = null;
-  let bestArea = Infinity;
-  const visit = (id: NodeId) => {
-    const n = s.nodesById.get(id)!;
-    if (!n.visible || n.locked) return;
-    if (n.kind === "path") {
-      const b = worldBounds(s, store, id);
-      if (b && x >= b.x && x <= b.x + b.width && y >= b.y && y <= b.y + b.height) {
-        const area = b.width * b.height;
-        if (area <= bestArea) [best, bestArea] = [id, area];
-      }
-    } else if (isContainer(n)) n.orderedChildIds.forEach(visit);
-  };
-  s.orderedRootIds.forEach(visit);
-  return best;
-}
-
 /** Commands that apply a document-space affine `w` to each top-level target (one transaction):
  *  local' = P⁻¹ · w · P · local, so the node's world matrix becomes w · world. */
 export function worldTransformCommands(s: DocState, ids: readonly NodeId[], w: Matrix): Command[] {
