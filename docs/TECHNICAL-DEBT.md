@@ -89,6 +89,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
 | [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
 | [TD-PLATFORM-007](#td-platform-007) | Native and WASM Artistic output differ on some inputs (found at G-ENG) | Defect (determinism) | Medium | OPEN | before cross-target reproducibility claims | — |
+| [TD-PERF-007](#td-perf-007) | Structural transactions cost O(nodes) | Limitation (measured) | **High** | OPEN | G-EDIT | G-EDIT |
 
 Counts:
 - **37 open items** after G-0: the original 25 (4 confirmed defects, 12 limitations, 5 untested environments, 4 enhancements) plus 12 added at G-0 (11 proposed by the independent review, plus TD-PLATFORM-006 found during reconciliation).
@@ -793,6 +794,35 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** update-lifecycle tests (old tabs, worker recreation after deploy, interrupted install, offline after update, mixed-version refusal) pass on the production build in 3 engines and real Safari.
 - **Dependencies:** C5 handshake (`buildId`).
 - **Owner action:** Safari authorisation.
+
+## Added at G-DOC
+
+<a id="td-perf-007"></a>
+### TD-PERF-007 — Structural transactions cost O(nodes)
+- **Source:** G-DOC benchmarks; P1-A corrective review (production validator path).
+- **Category / severity / status:** Limitation (measured) · **High** · OPEN TECHNICAL DEBT.
+- **Description.** Every dispatched transaction copies the node map (`Draft`, `SealedMap`) and then runs the whole-state invariant pass (`validateState`). Both are linear in the node count, so a one-node edit costs as much as revalidating the document. Undo and redo stay below 0.03 ms because they reuse validated states.
+- **Evidence** (Apple M5 Max, Node 24.22.1; all runs under `ngspice` load, so absolute numbers are pessimistic; a clean run is NOT RUN):
+
+  | Workload | Nodes | Dispatch, median (ms) | `validateState` | Node-map copy | Rest | Budget |
+  |---|---|---|---|---|---|---|
+  | Interactive target (§8.8): 41,666 paths × 6 anchors | 41,675 | 27–31 (bench, load 12–26) | — | — | — | ≤ 16 (frame) |
+  | same, phase profile (load 38–40) | 41,675 | 51.2 | 43.3 (85 %) | 4.6 | 3.3 | |
+  | 250,000 paths × 4 anchors, phase profile (load 38) | 250,009 | 418 | 324 (77 %) | 60 | 35 | |
+  | 50,000 paths × 20 anchors (bench) | 50,009 | 41–50 | — | — | — | |
+
+  Commands: `node docs/research/g-doc/bench/bench.mjs --reps 30` and `node docs/research/g-doc/bench/dispatch-profile.mjs [paths] [anchorsPerPath]` (P1-A integration branch, production validator). The 16 ms figure is the frame budget an interactive edit must fit in; G-DOC itself has no dispatch target.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (immutable snapshots, validated transactions) / IMPLEMENTATION PENDING; gate **G-EDIT**. No store rewrite or new dependency is made in P1-A.
+- **Upgrade path.**
+  1. Incremental invariants: validate only the nodes a transaction touched, their parents and the derived indices they change, against invariants stated per node.
+  2. Structural sharing for the node, style and palette maps (persistent maps, or copy-on-write chunks), so a draft no longer copies the whole map.
+  3. The whole-state pass stays authoritative for load, import and recovery, and as a test oracle: a property test compares incremental and full validation on random command sequences.
+- **Closure criteria.**
+  - A structural command (transform, rename, hide, recolour, delete group) dispatches in ≤ 16 ms median and ≤ 33 ms p95 at the interactive target (≈ 250k anchors, ≈ 40k paths) on the reference machine, clean run, production build.
+  - Incremental and full validation agree on every state of a randomized command-sequence suite (at least 10,000 transactions, including rejected ones).
+  - Load still runs the full pass; no invariant is weakened.
+- **Dependencies:** G-DOC store and invariants (C8 r2); TD-ARCH-005.
+- **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT.
 
 ---
 

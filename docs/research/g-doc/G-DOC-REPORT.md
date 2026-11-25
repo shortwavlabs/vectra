@@ -304,3 +304,56 @@ A3. **C8 rules 2–4: clip arithmetic.** "Computed in f64 from the transformed c
 - **Inflation bound** (verified by reading the code). `inflate()` pre-allocates exactly the declared, capped `uncompressedLength` and counts each `DecompressionStream` chunk. It cancels the reader and fails (`inflate`) as soon as a chunk would pass the declared length. Peak memory is therefore the capped section size plus one stream chunk. A bomb is stopped during streaming, not after buffering.
 - **Scene metadata gap (risk for G-EXP).** The document stores no trace provenance or scene metadata (generator, engine version, mode, preset version, seed, source size, params): `TraceProvenance` was omitted as an undefined shape (§7B.6). G-ENG's `bake_draw_list` needs them in `SceneMeta` to reproduce unedited-P0 export hashes, so the document must store enough provenance to rebuild `SceneMeta` before G-EXP. See G-ENG's report (risk next to AR-2).
 
+
+## 11. P1-A corrective review (AM-1)
+This section records the corrective work on this branch after the P1-A corrective-review brief. The production wiring, the end-to-end export proof, browser persistence and the benchmarks on the production validator are on the integration branch (`p1a/integration`, report `docs/research/p1a-integration/P1A-INTEGRATION-REPORT.md`): this branch alone still validates through the test-only adapter, so its isolated results do not close the gate.
+
+### 11.1 TraceProvenance v1 and source subsets (C10 r1)
+- **Where it lives.** `Layer.traceProvenance` on the layer a trace creates (`src/document/provenance.ts`). `commitTrace` requires it and checks it before the packet is consumed. The store assigns `chunkId`. The record is a private, deep-frozen copy.
+- **What it holds.** `provenanceVersion` 1; the commit-time `chunkId` (a historical reference that may stop resolving); `source` {SHA-256 digest, width, height} (content identity, never a file name); `decodePolicy` (closed enum `browser-canvas-v1` | `external`); `traceRequest` {presetVersion, seed, maxPixels, maxAnchors, settings} (≤ 64 KiB canonical JSON); `engineVersion`; `fitMode`; `precisionFitVersion`; `presetVersion`; `seed`; `originalScene` {width, height, background, palette, metadata}.
+- **Consistency rules** (strict checker, also run by the loader and the invariant pass): exact members; `fitMode` equals `traceRequest.settings.fit.mode`; the explicit fields equal `originalScene.metadata`; `metadata.sourceWidth/Height` equal `source`; ids follow the scene-v1 rule; the chunk reference is below `nextChunkId`.
+- **Validity after edits.** No command modifies provenance. `replace` installs the new trace's record; `duplicate` copies it; `bake` leaves it as history. Provenance is never authoritative for current styles, transforms, palette, artboard or geometry.
+- **Source assets.** `SourceAsset.decodePolicy` (same enum) and `provenance: {kind: "local-file"}`, the only v1 subset. Effect stacks are not in Document v1 (C10: added by a later schema version with a migration; v1 files carry none).
+
+### 11.2 Export metadata semantics (`src/document/export.ts`)
+`buildExport(state, store, engineVersion)` returns the export draw list (C8 r2: `paletteId`, artboard size, packet-set indices), the referenced chunks in packet-set order, and the SceneMeta.
+- **Export-unedited is computed** from current state on every call: a traced layer's runs and items equal the C3.1 identity draw list of its chunk. Undo restores it. A run renamed only because an earlier layer took the packet's group id is not an edit.
+- **Original form** only for a single contributing, export-unedited trace whose artboard equals the trace's original scene: the trace's background, palette and metadata are used verbatim, so the export is byte-identical to P0.
+- **Document form** for everything else: `mode: "document"`, `presetVersion` 0, `seed` 0, artboard size rounded up, palette in first-use order with unique scene ids, and `params.derivedFrom[]` (source digest, mode, preset, seed, fit mode, precision version, `edited`). Original trace metadata is never presented as describing edited artwork.
+
+| Case | Form | Test (`src/document/export.test.ts`) |
+|---|---|---|
+| Unedited single trace (every fixture) | original, verbatim | `unedited single trace uses the original scene verbatim` |
+| Edited trace (recolour, transform, clip, palette edit) | document, `edited: true` | `an edited trace exports in document form…`, `palette edits flow…`, `a clip added…` |
+| Undo of the edit | original again | `undoing the edit restores the original form` |
+| Multiple traced layers | document, one `derivedFrom` each | `multiple traced layers…`, `hiding a layer…` |
+| Baked geometry | document, `edited: true` | `baked geometry exports in document form` |
+| Missing source bytes | unchanged (exports never read sources) | `a missing source asset does not change the export` |
+
+### 11.3 Independent review findings (`src/document/review-regressions.test.ts`)
+| # | Finding | Fix | Test |
+|---|---|---|---|
+| 1 | A throwing subscriber made a published transaction look failed and could drop attached source bytes | listener errors isolated (`onListenerError`; default rethrows asynchronously) | review 1 |
+| 2 | Source bytes aliased the caller's buffer | copied on input and output | review 2 |
+| 3 | Committed state, history states and derived data were mutable at runtime | sealed maps; changed entries frozen at `finish` and on load; draw-list strokes and `derivedOf` are copies | review 3 |
+| 4 | The history budget ignored history-only source bytes | counted | review 4 |
+| 5 | The chunk counter could pass what the container accepts | bounded by the 15-digit id space at load and in the store; typed failure when exhausted | review 5 |
+| 6 | A geometry section below the store counter (`chk_0`) was an untyped error | typed `ContainerError` (`section`) | `container.test.ts` geometry sections (added here; it failed with `untyped:DocumentError` when the check was removed) |
+| 7 | A composed transform could overflow to non-finite | `invalid_transform` | review 7 |
+| 8 | Undo/redo-triggered eviction kept source bytes | freed | review 8 |
+| 9 | Embedded sources above C7's 20 MiB, bad `rotate90` turns, spoofed typed-array views | typed errors at attach and commit (intrinsic accessors) | review 9 |
+
+### 11.4 Missing sources and relinking (RFC §14)
+`missingSources()` lists assets whose bytes the session does not hold. `relinkSource(assetId, bytes)` accepts bytes only when the SHA-256 digest, image signature and dimensions match the asset. It is not a document edit: no transaction, revision or history entry. Tested here in Node and, on the production loader, in three browser engines (integration report).
+
+### 11.5 Commands and results (this branch, `c5bfb87` + this section's commit)
+- `pnpm exec vp check`: PASS (132 files formatted; 71 files without lint or type errors).
+- `pnpm exec vp test run`: 198/198 PASS (14 files).
+- Benchmarks were re-run on the integration branch with the production validator (integration report). The figures in §5 used the test adapter.
+
+### 11.6 Debt
+- **TD-PERF-007** (new, gate G-EDIT): structural transactions cost O(nodes). At the interactive target a structural dispatch measured 27–31 ms (budget 16 ms), 77–85 % of it in the whole-state invariant pass. Closure needs incremental invariants and structural sharing, with the full pass kept for load and as a test oracle.
+- **TD-ARCH-003 (document half):** PRODUCTION VERIFIED on the integration branch (sole validator and codec); this branch alone is unchanged.
+
+### 11.7 Disposition
+**PARTIAL.** The corrective items on this branch are done and tested. The gate still depends on the integration branch, and the 250k-path open target (≤ 1 s) is missed (integration report §7). Clean benchmarks are NOT RUN.

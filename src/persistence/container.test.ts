@@ -610,6 +610,11 @@ describe("container adversarial suite: typed errors, live document unchanged", (
     await expectCode(assemble(secs), "document:budget", {
       limits: { ...DEFAULT_DOC_LIMITS, maxAnchors: 10 },
     });
+    // Review finding 6: a geometry section numbered below the store counter (chk_0).
+    await expectCode(
+      assemble(secs.map((s, i) => (i === geo ? { ...s, id: "chk_0" } : s))),
+      "section",
+    );
   });
 
   test("source sections: bad signature, digest mismatch, missing or unexpected sections", async () => {
