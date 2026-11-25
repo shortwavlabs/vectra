@@ -1,0 +1,245 @@
+{
+  "commit": "02d22bda6024d939490e7ecf3b4a852ef2418b6d",
+  "started": "2026-11-25T23:39:54.588Z",
+  "loadavgStart": [0.54443359375, 1.26025390625, 1.48486328125],
+  "results": [
+    {
+      "name": "handshake-startup",
+      "details": {
+        "buildId": "5c486b55c14c9265",
+        "swVersion": "16cf665149e9c4fa",
+        "handshakes": 1
+      },
+      "pass": true,
+      "ms": 674
+    },
+    {
+      "name": "churn-online-offline",
+      "details": {
+        "online": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+        },
+        "offline": [
+          {
+            "cancelAckMs": 0,
+            "workersCreated": 3,
+            "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+          },
+          {
+            "cancelAckMs": 0,
+            "workersCreated": 4,
+            "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+          },
+          {
+            "cancelAckMs": 0,
+            "workersCreated": 5,
+            "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+          },
+          {
+            "cancelAckMs": 0,
+            "workersCreated": 6,
+            "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+          }
+        ]
+      },
+      "pass": true,
+      "ms": 5388
+    },
+    {
+      "name": "cancel-ui-ack",
+      "details": {
+        "clickToCancelledMs": 0
+      },
+      "pass": true,
+      "ms": 1668
+    },
+    {
+      "name": "offline-reload-and-recreation",
+      "details": {
+        "buildId": "5c486b55c14c9265",
+        "recreation": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+        }
+      },
+      "pass": true,
+      "ms": 1787
+    },
+    {
+      "name": "single-build-update",
+      "details": {
+        "b1": "5c486b55c14c9265",
+        "b2": "75292a99d2a98cbd",
+        "recreateOnline": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["succeeded"]
+        },
+        "recreateOffline": {
+          "cancelAckMs": 0,
+          "workersCreated": 3,
+          "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+        },
+        "entries": {
+          "vectra-625ef9a6d11d41f1": 13
+        },
+        "keys": ["vectra-625ef9a6d11d41f1"],
+        "after": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+        }
+      },
+      "pass": true,
+      "ms": 5958
+    },
+    {
+      "name": "template-only-update",
+      "details": {
+        "vA": "16cf665149e9c4fa",
+        "vB": "06fedda314586a8d",
+        "before": {
+          "vectra-16cf665149e9c4fa": 13
+        },
+        "after": {
+          "vectra-16cf665149e9c4fa": 13
+        },
+        "recreation": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["cancelled", "cancelled", "cancelled", "cancelled", "succeeded"]
+        },
+        "final": {
+          "vectra-06fedda314586a8d": 13,
+          "vectra-16cf665149e9c4fa": 13
+        }
+      },
+      "pass": true,
+      "ms": 2824
+    },
+    {
+      "name": "interrupted-install",
+      "details": {
+        "before": {
+          "vectra-16cf665149e9c4fa": 13
+        },
+        "after": {
+          "vectra-16cf665149e9c4fa": 13
+        },
+        "recreation": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["succeeded"]
+        }
+      },
+      "pass": true,
+      "ms": 2156
+    },
+    {
+      "name": "cache-eviction-recovery",
+      "details": {
+        "b1": "5c486b55c14c9265",
+        "reason": "version",
+        "offline": "offline",
+        "otherTab": {
+          "cancelAckMs": 0,
+          "workersCreated": 2,
+          "outcomes": ["succeeded"]
+        }
+      },
+      "pass": true,
+      "ms": 2106
+    },
+    {
+      "name": "frozen-export-and-integrity",
+      "details": {
+        "before": "d8134f8742435163bb395e1eb30967b8c330204762a6819e1317135d921a388c",
+        "frozen": "d8134f8742435163bb395e1eb30967b8c330204762a6819e1317135d921a388c",
+        "after": "d9f36d4f52d6f39a62caf5eda58f740aa7d3e6ebf678bbbfac2e31f2068a2889",
+        "diag": {
+          "droppedResults": 0,
+          "terminations": 8,
+          "rejectedBusy": 0,
+          "submitted": 14,
+          "workersCreated": 8,
+          "superseded": 0,
+          "wrongGenerationDropped": 0,
+          "failed": 0,
+          "preempted": 0,
+          "running": null,
+          "crashes": 4,
+          "jobRefs": 0,
+          "queued": [],
+          "reservedBytes": 0,
+          "cancelled": 4,
+          "succeeded": 10,
+          "droppedErrors": 0,
+          "settleViolations": 0,
+          "state": "ok",
+          "snapshotRefs": 0,
+          "staleGenerationDropped": 0,
+          "startupRetries": 0,
+          "fatalErrors": 0,
+          "handshakes": 8,
+          "startupTimeouts": 0,
+          "startupFailures": 0,
+          "recycles": 0,
+          "unmatchedDropped": 0,
+          "droppedProgress": 0,
+          "lastMemoryBytes": 108265472,
+          "buildMismatches": 0
+        }
+      },
+      "pass": true,
+      "ms": 9702
+    },
+    {
+      "name": "build-mismatch-refused",
+      "details": {
+        "diag": {
+          "droppedResults": 0,
+          "terminations": 1,
+          "rejectedBusy": 0,
+          "submitted": 0,
+          "workersCreated": 1,
+          "superseded": 0,
+          "wrongGenerationDropped": 0,
+          "failed": 0,
+          "preempted": 0,
+          "running": null,
+          "crashes": 0,
+          "jobRefs": 0,
+          "queued": [],
+          "reservedBytes": 0,
+          "cancelled": 0,
+          "succeeded": 0,
+          "droppedErrors": 0,
+          "settleViolations": 0,
+          "state": "skewed",
+          "snapshotRefs": 0,
+          "staleGenerationDropped": 0,
+          "startupRetries": 0,
+          "fatalErrors": 0,
+          "handshakes": 0,
+          "startupTimeouts": 0,
+          "startupFailures": 0,
+          "recycles": 0,
+          "unmatchedDropped": 0,
+          "droppedProgress": 0,
+          "lastMemoryBytes": 0,
+          "buildMismatches": 1
+        }
+      },
+      "pass": true,
+      "ms": 657
+    }
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2 (25G83)"
+  },
+  "loadavgEnd": [1.150390625, 1.326171875, 1.49951171875]
+}

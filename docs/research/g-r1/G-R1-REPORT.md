@@ -220,3 +220,38 @@ See the PR description: exact head, CI run, and the final regression run (full b
 - Interaction budgets met on the reference machine.
 - Not met: preview ≤ 100 ms at the interactive target, accepted temporarily by the maintainer (TD-PERF-001 retained), and the TD-PERF-007 structural dispatch targets, authorised for G-DOC-R.
 - NOT RUN: real-Safari timing, VoiceOver, the stock-Safari keyboard check, lower-end hardware and a quiet run.
+
+## 12. Maintainer review and corrections (2026-11-25)
+These decisions are recorded in [decision register §10](../g0/G0-DECISION-REGISTER.md). All historical PARTIAL dispositions are unchanged.
+
+**Accepted.**
+- The additive contract amendment: `transformable` and `onTransform`.
+- The pointer model, including "one completed gesture is one undo transaction".
+- The layered drag-cache architecture.
+- The complete-preview miss, temporarily, for downstream engineering. TD-PERF-001 and the targets are retained, and grading separates interactive from stress workloads (§5).
+- G-DOC-R is authorised for TD-PERF-007 and TD-PERF-011 ([scope](../g-doc-r/G-DOC-R-SCOPE.md)).
+
+**Corrections on this branch:**
+
+| # | Correction | Commit | Verification |
+|---|---|---|---|
+| 1 | The two test-race fixes from G-UI-R, including the bounded diagnostic read: `selectOnCanvas` waits for each probe's asynchronous answer, and the selection reads poll the committed render | `19e9618`, `463a11d` (cherry-picked with `-x` from `83e0816`, `d283ef8`) | Full suite and stress (below) |
+| 2 | **Canvas keyboard focus ring at the canvas-host level.** The host's outline was painted under its own canvas layers, invisible in Chromium (WCAG 2.4.7). The host now draws the dual ring as its top layer: it follows `:focus-visible`, is an outline (so it survives forced-colours mode) and takes no pointer input. The shell's `.vectra-canvas:focus-visible` rule is removed | `d9b5208` | `workspace-a11y` reads **rendered pixels**: both ring bands along all four edges, with artwork and the selection overlay under every edge. A pointer click shows no ring and still selects; the ring is never the hit element. Chromium, Firefox and Playwright WebKit pass. Mutations (no ring layer; ring under the layers) fail in all 3. Real Safari: the `gr1.mjs` 'focus' scenario (Option-Tab; viewport capture) passes |
+| 3 | **Locks extend to deletion.** Deleting a container that holds locked descendants is refused with an actionable alert ("Not deleted: "…" contains N locked objects. Unlock them to delete."), with no partial deletion. Directly locked items are kept and reported. `planDeletion` is the one policy for the Delete key and the Layers menu. Commands do not enforce locks, so the document architecture is unchanged. Palette edits still reach locked paths, and the Recolor panel discloses this | `7783458`, `02d22bd` | Unit tests (a mutation removing the refusal fails 2). Browser tests cover pointer (a drag pans; no handles), keyboard Delete, the Layers menu, the inspector (frozen transform; a layer fill skips the locked path) and undo/redo (the lock returns and protects again). A UI-only test reproduces checklist D2b |
+| 4 | Documentation: decision register §10, G-DOC-R scope, TECHNICAL-DEBT, this report, VoiceOver checklist (A5, C8, D2b) | `02d22bd` | — |
+
+**Verification on `02d22bd`.** Environment: Apple M5 Max, macOS 26.6.2, Node 24.22.1, Playwright 1.65.1 (Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2). The machine is shared and was not quiet.
+
+| Check | Result |
+|---|---|
+| `vp check` | Clean (301 files formatted; no lint or type errors in 168) |
+| `vp test` | 26 files, **386 passed** |
+| Build | Dist check passed; 55 notices verified |
+| Bundle (gzip KiB) | Design-system JS 113.8, CSS 8.4, initial workspace JS 228.6 (budgets 150 / 15 / 250) |
+| Playwright full suite, 3 engines | **333 passed, 0 failed, 0 flaky**, 27 skipped (opt-in specs); 7.3 min; load average 2.36 → 1.51 |
+| Stress: `workspace-a11y`, `workspace-integration`, `ui-document`, `drag-correctness`, `--repeat-each=3`, 3 engines | **414 passed**; 5.4 min; load average 1.51 → 3.26 |
+| Real Safari 26.6.2, G-JOB (`gjob.mjs`) | **10/10** |
+| Real Safari, persistence (`persistence.mjs`) | **23/23** |
+| Real Safari, focus ring (`gr1.mjs focus`, on `d9b5208`; `src/canvas-host` unchanged since) | **PASS**, page visible. Canvas reached in 9 Option-Tab presses; `:focus-visible` and the ring shown. Outer band sample (185, 225, 124) against the ring colour (185, 232, 123); inner band (24, 25, 26) against the halo (25, 26, 28). A pointer click: focused, not `:focus-visible`, no ring, 0 lime samples. The JSON record was overwritten by a later run; these values are transcribed from that run's output |
+| Real Safari, G-R0 (`gr0.mjs`), G-UI (`gui.mjs`) and G-R1 (`gr1.mjs`) on `02d22bd` | **INVALID, re-run pending.** The macOS screen was **locked** during the run (`CGSSessionScreenIsLocked` true), so the automation page was hidden: `gr1.mjs` measured 0 animation frames in 500 ms. Focus-visible, tooltips, dialogs and animation-frame timing cannot be tested on a hidden page. Results: G-R0 6/7 (pan-zoom timing failed), G-UI 4/15, G-R1 4/5 with 1 NOT RUN. These are not counted as results. A probe after the run still reported the page hidden |
+
