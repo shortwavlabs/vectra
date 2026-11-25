@@ -1,6 +1,6 @@
 # G-UI-R — Design refinement of the integrated workspace
 
-**Status:** ready for review, 2026-11-25. Branch `gate/g-ui-r`, stacked on `gate/g-r1-interactive` at `ee72fb3`. Not pushed, no PR (the lead opens it), nothing merged or deployed.
+**Status:** ready for review, 2026-11-25. Branch `gate/g-ui-r`, built on `gate/g-r1-interactive` at `ee72fb3`, then merged with the final G-R1 head `24550b8` (merge `1e7c184`; §13 has the merged head's results). The PR is stacked on G-R1 (#19). Nothing is merged or deployed.
 **Scope:** visual and UX changes to `workspace.html` (via `src/shell/**` and `src/ui/**`) only. No document, renderer, hit-test, job or canvas-host code changed. The charcoal, lime and ivory identity is kept; the §4 palette is unchanged; one token was added (`ink-muted`).
 
 | Brief item | Result |
@@ -15,7 +15,8 @@
 | Accessibility not regressed | Contrast measured from the running build, all pass; focus, keyboard, reduced motion and target sizes checked (§6) |
 | Bundle budgets | **Pass**: 114.5 / 9.1 / 230.1 KiB against 150 / 15 / 250 (§8) |
 | Tests | See §9 |
-| VoiceOver, real Safari | **NOT RUN** (the lead's) |
+| VoiceOver | **NOT RUN**: owner checklist (`docs/research/g-r1/VOICEOVER-CHECKLIST.md`, E1/E2 updated for this layout) |
+| Real Safari | `tests/safari/gui.mjs` on the merged head (§13) |
 
 ## 1. Impeccable passes
 The skill was invoked through the Skill tool (`impeccable`). Its context loader reported: no `PRODUCT.md`; `docs/DESIGN.md` (superseded) mapped to `DESIGN-SYSTEM.md` and RFC-002; the incumbent implementation is the design authority for a refinement; narrow refinement allowed without `init`. The design hook is not installed for this project; it was not changed (configuration is out of scope), so the detector was run manually, as the skill requires.
@@ -191,6 +192,8 @@ Derived colours introduced here (computed from the tokens, not measured in the b
 The brief quoted 220.9 KiB for the initial JS; the measurement at `ee72fb3` is 227.8 (G-R1's additions), and that is the figure compared here. Raw: `tests/output/g-ui-r/bundle-before.json`, `bundle-after.json`.
 
 ## 9. Tests
+This section is the pre-merge record, at `4522ce9`. The results on the merged head are in §13.
+
 All on the final build of `4522ce9` (source; the docs commit on top changes no built file) (`pnpm run build`: 55 notices verified, dist check passed), served by `pnpm exec vp preview --host 127.0.0.1 --port 4191 --strictPort`. Playwright 1.65.1: Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2. macOS (Darwin 25.6.0, arm64), Node 24.22.1, pnpm 12.23.0. The machine is shared and was not quiet (other projects' dev and preview servers running; none touched).
 
 | Command | Result | Load average (1/5/15 min) |
@@ -236,3 +239,73 @@ The new test (`small laptops: the inspector shows Fill without scrolling`) passe
 5. Should the side column collapse (Layers to a header) below 720 px of height?
 6. Keep the "Studio" label next to the wordmark?
 7. **Copy needing approval:** the preset descriptions ("One ink on paper", "Every colour region", "A small palette of inks"), the empty-state text ("Drop an image to start … becomes the first layer; nothing is uploaded"), "Nothing to inspect yet", "Selection inside", and the reworded Fill note.
+
+## 13. Integration with the final G-R1 head
+**Merge.**
+- `1e7c184` merges `754ec77` with `gate/g-r1-interactive` at `24550b8` (#19). It is a merge commit made with `ort`, with no conflicts; no file changed on both sides since `ee72fb3`.
+- Follow-up commits:
+  - `83e0816` and `d283ef8`: test fixes;
+  - `928cd82`: VoiceOver checklist E1/E2;
+  - then this section.
+- Against `24550b8`, this branch changes only `src/shell/**`, `src/ui/**`, five browser test files and docs. No engine, document, renderer, hit-test, job, persistence or canvas-host file changed.
+
+**Environment.** macOS 26.6.2 (Darwin 25.6.0, arm64), Node 24.22.1, pnpm 12.23.0, Playwright 1.65.1 (Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2). The machine is shared and was not quiet: four Vectra preview servers from other checkouts were left running on 4179, 4181, 4182 and 4291. ngspice was not running. Playwright used its configured server on port 4173.
+
+**Build and unit.**
+- `pnpm run build`: the dist check passed.
+- `pnpm exec vp check`: 303 files formatted; no lint or type errors in 170 files.
+- `pnpm exec vp test`: 26 files, 382 tests passed.
+
+**Bundle** (`node docs/research/g-ui/measure-bundle.mjs`, gzip KiB, merged build):
+
+| | Value | Budget |
+|---|---|---|
+| Design-system JS | 114.5 | 150 |
+| Workspace CSS | 9.1 | 15 |
+| Total initial workspace JS | 230.5 | 250 |
+
+Total initial workspace JS measured 228.1 at `24550b8` and 227.8 at `ee72fb3`. Raw: `tests/output/g-ui-r/bundle-merged-1e7c184.json`.
+
+**Playwright, every full run on this branch after the merge (3 engines):**
+
+| Run | Head | Result | Cause of failures |
+|---|---|---|---|
+| 1 | `1e7c184` | 321 passed, 3 failed, 39 skipped (7.8 min) | 2 × `renderer-behaviour` crash test (Chromium): `render_compare` was absent in this worktree when that spec ran (ENOENT). `renderer-correctness`'s `beforeAll` built it later in the same run (`cargo --locked`). Plus 1 × `ui-document` "keyboard only" (Chromium): no path under any probe point (fix 1 below) |
+| 2 | `974c485` (later amended) | 323 passed, 1 failed, 39 skipped (8.3 min) | `workspace-integration` "selection … replacement clears it" (WebKit; fix 2 below) |
+| 3 | `9a5bce0` (later amended) | 324 passed, 0 failed, 39 skipped (8.2 min) | Intermediate: the helper was edited during this run |
+| 4 | `928cd82` | 321 passed, 6 failed, 36 skipped (19.4 min) | A regression in the test fix: the diagnostic read added in `83e0816` waited, without a bound, for an element that is absent when a probe selects nothing. `ui-document` tests at lines 142 and 552 failed in 3 engines. Fixed in `d283ef8` |
+| Stress | `928cd82` | 345 passed, 30 failed | The same two tests, 3 engines × 5 repeats. Everything else passed, including both earlier flakes |
+| **Final** | **`d283ef8`** | **327 passed, 0 failed, 0 flaky, 36 skipped (8.5 min)** | Load average 0.93 → 1.56 |
+| **Stress** | **`d283ef8`** | **375 passed**: `ui-document` + `workspace-integration`, `--repeat-each=5`, 3 engines (10.1 min) | Load average 1.56 → 1.21 |
+
+**Skips and inputs.**
+- The 36 skips are all opt-in specs: benchmark 3, jobs-perf 3, native-benchmark 3, owner-bundle 3, renderer-perf 6, ui-refinement-screenshots 9, ui-screenshots 6, workspace-perf 3.
+- Runs 1–3 also skipped `pdf-eval` (3), because this worktree had no `tests/output/native`. Before run 4 it was generated here with `cargo run --release --locked -p vector-engine --example export_samples` (105 SVG/PDF pairs).
+- `render_compare` was built in this worktree during run 1. Runs 2–3 used a copy of the main checkout's binary (same crate sources; 32 bytes differ, from embedded paths). The local build was restored before run 4.
+- Records (gitignored): `tests/output/g-ui-r/pw-final-d283ef8.json` and `pw-stress-d283ef8.json`.
+
+**The two test fixes.** Both are races in G-R1's specs and helpers, so #19 carries them too. The product behaves as specified in both cases. The fixes are `83e0816` and `d283ef8`, and they can be cherry-picked onto #19.
+1. **`selectOnCanvas`** (`tests/browser/ui-helpers.ts`):
+   - It read the selection name immediately after each click. An exact hit answers asynchronously, after the current revision's hit index, which is rebuilt in slices after an edit. Answers come in click order, and only a document change makes one stale.
+   - The most likely cause is that under full-suite load every read ran ahead of the answers. This is **inferred, not observed**.
+   - Each probe now waits up to 3 s for its own answer. A failure now reports what each probe left selected and, on debug pages, the hit counters.
+2. **Replacement clears the selection** (`workspace-integration`):
+   - The debug `selection()` returns the last committed render. `load()` returns once `canvas-state` is "ready", and the old document already was.
+   - The IDs received were exactly those `a.select()` had set, and no click was pending.
+   - The reads after clicks and after the replacement now poll. A kept selection still fails.
+   - Other reads after a second load (`documentId`, `tree`, and the lifecycle spec's `held`/`chunks`) are synchronous or polled, so `load()` is unchanged.
+
+**Real Safari.** `node tests/safari/gui.mjs` on `d283ef8` gave 14 PASS, 0 PARTIAL, 0 FAIL, findings 0 (Safari 26.6.2, macOS 26.6.2; load average 1.18 → 1.27). Record: `docs/research/g-ui-r/safari/gui-d283ef8.json`.
+
+**VoiceOver.** NOT RUN. The owner checklist (`docs/research/g-r1/VOICEOVER-CHECKLIST.md`) now describes this layout:
+- E1: the inspector Tab order is X, Y, Scale value, Reset, Scale slider, Rotate.
+- E2: the picker's named document-colour swatches.
+
+Accessible names are unchanged.
+
+**NOT RUN on the merged head.**
+- VoiceOver (owner checklist).
+- The Safari G-JOB, G-R0, persistence and `gr1` scripts: no file on their paths changed since the G-R1 runs.
+- `workspace-perf` (`R1_PERF`) and the other opt-in benchmarks: no renderer, hit-test or job change.
+- The 326 + 72 and 636 exports and bundle v1: crates, packages, export and persistence are identical to `24550b8`.
+- Lower-end hardware, Windows and Linux, and touch input.
