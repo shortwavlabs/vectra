@@ -76,6 +76,7 @@ for (let r = 0; r < reps + 1; r++) {
   ];
   const copyOut = performance.now() - t;
   p.free();
+  const arrayBytes = arrays.reduce((s, a) => s + a.byteLength, 0); // before the transfer detaches them
   t = performance.now();
   const back = await roundTrip({ manifest, arrays });
   const transfer = performance.now() - t;
@@ -94,7 +95,7 @@ for (let r = 0; r < reps + 1; r++) {
   if (r === 0) {
     workload = createHash("sha256").update(block).digest("hex");
     anchors = d.anchors;
-    bytes = arrays.reduce((s, a) => s + a.byteLength, 0);
+    bytes = arrayBytes;
     continue; // warm-up
   }
   rows.push({ compute, copyOut, transfer, validate });
