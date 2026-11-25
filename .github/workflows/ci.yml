@@ -1,0 +1,146 @@
+# P-CI: the single minimal required check (G-0 plan, "P-CI — minimal required CI").
+# One lightweight Linux job. Browser suites, geometry corpus qualification, benchmarks,
+# real Safari and Docker Linux verification stay local by design.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CARGO_TERM_COLOR: never
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Fail-closed path filter: the job always runs and always reports. Only a successful
+      # diff that touches no code path turns the heavy steps into a no-op; any error, an
+      # empty diff or an unknown range runs everything.
+      - name: Classify changed paths
+        id: paths
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          code=true
+          if [ "$EVENT" = pull_request ]; then range="$PR_BASE...$PR_HEAD"; else range="$BEFORE..$SHA"; fi
+          if files=$(git diff --name-only "$range" 2>/dev/null) && [ -n "$files" ]; then
+            printf '%s\n' "$files"
+            if ! printf '%s\n' "$files" | grep -Eq '^(crates/|packages/|src/|public/|scripts/|tests/|docker/|\.github/workflows/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|Cargo\.(toml|lock)$|rust-toolchain\.toml$|rustfmt\.toml$|\.node-version$|index\.html$|vite\.config\.ts$|tsconfig[^/]*\.json$)'; then
+              code=false
+            fi
+          else
+            echo "changed paths unknown ($range); running all checks"
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "full checks required: $code"
+
+      - name: Docs-only change (no-op)
+        if: steps.paths.outputs.code != 'true'
+        run: echo "No code paths changed; the required check passes without running the suites."
+
+      - name: Read pinned versions
+        if: steps.paths.outputs.code == 'true'
+        id: pins
+        run: |
+          echo "rust=$(sed -n 's/^channel = "\(.*\)"/\1/p' rust-toolchain.toml)" >> "$GITHUB_OUTPUT"
+          echo "wasm_bindgen=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)" >> "$GITHUB_OUTPUT"
+          echo "pnpm=$(node -p "require('./package.json').devEngines.packageManager.version")" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+      - name: Install Rust toolchain (rust-toolchain.toml)
+        if: steps.paths.outputs.code == 'true'
+        run: |
+          rustup toolchain install "${{ steps.pins.outputs.rust }}" --profile minimal \
+            --component rustfmt --component clippy --target wasm32-unknown-unknown
+          rustc --version && cargo --version
+
+      - name: Cache Cargo registry and target
+        if: steps.paths.outputs.code == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: cargo-${{ runner.os }}-${{ steps.pins.outputs.rust }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-${{ steps.pins.outputs.rust }}-
+
+      - name: Cache wasm-bindgen CLI
+        if: steps.paths.outputs.code == 'true'
+        id: wbg
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cargo/bin/wasm-bindgen
+          key: wasm-bindgen-cli-${{ runner.os }}-${{ steps.pins.outputs.wasm_bindgen }}-${{ steps.pins.outputs.rust }}
+
+      - name: Install wasm-bindgen CLI (Cargo.lock version)
+        if: steps.paths.outputs.code == 'true' && steps.wbg.outputs.cache-hit != 'true'
+        run: cargo install wasm-bindgen-cli --version "${{ steps.pins.outputs.wasm_bindgen }}" --locked
+
+      - name: cargo fmt
+        if: steps.paths.outputs.code == 'true'
+        run: cargo fmt --all --check
+      - name: cargo clippy
+        if: steps.paths.outputs.code == 'true'
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: cargo test
+        if: steps.paths.outputs.code == 'true'
+        run: cargo test --workspace --locked
+
+      - name: Set up Node (.node-version)
+        if: steps.paths.outputs.code == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Install pnpm (devEngines version)
+        if: steps.paths.outputs.code == 'true'
+        id: pnpm
+        run: |
+          npm install -g "pnpm@${{ steps.pins.outputs.pnpm }}"
+          pnpm --version
+          echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        if: steps.paths.outputs.code == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm.outputs.store }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - name: pnpm install
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm install --frozen-lockfile
+
+      # vp check type-checks against the generated WASM bindings, so build them first.
+      - name: Build WASM package
+        if: steps.paths.outputs.code == 'true'
+        run: node scripts/build-wasm.mjs
+      - name: vp check
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm exec vp check
+      - name: vp test
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm exec vp test
+      - name: Production build
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm run build
