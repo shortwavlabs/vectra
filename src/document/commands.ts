@@ -28,12 +28,32 @@ import {
   type StyleId,
 } from "./model.ts";
 import type { IncomingPacket } from "./packet-port.ts";
+import {
+  checkTraceProvenance,
+  type TraceProvenance,
+  type TraceProvenanceInput,
+} from "./provenance.ts";
+
+const deepFreeze = <T>(v: T): T => {
+  if (v && typeof v === "object" && !Object.isFrozen(v)) {
+    Object.freeze(v);
+    for (const x of Object.values(v)) deepFreeze(x);
+  }
+  return v;
+};
 
 export type FillSpec = { color: number } | { paletteRef: PaletteId } | null;
 
 export type Command =
   | { type: "attachSource"; asset: Omit<SourceAsset, "id">; name?: string }
-  | { type: "commitTrace"; packet: IncomingPacket; replaceLayerId?: NodeId; name?: string }
+  | {
+      type: "commitTrace";
+      packet: IncomingPacket;
+      /** Required (C10): the trace's historical record; `chunkId` is assigned by the store. */
+      provenance: TraceProvenanceInput;
+      replaceLayerId?: NodeId;
+      name?: string;
+    }
   | { type: "delete"; ids: readonly NodeId[] }
   | { type: "duplicate"; ids: readonly NodeId[] }
   | { type: "reorder"; id: NodeId; index: number }
@@ -174,7 +194,10 @@ function commitTrace(
   const replaced = c.replaceLayerId === undefined ? null : getNode(s, c.replaceLayerId);
   if (replaced && replaced.kind !== "layer") invalid(`${c.replaceLayerId} is not a Layer`);
   if (c.name !== undefined && typeof c.name !== "string") invalid("name must be a string");
+  // Checked before the packet is consumed; a private, frozen copy is stored (C10).
+  const record = structuredClone(checkTraceProvenance(c.provenance, "provenance", false));
   const chunkId = ctx.commit(c.packet); // C2: consumes the packet; validates the owned bytes
+  const traceProvenance = deepFreeze({ ...record, chunkId }) as TraceProvenance;
   const view = ctx.store.view(chunkId);
   const m = view.manifest;
   const d = new Draft(s);
@@ -248,7 +271,7 @@ function commitTrace(
   });
   if (replaced) {
     for (const child of (replaced as ContainerNode).orderedChildIds) d.removeSubtree(child);
-    d.update(layerId, { localTransform: IDENTITY, orderedChildIds: groupIds });
+    d.update(layerId, { localTransform: IDENTITY, orderedChildIds: groupIds, traceProvenance });
   } else {
     d.nodes.set(layerId, {
       kind: "layer",
@@ -258,6 +281,7 @@ function commitTrace(
       locked: false,
       localTransform: IDENTITY,
       orderedChildIds: groupIds,
+      traceProvenance,
     });
     d.roots.push(layerId);
   }
@@ -279,6 +303,8 @@ function attachSource(
     width: a.width,
     height: a.height,
     embedded: a.embedded,
+    decodePolicy: a.decodePolicy,
+    ...(a.provenance === undefined ? {} : { provenance: { kind: a.provenance.kind } }),
   };
   const d = new Draft(s);
   d.nodes.set(nodeId, {

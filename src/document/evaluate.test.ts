@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+import { TEST_PROVENANCE } from "./testing/helpers.ts";
 import { evaluate } from "./evaluate.ts";
 import {
   type ContainerNode,
@@ -19,6 +20,7 @@ function clipDoc(groups = 3) {
   const session = emptySession({}, 1000, 1000);
   session.dispatch({
     type: "commitTrace",
+    provenance: TEST_PROVENANCE,
     packet: syntheticPacket({ paths: groups * 2, anchorsPerPath: 3, groups }),
   });
   const layer = lastLayer(session.state);
@@ -56,6 +58,7 @@ describe("unedited P0 route", () => {
     const session = emptySession({}, 1000, 1000);
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: syntheticPacket({ paths: 2, anchorsPerPath: 3, groups: 4 }),
     });
     const { runs, drawList } = evaluate(session.state);
@@ -129,6 +132,7 @@ describe("C8 rules 2–6: effective clips and runs", () => {
     const session = emptySession({}, 1000, 1000);
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: syntheticPacket({ paths: 3, anchorsPerPath: 3, groups: 1 }),
     });
     const g = kids(session.state, lastLayer(session.state))[0]!;
@@ -163,6 +167,7 @@ describe("C8 rules 2–6: effective clips and runs", () => {
     const session = emptySession({}, 1000, 1000);
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: syntheticPacket({ paths: 4, anchorsPerPath: 3, groups: 2 }),
     });
     const g = kids(session.state, lastLayer(session.state))[0]!;

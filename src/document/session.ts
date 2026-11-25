@@ -2,6 +2,7 @@
 // subscribe/getSnapshot) over immutable DocStates, with transactions, monotonic revisions,
 // bounded undo/redo, keyboard coalescing, chunk ownership and state-identity dirty tracking.
 
+import type { DecodePolicy } from "./provenance.ts";
 import { sniffImage } from "../vectorization/intake.ts";
 import { applyCommand, type Command, type CommandContext } from "./commands.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
@@ -294,7 +295,11 @@ export class DocumentSession {
 
   // --- sources ------------------------------------------------------------------------------
   /** Attaches a source image: signature sniffed, SHA-256 digest computed, then one transaction. */
-  async attachSource(bytes: Uint8Array, o: { embedded: boolean; name?: string }): Promise<NodeId> {
+  /** Attaches a local source image (C10: `decodePolicy` defaults to the P1 browser path). */
+  async attachSource(
+    bytes: Uint8Array,
+    o: { embedded: boolean; name?: string; decodePolicy?: DecodePolicy },
+  ): Promise<NodeId> {
     const sniffed = sniffImage(bytes); // throws IntakeError on a bad signature
     const owned = bytes.slice();
     const digest = await sha256Hex(owned);
@@ -309,6 +314,8 @@ export class DocumentSession {
           width: sniffed.width,
           height: sniffed.height,
           embedded: o.embedded,
+          decodePolicy: o.decodePolicy ?? "browser-canvas-v1",
+          provenance: { kind: "local-file" },
         },
         ...(o.name === undefined ? {} : { name: o.name }),
       });

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+import { fixtureProvenance, TEST_PROVENANCE } from "../document/testing/helpers.ts";
 import { evaluate } from "../document/evaluate.ts";
 import { GeometryStore } from "../document/geometry-store.ts";
 import { DEFAULT_DOC_LIMITS } from "../document/invariants.ts";
@@ -152,7 +153,11 @@ describe("container v1 round trip and determinism (C7)", () => {
       expect(loaded.nextId).toBe(session.nextId);
       expect(loaded.store.nextChunkId).toBe(session.store.nextChunkId);
       // High-water marks keep allocating past the loaded IDs (C1: never reused).
-      loaded.dispatch({ type: "commitTrace", packet: fixturePacket("circle-bw") });
+      loaded.dispatch({
+        type: "commitTrace",
+        provenance: TEST_PROVENANCE,
+        packet: fixturePacket("circle-bw"),
+      });
       expect(loaded.store.chunkIds().at(-1)).toBe(`chk_${session.store.nextChunkId}`);
       expect(loaded.getSnapshot().dirty).toBe(true);
     }
@@ -180,6 +185,7 @@ describe("container v1 round trip and determinism (C7)", () => {
     });
     session.dispatch({
       type: "commitTrace",
+      provenance: fixtureProvenance("circle-bw"),
       packet: fixturePacket("circle-bw"),
       name: "circle-bw",
     });
@@ -660,6 +666,7 @@ describe("container adversarial suite: typed errors, live document unchanged", (
     const session = fixtureSession(["circle-bw"]);
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: syntheticPacket({ paths: 50, anchorsPerPath: 7, groups: 5, clip: true }),
     });
     const bytes = await saveContainer(session);

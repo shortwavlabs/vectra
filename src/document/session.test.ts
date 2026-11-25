@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
+import { TEST_PROVENANCE } from "./testing/helpers.ts";
 import { IntakeError } from "../vectorization/intake.ts";
 import type { Command } from "./commands.ts";
 import { copyDiagnostics } from "./geometry-store.ts";
@@ -67,6 +68,7 @@ describe("commitTrace: C3.1 mapping", () => {
     const layerId = layerOf(before).id;
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: fixturePacket("nested_rings-bw"),
       replaceLayerId: layerId,
     });
@@ -82,9 +84,11 @@ describe("commitTrace: C3.1 mapping", () => {
     const p = syntheticPacket({ paths: 3, anchorsPerPath: 3, styles: 3 });
     p.manifest.styles[2]!.paletteId = "ink0"; // style 0 is ink0 with another fill
     const chunks = session.store.chunkIds();
-    expect(errorCode(() => session.dispatch({ type: "commitTrace", packet: p }))).toBe(
-      "palette_conflict",
-    );
+    expect(
+      errorCode(() =>
+        session.dispatch({ type: "commitTrace", provenance: TEST_PROVENANCE, packet: p }),
+      ),
+    ).toBe("palette_conflict");
     expect(session.store.chunkIds()).toEqual(chunks);
   });
 });
@@ -199,7 +203,12 @@ describe("transactions, revisions, undo/redo", () => {
       [{ type: "rename", id: path, name: "\uD800" }, "invariant"], // unsaveable as canonical JSON
       [{ type: "setFill", ids: [path], fill: null }, "invariant"], // neither fill nor stroke
       [
-        { type: "commitTrace", packet: fixturePacket("circle-bw"), replaceLayerId: path },
+        {
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: fixturePacket("circle-bw"),
+          replaceLayerId: path,
+        },
         "invalid_argument",
       ],
       [{ type: "duplicate", ids: [firstGroup(session.state)] }, "ok"], // control: valid
@@ -289,7 +298,11 @@ describe("per-reference anchor cap (C3.2)", () => {
     // A trace commit beyond the cap is rejected too, and its chunk is freed.
     expect(
       errorCode(() =>
-        session.dispatch({ type: "commitTrace", packet: fixturePacket("circle-bw") }),
+        session.dispatch({
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: fixturePacket("circle-bw"),
+        }),
       ),
     ).toBe("budget");
     expect(session.store.chunkIds()).toEqual(chunks);
@@ -372,6 +385,7 @@ describe("history budget (RFC §7)", () => {
     const replace = () =>
       session.dispatch({
         type: "commitTrace",
+        provenance: TEST_PROVENANCE,
         packet: fixturePacket("thin_strokes-halftone"),
         replaceLayerId: layer(),
       });
@@ -394,6 +408,7 @@ describe("history budget (RFC §7)", () => {
       tight.dispatch(
         {
           type: "commitTrace",
+          provenance: TEST_PROVENANCE,
           packet: fixturePacket("thin_strokes-halftone"),
           replaceLayerId: layerOf(tight.state).id,
         },
@@ -519,6 +534,7 @@ describe("group, ungroup, duplicate, delete, bake", () => {
     const session = emptySession();
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: syntheticPacket({ paths: 4, anchorsPerPath: 3, groups: 2 }),
     });
     const layer = layerOf(session.state).id;
@@ -541,6 +557,7 @@ describe("group, ungroup, duplicate, delete, bake", () => {
     const session = emptySession();
     session.dispatch({
       type: "commitTrace",
+      provenance: TEST_PROVENANCE,
       packet: syntheticPacket({ paths: 6, anchorsPerPath: 3, groups: 2 }),
     });
     const [g0, g1] = childrenOf(session.state, layerOf(session.state).id);

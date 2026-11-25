@@ -3,6 +3,11 @@
 // semantic invariants are left to validateState (run by the session constructor on load).
 
 import {
+  checkSourceProvenance,
+  checkTraceProvenance,
+  type DecodePolicy,
+} from "../document/provenance.ts";
+import {
   type Artboard,
   type DocNode,
   type DocState,
@@ -85,7 +90,12 @@ function parseNode(key: string, v: unknown): DocNode {
   const kind = (v as J | null)?.kind;
   if (kind !== "layer" && kind !== "group" && kind !== "path" && kind !== "source")
     return fail(`node ${key}: unknown kind ${String(kind)}`);
-  const o = obj(v, `node ${key}`, NODE_FIELDS[kind], ["clipRef"]);
+  const o = obj(
+    v,
+    `node ${key}`,
+    NODE_FIELDS[kind],
+    kind === "layer" ? ["clipRef", "traceProvenance"] : ["clipRef"],
+  );
   const w = `node ${key}`;
   const base = {
     id: str(o.id, w),
@@ -95,6 +105,13 @@ function parseNode(key: string, v: unknown): DocNode {
     localTransform: matrix(o.localTransform, `${w}.localTransform`),
     ...(o.clipRef === undefined ? {} : { clipRef: rect(o.clipRef, `${w}.clipRef`) }),
   };
+  if (kind === "layer" && o.traceProvenance !== undefined)
+    return {
+      ...base,
+      kind,
+      orderedChildIds: strArray(o.orderedChildIds, `${w}.orderedChildIds`),
+      traceProvenance: checkTraceProvenance(o.traceProvenance, `${w}.traceProvenance`),
+    };
   if (kind === "layer" || kind === "group")
     return { ...base, kind, orderedChildIds: strArray(o.orderedChildIds, `${w}.orderedChildIds`) };
   if (kind === "path") {
@@ -176,7 +193,12 @@ export function parseDocumentJson(v: unknown): ParsedDocument {
     return { id: str(p.id, k), name: str(p.name, k), color: num(p.color, k) };
   });
   const sourceAssetsById = idMap(o.sourceAssetsById, "sourceAssetsById", (k, x): SourceAsset => {
-    const s = obj(x, `asset ${k}`, ["id", "digest", "mime", "width", "height", "embedded"]);
+    const s = obj(
+      x,
+      `asset ${k}`,
+      ["id", "digest", "mime", "width", "height", "embedded", "decodePolicy"],
+      ["provenance"],
+    );
     return {
       id: str(s.id, k),
       digest: str(s.digest, k),
@@ -184,20 +206,34 @@ export function parseDocumentJson(v: unknown): ParsedDocument {
       width: num(s.width, k),
       height: num(s.height, k),
       embedded: bool(s.embedded, k),
+      decodePolicy: str(s.decodePolicy, k) as DecodePolicy,
+      ...(s.provenance === undefined
+        ? {}
+        : { provenance: checkSourceProvenance(s.provenance, `asset ${k}.provenance`) }),
     };
   });
+  const nodesById = idMap(o.nodesById, "nodesById", parseNode);
+  const nextChunkId = posInt(o.nextChunkId, "nextChunkId");
+  // C10: a provenance chunk reference may be historical, but is always below nextChunkId.
+  for (const [k, n] of nodesById)
+    if (
+      n.kind === "layer" &&
+      n.traceProvenance &&
+      Number(n.traceProvenance.chunkId.slice(4)) >= nextChunkId
+    )
+      fail(`node ${k}: traceProvenance.chunkId is not below nextChunkId`);
   return {
     state: {
       documentId: str(o.documentId, "documentId"),
       artboard,
       orderedRootIds: strArray(o.orderedRootIds, "orderedRootIds"),
-      nodesById: idMap(o.nodesById, "nodesById", parseNode),
+      nodesById,
       stylesById,
       paletteById,
       sourceAssetsById,
     },
     nextId: posInt(o.nextId, "nextId"),
-    nextChunkId: posInt(o.nextChunkId, "nextChunkId"),
+    nextChunkId,
   };
 }
 

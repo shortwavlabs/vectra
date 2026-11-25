@@ -4,6 +4,8 @@
 
 import type { PacketErrorCode } from "./packet-port.ts";
 
+import type { DecodePolicy, SourceProvenance, TraceProvenance } from "./provenance.ts";
+
 export type NodeId = string;
 export type ChunkId = string;
 export type StyleId = string;
@@ -34,6 +36,8 @@ interface NodeBase {
 export interface LayerNode extends NodeBase {
   readonly kind: "layer";
   readonly orderedChildIds: readonly NodeId[];
+  /** Historical record of the trace that created this layer (C10); never authoritative. */
+  readonly traceProvenance?: TraceProvenance;
 }
 export interface GroupNode extends NodeBase {
   readonly kind: "group";
@@ -78,6 +82,8 @@ export interface SourceAsset {
   readonly width: number;
   readonly height: number;
   readonly embedded: boolean;
+  readonly decodePolicy: DecodePolicy;
+  readonly provenance?: SourceProvenance;
 }
 export interface Artboard {
   readonly width: number;

@@ -7,6 +7,13 @@ import { DocumentSession, type HistoryLimits } from "../session.ts";
 import { FIXTURE_SCENES, fixturePacket } from "./fixtures.ts";
 import { testPacketPort } from "./packet-adapter.ts";
 import { parseColor } from "./synthetic.ts";
+import { sceneProvenance } from "./provenance.ts";
+
+export { sceneProvenance, TEST_PROVENANCE } from "./provenance.ts";
+
+/** Provenance for a named regression fixture. */
+export const fixtureProvenance = (name: string) =>
+  sceneProvenance(FIXTURE_SCENES.get(name)!.scene, name);
 
 export interface TestSessionOptions {
   limits?: DocLimits;
@@ -38,7 +45,12 @@ export function fixtureSession(names: readonly string[], o: TestSessionOptions =
     ...o,
   });
   for (const n of names)
-    session.dispatch({ type: "commitTrace", packet: fixturePacket(n), name: n });
+    session.dispatch({
+      type: "commitTrace",
+      packet: fixturePacket(n),
+      provenance: fixtureProvenance(n),
+      name: n,
+    });
   return session;
 }
 

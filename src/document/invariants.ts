@@ -2,6 +2,7 @@
 // One whole-state pass: IDs, references, numbers, transforms, tree shape, clip rules (C8) and
 // the per-reference anchor cap (C3.2). Returns the derived per-state data the session caches.
 
+import { checkSourceProvenance, checkTraceProvenance, DECODE_POLICIES } from "./provenance.ts";
 import {
   type ChunkId,
   type ContainerNode,
@@ -117,6 +118,8 @@ export function validateState(
       if (!(Number.isInteger(v) && v >= 1 && v <= 16_384))
         bad(`asset ${k}: dimensions out of range`);
     if (typeof a.embedded !== "boolean") bad(`asset ${k}: embedded must be boolean`);
+    if (!DECODE_POLICIES.has(a.decodePolicy)) bad(`asset ${k}: unknown decodePolicy`);
+    if (a.provenance !== undefined) checkSourceProvenance(a.provenance, `asset ${k}.provenance`);
   }
 
   if (s.nodesById.size > limits.maxNodes) bad(`more than ${limits.maxNodes} nodes`);
@@ -157,6 +160,10 @@ export function validateState(
       const sp = transformProblem(n.sourceToDocument);
       if (sp) throw new DocumentError("invalid_transform", `${k}: ${sp}`);
     } else if (!Array.isArray(n.orderedChildIds)) bad(`${k}: orderedChildIds must be an array`);
+    else if (n.kind === "layer" && n.traceProvenance !== undefined)
+      checkTraceProvenance(n.traceProvenance, `${k}.traceProvenance`);
+    else if (n.kind === "group" && "traceProvenance" in n)
+      bad(`${k}: traceProvenance is only allowed on Layers`);
   }
 
   // Tree: ordered, acyclic, one parent per non-root, every node reachable; clip rule 3.

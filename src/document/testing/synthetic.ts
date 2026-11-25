@@ -47,6 +47,7 @@ export interface SceneV1 {
     clip: { x: number; y: number; width: number; height: number } | null;
     paths: ScenePath[];
   }[];
+  metadata: Record<string, unknown>;
 }
 
 const VERB = { M: 0, L: 1, C: 2, Z: 3 } as Record<string, number>;

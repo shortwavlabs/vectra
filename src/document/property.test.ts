@@ -1,5 +1,6 @@
 // Property and fuzz tests over random command, undo and redo sequences (seeded, reproducible).
 import { describe, expect, test } from "vite-plus/test";
+import { TEST_PROVENANCE } from "./testing/helpers.ts";
 import { type Command, GEOMETRY_COMMANDS } from "./commands.ts";
 import { loadContainer, saveContainer } from "../persistence/container.ts";
 import { evaluate } from "./evaluate.ts";
@@ -29,16 +30,22 @@ function randomCommand(r: Rng, s: DocState): Command {
   const some = () => Array.from({ length: 1 + r.int(3) }, any);
   const paths = ids.filter((id) => s.nodesById.get(id)!.kind === "path");
   const pal = [...s.paletteById.keys()];
-  if (ids.length < 3 && r.bool(0.6)) return { type: "commitTrace", packet: randomPacket(r) };
+  if (ids.length < 3 && r.bool(0.6))
+    return { type: "commitTrace", provenance: TEST_PROVENANCE, packet: randomPacket(r) };
   switch (r.int(19)) {
     case 0:
       return r.bool(0.5)
-        ? { type: "commitTrace", packet: randomPacket(r) }
-        : { type: "commitTrace", packet: fixturePacket(r.pick([...FIXTURE_SCENES.keys()])) };
+        ? { type: "commitTrace", provenance: TEST_PROVENANCE, packet: randomPacket(r) }
+        : {
+            type: "commitTrace",
+            provenance: TEST_PROVENANCE,
+            packet: fixturePacket(r.pick([...FIXTURE_SCENES.keys()])),
+          };
     case 1: {
       const layers = s.orderedRootIds.filter((id) => s.nodesById.get(id)!.kind === "layer");
       return {
         type: "commitTrace",
+        provenance: TEST_PROVENANCE,
         packet: randomPacket(r),
         replaceLayerId: layers.length ? r.pick(layers) : any(),
       };
