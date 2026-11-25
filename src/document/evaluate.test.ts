@@ -155,8 +155,8 @@ describe("C8 rules 2–6: effective clips and runs", () => {
     session.dispatch({ type: "setPaletteColor", paletteRef: pal, color: 0x11223344 });
     expect(evaluate(session.state).drawList[0]!.fill).toBe(0x11223344);
     const path = kids(session.state, kids(session.state, lastLayer(session.state))[0]!)[0]!;
-    session.dispatch({ type: "setFill", ids: [path], fill: null });
-    expect(evaluate(session.state).drawList[0]!.fill).toBeNull();
+    session.dispatch({ type: "setFill", ids: [path], fill: { color: 0x55667788 } });
+    expect(evaluate(session.state).drawList[0]!.fill).toBe(0x55667788);
   });
 
   test("ungroup leaves the evaluation unchanged", () => {

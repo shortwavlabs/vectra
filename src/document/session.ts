@@ -162,9 +162,10 @@ export class DocumentSession {
 
   // --- transactions -------------------------------------------------------------------------
   /**
-   * Runs one transaction (one or several commands). On any error the document, the store's
-   * live chunks and the high-water marks are unchanged; chunks committed by the failed
-   * transaction are freed. Returns the new revision.
+   * Runs one transaction (one or several commands). On any error the document, the revision,
+   * `nextId` and the store's live chunks are unchanged, and chunks committed by the failed
+   * transaction are freed. The store's `nextChunkId` may have advanced: chunk IDs are never
+   * reused, and C1 allows gaps. Returns the new revision.
    */
   dispatch(commands: Command | readonly Command[], o: DispatchOptions = {}): number {
     const list = Array.isArray(commands) ? (commands as readonly Command[]) : [commands as Command];

@@ -196,6 +196,8 @@ describe("transactions, revisions, undo/redo", () => {
       ],
       [{ type: "setFill", ids: [layerOf(session.state).id], fill: null }, "invalid_argument"],
       [{ type: "setArtboard", width: 0, height: 10 }, "invariant"],
+      [{ type: "rename", id: path, name: "\uD800" }, "invariant"], // unsaveable as canonical JSON
+      [{ type: "setFill", ids: [path], fill: null }, "invariant"], // neither fill nor stroke
       [
         { type: "commitTrace", packet: fixturePacket("circle-bw"), replaceLayerId: path },
         "invalid_argument",

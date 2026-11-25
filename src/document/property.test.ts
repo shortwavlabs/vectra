@@ -1,12 +1,15 @@
 // Property and fuzz tests over random command, undo and redo sequences (seeded, reproducible).
 import { describe, expect, test } from "vite-plus/test";
 import { type Command, GEOMETRY_COMMANDS } from "./commands.ts";
+import { loadContainer, saveContainer } from "../persistence/container.ts";
+import { evaluate } from "./evaluate.ts";
 import { copyDiagnostics, OWNER_KINDS } from "./geometry-store.ts";
 import { DEFAULT_DOC_LIMITS, validateState } from "./invariants.ts";
 import { type DocState, DocumentError, type Matrix, type NodeId, rotate90Matrix } from "./model.ts";
 import type { DocumentSession } from "./session.ts";
 import { FIXTURE_SCENES, fixturePacket } from "./testing/fixtures.ts";
 import { fixtureSession } from "./testing/helpers.ts";
+import { testPacketPort } from "./testing/packet-adapter.ts";
 import { randomPacket, rng, type Rng } from "./testing/synthetic.ts";
 
 const MATRICES: Matrix[] = [
@@ -125,11 +128,26 @@ function checkOwnership(session: DocumentSession) {
   expect(store.checkIntegrity()).toBe(true);
 }
 
+/** The evaluation accepts every reachable state: unique run ids, in-range run references. */
+function checkEvaluation(state: DocState) {
+  const { runs, drawList } = evaluate(state);
+  expect(new Set(runs.map((r) => r.id)).size).toBe(runs.length);
+  for (const d of drawList) expect(d.groupRun >= 0 && d.groupRun < runs.length).toBe(true);
+}
+
+/** Every accepted state saves, loads and re-saves byte-identically, with an equal evaluation. */
+async function checkRoundTrip(session: DocumentSession) {
+  const a = await saveContainer(session, { codec: "none" });
+  const loaded = await loadContainer(a, { port: testPacketPort, limits: session.limits });
+  expect(await saveContainer(loaded, { codec: "none" })).toEqual(a);
+  expect(evaluate(loaded.state)).toEqual(evaluate(session.state));
+}
+
 describe("random command / undo / redo sequences", () => {
   const SEEDS = 30;
   const STEPS = 80;
   for (let seed = 1; seed <= SEEDS; seed++)
-    test(`seed ${seed}: invariants, monotonic revisions, redo cleared, refcounts exact`, () => {
+    test(`seed ${seed}: invariants, revisions, redo, refcounts, evaluation, container round trip`, async () => {
       const r = rng(seed);
       const session = fixtureSession([r.pick([...FIXTURE_SCENES.keys()])], {
         limits: { ...DEFAULT_DOC_LIMITS, maxAnchors: 20_000 },
@@ -167,9 +185,12 @@ describe("random command / undo / redo sequences", () => {
           expect(session.store.stats.jobCopies + session.store.stats.renderCopies).toBe(copyCalls);
         }
         validateState(session.state, session.store, session.limits); // invariants hold
+        checkEvaluation(session.state);
+        if (step === STEPS / 2) await checkRoundTrip(session);
         expect(session.nextId).toBeGreaterThan(session.derivedOf(session.state)!.maxIdNumber);
         checkOwnership(session);
       }
+      await checkRoundTrip(session);
       expect(accepted).toBeGreaterThan(5);
       // Unwind: undo everything, then redo everything, invariants and refcounts hold throughout.
       while (session.undo()) checkOwnership(session);

@@ -54,6 +54,8 @@ const isU32 = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as
 const DIGEST_RE = /^[0-9a-f]{64}$/;
 const MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_RECT = 1e9;
+/** Names must be well-formed Unicode, or canonical JSON (C7) could not save them. */
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
 const bad = (message: string): never => {
   throw new DocumentError("invariant", message);
@@ -99,6 +101,8 @@ export function validateState(
       bad(`style ${k}: dangling palette reference ${st.paletteRef}`);
     if (st.fill !== null && st.paletteRef !== null)
       bad(`style ${k}: fill and paletteRef are exclusive`);
+    if (st.fill === null && st.paletteRef === null && st.stroke === null)
+      bad(`style ${k}: neither fill nor stroke (scene v1 could not export it)`);
     if (st.stroke !== null) {
       const w = st.stroke.width;
       if (!isU32(st.stroke.color) || !(typeof w === "number" && w > 0 && w <= 1000))
@@ -120,8 +124,12 @@ export function validateState(
   let anchors = 0;
   for (const [k, n] of s.nodesById) {
     claimId(k, n.id, KIND_PREFIX[n.kind] ?? "???");
-    if (typeof n.name !== "string" || n.name.length > limits.maxNameLength)
-      bad(`${k}: invalid name`);
+    if (
+      typeof n.name !== "string" ||
+      n.name.length > limits.maxNameLength ||
+      LONE_SURROGATE.test(n.name)
+    )
+      bad(`${k}: invalid name (too long or not well-formed Unicode)`);
     if (typeof n.visible !== "boolean" || typeof n.locked !== "boolean") bad(`${k}: invalid flags`);
     const tp = transformProblem(n.localTransform);
     if (tp) throw new DocumentError("invalid_transform", `${k}: ${tp}`);

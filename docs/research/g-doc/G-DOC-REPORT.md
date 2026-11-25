@@ -13,6 +13,13 @@
 
 **Claims are Node-only.** No browser was run in this gate (see §8, NOT RUN).
 
+**Read first:**
+- **Performance miss.** Opening a 1M-anchor container misses ≤ 1 s when the document has 250,000 paths: 1.65 s median, heavy machine load. It meets the target at 50,000 paths: 287 ms (`none`), 487 ms (`deflate-raw`). The cost follows node count (document JSON), not anchors (§5). The target is not lowered.
+- **Three amendment requests** (§7A): A1, `derived()` returns a frozen view rather than raw typed arrays; A2, C8 rule 6 empty-run wording and run-id collisions; A3, C8 clip arithmetic. Each is implemented with the reading described there and is easy to switch if the maintainer directs the literal text.
+- **Test-only validator.** Commit timing and every packet code come from the test-only C3 adapter until P1-A integration.
+
+**Dates.** The gate is dated 2026-11-25, the date the brief uses. The local machine clock read 2026-11-24 (CST) when the benchmark load records were taken.
+
 ## 1. Scope
 **Delivered** (all in files this gate owns):
 - `src/document/`: framework-neutral session store (`subscribe`/`getSnapshot`, usable with `useSyncExternalStore`), Document v1 as immutable state objects, C1 identifiers, invariant validator, GeometryStore (C2), RFC §7 commands as pure transactions, history with budget and visible truncation, keyboard coalescing API, state-identity dirty tracking, the single C8 document evaluation (runs and draw list), and the resource-ledger skeleton.
@@ -70,7 +77,7 @@
 - Commands are pure functions over a copy-on-write draft. IDs come from an `IdAllocator` that starts at `nextId`; the session adopts the advanced value only on success, so a failed command consumes no IDs.
 - One whole-state invariant pass runs after every transaction (and on load). It returns the per-state chunk reference counts and the document anchor count, which the session caches per state.
 
-**Session.** `dispatch` runs one or several commands as one transaction. On any error it settles the store (freeing chunks the failed transaction committed) and rethrows; state, revision, `nextId` and store contents are unchanged.
+**Session.** `dispatch` runs one or several commands as one transaction. On any error it settles the store (freeing chunks the failed transaction committed) and rethrows; state, revision, `nextId` and the store's live chunks are unchanged. The store's `nextChunkId` may have advanced: IDs are never reused, and C1 allows gaps.
 - Undo and redo swap state references and move `document`/`history` ownership (retain before release).
 - `dirty = state !== savedState`.
 - The history budget evicts oldest whole transactions by count (100) and by history-only bytes (128 MiB), and sets a visible `historyTruncated` flag.
@@ -103,7 +110,7 @@ G-DOC tests by file:
 | `src/document/geometry-store.test.ts` | 22 | aliases detached (input arrays, extra `Float64Array` and `DataView` aliases) with view reads unchanged; validate–mutate–commit; each rule-1 violation (offset view, shared buffer ×2, `SharedArrayBuffer`, resizable, detached, plain array) → `ownership`, store unchanged; invalid packets → C3 codes; runtime property walk; 25 job/render copies transferred via `structuredClone` and `MessageChannel` with simulated terminations → no committed buffer detached; `copyIncoming`; refcounts free exactly at the last release; exact C3.2 bytes and attribution; startup check; getter read-once |
 | `src/document/session.test.ts` | 27 | C3.1 mapping and deterministic IDs; replace; palette conflicts; every command undoable and redoable by reference with +1 revision each; redo cleared; failed commands and failed batches change nothing; subscribe/getSnapshot stability; zero `commit`/`copyIncoming`/`jobCopy`/`renderCopy` during structural commands and undo/redo; per-reference anchor cap (duplicate and trace beyond the cap → `budget`, document and chunks unchanged); dirty-state cases; history count and byte budgets, eviction order, `history_budget` and `withoutHistory`; coalescing (window, focus change, other key); clip rules at command validation; group, ungroup, duplicate, bake; sources |
 | `src/document/evaluate.test.ts` | 10 | unedited fixtures: runs equal scene groups 1:1 and draw list equals scene paths; empty groups; nested, translated, scaled, reflected and 90°-rotated clips; empty intersection omitted; hidden nodes; runs split by containers; run-id fallbacks and collisions; effective colours; ungroup invariance |
-| `src/document/property.test.ts` | 31 | 30 seeds × 80 random steps (commands with valid and invalid arguments, undo, redo; 1,204 accepted transactions in total, rejections `invalid_argument` 400, `clip_unsupported` 55, `invalid_transform` 49, `clip_transform_unsupported` 7), then full undo and redo; after every step: invariants, monotonic revisions, redo cleared, exact owner counts recomputed from the states, no leaked or missing chunk, Σ byOwnerKind = total, integrity; plus eviction freeing |
+| `src/document/property.test.ts` | 31 | 30 seeds × 80 random steps: commands with valid and invalid arguments, undo, redo. Measured on the code of the commit that adds this row (the final code commit): 1,193 accepted transactions; rejections `invalid_argument` 400, `clip_unsupported` 55, `invalid_transform` 49, `invariant` 11, `clip_transform_unsupported` 7. After every step: invariants, monotonic revisions, redo cleared, exact owner counts recomputed from the states, no leaked or missing chunk, Σ byOwnerKind = total, integrity, and evaluation (unique run ids, in-range `groupRun`). Mid-sequence and at the end: codec-`none` save → load → save is byte-identical and the evaluation is equal. Then full undo and redo. Plus eviction freeing |
 | `src/document/ledger.test.ts` | 1 | store, history and source bytes; reporter registration |
 | `src/document/architecture.test.ts` | 4 | §3 |
 | `src/persistence/canonical-json.test.ts` | 7 | RFC 8785 number examples, UTF-16 key order, escaping, rejections, strict canonical reader (incl. surrogate escapes) and a 500-value randomised agreement check between the linear-time reader and the writer |
@@ -167,20 +174,20 @@ The five structural commands are: layer transform, path rename, group hide, path
   - `settle()` (the end-of-transaction and job-settle hook that C2's lifetime rules need);
   - `has`, `chunkIds`, `cost`, `ownerCounts`;
   - `encodeRecord(id)` (the serializer's route to a record without exposing arrays);
-  - `advanceChunkCounter(n)` (load only, forward only; see §7.2);
+  - `advanceChunkCounter(n)` (load only, forward only; see §7B.2);
   - `checkIntegrity()`, `stats`, `lastCommitTiming`.
-- `derived(id)` returns a frozen `DerivedView`, not raw typed arrays (§7.9).
+- `derived(id)` returns a frozen `DerivedView`, not raw typed arrays (amendment request A1).
 
-**C3 / C3.0 / C3.2 (through the port).** The adapter follows the validation order and codes (§7.6 for the interleaving and decode-order readings). It allocates `bounds` and `pathAnchors` only after steps 1–4 and `subpathStart` at exact size. Store accounting matches the C3.2 formulas exactly; the test recomputes them per fixture and checks `M_mem` against the real section byte lengths. Per-reference anchors are checked by the invariant pass before a transaction publishes: trace commit, duplicate and bake are covered, and paste and geometry operations do not exist yet. History-only chunks do not count.
+**C3 / C3.0 / C3.2 (through the port).** The adapter follows the validation order and codes (§7B.5 for the interleaving and decode-order readings). It allocates `bounds` and `pathAnchors` only after steps 1–4 and `subpathStart` at exact size. Store accounting matches the C3.2 formulas exactly; the test recomputes them per fixture and checks `M_mem` against the real section byte lengths. Per-reference anchors are checked by the invariant pass before a transaction publishes: trace commit, duplicate and bake are covered, and paste and geometry operations do not exist yet. History-only chunks do not count.
 
 **C3.1.** One Layer per packet (or the replaced Layer), one Group per packet group with `name` = group id and `clip` → `clipRef`, one PathObject per path in path order. Styles → document styles; `paletteId` → a palette entry; `evenOdd` → `fillRule`. IDs are allocated deterministically in the order layer, palette entries, styles, then each group followed by its paths. After commit the document is authoritative; the evaluation never reads packet style tables.
 
 **C6.** `documentSchemaVersion` 1, container `formatVersion` 1, `packetVersion` 1. Unknown or newer values are refused with `version`.
 
 **C7.**
-- Limits table enforced, plus a manifest-section cap of 1 MiB (§7.4).
+- Limits table enforced, plus a manifest-section cap of 1 MiB (§7B.4).
 - Codecs `none` and `deflate-raw` via native streams.
-- Streaming inflation is aborted past `uncompressedLength`, tested with a 32 MiB-zero document declared as 4,096 bytes.
+- Streaming inflation is aborted past `uncompressedLength`, tested with a 32 MiB-zero document declared as 4,096 bytes (`inflate`). The test proves the typed error, **not a memory bound**: before the abort, the transient overshoot depends on the 64 KiB input chunking and the stream queues, and was not measured.
 - SHA-256 over uncompressed bytes, verified before parsing.
 - RFC 8785 for the header, manifest, document and packet manifests.
 - Fixed section order, and no clocks or file names written.
@@ -198,12 +205,20 @@ The five structural commands are: layer transform, path rename, group hide, path
 - Clips live in local space and map through the composed transform.
 - The axis-preserving check is exact. Transform, reparent and `setClip` under a non-axis-preserving composed transform → `clip_transform_unsupported`; a 45° rotation of a clipped group or of its layer, and a skew, are rejected.
 - `rotate90` emits exact 0/±1 matrices; four quarter turns give the identity linear part.
-- Nested clips intersect, an empty intersection omits the subtree (items and runs), and runs follow rule 6 (§7.5).
+- Nested clips intersect, an empty intersection omits the subtree (items and runs), and runs follow rule 6 as read in amendment request A2. Clip arithmetic follows A3.
 - Draw items carry effective transform, fill, optional stroke, `evenOdd` and `groupRun`.
 
-## 7. Ambiguities and interpretations (maintainer confirmation requested)
-No frozen contract was found impossible to meet, so no work was stopped. The points below are gaps or readings that the integration step or a contract clarification should confirm.
+## 7. Amendment requests and gap-fills
+### 7A. Departures from the literal frozen text: amendment requests
+These three pieces could not be implemented exactly as written. In each case the literal text contradicts another frozen rule or the TD-ARCH-005 closure intent. Each is **implemented as described below and raised as an amendment request**. Each is small and localised, so the maintainer can direct the literal reading instead; its cost is given under "literal alternative".
 
+A1. **C2 `derived(id)` return type.** C2 types it as `DerivedMetadata`, whose C3.1 fields are typed arrays (`bounds`, `pathAnchors`, `subpathStart`). G-DOC returns a frozen `DerivedView` with the same content through accessors: `anchors`, `pathCount`, `subpathCount`, `pathAnchors(i)`, `subpathStart(k)`, `bounds(i)`. **Literal alternative:** return the store's arrays, which a caller could place in a transfer list and detach (store-owned data; against TD-ARCH-005 and the rule-6 discipline), or fresh copies on every call (36P + 4S bytes per call). Change site: `GeometryStore.derived` (`src/document/geometry-store.ts`).
+
+A2. **C8 rule 6: empty runs and run-id collisions.** Read literally ("a visible Group or Layer with no visible PathObject children yields one run with no items"), every Layer whose children are all Groups would emit an extra empty run. That adds a scene group to every export and breaks the unedited-P0 hash guarantee that the same rule states. G-DOC emits an empty run only for a visible, not fully clipped container whose subtree emits nothing. A test asserts that for every unedited fixture the runs equal the scene groups 1:1 (id and clip, in order). The rule also does not cover a generated `run-<k>` that is already taken by an earlier container's name; G-DOC then uses `run-<k>-<n>` (smallest free n), so run ids stay unique, as scene v1 requires. **Literal alternative:** an empty run for every container without direct PathObject children, and possible duplicate run ids. Change site: `evaluate` (`src/document/evaluate.ts`).
+
+A3. **C8 rules 2–4: clip arithmetic.** "Computed in f64 from the transformed corners (min/max)" does not reproduce a packet clip bit for bit under the identity transform, because `(x + w) − x ≠ w` in general (for example x = 0.1, w = 0.2). That contradicts rule 2's "their effective clip equals the packet clip, and the P0 route is unchanged". G-DOC takes the min corner from the transformed corners and the extent as |scale| × size; in an intersection, an interval contained in the other keeps its exact extent. **Literal alternative:** corner min/max, which perturbs unedited P0 clips in the last bit for some inputs. Change site: `mapRect`/`intersectRects` (`src/document/model.ts`).
+
+### 7B. Gap-fills where the frozen text is silent (confirmation requested)
 1. **Styles in Document v1.** C1 has a `sty` prefix and §5.1 says style references must resolve, but the §5.1 schema and C7 list no style collection. G-DOC adds `stylesById` (`{ id, fill, paletteRef, stroke }`, with `fill` and `paletteRef` mutually exclusive, so there is one colour authority) and keeps the packet `paletteId` as the palette entry's `name` (`{ id: pal_n, name, color }`).
    - Each trace commit creates its own palette entries; layers never share them implicitly.
    - Only styles that are actually used are created.
@@ -215,17 +230,15 @@ No frozen contract was found impossible to meet, so no work was stopped. The poi
 2. **Chunk IDs on load.** `commit()` assigns its own ID, but a file's `chk_n` (possibly sparse) must survive. The loader uses a fresh store, advances its counter to `n` before each chunk (`advanceChunkCounter`, forward only, load only), and commits through the unchanged four-step C2 sequence. It finally sets `nextChunkId` from the file.
 3. **Freeing unowned chunks.** C2 frees a chunk "at the end of the transaction" but has no hook for it, so `settle()` was added. `bytes()` attributes a committed but not yet retained chunk (it exists only inside a transaction) to `document`, so Σ = total still holds.
 4. **Header `offset` base.** C7 leaves it unspecified, and absolute offsets would make the header length self-referential. G-DOC writes offsets relative to the first byte after the header. Sections must be contiguous in the fixed order, and the file must end at the last section; overlaps, gaps and trailing bytes are rejected (`section`), and a final section past EOF is `truncated`. The manifest section is `{ app: "vectra", formatVersion, documentSchemaVersion, packetVersion }`. The review's `engineVersion`, `precisionFitVersion` and `createdWith` are omitted because they have no definition; engine versions belong to trace provenance.
-5. **C8 rule 6, empty runs.** Read literally ("a visible Group or Layer with no visible PathObject children yields one run with no items"), every Layer whose children are all Groups would emit an extra empty run. That would add a scene group and break the unedited-P0 guarantee the rule exists to protect. G-DOC emits an empty run only for a visible, not fully clipped container whose subtree emits nothing. A test asserts that for every unedited fixture the runs equal the scene groups 1:1 (id and clip, in order).
-   - **Run-id collisions:** if `run-<k>` is already taken by an earlier container name, G-DOC uses `run-<k>-<n>`, the smallest free n. The rule does not cover this case.
-6. **Validation order.** The adapter interleaves steps 5–12 per path and per verb, as the review prototype does. The table could also be read as separate passes, and single-defect fixtures cannot tell the two apart. Other readings:
+5. **Validation order.** The adapter interleaves steps 5–12 per path and per verb, as the review prototype does. The table could also be read as separate passes, and single-defect fixtures cannot tell the two apart. Other readings:
    - a non-object manifest returns `version`, as the review does;
    - unknown manifest keys return `manifest`;
    - styles or groups over 65,536 return `budget` (C3.2 lists them as pre-allocation caps);
    - in `decodeRecord`, `Lm` (`budget`/`length`) and the manifest checks (steps 1–2) necessarily run before the record `length` and `padding` checks, because the layout comes from the counts and caps must precede allocation.
 
    G-ENG's shared fixtures settle these at integration.
-7. **Undefined shapes omitted.** `effectStack`, `SourceAsset.decodePolicy`, `SourceAsset.provenance` and `TraceProvenance` have no defined shape. The strict v1 schema therefore omits them, and the loader rejects them as unknown fields. They need a definition before documentSchemaVersion 1 is frozen for a public release; otherwise adding them needs a version bump or a migration.
-8. **Semantics chosen where the RFC is silent:**
+6. **Undefined shapes omitted.** `effectStack`, `SourceAsset.decodePolicy`, `SourceAsset.provenance` and `TraceProvenance` have no defined shape. The strict v1 schema therefore omits them, and the loader rejects them as unknown fields. They need a definition before documentSchemaVersion 1 is frozen for a public release; otherwise adding them needs a version bump or a migration.
+7. **Semantics chosen where the RFC is silent:**
    - Explicit replace keeps the layer's id, name, visibility, lock and clip, and resets its transform to identity, following the C3.1 row.
    - Reparent keeps local transforms.
    - Ungroup composes the group transform and effective visibility and lock into the children, and refuses a clipped group: release the clip first.
@@ -234,10 +247,10 @@ No frozen contract was found impossible to meet, so no work was stopped. The poi
    - Lock is not enforced by commands (a UI concern).
    - The tree shape: the root holds Layers and SourceReferences; Layers and Groups hold Groups and PathObjects.
    - The non-singular tolerance: entries |v| ≤ 1e9 and condition number κ = σmax/σmin ≤ 1e8.
-9. **`derived(id)` type.** C2 types it as `DerivedMetadata`, whose C3.1 fields are typed arrays. Returning the store's arrays would let a caller transfer them and detach store-owned data, against TD-ARCH-005. G-DOC returns a frozen `DerivedView` with the same content: `anchors`, `pathCount`, `subpathCount`, `pathAnchors(i)`, `subpathStart(k)`, `bounds(i)`.
-10. **Effective clip arithmetic (C8 rules 2–4).** "Computed in f64 from the transformed corners (min/max)" would not reproduce a packet clip bit for bit under the identity transform, because `(x + w) − x ≠ w` in general. That contradicts rule 2's "effective clip equals the packet clip". G-DOC takes the min corner from the transformed corners and the extent as |scale| × size. In intersections, an interval contained in the other keeps its exact extent.
-11. **Observation for G-EXP/G-ENG.** The frozen C8 draw item carries only an effective `fill: u32`, not palette ids. The unedited-P0 export needs scene palette ids (`fill.paletteId`) to keep its hashes, so `bake_draw_list` or `sceneMeta` must source them. G-DOC keeps palette names in the document for that purpose.
-12. **Strict canonical reads.** C7 requires canonical writes. G-DOC also requires the header, manifest and document sections to be byte-canonical on read, which rejects duplicate member names, whitespace and number variants. Packet manifests inside geometry records are parsed by the port and are not required to be canonical on read. One consequence: array-index member names (`"0"`, `"17"`) are refused, because JSON.parse reorders them. No Vectra schema uses them.
+8. **Observation for G-EXP/G-ENG.** The frozen C8 draw item carries only an effective `fill: u32`, not palette ids. The unedited-P0 export needs scene palette ids (`fill.paletteId`) to keep its hashes, so `bake_draw_list` or `sceneMeta` must source them. G-DOC keeps palette names in the document for that purpose.
+9. **Strict canonical reads.** C7 requires canonical writes. G-DOC also requires the header, manifest and document sections to be byte-canonical on read, which rejects duplicate member names, whitespace and number variants. Packet manifests inside geometry records are parsed by the port and are not required to be canonical on read. One consequence: array-index member names (`"0"`, `"17"`) are refused, because JSON.parse reorders them. No Vectra schema uses them.
+10. **Exportability and saveability are invariants.** A style must have a fill, a palette reference or a stroke, because scene v1 rejects a path with neither; `setFill(null)` on a strokeless path is therefore rejected with `invariant`. Node names must be well-formed Unicode, because canonical JSON refuses lone surrogates. Both rules were found by review and are tested.
+11. **Architecture note (AGENTS.md).** `src/document/session.ts` and `src/persistence/container.ts` import `sniffImage` from `src/vectorization/intake.ts`, a pure function, to reuse the existing signature checks for source images. No other dependency leaves `src/document` or `src/persistence`; the architecture test enforces this.
 
 ## 8. NOT RUN
 - **Browsers.** No Playwright Chromium run, so C7 property 2 is qualified in Node only. No Firefox or WebKit run (C7 property 1), and no per-browser measurement of the C2 move, which C2 asks G-DOC to take "in each target browser".
