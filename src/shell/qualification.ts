@@ -16,6 +16,7 @@ export interface WorkspaceProbe {
   adopt(session: DocumentSession | null): void;
   selection(): readonly NodeId[];
   select(ids: readonly NodeId[]): void;
+  remountCanvas(): void;
 }
 
 interface TreeNode {
@@ -28,7 +29,6 @@ interface TreeNode {
 }
 
 export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
-  let release: (() => void) | null = null;
   const api = {
     canvas: {
       diag: () => {
@@ -49,6 +49,17 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
       itemsOf: (id: NodeId) => [...(o.host()?.itemsOf(id) ?? [])],
       setView: (scale: number, tx: number, ty: number) => o.host()?.setView({ scale, tx, ty }),
       crash: () => o.host()?.client.crashWorker() ?? false,
+      remount: () => o.remountCanvas(),
+      /** Distinct geometry chunks the visible document draws (what the renderer must hold). */
+      documentChunks: () => {
+        const s = o.session()?.getSnapshot().state;
+        const h = o.host();
+        if (!s || !h) return 0;
+        const chunks = new Set<string>();
+        for (const n of s.nodesById.values())
+          if (n.kind === "path" && h.itemsOf(n.id).length) chunks.add(n.geometry.chunkId);
+        return chunks.size;
+      },
     },
     workspace: {
       revision: () => o.session()?.getSnapshot().revision ?? null,
@@ -59,17 +70,28 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         return s ? o.jobs.session === s : o.jobs.session.getSnapshot().state.documentId === "none";
       },
       jobsSubmitted: () => o.jobs.scheduler.diag.submitted,
+      jobsDiag: () => ({ ...o.jobs.scheduler.diag }),
+      /** Crashes the compute worker; the next job must recreate it (from the cache offline). */
+      crashCompute: () => o.jobs.scheduler.inject("crash-now"),
+      /** Shows a `.vectra` container (base64) as the document; persistence loads only here. */
+      loadContainer: async (b64: string) => {
+        const { loadContainer } = await import("../persistence/container.ts");
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        o.adopt(await loadContainer(bytes, {}));
+        return o.session()!.getSnapshot().revision;
+      },
       replaceDocument: (width: number, height: number) =>
         o.adopt(
           new DocumentSession(new GeometryStore(), { state: createDocument({ width, height }) }),
         ),
       holdPreparation: () => {
-        preparationGate.current = new Promise<void>((r) => (release = r));
+        preparationGate.current = new Promise<void>((r) => (preparationGate.release = r));
       },
       releasePreparation: () => {
+        const r = preparationGate.release;
         preparationGate.current = null;
-        release?.();
-        release = null;
+        preparationGate.release = null;
+        r?.();
       },
       dispatch: (c: Command | Command[]) => o.session()?.dispatch(c),
       undo: () => o.session()?.undo(),

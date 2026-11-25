@@ -210,11 +210,14 @@ export function Workspace() {
     createJobs((detail) => setStatus({ text: `This page is out of date: ${detail}`, error: true })),
   );
   const [session, setSession] = useState<DocumentSession | null>(null);
+  const [rawSelection, setRawSelection] = useState<readonly NodeId[]>([]);
   // The document as of now, for async work (state is a render-time copy).
   const sessionRef = useRef<DocumentSession | null>(null);
-  /** Shows a document; the job controller always targets the document the workspace shows. */
+  /** Shows a document; the job controller always targets the document the workspace shows.
+   *  The selection is cleared: node IDs are allocated per document and repeat across them. */
   const adopt = useCallback(
     (s: DocumentSession | null) => {
+      if (s !== sessionRef.current) setRawSelection([]);
       sessionRef.current = s;
       associate(jobs, s);
       setSession(s);
@@ -230,6 +233,8 @@ export function Workspace() {
   const importing = useRef(false);
   const [preparing, setPreparing] = useState<{ name: string; abort: AbortController } | null>(null);
   const busy = tracing !== null || preparing !== null;
+  // A refused import (another one is running) is reported apart from the running import's status.
+  const [refused, setRefused] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const snap: SessionSnapshot | null = useSyncExternalStore(
@@ -237,13 +242,14 @@ export function Workspace() {
     session?.getSnapshot ?? noSnapshot,
   );
   const state = snap?.state ?? null;
-  const [rawSelection, setRawSelection] = useState<readonly NodeId[]>([]);
   const selection = useMemo(
     () => (state ? rawSelection.filter((id) => state.nodesById.has(id)) : []),
     [state, rawSelection],
   );
   const [tool, setTool] = useState<ToolId>("select");
   const [hostState, setHostState] = useState<CanvasHostState>({ kind: "starting" });
+  // Qualification only: a new key remounts the canvas (lifecycle tests).
+  const [canvasKey, setCanvasKey] = useState(0);
   const [host, setHost] = useState<DocumentRenderHost | null>(null);
   // The camera goes to a store read by the overlay; the workspace keeps only the zoom label,
   // so a pan does not re-render the whole workspace every frame.
@@ -276,10 +282,11 @@ export function Workspace() {
 
   const importFile = async (file: File) => {
     if (importing.current) {
-      setStatus({ text: `${file.name} was not imported: another import is in progress` });
+      setRefused(`${file.name} was not imported: another import is in progress`);
       return;
     }
     importing.current = true;
+    setRefused(null);
     const abort = new AbortController();
     setPreparing({ name: file.name, abort });
     setStatus({ text: `Reading ${file.name}…` });
@@ -324,17 +331,23 @@ export function Workspace() {
     }
   };
 
+  // Read live by the qualification API, which is installed once.
+  const live = useRef({ host, selection });
+  useEffect(() => {
+    live.current = { host, selection };
+  });
   useEffect(() => {
     if (!debugMode) return;
     return installWorkspaceQualification({
       jobs,
-      host: () => host,
+      host: () => live.current.host,
       session: () => sessionRef.current,
       adopt,
-      selection: () => selection,
+      selection: () => live.current.selection,
       select: (ids) => setRawSelection(ids),
+      remountCanvas: () => setCanvasKey((k) => k + 1),
     });
-  }, [jobs, host, adopt, selection]);
+  }, [jobs, adopt]);
 
   const run = useCallback(
     (c: Command | Command[], o?: DispatchOptions) => {
@@ -599,6 +612,7 @@ export function Workspace() {
                   }}
                 >
                   <VectorCanvas
+                    key={canvasKey}
                     ref={canvas}
                     session={session}
                     selection={selection}
@@ -733,6 +747,11 @@ export function Workspace() {
                 ? `Preparing ${preparing.name}…`
                 : status.text}
           </span>
+          {refused && (
+            <span role="status" data-testid="import-refused" className="text-warning">
+              {refused}
+            </span>
+          )}
           {(tracing || preparing) && (
             <Button
               variant="outline"

@@ -55,7 +55,10 @@ export function associate(jobs: JobController, session: DocumentSession | null):
  * Qualification only (`?debug=1`): when set, an import waits for this promise after decoding,
  * so tests can act during the preparation interval deterministically instead of by timing.
  */
-export const preparationGate: { current: Promise<void> | null } = { current: null };
+export const preparationGate: { current: Promise<void> | null; release: (() => void) | null } = {
+  current: null,
+  release: null,
+};
 
 export class JobError extends Error {
   readonly code: string;
