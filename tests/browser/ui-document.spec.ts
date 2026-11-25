@@ -835,11 +835,13 @@ test("layers: an explicit collapse control at 1024×640, 1280×720 and 1366×768
   await drag((await height(panel)) - 125);
   expect(await height(panel)).toBeLessThan(140);
   await page.setViewportSize({ width: 1024, height: 640 });
+  // (Chromium lays out one frame at the relative size before the panel restores its pixels.)
+  await expect.poll(() => height(panel)).toBeGreaterThanOrEqual(120);
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
   await expect(rows.first()).toBeVisible();
-  expect(await height(panel)).toBeGreaterThanOrEqual(120);
-  // A drag of the split past the minimum collapses them; the control follows.
-  await drag(300);
+  // A drag of the split past the minimum collapses them; the control follows. The pointer
+  // stays inside the window (WebKit drops moves outside it).
+  await drag((await height(panel)) - 10);
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(rows.first()).toBeHidden();
 });
