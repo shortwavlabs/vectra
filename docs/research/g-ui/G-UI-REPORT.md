@@ -181,7 +181,7 @@ Chromium 159.0.8154.6, Firefox 159.0 and Playwright WebKit 27.2. **Playwright We
 | Run (final head) | Result |
 |---|---|
 | `pnpm exec playwright test ui-` (3 engines) | **75 passed**, 6 skipped (screenshot spec, Chromium-only and opt-in), 0 failed, 0 flaky, 47.2 s. Every test asserts 0 off-host requests; every test except the positive control (which expects them) asserts 0 CSP violations and 0 console errors |
-| `… ui-shell ui-document --repeat-each=2`, at the earlier head `c85c5c8` (before the keyboard-fill change) | **144/144**, 1.5 min |
+| `… ui-shell ui-document --repeat-each=2`, at the earlier head `3f84d1b` (before the keyboard-fill change) | **144/144**, 1.5 min |
 | P0 regression `smoke csp privacy offline-recovery` (3 engines) | **21/21**, 39.5 s |
 | Workbench and G-JOB suites `workbench jobs-adversarial jobs-lifecycle sw-update sw-update-lifecycle` (3 engines; `jobs-perf` not run) | **81 passed, 3 failed**, 3.8 min. The failure is the same test in all 3 engines: `sw-update-lifecycle.spec.ts:368` expects `assets + 2` precached files and gets `assets + 3`, because `workspace.html` is now precached (expected 9, got 10). The spec hard-codes one HTML page and is not G-UI's to change (§3a). The other 27 tests per engine pass, including the update and offline lifecycles |
 | `pnpm exec vp check` | pass: 239 files formatted; 131 files with no lint or type issues |
@@ -272,4 +272,4 @@ node docs/research/g-ui/measure-bundle.mjs > docs/research/g-ui/bundle-sizes.jso
 **Environment.**
 - macOS 26.6.2 (25G83), arm64; Node 24.22.1; pnpm 12.23.0; vp 1.7.0 (vite-plus-core 8.3.8000); TypeScript 7.0.2; Playwright 1.65.1; Rust per `rust-toolchain.toml`; wasm-bindgen 0.2.130.
 - Machine load (`uptime`): 0.82–1.96 (1-minute load average) during the final runs, from 11:40 to 11:50. Other projects were running; no process was touched.
-- The final runs used source head `b9ad382` (before the commit-message reword; trees are identical). Later commits add only docs and evidence.
+- The final runs used the source tree of `db2b78d` (commits were later reworded with identical trees; the SHA shown is the reworded one). Later commits add only docs and evidence.
