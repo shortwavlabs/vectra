@@ -60,6 +60,8 @@ Per the change-control rule, G-ENG did not edit the frozen contracts. Each reque
 | **AR-2** | C5 / C8 (export draw list) | C8's `RenderSnapshot` lists `drawList` items with `chunkId` and `fill`/`stroke`/`evenOdd`, and C5 `export` refers to it. Reproducing P0 scenes also needs the item's **`paletteId`**: scene v1 validates palette references, so it is part of C3.1's effective style. The Rust and WASM export input is `{width, height, runs: [{id, clip}], items: [{chunk, pathIndex, transform, fill, paletteId, stroke, evenOdd, groupRun}]}`, where `chunk` indexes the job's `PacketSet` | C5 `export.drawList` = C8 draw list **plus** `paletteId` per item and the artboard `width`/`height`; the WASM adapter maps `chunkId` → packet index. C8 render items are unchanged | `bake_draw_list` and `exportDrawListSvg`/`Pdf` as the frozen export input shape (G-EXP depends on it). They are implemented and tested, but not to be built upon until decided |
 | **AR-3** | C3 (determinism) | "Native and WASM builds produce byte-identical packets" is **not met for 3/65** procedural default-mode cases. The cause is a pre-existing native vs WASM difference in Artistic tracing (TD-PLATFORM-007): the inputs are verified identical, and `main`'s own WASM shows it. The packet encoding adds no difference | Either (a) narrow the clause to "identical scenes yield byte-identical packets in native, WASM and TS (verified); engine native/WASM output identity is tracked by TD-PLATFORM-007", or (b) keep it and make TD-PLATFORM-007 a blocker for the affected gate | The C3 determinism clause; TD-PLATFORM-007's priority |
 
+**Risk next to AR-2 (found in the G-DOC cross-check).** `bake_draw_list` rebuilds the export scene from `SceneMeta`: background, palette, and `metadata` (generator, engine version, mode, preset version, seed, source size, params). G-DOC's v1 schema stores the artboard background and palette entries, but **no trace provenance or scene metadata**: it omitted `TraceProvenance` as an undefined shape. Until the document keeps enough provenance to rebuild `SceneMeta`, the unedited-P0 export hash guarantee is reachable through the engine route (tested here), **not** through the document. This needs a decision before G-EXP.
+
 **Notes** (within the contracts; recorded for review):
 - **E2.** The step-2 sub-order and the per-path running of steps 5–12 are fixed identically in Rust and TS and documented in the fixture README.
 - **E3.** The review's "declared 2³² coordinates → `budget`" case conflicts with C3's integer range. The fixture was adapted (`2^32` → `manifest`, `2^32−1` → `budget`); the review's evidence itself is unchanged.
@@ -98,6 +100,10 @@ Both were run with the scratch script `regress.sh` (build the two examples, rege
 - default-mode output digest `68723671…` and precision digest `07fdd00d…`, both **unchanged since P0**;
 - packet-route and draw-list SVG/PDF vs the direct WASM route: **0 mismatches in 65 cases**;
 - native vs WASM C3.0 blocks: **62/65 identical**. The 3 differences are explained by different *scenes*: `main`'s WASM shows the same coordinate deltas, up to 2 px (TD-PLATFORM-007).
+
+**wasm32 conformance.** The built WASM `validatePacket` export (product limits), fed every shared case it can express, matched **35/35**. These include the overflow declarations: `2^32−1` coordinates, `2^32`, 10M paths, `verbCount 2^30`.
+- **12 were skipped:** the 3 TS-only cases; the 3 custom-limit cases, because the export uses fixed product limits; and the 6 byte-block cases, because the export takes arrays, not blocks. Those are covered by the native Rust tests.
+- The `4.0` count case passes through `JSON.stringify` as `4`.
 
 **Public API.** No `vtracer::`/`visioncortex::` outside the private `trace` module (test). `Segmentation` has only private fields.
 
