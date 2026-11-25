@@ -13,6 +13,11 @@ export type Summary = {
   form?: string;
   settledAt: number;
   anchors?: number;
+  queuedMs?: number;
+  workerMs?: number;
+  postMs?: number;
+  commitMs?: number;
+  snapshotMs?: number;
 };
 export type Sub = { accepted: boolean; jobId?: number; code?: string; message?: string };
 

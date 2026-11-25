@@ -78,7 +78,8 @@ export type CommitOutcome =
       readonly layerId: NodeId;
       readonly chunkId: ChunkId;
       readonly result: Omit<TraceResult, "packet">;
-      readonly timings: JobTimings;
+      /** Main-thread time of the commit transaction (store validation and document checks). */
+      readonly timings: JobTimings & { readonly commitMs: number };
     }
   | {
       readonly status: "stale";
@@ -94,7 +95,8 @@ export type ExportOutcome =
       readonly form: ExportJob["form"];
       readonly format: "svg" | "pdf";
       readonly bytes: Uint8Array;
-      readonly timings: JobTimings & { readonly exportMs: number };
+      /** `snapshotMs`: main-thread time to freeze the snapshot at request time. */
+      readonly timings: JobTimings & { readonly exportMs: number; readonly snapshotMs: number };
     }
   | Ended;
 
@@ -222,6 +224,7 @@ export class JobController {
             precisionFitVersion: settings.fit?.mode === "precision" ? 1 : null,
           });
           const before = new Set(session.state.orderedRootIds);
+          const t0 = performance.now();
           const revision = session.dispatch({
             type: "commitTrace",
             packet,
@@ -229,6 +232,7 @@ export class JobController {
             ...(o.replaceLayerId === undefined ? {} : { replaceLayerId: o.replaceLayerId }),
             ...(o.name === undefined ? {} : { name: o.name }),
           });
+          const commitMs = performance.now() - t0;
           const layerId =
             o.replaceLayerId ?? session.state.orderedRootIds.find((id) => !before.has(id))!;
           const layer = session.state.nodesById.get(layerId) as LayerNode;
@@ -239,7 +243,7 @@ export class JobController {
             layerId,
             chunkId: layer.traceProvenance!.chunkId,
             result: rest,
-            timings: out.timings,
+            timings: { ...out.timings, commitMs },
           };
         } catch (e) {
           // Commit validation (packet, document invariants, history budget) failed: nothing changed.
@@ -353,9 +357,11 @@ export class JobController {
     if (!this.scheduler.canAccept(kind)) return this.#refuse(kind);
     const session = o.session ?? this.#session;
     const store = session.store;
+    const t0 = performance.now();
     const job = deepFreeze(buildExport(session.state, store, this.#engineVersion));
     const owner: OwnerRef = { kind: "snapshot" };
     for (const c of job.chunks) store.retain(c, owner);
+    const snapshotMs = performance.now() - t0;
     let released = false;
     const release = () => {
       if (released) return;
@@ -402,7 +408,7 @@ export class JobController {
         form: job.form,
         format,
         bytes: new Uint8Array(r.bytes),
-        timings: { ...o.timings, exportMs: r.timings.exportMs },
+        timings: { ...o.timings, exportMs: r.timings.exportMs, snapshotMs },
       };
     });
     return { accepted: true, jobId: sub.jobId, done };

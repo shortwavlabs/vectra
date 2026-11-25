@@ -11,16 +11,7 @@ import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
 import { type BrowserContext, expect, type Page, test } from "@playwright/test";
 import { writeOutput } from "./helpers.ts";
-import {
-  api,
-  bw,
-  COLOR,
-  diag,
-  jobId,
-  loadSynthetic,
-  outcome,
-  waitForStage,
-} from "./jobs-helpers.ts";
+import { api, COLOR, diag, jobId, loadSynthetic, outcome, waitForStage } from "./jobs-helpers.ts";
 
 const ROOT = resolve(import.meta.dirname, "../..");
 const DIST = join(ROOT, "dist");
@@ -148,16 +139,44 @@ async function open(context: BrowserContext, url: string) {
   return page;
 }
 
-/** Terminates the worker (explicit cancel of a running trace), then traces on a new one. */
-async function recreateWorker(page: Page) {
+/**
+ * Terminates the worker (explicit cancel of a running trace), then traces on a new one. With
+ * `churn`, five previews are submitted while the new worker loads (the TD-ARCH-006 pattern):
+ * only the last runs, on exactly one new worker.
+ */
+async function recreateWorker(page: Page, churn = false) {
   const id = jobId(await api(page, "final", COLOR));
   await waitForStage(page, id, "segment");
   expect((await api<{ ok: boolean }>(page, "cancel", id)).ok).toBe(true);
-  const created = (await diag(page)).workersCreated as number;
-  const r = await outcome(page, jobId(await api(page, "preview", bw(110))));
-  expect(r.status, JSON.stringify(r)).toBe("succeeded");
-  expect((await diag(page)).workersCreated).toBe(created + 1);
-  expect((await diag(page)).buildMismatches).toBe(0);
+  const before = await diag(page);
+  const ids = await page.evaluate(
+    (n) => {
+      const j = (
+        window as unknown as { __vectra: { jobs: { preview(o: unknown): { jobId: number } } } }
+      ).__vectra.jobs;
+      return Array.from(
+        { length: n },
+        (_, k) =>
+          j.preview({
+            settings: {
+              mode: "bw",
+              threshold: 140 - k * 10,
+              invert: false,
+              speckle: 16,
+              alphaThreshold: 128,
+            },
+          }).jobId,
+      );
+    },
+    churn ? 5 : 1,
+  );
+  const outs = await Promise.all(ids.map((j) => outcome(page, j)));
+  expect(outs.at(-1)!.status, JSON.stringify(outs.at(-1))).toBe("succeeded");
+  expect(outs.slice(0, -1).every((o) => o.status === "cancelled")).toBe(true);
+  const after = await diag(page);
+  expect(after.workersCreated).toBe((before.workersCreated as number) + 1);
+  expect(after.startupFailures).toBe(before.startupFailures);
+  expect(after.buildMismatches).toBe(0);
 }
 
 test("an old tab keeps its build across a deploy; the update waits, then replaces the old cache", async ({
@@ -184,7 +203,7 @@ test("an old tab keeps its build across a deploy; the update waits, then replace
     // keeps it on build 1 (navigation from the controlling version's cache).
     await recreateWorker(old);
     await context.setOffline(true);
-    await recreateWorker(old);
+    await recreateWorker(old, true); // start-up churn, offline, in an old tab after a deploy
     await old.reload();
     await expect.poll(() => buildIdOf(old), { timeout: 30_000 }).toBe(b1);
     await loadSynthetic(old);
@@ -217,7 +236,7 @@ test("an old tab keeps its build across a deploy; the update waits, then replace
     await next.reload();
     await expect.poll(() => buildIdOf(next), { timeout: 30_000 }).toBe(b2);
     await loadSynthetic(next);
-    await recreateWorker(next);
+    await recreateWorker(next, true);
     Object.assign(log, { b1, b2, v1, v2, diag: await diag(next) });
   } finally {
     writeOutput(`g-job/${browserName}-update-lifecycle.json`, JSON.stringify(log, null, 2));

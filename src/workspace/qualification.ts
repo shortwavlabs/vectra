@@ -14,7 +14,7 @@ import type {
 import type { DebugFault } from "../jobs/protocol.ts";
 import { DEFAULT_SETTINGS, makeRequest } from "../presets/defaults.ts";
 import { saveContainer } from "../persistence/container.ts";
-import type { Settings } from "../vectorization/types.ts";
+import type { Mode, Settings } from "../vectorization/types.ts";
 import type { Source } from "./useWorkbench.ts";
 
 export interface Summary {
@@ -31,11 +31,16 @@ export interface Summary {
   estimate?: unknown;
   queuedMs?: number;
   workerMs?: number;
+  postMs?: number;
+  commitMs?: number;
+  snapshotMs?: number;
   settledAt: number;
 }
 
 export interface TraceOptions {
+  /** Explicit settings, or the defaults of `mode` (bw when neither is given). */
   settings?: Settings;
+  mode?: Mode;
   maxPixels?: number;
   maxAnchors?: number;
   scope?: string;
@@ -69,6 +74,9 @@ export function installQualificationApi(jobs: JobController, source: () => Sourc
     if ("timings" in o) {
       s.queuedMs = o.timings.queuedMs;
       s.workerMs = o.timings.workerMs;
+      s.postMs = o.timings.postMs;
+      if ("commitMs" in o.timings) s.commitMs = o.timings.commitMs;
+      if ("snapshotMs" in o.timings) s.snapshotMs = o.timings.snapshotMs;
     }
     return s;
   };
@@ -82,7 +90,11 @@ export function installQualificationApi(jobs: JobController, source: () => Sourc
     return { accepted: true, jobId: sub.jobId };
   };
   const request = (o: TraceOptions) =>
-    makeRequest(o.settings ?? DEFAULT_SETTINGS.bw, o.maxPixels ?? 50_000_000, o.maxAnchors);
+    makeRequest(
+      o.settings ?? DEFAULT_SETTINGS[o.mode ?? "bw"],
+      o.maxPixels ?? 50_000_000,
+      o.maxAnchors,
+    );
   const src = () => {
     const s = source();
     if (!s) throw new Error("no source loaded");

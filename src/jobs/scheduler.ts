@@ -43,6 +43,8 @@ export interface JobTimings {
   readonly queuedMs: number;
   /** Posted → result received on the main thread (C9 "worker execution"). */
   readonly workerMs: number;
+  /** Main-thread time to build and post the request (job copies included). */
+  readonly postMs: number;
 }
 
 export type JobOutcome =
@@ -111,6 +113,7 @@ interface Entry {
   readonly spec: JobSpec;
   readonly submittedAt: number;
   postedAt: number;
+  postMs: number;
   posted: boolean;
   retried: boolean;
   settled: boolean;
@@ -220,6 +223,7 @@ export class JobScheduler {
       spec,
       submittedAt: this.#o.now(),
       postedAt: 0,
+      postMs: 0,
       posted: false,
       retried: false,
       settled: false,
@@ -356,6 +360,7 @@ export class JobScheduler {
       operationVersion: e.spec.operationVersion,
       ...(e.spec.sourceDigest === undefined ? {} : { sourceDigest: e.spec.sourceDigest }),
     };
+    const t0 = this.#o.now();
     try {
       const [message, transfer] = e.spec.build(header);
       g.worker.postMessage(message, transfer);
@@ -372,6 +377,7 @@ export class JobScheduler {
     }
     e.posted = true;
     e.postedAt = this.#o.now();
+    e.postMs = e.postedAt - t0;
   }
 
   #spawn(): Generation {
@@ -472,7 +478,11 @@ export class JobScheduler {
           status: "succeeded",
           result: m.result,
           memoryBytes: m.memoryBytes,
-          timings: { queuedMs: r.postedAt - r.submittedAt, workerMs: now - r.postedAt },
+          timings: {
+            queuedMs: r.postedAt - r.submittedAt,
+            workerMs: now - r.postedAt,
+            postMs: r.postMs,
+          },
         });
         if (m.memoryBytes > this.#o.recycleAboveBytes) {
           this.diag.recycles++;
