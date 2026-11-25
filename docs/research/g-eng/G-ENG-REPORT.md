@@ -215,7 +215,7 @@ New wording: identical validated scenes must produce byte-identical geometry pac
 A CI step now runs `cargo clippy -p vector-engine -p vector-engine-wasm --lib --locked -- -D warnings` (native and `wasm32-unknown-unknown`), so production Rust builds without diagnostics.
 
 ### 10.4 Copy-out at 1M anchors (P1-A performance item)
-Workload: a 2318² gradient halftone at pitch 5.2, **995,405 anchors**, 42,603,358 packet bytes, block SHA-256 `b318ecfc…9e79`. Each run is 30 measured repetitions after one warm-up, with main-thread validation by the production TS validator. Apple M5 Max, macOS, Node 24.22.1, Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2 (not Safari). Values are medians in ms, with p95 for copy-out.
+Workload: a 2318² gradient halftone at pitch 5.2, **995,405 anchors**, 42,603,358 packet bytes, block SHA-256 `b318ecfc…9e79` (Node). The browser harness uses the same generator and records the same anchor and byte counts; it records no block hash. Each run is 30 measured repetitions after one warm-up, with main-thread validation by the production TS validator. Apple M5 Max, macOS, Node 24.22.1, Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2 (not Safari). Values are medians in ms, with p95 for copy-out.
 
 **Run 1: no `ngspice`** (23:45; load average 9.3 → 8.7). Not a quiet machine: another project's CPU-bound jobs were running, with 4–14 processes above 50 % CPU.
 
@@ -234,7 +234,8 @@ Workload: a 2318² gradient halftone at pitch 5.2, **995,405 anchors**, 42,603,3
 
 ### 10.5 Checks on this head
 - `pnpm exec vp check`: PASS (110 files formatted; 51 files without lint or type errors).
-- `pnpm exec vp test run`: 85/85 PASS (6 files).
+- `pnpm exec vp test run`: 86/86 PASS (6 files).
+- **WASM conformance as a committed test.** The 35 shared cases the WASM signature can express (product limits, no TS-only types, no byte streams) give the expected codes and totals through the built `validatePacket` (`tests/unit/wasm-packet-adapter.test.ts`). The 35/35 in §4 was an ad-hoc run until now.
 - Earlier on `3ae7c09`: the Rust regression corpus 326/326 and its 72/72 precision cases, the packet route 326/326, and unchanged WASM output digests (`68723671…`, `07fdd00d…`). The CI run for this head is listed in the integration report.
 
 ### 10.6 Disposition

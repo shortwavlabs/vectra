@@ -146,3 +146,53 @@ test("text-level JSON failures: WASM says manifest, TS reports a later step", ()
     expect([wasmCode, tsCode(text)], text).toEqual(["manifest", "version"]);
   }
 });
+
+// The shared C3 conformance suite through the built WASM validator (product limits). Cases the
+// WASM signature cannot express are left out: custom limits, TS-only array types and detached
+// buffers, and C3.0 byte streams. Manifest-only cases run with empty sections, because steps 1–2
+// fail before any section is read.
+interface ConformanceCase {
+  id: string;
+  kind: "arrays" | "bytes" | "manifest";
+  expect: string;
+  tsOnly?: boolean;
+  limits?: unknown;
+  manifest: unknown;
+  arrays?: Record<string, (number | string)[]>;
+  derived?: { anchors: number; pathAnchors: number[]; subpathStart: number[] };
+}
+const conformance = (
+  JSON.parse(
+    readFileSync(new URL("../fixtures/packet-conformance/cases.json", import.meta.url), "utf8"),
+  ) as { cases: ConformanceCase[] }
+).cases.filter(
+  (c) => c.kind !== "bytes" && !c.tsOnly && !c.limits && (c.kind === "arrays" || c.expect !== "ok"),
+);
+const num = (v: number | string) =>
+  v === "NaN" ? NaN : v === "Infinity" ? Infinity : v === "-Infinity" ? -Infinity : (v as number);
+
+test("the shared conformance cases WASM can express give the expected codes", () => {
+  expect(conformance.length).toBe(35);
+  for (const c of conformance) {
+    const a = (k: string) => (c.arrays?.[k] ?? []).map(num);
+    let out = "";
+    const code = codeOf(() => {
+      out = validatePacket(
+        JSON.stringify(c.manifest),
+        new Uint8Array(a("verbs")),
+        new Float64Array(a("coords")),
+        new Uint32Array(a("verbOffsets")),
+        new Uint32Array(a("coordOffsets")),
+        new Uint32Array(a("styleIndex")),
+        new Uint32Array(a("groupIndex")),
+      );
+    });
+    expect(code, c.id).toBe(c.expect);
+    if (c.expect === "ok" && c.derived)
+      expect(JSON.parse(out), c.id).toEqual({
+        anchors: c.derived.anchors,
+        paths: c.derived.pathAnchors.length,
+        subpaths: c.derived.subpathStart.length,
+      });
+  }
+});
