@@ -243,6 +243,19 @@ export function pathFill(
   return { color: e.color, paletteName: e.name };
 }
 
-/** Path IDs among the targets (fill edits apply to paths only; `setFill` rejects others). */
-export const pathIds = (s: DocState, ids: readonly NodeId[]) =>
-  ids.filter((id) => s.nodesById.get(id)?.kind === "path");
+/**
+ * The paths a fill edit applies to: selected paths and the paths inside selected layers and
+ * groups (so a fill is reachable by keyboard through the Layers panel), skipping anything
+ * locked. `setFill` accepts paths only.
+ */
+export function fillTargets(s: DocState, ids: readonly NodeId[]): NodeId[] {
+  const out = new Set<NodeId>();
+  const walk = (id: NodeId) => {
+    const n = s.nodesById.get(id);
+    if (!n || n.locked) return;
+    if (n.kind === "path") out.add(id);
+    else if (isContainer(n)) n.orderedChildIds.forEach(walk);
+  };
+  ids.forEach(walk);
+  return [...out];
+}

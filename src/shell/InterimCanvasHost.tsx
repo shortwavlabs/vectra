@@ -170,8 +170,8 @@ export function InterimCanvasHost({ ref, ...p }: InterimCanvasHostProps) {
       }}
     >
       <p id="canvas-host-help" className="sr-only">
-        Interim preview. Click an object to select it (bounding-box hit test); select with the
-        keyboard in the Layers panel.
+        Interim preview. Click a path to select it (bounding-box hit test). With the keyboard,
+        select layers and groups in the Layers panel; single paths are not keyboard-selectable yet.
       </p>
       {s && (
         <div

@@ -320,6 +320,30 @@ test("colour picker: names, keyboard, hex draft, Apply once, Escape cancels", as
   expect(await fillHex(page)).toBe(original);
 });
 
+test("keyboard only: select a layer in Layers and fill its paths", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png", "Limited Palette");
+  await page.keyboard.press("Escape");
+  await rowNamed(page, "adjacent_colors").locator("button[aria-pressed]").focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
+  await expect(page.getByTestId("fill-note")).toContainText(/Applies to \d+ paths/);
+  await fillTrigger(page).focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("textbox", { name: "Hex" }).focus();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.type("#2050a0");
+  await page.keyboard.press("Enter");
+  await page.getByRole("button", { name: "Apply" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(fillTrigger(page)).toHaveAttribute("aria-label", /^Fill colour: #2050a0\./);
+  // Every path of the layer now has that fill.
+  await selectOnCanvas(page);
+  expect(await fillHex(page)).toBe("#2050a0");
+  await undo(page);
+  expect(await fillHex(page)).not.toBe("#2050a0");
+});
+
 test("recolor: palette colours edit every path that uses them (one undo step)", async ({
   page,
 }) => {
@@ -532,6 +556,14 @@ test("canvas zoom and fit; rotate and reset in the inspector", async ({ page }) 
   await page.getByRole("button", { name: "Zoom out" }).click();
   expect(parseInt((await zoom.textContent())!)).toBeLessThan(parseInt(fit));
   await page.getByRole("button", { name: "Fit artboard" }).click();
+  await expect(zoom).toHaveText(fit);
+  // The same with the keyboard shortcuts (+, −, Shift+1).
+  await page.keyboard.press("+");
+  expect(parseInt((await zoom.textContent())!)).toBeGreaterThan(parseInt(fit));
+  await page.keyboard.press("-");
+  await page.keyboard.press("-");
+  expect(parseInt((await zoom.textContent())!)).toBeLessThan(parseInt(fit));
+  await page.keyboard.press("Shift+Digit1");
   await expect(zoom).toHaveText(fit);
   // A quarter turn of the selected layer swaps its size; undo restores it.
   const size = page.getByText(/^Size [\d.]+ × [\d.]+ px$/);

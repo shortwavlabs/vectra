@@ -2,6 +2,7 @@ import { describe, expect, test } from "vite-plus/test";
 import { fixtureSession } from "../document/testing/helpers.ts";
 import type { DocumentSession } from "../document/session.ts";
 import {
+  fillTargets,
   hitTestBoxes,
   isLocked,
   moveCommand,
@@ -113,5 +114,27 @@ describe("interim box hit test and locks", () => {
     s.dispatch({ type: "setVisible", ids: [limited!], visible: false });
     expect(hitTestBoxes(s.state, s.store, 128, 128)).toBeNull();
     expect(hitTestBoxes(s.state, s.store, -50, -50)).toBeNull();
+  });
+});
+
+describe("fill targets", () => {
+  test("a layer or group fills its unlocked descendant paths; locks are skipped", () => {
+    const s = fixtureSession(["adjacent_colors-limited"]);
+    const layer = roots(s)[0]!;
+    const all = fillTargets(s.state, [layer]);
+    expect(all).toHaveLength(5);
+    s.dispatch({ type: "setLocked", ids: [all[0]!], locked: true });
+    expect(fillTargets(s.state, [layer])).toEqual(all.slice(1));
+    s.dispatch({
+      type: "setFill",
+      ids: fillTargets(s.state, [layer]),
+      fill: { color: 0x112233ff },
+    });
+    expect(
+      s.state.stylesById.get((s.state.nodesById.get(all[1]!) as { styleRef: string }).styleRef)!
+        .fill,
+    ).toBe(0x112233ff);
+    s.dispatch({ type: "setLocked", ids: [layer], locked: true });
+    expect(fillTargets(s.state, [layer])).toEqual([]);
   });
 });

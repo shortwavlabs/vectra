@@ -15,7 +15,7 @@ import {
   displayName,
   isLocked,
   pathFill,
-  pathIds,
+  fillTargets,
   quarterTurnAbout,
   scalingAbout,
   selectionBounds,
@@ -81,8 +81,9 @@ export function SelectionInspector(p: {
   const locked = ids.some((id) => isLocked(s, id));
   const b = selectionBounds(s, session.store, top);
   const first = s.nodesById.get(ids[0]!)!;
-  const paths = pathIds(s, ids);
+  const paths = fillTargets(s, ids);
   const fill = paths.length ? pathFill(s, paths[0]!) : null;
+  const mixed = fill !== null && paths.some((p) => pathFill(s, p).color !== fill.color);
   const scalePct = Math.round(uniformScale(worldMatrix(s, top[0]!)) * 1000) / 10;
   const [draftScale, setDraftScale] = useState<number | null>(null);
   const drag = useRef({ active: false, cancelled: false });
@@ -254,17 +255,19 @@ export function SelectionInspector(p: {
                 })
               }
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground" data-testid="fill-note">
+              {paths.length > 1 && `Applies to ${paths.length} paths; locked paths are skipped. `}
+              {mixed && "Their fills differ; Apply gives them all this colour. "}
               {fill.color === null && "No fill. "}
               {fill.paletteName !== null &&
-                `Uses palette colour ${fill.paletteName}; Apply sets a custom fill on the selected paths. Recolor (R) edits the palette colour everywhere. `}
-              {paths.length > 1 && `Applies to ${paths.length} paths.`}
+                !mixed &&
+                `Uses palette colour ${fill.paletteName}; Apply sets a custom fill instead. `}
+              Recolor (R) edits palette colours everywhere.
             </p>
           </>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Fill applies to paths: select a path on the canvas, or use Recolor (R) to edit palette
-            colours.
+            No unlocked paths in this selection. Recolor (R) edits palette colours.
           </p>
         )}
       </Section>
