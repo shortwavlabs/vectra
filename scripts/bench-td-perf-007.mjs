@@ -354,10 +354,27 @@ if (process.argv.includes("--differential")) {
       `seed ${seed}: compared ${s.compared}, decided ${s.decided}, full rejected ${s.fullRejected}, ` +
         `command-rejected ${s.commandRejected}, disagreements ${s.disagreements.length}`,
     );
-    return { ...s, ms: +(now() - t).toFixed(1) };
+    // Combinations (multi-command transactions, two forgeries) are pooled to keep the record small.
+    const byLabel = {};
+    for (const [k, v] of Object.entries(s.byLabel)) {
+      const key = !k.includes("+")
+        ? k
+        : k.startsWith("command:")
+          ? "command:(multi)"
+          : "forged:(two)";
+      const a = (byLabel[key] ??= { compared: 0, fullRejected: 0, decided: 0 });
+      for (const f of Object.keys(a)) a[f] += v[f];
+    }
+    return { ...s, byLabel, ms: +(now() - t).toFixed(1) };
   });
   const json = JSON.stringify(
-    { script: "scripts/bench-td-perf-007.mjs --differential", node: process.version, runs },
+    {
+      script: "scripts/bench-td-perf-007.mjs --differential",
+      commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+      argv: process.argv.slice(2),
+      node: process.version,
+      runs,
+    },
     null,
     2,
   );
