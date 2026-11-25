@@ -154,11 +154,12 @@ Open is `loadContainer` end to end: header, inflate, per-section SHA-256, strict
 | Measure | Median | p95 | Budget | Verdict |
 |---|---|---|---|---|
 | Store commit (move, validate and derive, publish) | 5.3 ms | 15.6 ms | ≤ 50 ms | met |
-| Trace-commit transaction (`commitTrace` dispatch, single run) | 58 ms | — | — (G-TRACE budget) | information |
+| Trace-commit transaction (`commitTrace` dispatch, single run) | 58 ms | — | attributable main-thread blocking ≤ 50 ms | **over** as one main-thread task |
 | Structural dispatch (transform, rename, hide, recolour, delete group) | 25.2–28.9 ms | 26.9–32.1 ms | no dispatch target in RFC-002 §17; attributable main-thread blocking ≤ 50 ms; interaction frame p95 ≤ 33 ms (16.7 ms aspirational) | within 50 ms; **risk**: uses most of a 33 ms gesture frame |
 | Undo / redo | ≤ 0.003 ms | ≤ 0.004 ms | ≤ 16 ms | met |
-| Open, `none` / `deflate-raw` | 118 / 165 ms | 128 / 170 ms | ≤ 1 s | met |
+| Open, `none` / `deflate-raw` | 118 / 165 ms | 128 / 170 ms | ≤ 1 s; blocking ≤ 50 ms | 1 s met; **over** 50 ms as one main-thread task |
 
+- **The 50 ms blocking budget** (RFC-002 §17) covers processing, load, gestures and settle, so it applies to every row above. Run as single main-thread tasks, both the trace-commit transaction and project open exceed it: trace commit is 58 ms at I, 130 ms at A and 324 ms at B; open is 118–1,108 ms; strict JSON and schema each take hundreds of ms at B. G-DOC measures these costs in Node and has no main-thread scheduling. Meeting the budget needs the work chunked or moved off the main thread, owned by G-PRJ (open) and G-TRACE (import → visible). These are risks recorded for those gates, not G-DOC results, and they are not counted as met.
 - **Dispatch profile** (`dispatch-profile.mjs`): 20.8 ms, of which `validateState` takes 16.6 ms (80 %), the node-map copy 2.2 ms, and everything else 2.1 ms. At 250k paths the same profile is 156 ms (79 % in `validateState`).
 - **At 1M anchors**, the store commit is 19.9 ms at A and 24.0 ms at B, within ≤ 50 ms. Structural dispatch is 34–41 ms at A, within the 50 ms blocking budget. At B (250k paths) it is **172–253 ms**, above that budget (p95 186–300 ms).
 
@@ -194,7 +195,7 @@ Open is `loadContainer` end to end: header, inflate, per-section SHA-256, strict
 | [#13](https://github.com/shortwavlabs/vectra/pull/13) AM-1 | `docs/p1a-amendments-am1` | `8011555` | `45549103203` success (docs-only path) |
 | [#10](https://github.com/shortwavlabs/vectra/pull/10) G-ENG | `gate/g-eng-engine-packet` | `ed3994e` | `45556525261` **success** (full checks, 2 min 4 s) |
 | [#11](https://github.com/shortwavlabs/vectra/pull/11) G-DOC | `gate/g-doc-document-store` | `38afd35` | `45556525464` **success** (full checks, 1 min 51 s) |
-| integration | `p1a/integration` | the commit adding this report | see the PR |
+| [#14](https://github.com/shortwavlabs/vectra/pull/14) integration | `p1a/integration` | tip of #14 (`bfc1ec2` before this last report fix) | `45556820757` **success** on `bfc1ec2`; the required `ci` check attaches, merge state CLEAN |
 
 **Dependencies.** #10 and #11 each contain `main` and AM-1 (#13) through merge commits. #11 does not depend on #10's code: it validates through its test adapter until integration. The integration PR contains all three plus the wiring, the E2E proof and browser persistence, and it removes the test adapter.
 
