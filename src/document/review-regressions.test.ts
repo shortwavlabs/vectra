@@ -204,7 +204,7 @@ describe("missing sources and digest-verified relinking (RFC §14)", () => {
     const bytes = png(64, 64, 128);
     await s.attachSource(bytes, { embedded: false });
     const asset = [...s.state.sourceAssetsById.keys()][0]!;
-    const reopened = await loadContainer(await saveContainer(s, { codec: "none" }), { port });
+    const reopened = await loadContainer(await saveContainer(s, { codec: "none" }), {});
     expect(reopened.missingSources()).toEqual([asset]);
     const wrong = png(64, 64, 128);
     wrong[100] = 1;
