@@ -53,9 +53,14 @@ export interface SessionOptions {
   /** Keyboard coalescing window (A13; provisional until G-UI qualifies it). */
   coalesceWindowMs?: number;
   now?: () => number;
-  /** Source bytes for the state's embedded/attached assets. */
+  /** Source bytes for the state's embedded/attached assets (copied on construction). */
   sources?: ReadonlyMap<AssetId, Uint8Array>;
+  /** Receives errors thrown by subscribers (default: rethrown asynchronously). */
+  onListenerError?: (error: unknown) => void;
 }
+
+/** C7 source-section cap, enforced when a source is embedded. */
+export const MAX_EMBEDDED_SOURCE_BYTES = 20 * 2 ** 20;
 
 export interface DispatchOptions {
   /** Consecutive commits with the same key within the window form one history entry. */
@@ -91,6 +96,7 @@ export class DocumentSession {
   readonly #coalesceWindowMs: number;
   readonly #now: () => number;
   readonly #listeners = new Set<() => void>();
+  readonly #onListenerError: (error: unknown) => void;
   readonly #sources = new Map<AssetId, Uint8Array>();
   #snapshot: SessionSnapshot;
 
@@ -105,7 +111,13 @@ export class DocumentSession {
     this.#nextId = o.nextId ?? d.maxIdNumber + 1;
     if (!(Number.isSafeInteger(this.#nextId) && this.#nextId > d.maxIdNumber))
       throw new DocumentError("invariant", "nextId must exceed every node ID");
-    for (const [id, bytes] of o.sources ?? []) this.#sources.set(id, bytes);
+    for (const [id, bytes] of o.sources ?? []) this.#sources.set(id, bytes.slice());
+    this.#onListenerError =
+      o.onListenerError ??
+      ((e) =>
+        setTimeout(() => {
+          throw e;
+        }));
     this.#derived.set(o.state, d);
     this.#state = o.state;
     this.#saved = o.state;
@@ -131,11 +143,14 @@ export class DocumentSession {
   historyStates(): { past: readonly DocState[]; future: readonly DocState[] } {
     return { past: [...this.#past], future: [...this.#future] };
   }
+  /** A copy: the session's derived data is never handed out (G-DOC review 3). */
   derivedOf(state: DocState): StateDerived | undefined {
-    return this.#derived.get(state);
+    const d = this.#derived.get(state);
+    return d && { ...d, chunks: new Map(d.chunks) };
   }
+  /** A copy of the source bytes: callers never alias session-owned sources (G-DOC review 2). */
   sourceBytes(assetId: AssetId): Uint8Array | undefined {
-    return this.#sources.get(assetId);
+    return this.#sources.get(assetId)?.slice();
   }
 
   #makeSnapshot(): SessionSnapshot {
@@ -152,7 +167,18 @@ export class DocumentSession {
   #emit(): void {
     this.#revision++;
     this.#snapshot = this.#makeSnapshot();
-    for (const l of [...this.#listeners]) l();
+    this.#notify();
+  }
+  /** Publishing is complete before listeners run; a throwing listener is reported, never
+   *  propagated, so it cannot make a published change look failed (G-DOC review 1). */
+  #notify(): void {
+    for (const l of [...this.#listeners]) {
+      try {
+        l();
+      } catch (e) {
+        this.#onListenerError(e);
+      }
+    }
   }
 
   #own(s: DocState, kind: OwnerKind, delta: 1 | -1): void {
@@ -184,7 +210,7 @@ export class DocumentSession {
       }
       d = validateState(next, store, this.limits);
       if (!o.withoutHistory) {
-        const entry = this.#entryBytes(prev, d);
+        const entry = this.#entryBytes(prev, d, next);
         if (entry > this.historyLimits.maxBytes)
           throw new DocumentError(
             "history_budget",
@@ -222,9 +248,18 @@ export class DocumentSession {
     return this.#revision;
   }
 
-  /** Bytes the pushed entry alone would hold as history-only (RFC §7 "cannot fit"). */
-  #entryBytes(prev: DocState, d: StateDerived): number {
+  /** Bytes the pushed entry alone would hold as history-only (RFC §7 "cannot fit"): chunks and
+   *  source bytes that `prev` holds and nothing else would (G-DOC review 4). */
+  #entryBytes(prev: DocState, d: StateDerived, next: DocState): number {
     let n = 0;
+    const others = [...this.#past, ...this.#future];
+    for (const [a, b] of this.#sources)
+      if (
+        prev.sourceAssetsById.has(a) &&
+        !next.sourceAssetsById.has(a) &&
+        !others.some((st) => st.sourceAssetsById.has(a))
+      )
+        n += b.byteLength;
     for (const id of this.#derived.get(prev)!.chunks.keys()) {
       if (d.chunks.has(id)) continue;
       const c = this.store.ownerCounts(id);
@@ -282,6 +317,7 @@ export class DocumentSession {
     this.#state = target;
     this.#coalesce = null;
     this.#enforceBudget();
+    this.#gcSources(); // eviction may have dropped a source's last owner (G-DOC review 8)
     this.store.settle();
     this.#emit();
   }
@@ -290,17 +326,21 @@ export class DocumentSession {
   markSaved(state: DocState = this.#state): void {
     this.#saved = state;
     this.#snapshot = this.#makeSnapshot();
-    for (const l of [...this.#listeners]) l();
+    this.#notify();
   }
 
   // --- sources ------------------------------------------------------------------------------
-  /** Attaches a source image: signature sniffed, SHA-256 digest computed, then one transaction. */
-  /** Attaches a local source image (C10: `decodePolicy` defaults to the P1 browser path). */
+  /** Attaches a local source image: signature sniffed, SHA-256 digest computed, one transaction (C10: `decodePolicy` defaults to the P1 browser path). */
   async attachSource(
     bytes: Uint8Array,
     o: { embedded: boolean; name?: string; decodePolicy?: DecodePolicy },
   ): Promise<NodeId> {
     const sniffed = sniffImage(bytes); // throws IntakeError on a bad signature
+    if (o.embedded && bytes.byteLength > MAX_EMBEDDED_SOURCE_BYTES)
+      throw new DocumentError(
+        "invalid_argument",
+        `an embedded source is limited to ${MAX_EMBEDDED_SOURCE_BYTES} bytes (C7); attach it without embedding`,
+      );
     const owned = bytes.slice();
     const digest = await sha256Hex(owned);
     const assetId = `ast_${this.#nextId}`;
@@ -320,7 +360,8 @@ export class DocumentSession {
         ...(o.name === undefined ? {} : { name: o.name }),
       });
     } catch (e) {
-      this.#sources.delete(assetId);
+      // Only if the asset was not published (a published asset keeps its bytes).
+      if (!this.#state.sourceAssetsById.has(assetId)) this.#sources.delete(assetId);
       throw e;
     }
     return this.#state.orderedRootIds[0]!;

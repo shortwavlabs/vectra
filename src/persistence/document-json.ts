@@ -12,6 +12,9 @@ import {
   type DocNode,
   type DocState,
   DOCUMENT_SCHEMA_VERSION,
+  freezeEntry,
+  MAX_CHUNK_NUMBER,
+  sealMap,
   type Matrix,
   type PaletteEntry,
   type Rect,
@@ -150,6 +153,11 @@ export interface ParsedDocument {
   nextChunkId: number;
 }
 
+const sealFrozen = <K, V extends object>(m: ReadonlyMap<K, V>) => {
+  for (const v of m.values()) freezeEntry(v);
+  return sealMap(m);
+};
+
 export function parseDocumentJson(v: unknown): ParsedDocument {
   const top = (v as J | null)?.documentSchemaVersion;
   if (top !== DOCUMENT_SCHEMA_VERSION)
@@ -214,6 +222,8 @@ export function parseDocumentJson(v: unknown): ParsedDocument {
   });
   const nodesById = idMap(o.nodesById, "nodesById", parseNode);
   const nextChunkId = posInt(o.nextChunkId, "nextChunkId");
+  // A chunk id must stay writable as a 15-digit section id (C1, C7; G-DOC review 5).
+  if (nextChunkId > MAX_CHUNK_NUMBER + 1) fail("nextChunkId exceeds the chunk id space");
   // C10: a provenance chunk reference may be historical, but is always below nextChunkId.
   for (const [k, n] of nodesById)
     if (
@@ -223,15 +233,15 @@ export function parseDocumentJson(v: unknown): ParsedDocument {
     )
       fail(`node ${k}: traceProvenance.chunkId is not below nextChunkId`);
   return {
-    state: {
+    state: Object.freeze({
       documentId: str(o.documentId, "documentId"),
-      artboard,
-      orderedRootIds: strArray(o.orderedRootIds, "orderedRootIds"),
-      nodesById,
-      stylesById,
-      paletteById,
-      sourceAssetsById,
-    },
+      artboard: freezeEntry({ ...artboard }),
+      orderedRootIds: Object.freeze(strArray(o.orderedRootIds, "orderedRootIds")),
+      nodesById: sealFrozen(nodesById),
+      stylesById: sealFrozen(stylesById),
+      paletteById: sealFrozen(paletteById),
+      sourceAssetsById: sealFrozen(sourceAssetsById),
+    }),
     nextId: posInt(o.nextId, "nextId"),
     nextChunkId,
   };

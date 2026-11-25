@@ -179,8 +179,12 @@ export function validateState(
         ? n.kind === "layer" || n.kind === "source"
         : n.kind === "group" || n.kind === "path";
     if (!allowed) bad(`${n.kind} ${id} cannot be a child of ${parentKind}`);
+    if (n.kind === "path" && !multiply(m, n.localTransform).every(Number.isFinite))
+      throw new DocumentError("invalid_transform", `${id}: composed transform is not finite`);
     if (n.kind !== "layer" && n.kind !== "group") return;
     const composed = multiply(m, n.localTransform);
+    if (!composed.every(Number.isFinite))
+      throw new DocumentError("invalid_transform", `${id}: composed transform is not finite`);
     if (n.clipRef !== undefined && !isAxisPreserving(composed))
       throw new DocumentError(
         "clip_transform_unsupported",

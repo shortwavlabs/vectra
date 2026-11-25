@@ -23,6 +23,9 @@ import {
   type PathNode,
   type Rect,
   rotate90Matrix,
+  SealedMap,
+  sealMap,
+  freezeEntry,
   type SourceAsset,
   type Style,
   type StyleId,
@@ -140,7 +143,7 @@ class Draft {
   roots: NodeId[];
   constructor(base: DocState) {
     this.base = base;
-    this.nodes = new Map(base.nodesById);
+    this.nodes = new SealedMap(base.nodesById);
     this.roots = [...base.orderedRootIds];
   }
   get(id: NodeId): DocNode {
@@ -174,8 +177,25 @@ class Draft {
     if (isContainer(n)) for (const c of n.orderedChildIds) this.removeSubtree(c);
     this.nodes.delete(id);
   }
+  /** Freezes new or changed entries (not the whole state) and seals the maps (G-DOC review 3). */
   finish(extra: Partial<DocState> = {}): DocState {
-    return { ...this.base, orderedRootIds: this.roots, nodesById: this.nodes, ...extra };
+    const freezeChanged = <K, V extends object>(m: ReadonlyMap<K, V>, base: ReadonlyMap<K, V>) => {
+      for (const [k, v] of m) if (base.get(k) !== v) freezeEntry(v);
+      return sealMap(m);
+    };
+    const out: DocState = {
+      ...this.base,
+      ...extra,
+      orderedRootIds: Object.freeze([...this.roots]),
+      nodesById: freezeChanged(this.nodes, this.base.nodesById),
+    };
+    return Object.freeze({
+      ...out,
+      artboard: freezeEntry({ ...out.artboard }),
+      stylesById: freezeChanged(out.stylesById, this.base.stylesById),
+      paletteById: freezeChanged(out.paletteById, this.base.paletteById),
+      sourceAssetsById: freezeChanged(out.sourceAssetsById, this.base.sourceAssetsById),
+    });
   }
 }
 
@@ -558,7 +578,9 @@ export function applyCommand(s: DocState, c: Command, ctx: CommandContext): DocS
     case "setPaletteColor": {
       const e = s.paletteById.get(c.paletteRef) ?? invalid(`no palette entry ${c.paletteRef}`);
       if (!isU32(c.color)) invalid("colour must be RGBA8888");
-      return { ...s, paletteById: new Map(s.paletteById).set(e.id, { ...e, color: c.color }) };
+      return new Draft(s).finish({
+        paletteById: new Map(s.paletteById).set(e.id, { ...e, color: c.color }),
+      });
     }
     case "group":
       return group(s, c.ids, c.name, ctx);
@@ -581,14 +603,13 @@ export function applyCommand(s: DocState, c: Command, ctx: CommandContext): DocS
       return d.finish();
     }
     case "setArtboard":
-      return {
-        ...s,
+      return new Draft(s).finish({
         artboard: {
           width: c.width,
           height: c.height,
           background: c.background === undefined ? s.artboard.background : c.background,
         },
-      };
+      });
     case "bake":
       return bake(s, c, ctx);
     default:
