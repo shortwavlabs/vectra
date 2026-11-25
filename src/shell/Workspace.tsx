@@ -94,6 +94,8 @@ const shortcutsBlocked = (t: EventTarget | null) =>
   t instanceof HTMLElement &&
   (t.isContentEditable ||
     t.closest("input, textarea, select, [role=dialog], [role=menu], [role=listbox]") !== null);
+/** Undo/redo still work from a slider (a range input edits no text). */
+const isRange = (t: EventTarget | null) => t instanceof HTMLInputElement && t.type === "range";
 
 /** A rail or bar button whose name, shortcut and (un)availability are on the trigger itself
  *  (tooltips are visual only, R05-A D9). Unavailable controls stay focusable (aria-disabled). */
@@ -265,7 +267,8 @@ export function Workspace() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || shortcutsBlocked(e.target)) return;
+      if (e.defaultPrevented) return;
+      if (shortcutsBlocked(e.target) && !(isRange(e.target) && (e.metaKey || e.ctrlKey))) return;
       const mod = isMac ? e.metaKey : e.ctrlKey;
       const k = e.key.toLowerCase();
       if (mod && k === "z") {

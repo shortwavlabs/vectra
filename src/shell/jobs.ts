@@ -48,18 +48,26 @@ export class JobError extends Error {
   }
 }
 
-/** Preview-class SVG of a session for display; a preempted job is resubmitted. */
+const latestPreview = new WeakMap<JobController, number>();
+/**
+ * Preview-class SVG of a session for display. Only the latest request is ever resubmitted
+ * after a preemption (by a higher-priority job): a newer request preempts an older one in the
+ * same scope, and resubmitting the older one would in turn preempt the newer (live-lock).
+ */
 export async function renderPreviewSvg(
   jobs: JobController,
   session: DocumentSession,
 ): Promise<Uint8Array> {
+  const token = (latestPreview.get(jobs) ?? 0) + 1;
+  latestPreview.set(jobs, token);
   for (;;) {
     const sub = jobs.export("svg", null, { session, kind: "preview", scope: "canvas" });
     if (!sub.accepted) throw new JobError(sub.code, sub.message);
     const out = await sub.done;
     if (out.status === "delivered") return out.bytes;
     if (out.status === "failed") throw new JobError(out.code, out.message);
-    if (out.reason !== "preempted") throw new JobError("superseded", "preview superseded");
+    if (out.reason !== "preempted" || latestPreview.get(jobs) !== token)
+      throw new JobError("superseded", "preview superseded by a newer request");
   }
 }
 

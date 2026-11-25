@@ -273,7 +273,9 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
               },
             }}
           >
-            <SortableContent render={<ul aria-label="Layers" className="grid gap-0.5 p-1.5" />}>
+            <SortableContent
+              render={<ul aria-label="Layers" className="flex flex-col gap-0.5 p-1.5" />}
+            >
               {roots.map((id) => {
                 const n = state.nodesById.get(id)!;
                 const groups =
@@ -286,7 +288,7 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
                   <SortableItem key={id} value={id} render={<li />}>
                     {row(id, 0, true)}
                     {groups.length > 0 && (
-                      <ul aria-label={`Groups in ${name(id)}`} className="grid gap-0.5">
+                      <ul aria-label={`Groups in ${name(id)}`} className="flex flex-col gap-0.5">
                         {groups.map((g) => (
                           <li key={g}>{row(g, 1, false)}</li>
                         ))}

@@ -413,3 +413,203 @@ test("offline: once loaded, import, trace, edit and export work with no network"
   await expect(page.getByTestId("layer-row")).toHaveCount(1);
   await context.setOffline(false);
 });
+
+/** Drops a generated image onto the canvas (the same path as a dragged file). */
+async function dropGenerated(page: Page, o: { width: number; height: number; name: string }) {
+  await page.evaluate(async ({ width, height, name }) => {
+    const canvas = new OffscreenCanvas(width, height);
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#f0e8d8";
+    ctx.fillRect(0, 0, width, height);
+    for (let i = 0; i < 600; i++) {
+      ctx.fillStyle = `hsl(${(i * 37) % 360} 60% ${25 + (i % 50)}%)`;
+      ctx.beginPath();
+      const x = (((i * 7919) % 1000) / 1000) * width;
+      const y = (((i * 104729) % 1000) / 1000) * height;
+      ctx.arc(x, y, ((4 + (i % 25)) * width) / 1000, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    const blob = await canvas.convertToBlob({ type: "image/png" });
+    const dt = new DataTransfer();
+    dt.items.add(new File([blob], name, { type: "image/png" }));
+    const target = document.querySelector('[data-host="interim"]')!;
+    target.dispatchEvent(
+      new DragEvent("drop", { dataTransfer: dt, bubbles: true, cancelable: true }),
+    );
+  }, o);
+}
+
+test("drop, cancel and failure: a cancelled or failed import leaves no document", async ({
+  page,
+}) => {
+  await openWorkspace(page);
+  // A file that is not an image is rejected before any job.
+  await page.getByTestId("import-input").setInputFiles({
+    name: "broken.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("this is not a PNG file at all"),
+  });
+  await expect(page.getByTestId("status")).toContainText("Import failed");
+  await expect(page.getByTestId("document-title")).toHaveText("No document");
+  // A long trace (Full Colour, 3000×3000) cancelled from the status bar.
+  await page.getByRole("button", { name: "Trace", exact: true }).click();
+  await page.getByRole("radio", { name: "Full Colour" }).check();
+  await dropGenerated(page, { width: 3000, height: 3000, name: "large.png" });
+  await page.getByRole("button", { name: "Cancel trace" }).click({ timeout: 30_000 });
+  await expect(page.getByTestId("status")).toContainText(
+    "Trace cancelled; the document is unchanged",
+  );
+  await expect(page.getByTestId("document-title")).toHaveText("No document");
+  await expect(page.getByTestId("layer-row")).toHaveCount(0);
+  // The same drop path, small enough to finish.
+  await dropGenerated(page, { width: 320, height: 200, name: "dropped.png" });
+  await expect(page.getByTestId("status")).toContainText("Traced dropped.png", {
+    timeout: 60_000,
+  });
+  await expect(page.getByTestId("layer-row")).toHaveCount(1);
+});
+
+test("layers menu: Rename, Move up/down, Duplicate and Delete, each one undo step", async ({
+  page,
+}) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png");
+  await importFixture(page, "procedural/nested_rings.png");
+  const menu = async (layer: string, item: string) => {
+    await page.getByRole("button", { name: `More actions for ${layer}` }).click();
+    await page.getByRole("menuitem", { name: item }).click();
+  };
+  await menu("adjacent_colors", "Move up");
+  expect(await order(page)).toEqual(["adjacent_colors", "nested_rings"]);
+  await menu("adjacent_colors", "Move down");
+  expect(await order(page)).toEqual(["nested_rings", "adjacent_colors"]);
+  await menu("nested_rings", "Duplicate");
+  await expect(page.getByTestId("layer-row")).toHaveCount(3);
+  await undo(page);
+  await expect(page.getByTestId("layer-row")).toHaveCount(2);
+  await menu("nested_rings", "Delete");
+  expect(await order(page)).toEqual(["adjacent_colors"]);
+  await undo(page);
+  expect(await order(page)).toEqual(["nested_rings", "adjacent_colors"]);
+  await menu("nested_rings", "Rename");
+  const input = page.getByRole("textbox", { name: "Name of nested_rings" });
+  await expect(input).toBeFocused();
+  await input.fill("Rings");
+  await input.press("Enter");
+  expect(await order(page)).toEqual(["Rings", "adjacent_colors"]);
+});
+
+test("layer rows fit the panel at its minimum and maximum width", async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await openWorkspace(page);
+  await importFixture(page, "external/hokusai-great-wave-640.jpg");
+  await page.getByRole("button", { name: /^Expand / }).click();
+  const handle = page.getByRole("separator", { name: "Resize inspector" });
+  for (const key of ["ArrowRight", "ArrowLeft"]) {
+    await handle.focus();
+    for (let i = 0; i < 12; i++) await page.keyboard.press(key);
+    const panel = (await page.getByRole("region", { name: "Layers" }).boundingBox())!;
+    const rows = await page.getByTestId("layer-row").all();
+    expect(rows.length).toBe(2);
+    for (const row of rows) {
+      const b = (await row.boundingBox())!;
+      const more = (await row.getByRole("button", { name: /^More actions/ }).boundingBox())!;
+      expect(b.x + b.width).toBeLessThanOrEqual(panel.x + panel.width + 0.5);
+      expect(more.x + more.width).toBeLessThanOrEqual(panel.x + panel.width + 0.5);
+    }
+    note(`layers panel width after ${key}`, panel.width);
+  }
+});
+
+test("canvas zoom and fit; rotate and reset in the inspector", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "external/hokusai-great-wave-640.jpg");
+  const zoom = page.getByTestId("zoom");
+  const fit = (await zoom.textContent())!;
+  await page.getByRole("button", { name: "Zoom in" }).click();
+  expect(parseInt((await zoom.textContent())!)).toBeGreaterThan(parseInt(fit));
+  await page.getByRole("button", { name: "Zoom out" }).click();
+  await page.getByRole("button", { name: "Zoom out" }).click();
+  expect(parseInt((await zoom.textContent())!)).toBeLessThan(parseInt(fit));
+  await page.getByRole("button", { name: "Fit artboard" }).click();
+  await expect(zoom).toHaveText(fit);
+  // A quarter turn of the selected layer swaps its size; undo restores it.
+  const size = page.getByText(/^Size [\d.]+ × [\d.]+ px$/);
+  const [w, h] = (await size.textContent())!.match(/[\d.]+/g)!;
+  await page.getByRole("button", { name: "Rotate 90° clockwise" }).click();
+  await expect(size).toHaveText(`Size ${h} × ${w} px`);
+  await undo(page);
+  await expect(size).toHaveText(`Size ${w} × ${h} px`);
+  // Reset returns the scale to 100 %.
+  const value = page.getByRole("textbox", { name: "Scale value (%)" });
+  await value.fill("150");
+  await value.press("Enter");
+  await expect(scale(page)).toHaveAttribute("aria-valuenow", "150");
+  await page.getByRole("button", { name: "Reset" }).click();
+  await expect(scale(page)).toHaveAttribute("aria-valuenow", "100");
+});
+
+test("the interim preview catches up with rapid keyboard edits", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "external/hokusai-great-wave-640.jpg", "Limited Palette");
+  const img = page.getByTestId("canvas-image");
+  const r0 = Number(await img.getAttribute("data-revision"));
+  await scale(page).focus();
+  for (let i = 0; i < 10; i++) {
+    await page.keyboard.press("ArrowRight");
+    await page.waitForTimeout(50);
+  }
+  await expect(img).toHaveAttribute("data-revision", String(r0 + 10), { timeout: 30_000 });
+  await canvasSettled(page);
+  // Undo works from the focused slider (a range input edits no text).
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(scale(page)).toHaveAttribute("aria-valuenow", "100");
+});
+
+test("control boundaries and the OS colour scheme, measured in the running build", async ({
+  page,
+  browserName,
+}) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png");
+  const measure = () =>
+    page.evaluate(() => {
+      const rgb = (c: string) =>
+        c
+          .match(/\d+(\.\d+)?/g)!
+          .slice(0, 3)
+          .map(Number);
+      const css = (sel: string, prop: string) =>
+        rgb(getComputedStyle(document.querySelector(sel)!).getPropertyValue(prop));
+      const imp = 'header button[class*="border-control-border"]';
+      return {
+        panel: css('[aria-label="Inspector"]', "background-color"),
+        inputBorder: css('input[aria-label="X (px)"]', "border-top-color"),
+        sliderTrack: css('[data-slot="slider-track"]', "background-color"),
+        resizeGrip: css('[data-slot="resizable-handle"] > div', "background-color"),
+        importButton: [...css(imp, "background-color"), ...css(imp, "border-top-color")],
+      };
+    });
+  const light = await measure();
+  await page.emulateMedia({ colorScheme: "dark" });
+  const dark = await measure();
+  expect(dark, "the OS colour scheme changes nothing").toEqual(light);
+  const lum = (c: number[]) => {
+    const [r, g, b] = c.map((v) => {
+      const s = v / 255;
+      return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+  };
+  const ratio = (a: number[], b: number[]) => {
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+    return Math.round(((x! + 0.05) / (y! + 0.05)) * 100) / 100;
+  };
+  const rows = {
+    "input border vs panel": ratio(light.inputBorder, light.panel),
+    "slider track vs panel": ratio(light.sliderTrack, light.panel),
+    "resize grip vs background": ratio(light.resizeGrip, [25, 26, 28]),
+  };
+  note(`computed control contrast (${browserName})`, { ...rows, colours: light });
+  for (const r of Object.values(rows)) expect(r).toBeGreaterThanOrEqual(3);
+});

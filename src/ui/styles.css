@@ -6,6 +6,9 @@
 @source "./";
 /* shadcn@4.23.0 dist/tailwind.css (MIT), copied verbatim: data-* variants used by base-nova. */
 @import "./registry/shadcn-tailwind.css";
+/* The workspace is dark-only: registry `dark:` styles follow the `dark` class on <html>
+   (workspace.html), never the OS colour scheme, so every viewer sees the same UI. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Semantic tokens (docs/DESIGN-SYSTEM.md §4), mapped to shadcn token names. Dark only. */
 :root {
