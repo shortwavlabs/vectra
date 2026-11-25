@@ -215,19 +215,22 @@ New wording: identical validated scenes must produce byte-identical geometry pac
 A CI step now runs `cargo clippy -p vector-engine -p vector-engine-wasm --lib --locked -- -D warnings` (native and `wasm32-unknown-unknown`), so production Rust builds without diagnostics.
 
 ### 10.4 Copy-out at 1M anchors (P1-A performance item)
-Workload: a 2318² gradient halftone at pitch 5.2, **995,405 anchors**, 42,603,358 packet bytes, block SHA-256 `b318ecfc…9e79`. 30 measured repetitions after one warm-up; production TS validator. Apple M5 Max, macOS. **Not a clean run:** 26–28 `ngspice` processes were running, load average 20–26.
+Workload: a 2318² gradient halftone at pitch 5.2, **995,405 anchors**, 42,603,358 packet bytes, block SHA-256 `b318ecfc…9e79`. Each run is 30 measured repetitions after one warm-up, with main-thread validation by the production TS validator. Apple M5 Max, macOS, Node 24.22.1, Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2 (not Safari). Values are medians in ms, with p95 for copy-out.
+
+**Run 1: no `ngspice`** (23:45; load average 9.3 → 8.7). Not a quiet machine: another project's CPU-bound jobs were running, with 4–14 processes above 50 % CPU.
 
 | Runtime | Compute | **Copy-out** (median / p95) | Transport | Main-thread validation |
 |---|---|---|---|---|
-| Node 24.22.1 (`worker_threads`) | 195.6 | **1.37** / 9.87 | 1.38 | 26.8 |
-| Chromium 159.0.8154.6 (dedicated worker) | 123.0 | **3.4** / 3.5 | 0.0 | 12.4 |
-| Firefox 159.0 | 188 | **4** / 15 | 0 | 16 |
-| Playwright WebKit 27.2 (not Safari) | 134 | **1** / 4 | 1 | 9 |
+| Node (`worker_threads`) | 87.5 | **0.97** / 2.18 | 0.30 | 14.0 |
+| Chromium (dedicated worker) | 84.2 | **2.2** / 2.4 | 0.1 | 7.8 |
+| Firefox | 82 | **2** / 3 | 0 | 12 |
+| Playwright WebKit | 87 | **1** / 3 | 0 | 6 |
 
-All values are medians in ms unless stated. Firefox and WebKit report `performance.now()` to the millisecond in this context, Chromium to 0.1 ms.
-- **Target ≤ 2 ms: met** in Node and WebKit at the median; **missed** in Chromium (3.4 ms, tight p95) and Firefox (4 ms, coarse timer). The p95 misses everywhere; Chromium's spread is tight (3.2–3.6 ms), while the others widen under load.
-- **Avoidable copies.** Copy-out is one `slice` per section from WASM linear memory into a fresh `ArrayBuffer` (42.6 MB). WASM memory cannot be transferred, so this copy is the one the design requires. Transport is a zero-copy transfer (≈ 0 ms), and no further copy happens on the main thread. Chromium's 3.4 ms is about 12.5 GB/s for that one copy. Reducing it would need fewer bytes (a smaller packet encoding) or producing directly into a transferable buffer, which is a C2/C4 change outside this gate.
-- Commands: `node scripts/bench-packet-copyout.mjs 30 2318 5.2` and `node tests/browser/perf/run-copyout.mjs 30`.
+**Run 2: under load** (23:28; 26–28 `ngspice` processes, load average 20–26): Node 1.37 / 9.87, Chromium 3.4 / 3.5, Firefox 4 / 15, WebKit 1 / 4 (copy-out median / p95). The other phases were 1.5–2.2 times slower than in run 1.
+
+- **Target ≤ 2 ms: PARTIAL.** In run 1 the median meets the target in Node, Firefox and WebKit. Chromium misses it by 0.2 ms with a tight spread (2.0–2.4 ms). The p95 is above 2 ms in all four runtimes. Firefox and WebKit report `performance.now()` to the millisecond in this context, and Chromium to 0.1 ms.
+- **Avoidable copies.** Copy-out is one `slice` per section from WASM linear memory into a fresh `ArrayBuffer` (42.6 MB). WASM memory cannot be transferred, so this is the one copy the design requires. Transport is a zero-copy transfer, and the main thread makes no further copy. Chromium's 2.2 ms is about 19 GB/s for that copy. Doing better would need fewer bytes (a smaller packet encoding) or producing directly into a transferable buffer, which are C2/C4 changes outside this gate.
+- Commands: `node scripts/bench-packet-copyout.mjs 30 2318 5.2` and `node tests/browser/perf/run-copyout.mjs 30`. The JSON results are in `docs/research/p1a-integration/bench/` on the integration branch.
 
 ### 10.5 Checks on this head
 - `pnpm exec vp check`: PASS (110 files formatted; 51 files without lint or type errors).
@@ -235,4 +238,4 @@ All values are medians in ms unless stated. Firefox and WebKit report `performan
 - Earlier on `3ae7c09`: the Rust regression corpus 326/326 and its 72/72 precision cases, the packet route 326/326, and unchanged WASM output digests (`68723671…`, `07fdd00d…`). The CI run for this head is listed in the integration report.
 
 ### 10.6 Disposition
-**PARTIAL.** The corrective items are done and tested. The copy-out target is missed in Chromium and Firefox under load, clean runs are NOT RUN, and gate closure depends on the integration branch.
+**PARTIAL.** The corrective items are done and tested. Copy-out ≤ 2 ms is missed in Chromium at the median and at p95 everywhere. A quiet-machine run is NOT RUN. Gate closure depends on the integration branch.
