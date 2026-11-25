@@ -1,0 +1,23 @@
+/* The canvas host's keyboard focus ring. The host is a focusable widget whose canvases and
+   overlay are absolutely placed inside it, so its own outline would be painted under them
+   (invisible in Chromium). The ring is the host's last layer instead: shown exactly when the
+   host matches :focus-visible (keyboard focus; a pointer click does not show it), above every
+   canvas layer, and transparent to pointer input. An outline, so it survives forced-colors
+   mode; the inset shadow is the dark inner ring of the dual focus ring (DESIGN-SYSTEM §4). */
+.vx-canvas-host:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.vx-canvas-focus-ring {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  outline: 2px solid var(--vx-focus, #b9e87b);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--vx-focus-halo, #191a1c);
+}
+.vx-canvas-host:focus-visible > .vx-canvas-focus-ring {
+  display: block;
+}

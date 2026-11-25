@@ -15,9 +15,13 @@
 // a group or layer, Left: its parent; Home/End, PageUp/PageDown jump), Enter or Space selects the
 // object under the keyboard cursor (with Shift: toggles it). A polite live region announces the
 // object, its position and state; the cursor's box is drawn dashed; the view follows it.
+// Keyboard focus is shown by the host's own ring, its last layer (canvas-host.css): the host's
+// outline would be painted under the absolutely placed canvases and overlay. It follows the
+// browser's :focus-visible (keyboard focus, not a pointer click) and takes no pointer input.
 // The preview is display only (layered drag caches in the renderer); release reports one
 // transform, which the caller dispatches as one command.
 import {
+  type CSSProperties,
   forwardRef,
   type KeyboardEvent as ReactKeyboardEvent,
   useEffect,
@@ -32,6 +36,7 @@ import type { DocumentSession } from "../document/session.ts";
 import type { Affine } from "../renderer/snapshot.ts";
 import { type Bounds, DocumentRenderHost } from "./render-host.ts";
 import type { CanvasHostHandle, CanvasHostProps, CanvasView } from "./types.ts";
+import "./canvas-host.css";
 
 export interface VectorCanvasProps extends CanvasHostProps {
   /** Use the main-thread renderer (engineering toggle). */
@@ -574,7 +579,7 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
     return (
       <div
         ref={outer}
-        className={props.className}
+        className={props.className ? `vx-canvas-host ${props.className}` : "vx-canvas-host"}
         role="application"
         aria-roledescription="canvas"
         aria-label={props.label ?? "Vector artwork"}
@@ -609,6 +614,17 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
           color={props.selectionColor ?? LIME}
           halo={props.haloColor ?? INK}
           cursor={cursor}
+        />
+        <div
+          aria-hidden="true"
+          className="vx-canvas-focus-ring"
+          data-testid="canvas-focus-ring"
+          style={
+            {
+              "--vx-focus": props.selectionColor ?? LIME,
+              "--vx-focus-halo": props.haloColor ?? INK,
+            } as CSSProperties
+          }
         />
       </div>
     );
