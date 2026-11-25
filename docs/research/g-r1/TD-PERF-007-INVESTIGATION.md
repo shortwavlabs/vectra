@@ -23,8 +23,8 @@
 
   Over all 12 transaction types, the validation share is 56–89 % at 1k, 65–84 % at 16k, 65–83 % at 43k and 62–83 % at 250k. The copy and publication share is 10–15 %, 11–15 %, 12–15 % and 12–18 %.
 - **Other O(nodes) passes the debt entry does not name.** Every `setFill` calls `documentOrder`, a whole-tree walk, and so do `group`, `delete` and `duplicate` through `topLevel`; the last three also build `parents` cold. That costs 29–43 ms per transaction at 250k and 3–5 ms at 43k, even for a single target.
-- **History memory (new finding).** Each history state retains its own full node-map table: **about 7 MiB per state at 251k nodes** and 1.75 MiB at 44k (retained heap, measured). 100 entries hold about 700 MiB at 250k, and this is **not counted** by the RFC §7 128 MiB history budget, which counts chunks and sources only. A new debt item is proposed (§9).
-- **The prototype incremental validator is exact on the recorded runs.** It is fast-accept and not wired. Five seeds give **62,071 validator-reached comparisons**: 23,159 invalid states and 38,912 valid ones, with **zero disagreements**. It decided locally on 38,519 of the valid states, including **100 %** of valid states produced by real commands. Every undecided valid state was a forged removal of a style or palette entry, which no command performs. The required seed `20261125` alone gives 12,396 comparisons, and the unit test enforces it in `vp test` in under 1 s.
+- **History memory (new finding).** Each history state retains its own full node-map table: **about 7 MiB per state at 251k nodes** and 1.75 MiB at 44k (retained heap, measured). Extrapolated to 100 entries (100 × the per-state measurement), that is about 700 MiB at 250k, and it is **not counted** by the RFC §7 128 MiB history budget, which counts chunks and sources only. A new debt item is proposed (§9).
+- **The prototype incremental validator is exact on the recorded runs.** It is fast-accept and not wired. Five seeds give **62,124 validator-reached comparisons**: 23,462 invalid states, including 353 anchor-budget rejections, and 38,662 valid ones, with **zero disagreements**. It decided locally on 38,267 of the valid states, including **100 %** of valid states produced by real commands. Every undecided valid state was a forged removal of a style or palette entry, which no command performs. The required seed `20261125` alone gives 12,427 comparisons, and the unit test enforces it in `vp test` in under 1 s.
 - **What it would buy** (estimate by composition, §6): at the interactive target (43k paths), dispatch medians would fall from 22–29 ms to roughly 5–12 ms, **under the 16.7 ms closure median for every measured type**. At 250k it would fall from 144–191 ms to 34–98 ms. That is still **above 50 ms** for structural edits and whole-layer transforms, because the O(nodes) copy, publication, diff, `documentOrder` and `parents` passes remain, and a container transform is O(subtree) by the invariants' nature.
 - **Recommendation (§7).** First wire the fast-accept validator in `dispatch` behind the full-pass fallback (option B). Then record the Draft's written keys (option C). Structural sharing of the node map and a persistent parent index (option D) is the only route found to ≤ 50 ms at 250k and to bounded history memory; it changes `DocState`'s map type, so it needs approval. No adoption is made here.
 
@@ -39,7 +39,7 @@ Delivered, all as new files; no existing file is changed:
 | `src/document/incremental-validate.ts` | Prototype fast-accept incremental validator. **Not wired** |
 | `src/document/testing/incremental-differential.ts` | Seeded differential harness (test-only; importable by Node) |
 | `src/document/incremental-validate.test.ts` | Differential acceptance test (≥ 10,000 comparisons, zero disagreements), and a check that no production module uses the prototype |
-| `docs/research/g-r1/td-perf-007/` | Run JSON, logs and machine-load records (`profile-run1`, `profile-run2`, `differential.json`) |
+| `docs/research/g-r1/td-perf-007/` | Run JSON and machine-load records (`profile-run1`, `profile-run2`, `differential.json`). The per-command console logs (`*.log`) are gitignored and not committed |
 
 ## 2. Method
 **Commands.**
@@ -59,7 +59,7 @@ At 250k the profile uses 3 anchors per path, not 4: at 4, `duplicate` and `commi
 
 **Transactions:**
 - `setFill1`, one path;
-- `setFillMany`, 1,000 paths spread over the document (100 at 1k);
+- `setFillMany`, 1,000 paths spread over the main layer (at 1k, all of them);
 - `setVisible`, `rename`;
 - `reorder`, a path to index 0 of its group;
 - `applyTransformPath`, a translation of one path;
@@ -94,7 +94,7 @@ Per-repetition derivations, never by subtracting medians:
 |---|---|---|---|
 | `profile-run1` | `6f8a83f` | First run. One-node `command` medians came out **negative** (−0.6 to −3 ms): the copy + publish probe was the first large allocation after `gc()` and paid for it. Kept as recorded | 2.33 → 4.29. A Playwright WebKit session was at 34 % CPU at the start; 0 `ngspice` |
 | `profile-run2` (**primary**) | `20da63e` | An untimed warm-up apply before the timed copy and probe; the prototype resolves a root's parent without `parents()` | 3.36 → 4.72; 0 `ngspice` |
-| `differential` | `056ff6c` | Harness and prototype identical to `20da63e`; only the record's format changed | not timing-sensitive |
+| `differential` | `d794428` | Prototype identical to `20da63e`. The harness reaches the anchor cap and forges bad palette and style entries: the first record (`056ff6c`) never produced a `budget` rejection, so it was replaced | not timing-sensitive |
 
 Neither profiling run is **quiet**. Dispatch, validation and copy medians agree between the runs within about 10 % at ≤ 43k. At 250k they spread more (e.g. `commitTrace` 157 vs 191 ms), with load rising during the run. Run 1's publish medians were inflated by the allocation artefact: 1.0 vs 0.42 ms at 16k, 2.1 vs 1.2 ms at 43k.
 
@@ -282,13 +282,13 @@ Preconditions, stated in the module:
 Not wired, and load is unaffected: `loadContainer` builds a `DocumentSession`, whose constructor calls `validateState`. The unit test asserts that no production module under `src/document` or `src/persistence` mentions the prototype.
 
 ### 5.2 Differential test
-`src/document/testing/incremental-differential.ts` is one harness, shared by the unit test (which asserts) and by `--differential` (which records). Sessions are built from seeded synthetic packets and restarted every 150 transactions, with random limits: `maxDepth` of 4, 5 or 64; `maxNodes` of 150 or 2M; `maxAnchors` from 2k to 22k. Undo and redo move between states before about 12 % of transactions. Each transaction belongs to one class:
+`src/document/testing/incremental-differential.ts` is one harness, shared by the unit test (which asserts) and by `--differential` (which records). Sessions are built from seeded synthetic packets and restarted every 150 transactions, with random limits: `maxDepth` of 4, 5 or 64; `maxNodes` of 150 or 2M; `maxAnchors` of 30–330 in a third of the episodes, otherwise 2k–22k. Undo and redo move between states before about 12 % of transactions. Each transaction belongs to one class:
 
 | Class | What | Validators run? |
 |---|---|---|
 | command-rejected | 1–3 random commands; one throws in `applyCommand`. Examples: reparent into its own subtree (**cycles via reparent**), **dangling IDs**, `setFill` with a **missing palette reference**, bad indices | no (as in `dispatch`) |
-| command | 1–3 random commands of all 21 types, including **invalid transforms** (singular, ill-conditioned, NaN), skew and 45° rotation under clips, lone-surrogate and over-long names, bad artboards and bad asset digests. Both validators run on the shadow-applied state before `store.settle()`; then the real `dispatch` advances the session and must reach the same verdict | both |
-| forged | 1–2 direct edits of prev's maps that bypass the commands (a model of a command bug). Invalid edits: cycles, second parents, orphans, dangling children, dangling styles, bad palette references, removed styles, palette entries or assets, key ≠ id, duplicate ID numbers (including leading zeros), kind-rule breaks, deep chains (depth limit and composed-transform overflow), clips (bad rect, on a path, under rotation), anchor-budget and node-count overflow, local corruption, bad artboard and document ID. Valid edits: rename, move, reorder, a new list with the same content, add a path, delete a path, delete the highest ID, recolour | both |
+| command | 1–3 random commands of all 20 types, including **invalid transforms** (singular, ill-conditioned, NaN), skew and 45° rotation under clips, lone-surrogate and over-long names, bad artboards and bad asset digests. Both validators run on the shadow-applied state before `store.settle()`; then the real `dispatch` advances the session and must reach the same verdict | both |
+| forged | 1–2 direct edits of prev's maps that bypass the commands (a model of a command bug). Invalid edits: cycles, second parents, orphans, dangling children, dangling styles, bad palette references, removed styles, palette entries or assets, key ≠ id, duplicate ID numbers (including leading zeros), kind-rule breaks, deep chains (depth limit and composed-transform overflow), clips (bad rect, on a path, under rotation), anchor-budget and node-count overflow, bad palette and style entries, local corruption, bad artboard and document ID. Valid edits: rename, move, reorder, a new list with the same content, add a path, delete a path, delete the highest ID, recolour | both |
 
 A **disagreement** is either:
 - the prototype accepting a state the full validator rejects; or
@@ -300,17 +300,17 @@ A **disagreement** is either:
 
 | Seed | Validator-reached comparisons | Full rejected | Full accepted | Decided locally | Undecided on valid | Command-rejected | No-ops | Disagreements | Time |
 |---|---|---|---|---|---|---|---|---|---|
-| **20261125** (unit test) | **12,396** | 4,686 | 7,710 | 7,637 | 73 | 3,274 | 330 | **0** | 0.80 s |
-| 1 | 12,482 | 4,614 | 7,868 | 7,784 | 84 | 3,206 | 312 | **0** | 0.68 s |
-| 2 | 12,357 | 4,579 | 7,778 | 7,694 | 84 | 3,347 | 296 | **0** | 0.68 s |
-| 3 | 12,414 | 4,617 | 7,797 | 7,721 | 76 | 3,268 | 318 | **0** | 0.66 s |
-| 4 | 12,422 | 4,663 | 7,759 | 7,683 | 76 | 3,252 | 326 | **0** | 0.69 s |
-| **Total** | **62,071** | 23,159 | 38,912 | 38,519 | 393 | 16,347 | 1,582 | **0** | |
+| **20261125** (unit test) | **12,427** | 4,767 | 7,660 | 7,573 | 87 | 3,230 | 343 | **0** | 0.76 s |
+| 1 | 12,448 | 4,741 | 7,707 | 7,633 | 74 | 3,210 | 342 | **0** | 0.64 s |
+| 2 | 12,450 | 4,649 | 7,801 | 7,714 | 87 | 3,248 | 302 | **0** | 0.60 s |
+| 3 | 12,385 | 4,688 | 7,697 | 7,629 | 68 | 3,285 | 330 | **0** | 0.61 s |
+| 4 | 12,414 | 4,617 | 7,797 | 7,718 | 79 | 3,226 | 360 | **0** | 0.59 s |
+| **Total** | **62,124** | 23,462 | 38,662 | 38,267 | 395 | 16,199 | 1,677 | **0** | |
 
-- **The prototype never accepted an invalid state:** all 23,159 rejections were *undecided*. The full validator's codes were `invariant` 20,705, `invalid_transform` 1,998, `clip_unsupported` 235 and `clip_transform_unsupported` 221.
-- **Valid states from real commands: 100 % decided locally** for every command type, and for multi-command transactions. That is 28,918 of 28,918 valid command states; the other 5,040 of the 33,958 command states were invalid.
-- **Undecided on valid states:** 388 forged removals of an unreferenced style and 5 of an unreferenced palette entry. These are conservative by design (§4.2), and no command removes either.
-- **Coverage per forged class** (all seeds, single-forgery transactions). The invalid classes were rejected by the full validator every time, and the prototype never accepted them: cycle 829, second-parent 804, orphan 877, dangling-child 824, dangling-style 817, bad-palette-ref 846, dup-number 683, key-mismatch 805, kind 837, remove-asset 586, remove-palette 873, bad-local 821. In the mixed classes, every valid state was decided: deep-chain 785 (501 invalid), transform 812 (295), clip 815 (288), budget 787 (192), artboard 794 (571), document-id 812 (403), rename 839 (241), move 792 (36). Full counts per class and per command type are in the JSON.
+- **The prototype never accepted an invalid state:** all 23,462 rejections were *undecided*. The full validator's codes were `invariant` 20,719, `invalid_transform` 1,934, `budget` 353, `clip_unsupported` 233 and `clip_transform_unsupported` 223.
+- **Valid states from real commands: 100 % decided locally** for every command type, and for multi-command transactions. That is 29,007 of 29,007 valid command states; the other 5,050 of the 34,057 command states were invalid.
+- **Undecided on valid states:** 390 forged removals of an unreferenced style and 5 of an unreferenced palette entry. These are conservative by design (§4.2), and no command removes either.
+- **Coverage per forged class** (all seeds, single-forgery transactions). The invalid classes were rejected by the full validator every time, and the prototype never accepted them: cycle 808, second-parent 800, orphan 785, dangling-child 779, dangling-style 777, bad-palette-ref 824, dup-number 662, key-mismatch 775, kind 808, remove-asset 553, remove-palette 774, bad-local 758. In the mixed classes, every valid state was decided: bad-entry 763 (564 invalid), deep-chain 780 (499), transform 742 (244), clip 789 (274), budget 774 (322: anchor cap or node count), artboard 797 (592), document-id 757 (378), rename 781 (217), move 730 (45), add-path 762 (6). Full counts per class and per command type are in the JSON.
 - **Not covered by construction:** `history_budget` (the harness's history limit is 128 MiB) and limits changing between prev and next. The prototype assumes the same limits; dispatch never changes them.
 
 ## 6. Options compared
@@ -339,10 +339,10 @@ All 12 types at 16k, 43k and 250k are in the JSON; B at 43k ranges from 4.9 to 1
 
 | Option | What changes | Copy cost | History memory | Complexity and risk |
 |---|---|---|---|---|
-| **A. Status quo** | — | O(nodes) per transaction: 15 + 8 ms at 250k | one full node-map table per history state, about 7 MiB at 250k, uncounted by the history budget | none |
+| **A. Status quo** | — | O(nodes) per transaction: 15 + 8 ms at 250k | one full node-map table per history state: about 7 MiB at 250k (measured per state), uncounted by the history budget | none |
 | **B. Fast-accept incremental validation**, wired as `checkIncremental(…).derived ?? validateState(next)` | `dispatch` only; one new module | unchanged | unchanged | Medium. The per-entry rules are duplicated, so every future invariant must be added to both validators, and a forgery added to the harness. Kept honest by the differential test in `vp test` (< 1 s). Errors unchanged: rejections come from the full pass |
 | **C. B plus a Draft write log** | `commands.ts` internals: the Draft records written keys (`SealedMap` is the only write path, so the log is complete); `finish` freezes logged entries only; `sealMap` stops copying already-sealed maps; `documentOrder` is computed only for multi-target ordering, or from ancestor chains | removes the diff and the publication scan: about 18 ms at 250k, 2 ms at 43k. The Map copy stays | unchanged | Low to medium; no change to semantics or format |
-| **D. C plus structural sharing**: a chunked copy-on-write `nodesById` of about √n buckets, plus a persistent parent index. About 100 lines, no dependency | `DocState.nodesById` becomes a `ReadonlyMap`-compatible class. This is the **authoritative document architecture** and needs approval | 13.5 ms → 0.01–0.07 ms at 250k; cold `parents` (12 ms) becomes O(depth) | about 7 MiB → about 0.015–0.03 MiB per state at 250k, so about 700 MiB → about 3 MiB for 100 entries | Medium to high. Gets 2.5–3× slower, iteration about 3× slower. Iteration order becomes bucket order: the full pass's *first* error message on a multi-defect file may change (still rejected). Persistence unaffected (canonical JSON sorts keys). Consumers use only the `ReadonlyMap` surface: no `instanceof Map`, no structured cloning of states (checked: `src/shell`, `src/canvas-host`, `src/workspace`, `src/persistence`) |
+| **D. C plus structural sharing**: a chunked copy-on-write `nodesById` of about √n buckets, plus a persistent parent index. About 100 lines, no dependency | `DocState.nodesById` becomes a `ReadonlyMap`-compatible class. This is the **authoritative document architecture** and needs approval | 13.5 ms → 0.01–0.07 ms at 250k; cold `parents` (12 ms) becomes O(depth) | about 7 MiB → about 0.015–0.03 MiB per state at 250k, so about 700 MiB → about 3 MiB for 100 entries (extrapolated) | Medium to high. Gets 2.5–3× slower, iteration about 3× slower. Iteration order becomes bucket order: the full pass's *first* error message on a multi-defect file may change (still rejected). Persistence unaffected (canonical JSON sorts keys). Consumers use only the `ReadonlyMap` surface: no `instanceof Map`, no structured cloning of states. Checked: the renderer receives a `RenderSnapshot` (evaluated runs and draw list, `src/renderer/snapshot.ts`), not `DocState`; `src/jobs/controller.ts` only calls `get` and `has`; `structuredClone` is never applied to a state |
 | **E. A faster full pass** (constant factors) | `invariants.ts` | — | — | Not pursued: the full validator is the oracle and stays unchanged. Still O(nodes) |
 
 Estimated after B + C + D at 250k:
@@ -358,7 +358,7 @@ Two costs survive every option:
 Changing what `dispatch` runs is the maintainer's decision. Nothing is wired on this branch.
 1. **Keep the full validator as it is**, as the oracle and as the only path for load, import and recovery (`loadContainer` → `DocumentSession` constructor). This branch preserves both.
 2. **Approve option B for G-EDIT**: wire `checkIncremental(prev, derived(prev), next).derived ?? validateState(next)` in `dispatch`, with:
-   - the differential test kept in `vp test` (seed 20261125: 12,396 validator-reached comparisons, zero disagreements), with the seed and count as a frozen minimum;
+   - the differential test kept in `vp test` (seed 20261125: 12,427 validator-reached comparisons, zero disagreements), with the seed and count as a frozen minimum;
    - in tests and development builds, a switch that also runs `validateState` in shadow on decided transactions and asserts identical derived data;
    - a rule that any change to `invariants.ts` adds the rule to `incremental-validate.ts` and a forgery to the harness in the same PR;
    - a review of the prototype as production code before wiring. It was written as an investigation artefact.
@@ -385,14 +385,15 @@ Changing what `dispatch` runs is the maintainer's decision. Nothing is wired on 
 - **Other paths.** Composed-transform overflow from real commands is not reached in the harness's small documents; it is covered by forged deep chains only. `history_budget` and differing limits are not covered (§5.2).
 - **Frozen regressions** (326 + 72, 636, bundle v1). Not re-run: only new files were added, and no existing source, export path or format changed.
 - **Browser and Safari suites.** Not run: no browser-facing code changed.
+- **Full reading of the AGENTS.md read list.** PRD, RFC-001, RESEARCH, PRESETS, VALIDATION and ROADMAP were only skimmed for document, history and performance content. Read in full: TD-PERF-007, decision register §7–§9, RFC-002 §7 (history budget), the G-DOC report header, and the document sources.
 
 ## 9. Proposed debt-register wording (for the lead; this branch does not edit the register)
 - **TD-PERF-007, evidence addendum (status unchanged, OPEN):**
 
-  > G-R1 investigation (`docs/research/g-r1/TD-PERF-007-INVESTIGATION.md`, Node 24.22.1, M5 Max, not quiet). `validateState` is 56–89 % of a dispatch's median at 1k–250k paths; node-map copy plus publication 10–18 %; history bookkeeping a few percent. Undo and redo ≤ 0.01 ms median. `setFill`, `group`, `delete` and `duplicate` also pay O(nodes) command work (`documentOrder`, cold `parents`): 29–43 ms at 250k. A fast-accept incremental prototype (not wired) agrees with `validateState` on 62,071 validator-reached randomized transactions over five seeds (23,159 invalid), with zero disagreements and every valid command state decided locally. Estimated by composition, wiring it alone brings the 43k medians to about 5–12 ms; at 250k structural edits stay at 65–98 ms without structural sharing.
+  > G-R1 investigation (`docs/research/g-r1/TD-PERF-007-INVESTIGATION.md`, Node 24.22.1, M5 Max, not quiet). `validateState` is 56–89 % of a dispatch's median at 1k–250k paths; node-map copy plus publication 10–18 %; history bookkeeping a few percent. Undo and redo ≤ 0.01 ms median. `setFill`, `group`, `delete` and `duplicate` also pay O(nodes) command work (`documentOrder`, cold `parents`): 29–43 ms at 250k. A fast-accept incremental prototype (not wired) agrees with `validateState` on 62,124 validator-reached randomized transactions over five seeds (23,462 invalid, including 353 anchor-budget rejections), with zero disagreements and every valid command state decided locally. Estimated by composition, wiring it alone brings the 43k medians to about 5–12 ms; at 250k structural edits stay at 65–98 ms without structural sharing.
 - **New item (proposed): TD-PERF-011, "History retains a full node-map table per entry."**
 
-  > Each committed state owns a native Map of all nodes: about 1.75 MiB at 44k nodes and about 7 MiB at 251k nodes per state (retained heap, measured). With 100 history entries this is about 175 MiB and about 700 MiB, not counted by the RFC §7 history byte budget (chunks and sources only). RFC D02 describes a structural-sharing history; node objects are shared but the maps are not.
+  > Each committed state owns a native Map of all nodes: about 1.75 MiB at 44k nodes and about 7 MiB at 251k nodes per state (retained heap, measured). Extrapolated to 100 history entries, this is about 175 MiB and about 700 MiB, not counted by the RFC §7 history byte budget (chunks and sources only). RFC D02 describes a structural-sharing history; node objects are shared but the maps are not.
 
   Limitation (measured); **High**; gate G-EDIT, with TD-PERF-007. Closure: structural sharing of node maps, or history accounting that includes them, measured at the stress workload.
 
@@ -400,7 +401,7 @@ Changing what `dispatch` runs is the maintainer's decision. Nothing is wired on 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests at the base | `pnpm exec vp test` at `ba2cb53`, with the WASM package built in this worktree by `node scripts/build-wasm.mjs` | 24 files, 372/372 passed |
-| Unit tests on this branch | `pnpm exec vp test` | 25 files, **374/374** passed: the base 372 plus the 2 new tests (the differential, 16,000 transactions and 12,396 comparisons, about 0.9 s; the not-wired check) |
+| Unit tests on this branch | `pnpm exec vp test` | 25 files, **374/374** passed: the base 372 plus the 2 new tests (the differential, 16,000 transactions and 12,427 comparisons, about 0.9 s; the not-wired check) |
 | Static checks (scoped) | `pnpm exec vp check scripts/bench-td-perf-007.mjs src/document/incremental-validate.ts src/document/incremental-validate.test.ts src/document/testing/incremental-differential.ts` | formatting, lint and types pass on the 4 code files; Markdown is outside `vp check`. `vp check --fix` was run only on these new files, never at the repository root |
-| Differential record | `node scripts/bench-td-perf-007.mjs --differential --seeds 20261125,1,2,3,4 --transactions 16000` | 62,071 comparisons, 0 disagreements |
+| Differential record | `node scripts/bench-td-perf-007.mjs --differential --seeds 20261125,1,2,3,4 --transactions 16000` | 62,124 comparisons, 0 disagreements (`d794428`) |
 | Profile | `node --expose-gc scripts/bench-td-perf-007.mjs --reps 30` (×2) | `profile-run1.json`, `profile-run2.json`; every incremental result in both runs matched `validateState`, since the script throws on a mismatch |
