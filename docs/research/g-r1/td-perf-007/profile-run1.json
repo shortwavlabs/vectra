@@ -13,11 +13,7 @@
   "gcBetweenPhases": true,
   "reps": 30,
   "warmup": 2,
-  "loadavgStart": [
-    2.33,
-    1.9,
-    1.92
-  ],
+  "loadavgStart": [2.33, 1.9, 1.92],
   "sizes": [
     {
       "paths": 1000,
@@ -33,11 +29,7 @@
         "source": 0
       },
       "anchors": 6600,
-      "loadavgStart": [
-        2.33,
-        1.9,
-        1.92
-      ],
+      "loadavgStart": [2.33, 1.9, 1.92],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -106,9 +98,7 @@
             "max": 0.108
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.03,
             "p95": 0.064,
@@ -207,9 +197,7 @@
             "max": 0.828
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.022,
             "p95": 0.055,
@@ -308,9 +296,7 @@
             "max": 0.043
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.018,
             "p95": 0.023,
@@ -409,9 +395,7 @@
             "max": 0.082
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.018,
             "p95": 0.026,
@@ -510,9 +494,7 @@
             "max": 0.078
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.018,
             "p95": 0.02,
@@ -611,9 +593,7 @@
             "max": 0.138
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.018,
             "p95": 0.028,
@@ -712,9 +692,7 @@
             "max": 0.403
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.018,
             "p95": 0.023,
@@ -813,9 +791,7 @@
             "max": 0.097
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.018,
             "p95": 0.021,
@@ -914,9 +890,7 @@
             "max": 0.244
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.054,
             "p95": 0.06,
@@ -1015,9 +989,7 @@
             "max": 0.322
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.036,
             "p95": 0.042,
@@ -1116,9 +1088,7 @@
             "max": 0.081
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.019,
             "p95": 0.021,
@@ -1217,9 +1187,7 @@
             "max": 0.349
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.041,
             "p95": 0.045,
@@ -1345,11 +1313,7 @@
           }
         }
       },
-      "loadavgEnd": [
-        2.3,
-        1.9,
-        1.92
-      ]
+      "loadavgEnd": [2.3, 1.9, 1.92]
     },
     {
       "paths": 16000,
@@ -1365,11 +1329,7 @@
         "source": 0
       },
       "anchors": 102000,
-      "loadavgStart": [
-        2.3,
-        1.9,
-        1.92
-      ],
+      "loadavgStart": [2.3, 1.9, 1.92],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -1438,9 +1398,7 @@
             "max": 0.582
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.309,
             "p95": 0.475,
@@ -1539,9 +1497,7 @@
             "max": 1.366
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.324,
             "p95": 0.443,
@@ -1640,9 +1596,7 @@
             "max": 0.607
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.321,
             "p95": 0.443,
@@ -1741,9 +1695,7 @@
             "max": 0.671
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.306,
             "p95": 0.409,
@@ -1842,9 +1794,7 @@
             "max": 0.825
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.306,
             "p95": 0.32,
@@ -1943,9 +1893,7 @@
             "max": 1.092
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.307,
             "p95": 0.32,
@@ -2044,9 +1992,7 @@
             "max": 3.946
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.306,
             "p95": 0.323,
@@ -2145,9 +2091,7 @@
             "max": 0.878
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.308,
             "p95": 0.355,
@@ -2246,9 +2190,7 @@
             "max": 1.567
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.607,
             "p95": 0.623,
@@ -2347,9 +2289,7 @@
             "max": 1.012
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.606,
             "p95": 0.638,
@@ -2448,9 +2388,7 @@
             "max": 0.717
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.314,
             "p95": 0.343,
@@ -2549,9 +2487,7 @@
             "max": 2.571
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.674,
             "p95": 0.744,
@@ -2677,11 +2613,7 @@
           }
         }
       },
-      "loadavgEnd": [
-        3.85,
-        2.32,
-        2.07
-      ]
+      "loadavgEnd": [3.85, 2.32, 2.07]
     },
     {
       "paths": 43000,
@@ -2697,11 +2629,7 @@
         "source": 0
       },
       "anchors": 264000,
-      "loadavgStart": [
-        3.85,
-        2.32,
-        2.07
-      ],
+      "loadavgStart": [3.85, 2.32, 2.07],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -2770,9 +2698,7 @@
             "max": 1.125
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.911,
             "p95": 1.004,
@@ -2871,9 +2797,7 @@
             "max": 1.491
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.918,
             "p95": 0.978,
@@ -2972,9 +2896,7 @@
             "max": 1.46
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.905,
             "p95": 1.181,
@@ -3073,9 +2995,7 @@
             "max": 1.25
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.934,
             "p95": 1.085,
@@ -3174,9 +3094,7 @@
             "max": 3.187
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.936,
             "p95": 1.177,
@@ -3275,9 +3193,7 @@
             "max": 4.652
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.948,
             "p95": 1.148,
@@ -3376,9 +3292,7 @@
             "max": 15.103
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.941,
             "p95": 1.225,
@@ -3477,9 +3391,7 @@
             "max": 3.529
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.99,
             "p95": 1.204,
@@ -3578,9 +3490,7 @@
             "max": 4.91
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 1.835,
             "p95": 2.246,
@@ -3679,9 +3589,7 @@
             "max": 3.752
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 1.898,
             "p95": 2.436,
@@ -3780,9 +3688,7 @@
             "max": 2.737
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 0.997,
             "p95": 1.415,
@@ -3881,9 +3787,7 @@
             "max": 6.336
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 2.007,
             "p95": 2.272,
@@ -4009,11 +3913,7 @@
           }
         }
       },
-      "loadavgEnd": [
-        3.95,
-        2.54,
-        2.16
-      ]
+      "loadavgEnd": [3.95, 2.54, 2.16]
     },
     {
       "paths": 250000,
@@ -4029,11 +3929,7 @@
         "source": 0
       },
       "anchors": 756000,
-      "loadavgStart": [
-        3.95,
-        2.54,
-        2.16
-      ],
+      "loadavgStart": [3.95, 2.54, 2.16],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -4102,9 +3998,7 @@
             "max": 10.131
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 9.141,
             "p95": 10.074,
@@ -4203,9 +4097,7 @@
             "max": 12.693
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 9.655,
             "p95": 10.281,
@@ -4304,9 +4196,7 @@
             "max": 11.951
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 9.879,
             "p95": 10.849,
@@ -4405,9 +4295,7 @@
             "max": 11.32
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 9.657,
             "p95": 11.276,
@@ -4506,9 +4394,7 @@
             "max": 26.586
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 10.043,
             "p95": 14.34,
@@ -4607,9 +4493,7 @@
             "max": 29.973
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 10.195,
             "p95": 11.885,
@@ -4708,9 +4592,7 @@
             "max": 93.744
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 9.997,
             "p95": 11.878,
@@ -4809,9 +4691,7 @@
             "max": 21.863
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 10.305,
             "p95": 11.253,
@@ -4910,9 +4790,7 @@
             "max": 43.002
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 20.434,
             "p95": 23.94,
@@ -5011,9 +4889,7 @@
             "max": 38.105
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 20.274,
             "p95": 26.313,
@@ -5112,9 +4988,7 @@
             "max": 25.888
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 9.473,
             "p95": 14.144,
@@ -5213,9 +5087,7 @@
             "max": 43.991
           },
           "incrementalDecided": 1,
-          "incrementalReason": [
-            null
-          ],
+          "incrementalReason": [null],
           "incDiff": {
             "p50": 20.515,
             "p95": 22.599,
@@ -5341,16 +5213,8 @@
           }
         }
       },
-      "loadavgEnd": [
-        4.29,
-        3.63,
-        2.78
-      ]
+      "loadavgEnd": [4.29, 3.63, 2.78]
     }
   ],
-  "loadavgEnd": [
-    4.29,
-    3.63,
-    2.78
-  ]
+  "loadavgEnd": [4.29, 3.63, 2.78]
 }
