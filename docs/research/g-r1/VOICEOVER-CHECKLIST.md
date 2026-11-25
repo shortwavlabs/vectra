@@ -4,7 +4,7 @@ These two checks need a person at the Mac. Automated tests cover keyboard behavi
 
 **Setup**
 - Use real Safari on macOS with stock settings.
-- Open the workspace from the G-R1 build, or from the G-UI-R build stacked on it (E1 and E2 describe the G-UI-R inspector and picker; the names are unchanged):
+- Open the workspace from the G-R1 build, or from the G-UI-R build stacked on it (E1 and E2 describe the G-UI-R inspector and picker). After the G-UI-R maintainer review the rail holds only Select, Trace and Recolor, there is no view switch, Layers has a collapse button (D1, D4), palette colours are named "Colour N" (E2) and a mixed fill is named as such (E5):
   ```bash
   pnpm run build && pnpm exec vp preview --port 4173
   ```
@@ -46,17 +46,19 @@ In Safari's default settings, "Press Tab to highlight each item on a webpage" is
 ## D. Layers and groups
 | # | Step | Expected |
 |---|---|---|
-| D1 | Navigate to the Layers list | The list name and row names are announced. Hide/Show, Lock/Unlock and More actions are named buttons |
+| D1 | Navigate to the Layers list | The heading's button is announced as "Layers, expanded" (collapse control). The list name and row names are announced. Hide/Show, Lock/Unlock and More actions are named buttons |
 | D2 | Hide the layer, then show it again | The button state changes are announced ("Show nested_rings" / "Hide nested_rings") |
 | D3 | Reorder with the drag handle: Space, Down Arrow, Space | The live region announces "… dropped at position 2 of 2" |
+| D4 | Activate the "Layers" button, then activate it again | "collapsed", then "expanded" is announced; while collapsed, Tab skips the layer rows |
 
 ## E. Transform controls, colour picker, undo/redo, export
 | # | Step | Expected |
 |---|---|---|
 | E1 | With a path selected, Tab to the inspector: X, Y, Scale value, Scale slider, Rotate 90° counter-clockwise, Rotate 90° clockwise (the G-UI-R order; Reset sits between Scale value and the slider, and is disabled and skipped while the scale is 100 %) | Each control's name and value are announced. Arrow keys change the slider; its value is announced |
-| E2 | Fill colour: open the picker | Focus lands on "Saturation and brightness" with its value text. "Hue" is a named slider. "Hex" is a text field. The "Document colours" group holds swatch buttons named "Use p0, #rrggbb" (pressed for the current draft). Apply and Escape work; focus returns to the trigger |
+| E2 | Fill colour: open the picker | Focus lands on "Saturation and brightness" with its value text. "Hue" is a named slider. "Hex" is a text field. The "Document colours" group holds swatch buttons named "Use Colour 1, #rrggbb" (pressed for the current draft; the engine's `p0`, `c0` or `ink` is spoken as "Colour 1", never by its raw name). Apply and Escape work; focus returns to the trigger |
 | E3 | ⌘Z, then ⇧⌘Z | The edit is undone and redone. The Undo and Redo buttons announce disabled or enabled states |
 | E4 | Activate Export | The dialog "Export artwork" is announced. Focus stays inside it. Escape closes it and focus returns to Export |
+| E5 | Import `tests/fixtures/procedural/adjacent_colors.png` with the Limited Palette preset; select its layer in Layers; move to the Fill trigger | "Fill colour: mixed. Edit colour" (no single hex value); in the picker the status reads "Current mixed" |
 
 ## F. Result
 - Recording: macOS ___, Safari ___, VoiceOver default voice. Date ___.
