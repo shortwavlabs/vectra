@@ -288,6 +288,7 @@ Counts:
   - Engines use different JPEG decoders.
   - Canvas storage is premultiplied, so `getImageData` returns RGB = round(round(c·a/255)·255/a) for partial alpha. Bundle v1 case 05 reproduces only with that model.
 - **Current guarantee.** Determinism is per decoded RGBA input: identical RGBA gives identical scene, SVG and PDF bytes on any host, in native and WASM.
+  - **Corrected at AM-1 (2026-11-25):** the guarantee holds *per target*. Native and WASM Artistic tracing can differ for identical RGBA; this is measured by G-ENG and tracked as TD-PLATFORM-007. Packet encoding is deterministic across Rust, WASM and TS for identical scenes (C3 r2). `decodePolicy` is now a closed enum recorded in the document and in trace provenance (C10).
 - **Reproduction:**
   - decode tests in the P0 reports;
   - `crates/vector-engine/tests/common/corpus.rs` `browser_decode`;
