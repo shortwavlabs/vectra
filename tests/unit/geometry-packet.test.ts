@@ -151,6 +151,31 @@ describe("C3.0 codec", () => {
     expect(validatePacket(back as GeometryPacket & Record<string, unknown>).anchors).toBe(14);
   });
 
+  test("decoding from Node Buffers (pooled views) still yields fresh whole-buffer arrays", () => {
+    const p = base();
+    const block = encodeBlock(p);
+    // A small Buffer.from() lives inside Node's shared pool at a non-zero offset.
+    const pooled = Buffer.from(block);
+    const inLarger = Buffer.concat([Buffer.alloc(3), Buffer.from(block)]).subarray(3);
+    for (const bytes of [pooled, inLarger]) {
+      const back = decodeBlock(p.manifest, bytes);
+      for (const k of [
+        "verbs",
+        "coords",
+        "verbOffsets",
+        "coordOffsets",
+        "styleIndex",
+        "groupIndex",
+      ] as const) {
+        expect(Array.from(back[k])).toEqual(Array.from(p[k]));
+        expect(back[k].byteOffset).toBe(0);
+        expect(back[k].byteLength).toBe(back[k].buffer.byteLength);
+      }
+    }
+    const rec = Buffer.concat([Buffer.alloc(5), Buffer.from(encodeRecord(p))]).subarray(5);
+    expect(Array.from(decodeRecord(rec).coords)).toEqual(Array.from(p.coords));
+  });
+
   test("records round-trip and are deterministic", () => {
     const p = base();
     const rec = encodeRecord(p);

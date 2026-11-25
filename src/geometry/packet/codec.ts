@@ -79,9 +79,11 @@ export function decodeBlock(
       if (bytes[i] !== 0) throw new PacketError("padding", "non-zero padding");
     if (k < 6) covered = offsets[k]! + lengths[k]!;
   }
-  // slice() gives each section its own buffer starting at offset 0 (aligned, whole-buffer).
+  // ArrayBuffer#slice always copies, so each section gets its own aligned, whole buffer. (A
+  // typed-array slice is not enough: Node's Buffer#slice returns a view of a shared pool.)
+  const start = (k: number) => bytes.byteOffset + offsets[k]!;
   const section = (k: number) =>
-    bytes.slice(offsets[k]!, offsets[k]! + lengths[k]!).buffer as ArrayBuffer;
+    (bytes.buffer as ArrayBuffer).slice(start(k), start(k) + lengths[k]!);
   const arrays: PacketArrays = {
     verbs: new Uint8Array(section(0)),
     coords: new Float64Array(section(1)),
