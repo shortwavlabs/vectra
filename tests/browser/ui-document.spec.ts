@@ -822,13 +822,24 @@ test("layers: an explicit collapse control at 1024×640, 1280×720 and 1366×768
     await expect.poll(() => height(panel), { message: at }).toBe(open.layers);
     note(`layers at ${at}`, open);
   }
-  // A drag of the split past the minimum collapses them too; the control follows.
-  const sep = (await page.getByRole("separator", { name: "Resize layers" }).boundingBox())!;
-  const x = sep.x + sep.width / 2;
-  await page.mouse.move(x, sep.y + sep.height / 2);
-  await page.mouse.down();
-  for (let i = 1; i <= 10; i++) await page.mouse.move(x, sep.y + i * 30);
-  await page.mouse.up();
+  // A shorter window never collapses them: near their minimum at 1366×768, then 1024×640.
+  const separator = page.getByRole("separator", { name: "Resize layers" });
+  const drag = async (dy: number) => {
+    const s = (await separator.boundingBox())!;
+    const [x, y] = [s.x + s.width / 2, s.y + s.height / 2];
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let i = 1; i <= 10; i++) await page.mouse.move(x, y + (dy * i) / 10);
+    await page.mouse.up();
+  };
+  await drag((await height(panel)) - 125);
+  expect(await height(panel)).toBeLessThan(140);
+  await page.setViewportSize({ width: 1024, height: 640 });
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(rows.first()).toBeVisible();
+  expect(await height(panel)).toBeGreaterThanOrEqual(120);
+  // A drag of the split past the minimum collapses them; the control follows.
+  await drag(300);
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(rows.first()).toBeHidden();
 });

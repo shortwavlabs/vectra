@@ -152,6 +152,64 @@ test("renderer lifecycle in the production workspace: remounts, switch, crash, r
   await context.close();
 });
 
+// Maintainer review of G-UI-R: the status bar says nothing while the renderer is healthy, and
+// shows a recovery and the main-thread fallback in its live region (`canvas-state`).
+test("renderer disclosure: a recovery and the crash fallback are shown; healthy is silent", async ({
+  page,
+}) => {
+  await page.goto("/workspace.html?debug=1");
+  await expect.poll(() => page.evaluate(() => "__vectra" in window)).toBe(true);
+  await load(page, "adjacent_colors-limited");
+  const state = page.getByTestId("canvas-state");
+  await expect(state).toHaveAttribute("data-host", "worker");
+  await expect(state).toHaveAttribute("role", "status");
+  await expect(state).toHaveText("");
+  // Every text the live region shows is recorded: a recovery can be brief.
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="canvas-state"]')!;
+    const seen: string[] = [];
+    (window as unknown as { __seen: string[] }).__seen = seen;
+    new MutationObserver(() => seen.push(el.textContent ?? "")).observe(el, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  });
+  const crash = async () => {
+    const before = (await diag(page))!.client.crashes;
+    expect(
+      await page.evaluate(() => (window as unknown as { __vectra: Api }).__vectra.canvas.crash()),
+    ).toBe(true);
+    await expect.poll(async () => (await diag(page))!.client.crashes).toBeGreaterThan(before);
+  };
+  // One crash: a recovery, then a healthy worker again and silence.
+  await crash();
+  await settled(page);
+  await expect(state).toHaveAttribute("data-host", "worker");
+  await expect(state).toHaveText("");
+  const seen = () => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+  expect((await seen()).some((t) => t.startsWith("Renderer: recovering ("))).toBe(true);
+  // More than three crashes in 30 s: the client falls back to the main thread, disclosed with
+  // its reason, and it stays disclosed while that renderer draws. Each replacement worker is
+  // crashed only once it presents (a crash request before its start-up is ignored).
+  for (let i = 0; i < 2; i++) {
+    await crash();
+    await settled(page);
+  }
+  // (The host state is not asserted here: after this crash fallback it stays "rendering" although
+  // the main-thread renderer has drawn the exact frame; a canvas-host matter, reported to the
+  // lead. The disclosure does not depend on it.)
+  await crash();
+  await expect(state).toHaveAttribute("role", "status");
+  await expect(state).toBeVisible();
+  await expect(state).toHaveText(
+    /^Renderer: main thread \(fallback: the render worker crashed repeatedly \(.+\)\)$/,
+  );
+  test
+    .info()
+    .annotations.push({ type: "canvas-state texts", description: JSON.stringify(await seen()) });
+});
+
 test.describe("React development StrictMode (dev server)", () => {
   // One dev server per browser project (projects may run in parallel worker processes).
   const PORTS: Record<string, number> = { chromium: 4295, firefox: 4296, webkit: 4297 };

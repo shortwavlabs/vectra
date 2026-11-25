@@ -742,13 +742,17 @@ export function Workspace() {
                 />
                 {/* Layers never collapse by themselves (not by viewport height either): the
                     header's disclosure, or a drag of the split past the minimum, collapses them
-                    to the 36 px header; the split stays resizable. */}
+                    to the 36 px header; the split stays resizable. They keep their pixel height
+                    when the window resizes (the inspector absorbs the change): a relative size
+                    would fall below the minimum in a shorter window, and the library would
+                    collapse them. */}
                 <ResizablePanel
                   id="layers"
                   defaultSize="30"
                   minSize={120}
                   collapsible
                   collapsedSize={LAYERS_HEADER}
+                  groupResizeBehavior="preserve-pixel-size"
                   panelRef={layersPanel}
                   onResize={() => setLayersOpen(!layersPanel.current?.isCollapsed())}
                 >
