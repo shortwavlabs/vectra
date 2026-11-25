@@ -352,7 +352,7 @@ This section records the corrective work on this branch after the P1-A correctiv
 - Benchmarks were re-run on the integration branch with the production validator (integration report). The figures in §5 used the test adapter.
 
 ### 11.6 Debt
-- **TD-PERF-007** (new, gate G-EDIT): structural transactions cost O(nodes). At the interactive target a structural dispatch measured 27–31 ms (budget 16 ms), 77–85 % of it in the whole-state invariant pass. Closure needs incremental invariants and structural sharing, with the full pass kept for load and as a test oracle.
+- **TD-PERF-007** (new, gate G-EDIT): structural transactions cost O(nodes). At the interactive target a structural dispatch measured 25–29 ms median with no `ngspice` (budget 16 ms), about 80 % of it in the whole-state invariant pass. Closure needs incremental invariants and structural sharing, with the full pass kept for load and as a test oracle.
 - **TD-ARCH-003 (document half):** PRODUCTION VERIFIED on the integration branch (sole validator and codec); this branch alone is unchanged.
 
 ### 11.7 Disposition
