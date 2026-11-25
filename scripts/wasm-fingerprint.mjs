@@ -4,6 +4,10 @@
 // output across hosts (macOS vs Linux) shows whether differently compiled WASM binaries behave
 // identically. Runs in Node (not browser evidence). PNG decoding is a minimal RGBA8 reader for
 // the repository's own fixtures.
+// G-ENG adds the GeometryPacket route: per case the C3.0 block digest, packet-route SVG/PDF
+// (`packetToSvg`/`packetToPdf`) and draw-list export (`exportDrawList*`, identity draw list)
+// compared byte for byte with the direct route; with NATIVE_PACKETS_DIR (output of the native
+// `packet_regression` example) the WASM blocks are compared with the native blocks.
 // Usage: node scripts/wasm-fingerprint.mjs [out.json]
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -11,9 +15,17 @@ import { join, resolve } from "node:path";
 import { inflateSync } from "node:zlib";
 
 const root = resolve(import.meta.dirname, "..");
-const { initSync, vectorize, sceneToPdf } = await import(
-  join(root, "packages/vector-engine-wasm/pkg/vector_engine_wasm.js")
-);
+const {
+  initSync,
+  vectorize,
+  sceneToPdf,
+  vectorizePacket,
+  PacketSet,
+  packetToSvg,
+  packetToPdf,
+  exportDrawListSvg,
+  exportDrawListPdf,
+} = await import(join(root, "packages/vector-engine-wasm/pkg/vector_engine_wasm.js"));
 initSync({
   module: readFileSync(join(root, "packages/vector-engine-wasm/pkg/vector_engine_wasm_bg.wasm")),
 });
@@ -71,6 +83,66 @@ const PRECISION_MODES = {
 };
 // Optional: directory of native `export_samples` output to compare precision SVGs byte-for-byte.
 const nativeDir = process.env.NATIVE_SAMPLES_DIR;
+const nativePacketsDir = process.env.NATIVE_PACKETS_DIR;
+const packetRows = {};
+const packetMismatch = [];
+let packetCompared = 0;
+const PDF_OPTS = JSON.stringify({ width: 150, unit: "mm" });
+
+/** Packet route for one case; returns the block digest and records any export mismatch. */
+function packetRoute(key, img, request, directSvg, directPdf) {
+  const p = vectorizePacket(img.rgba, img.width, img.height, request);
+  const block = p.blockBytes();
+  const manifest = JSON.parse(p.manifestJson);
+  const arrays = [
+    p.takeVerbs(),
+    p.takeCoords(),
+    p.takeVerbOffsets(),
+    p.takeCoordOffsets(),
+    p.takeStyleIndex(),
+    p.takeGroupIndex(),
+  ];
+  const [, , , , styleIndex, groupIndex] = arrays;
+  const drawList = {
+    width: manifest.width,
+    height: manifest.height,
+    runs: manifest.groups.map((g) => ({ id: g.id, clip: g.clip })),
+    items: Array.from(styleIndex, (si, i) => {
+      const s = manifest.styles[si];
+      return {
+        chunk: 0,
+        pathIndex: i,
+        transform: [1, 0, 0, 1, 0, 0],
+        fill: s.fill,
+        paletteId: s.paletteId,
+        stroke: s.stroke,
+        evenOdd: s.evenOdd,
+        groupRun: groupIndex[i],
+      };
+    }),
+  };
+  const set = new PacketSet();
+  set.add(p.manifestJson, ...arrays);
+  const same = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b)) === 0;
+  const checks = {
+    packetSvg: packetToSvg(p.sceneMetaJson, set) === directSvg,
+    packetPdf: same(packetToPdf(p.sceneMetaJson, PDF_OPTS, set), directPdf),
+    drawListSvg: exportDrawListSvg(JSON.stringify(drawList), p.sceneMetaJson, set) === directSvg,
+    drawListPdf: same(
+      exportDrawListPdf(JSON.stringify(drawList), p.sceneMetaJson, PDF_OPTS, set),
+      directPdf,
+    ),
+  };
+  for (const [k, ok] of Object.entries(checks)) if (!ok) packetMismatch.push(`${key}/${k}`);
+  if (nativePacketsDir) {
+    const native = readFileSync(join(nativePacketsDir, `${key.replace("/", "-")}.packet.bin`));
+    packetCompared += 1;
+    if (!same(native, block)) packetMismatch.push(`${key}/native-block`);
+  }
+  set.free();
+  p.free();
+  return sha(block);
+}
 const sha = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 const manifest = JSON.parse(readFileSync(join(root, "tests/fixtures/MANIFEST.json"), "utf8"));
 const rows = {};
@@ -104,6 +176,13 @@ for (const f of manifest.filter((m) => m.file.startsWith("procedural/"))) {
     );
     const pdf = sceneToPdf(r.scene, JSON.stringify({ width: 150, unit: "mm" }));
     rows[`${f.id}/${name}`] = { svg: sha(r.svg), pdf: sha(pdf), scene: sha(r.scene) };
+    packetRows[`${f.id}/${name}`] = packetRoute(
+      `${f.id}/${name}`,
+      img,
+      JSON.stringify({ presetVersion: 1, seed: 1, settings }),
+      r.svg,
+      pdf,
+    );
     r.free();
   }
 }
@@ -111,7 +190,7 @@ const wasm = createHash("sha256")
   .update(readFileSync(join(root, "packages/vector-engine-wasm/pkg/vector_engine_wasm_bg.wasm")))
   .digest("hex");
 const out = JSON.stringify(
-  { wasmSha256: wasm, cases: rows, precisionCases: precisionRows },
+  { wasmSha256: wasm, cases: rows, precisionCases: precisionRows, packetBlocks: packetRows },
   null,
   2,
 );
@@ -128,4 +207,15 @@ if (nativeDir) {
     console.log(`  differ: ${nativeMismatch.join(", ")}`);
     process.exitCode = 1;
   }
+}
+console.log(
+  `packet route: ${Object.keys(packetRows).length} cases, block digest ${createHash("sha256").update(JSON.stringify(packetRows)).digest("hex")}; ` +
+    `packet/draw-list SVG+PDF mismatches: ${packetMismatch.filter((m) => !m.endsWith("native-block")).length}` +
+    (nativePacketsDir
+      ? `; native vs WASM blocks: ${packetCompared - packetMismatch.filter((m) => m.endsWith("native-block")).length}/${packetCompared} identical`
+      : ""),
+);
+if (packetMismatch.length) {
+  console.log(`  differ: ${packetMismatch.join(", ")}`);
+  process.exitCode = 1;
 }
