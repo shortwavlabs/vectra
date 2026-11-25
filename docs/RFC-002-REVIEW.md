@@ -1,6 +1,6 @@
 # RFC-002 independent engineering review
 
-Status: requested; NOT RUN. Baseline baf1d17972f8a06d46c0538030e2eeba75cf4354. Parent [RFC-002](RFC-002.md), [design system](DESIGN-SYSTEM.md).
+Status: **executed** in the independent review (PR #6, head `91552aa`; [final report](research/rfc-002-review/FINAL-REPORT.md)). Dispositions were reconciled at G-0 ([G0-FINAL-REPORT](research/g0/G0-FINAL-REPORT.md)). This protocol is kept as written. Baseline baf1d17972f8a06d46c0538030e2eeba75cf4354. Parent [RFC-002](RFC-002.md), [design system](DESIGN-SYSTEM.md).
 
 ## Purpose and constraints
 Challenge the proposed design, not rubber-stamp it. Claude should review the actual code and all handoff/debt documents, identify correctness gaps, and perform only targeted feasibility experiments on an isolated review branch or disposable worktree. No P1 implementation, engine rewrite, broad dependency changes, public deployment, paid infrastructure or merge. Preserve P0 hashes, exact dependency pins, privacy/CSP and notices. Use local verification; no expensive CI matrix. Record explicit NOT RUN where unavailable. Do not modify frozen evaluation thresholds after seeing results without owner review.

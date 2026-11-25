@@ -42,6 +42,8 @@ Thresholds were pre-registered in docs/research/p0-r-geo/GEOMETRIC-FIDELITY-METR
 Create procedural fixtures: circle, nested rings, sharp corners, 1px strokes, transparent antialiased logo, adjacent color blocks, gradient, checkerboard, noise, rotated EXIF JPEG, malformed input and oversized header. Add licensed/public-domain photos, scans and botanical artwork with source/license/hash manifest. No private user artwork in public repo. Hold out a separate art set.
 
 ## Quality
+**G-0 (2026-11-25):** for shared-boundary qualification, slivers use the **crisp-sampled** metric (non-antialiased samples at 4×, components ≥ 0.25 px²). The historical antialiased metric is still reported, and visible artifacts are never suppressed. Precision geometry changes are versioned and qualified on a **fresh, pre-registered, untouched holdout** after an implementation freeze, with no post-hoc threshold changes or fixture removal. All 12 P0-R-GEO held-out fixtures are already exposed (RFC-002 §12.4–12.5). IoU alone is not evidence of visually accurate circles.
+
 Rasterize vectors independently at source size; measure binary IoU (target >=0.98 on simple synthetic shapes), color error (Lab delta E summary), topology (component/hole counts exact on synthetic fixtures), edge deviation, path/anchor count and bytes. Report per-fixture metrics, not just averages. Stylized presets assessed against declared tone mapping, vector-only content, repeatability, and manual blind review; pixel similarity is not the goal for stylistic output. Compare Illustrator/Inkscape if owner supplies exports; record settings and versions.
 
 ## Export gate

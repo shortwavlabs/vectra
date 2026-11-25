@@ -3,6 +3,7 @@
 The entry point for the next engineering phase.
 - **Baseline status.** P0 (with P0-R and P0-R-GEO) is accepted as an engineering baseline, not a production release; see [P0-ACCEPTANCE](research/P0-ACCEPTANCE.md).
 - **Next step: RFC-002.** This document does not write RFC-002 or choose its architecture. It hands over what exists, what is decided and what RFC-002 must answer.
+- **G-0 update (2026-11-25):** RFC-002 has been independently reviewed (PR #6) and reconciled (G-0). It is pending maintainer approval; see [G0-FINAL-REPORT](research/g0/G0-FINAL-REPORT.md). After approval, the next gates are P-CI, then **G-ENG ‖ G-DOC**. P1 has not started.
 
 ## 6.1 Accepted baseline
 **What runs today** (`main` after PR #3):
@@ -113,7 +114,7 @@ Start from [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md), 
 | **Can remain deferred** | TD-GEO-002, TD-GEO-006, TD-GEO-008, TD-PERF-005 (P2), TD-PERF-006, TD-PLATFORM-001, TD-PLATFORM-004 (until a UI exists), TD-PLATFORM-005 (next Linux run), TD-PROCESS-001 (maintainer decision) |
 
 ## 6.5 Recommended development sequence
-1. **RFC-002: Vector Studio architecture.** Document model, scene v2, rendering, worker lifecycle, shared boundaries, persistence, budgets.
+1. **RFC-002: Vector Studio architecture.** Document model, scene v2, rendering, worker lifecycle, shared boundaries, persistence, budgets. *(Reconciled at G-0; the authoritative gate sequence is [G0-P1-IMPLEMENTATION-PLAN](research/g0/G0-P1-IMPLEMENTATION-PLAN.md).)*
 2. **P1-A.** Editable document, layers, selection, transforms and history.
 3. **P1-B.** Production workspace and rendering architecture.
 4. **P1-C.** Core vector editing and tracing tools (Artistic and Precision tracing in the product UI).
