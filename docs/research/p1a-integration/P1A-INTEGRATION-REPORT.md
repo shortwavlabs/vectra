@@ -1,6 +1,6 @@
 # P1-A integration — G-ENG and G-DOC on one production path
 
-**Status:** **PARTIAL**, waiting for maintainer acceptance. The integration work is done and verified (§3–§6). The performance targets for 250k-path project load and for interactive structural edits are not met (§7). Benchmarks on a quiet machine were NOT RUN (§7.0).
+**Status:** **PARTIAL**, waiting for maintainer acceptance. The integration work is done and verified (§3–§6). Two performance targets are not met: project load at 250k paths (≤ 1 s) and copy-out (≤ 2 ms) in Chromium and at p95. Structural edits carry a measured risk (TD-PERF-007). Benchmarks on a quiet machine were NOT RUN (§7.0).
 
 **Branch:** `p1a/integration`, based on `main` at `d6c1cbf`. It merges AM-1 (PR #13), G-ENG (PR #10) and G-DOC (PR #11) with merge commits only, then adds the integration commits below. No history was rewritten and no commit is duplicated: every gate commit reaches this branch through a merge of its own branch.
 
@@ -42,12 +42,12 @@ One amendment set, `docs/p1a-amendments-am1` at `8011555`, is merged into both g
   - `src/document/testing/packet-adapter.ts` and its test are deleted.
   - `src/document/architecture.test.ts` asserts that the document code imports packet validation only from `src/geometry/packet/`.
   - Canonical JSON has one implementation (`src/persistence/canonical-json.ts`), re-exported by the codec. The manifest-text cap is G-ENG's `MAX_MANIFEST_BYTES`.
-- **G-DOC's suites rerun on the production path** (not a trial merge). `pnpm exec vp test run`: **262/262** in 17 files, including every G-DOC and G-ENG suite.
+- **G-DOC's suites rerun on the production path** (not a trial merge). `pnpm exec vp test run`: **263/263** in 17 files, including every G-DOC and G-ENG suite.
 
   | Area | Where it is tested |
   |---|---|
   | C3 conformance (47 shared cases, Rust and TS codes agree) | `tests/unit/geometry-packet.test.ts`; Rust `crates/vector-engine/tests/packet.rs` (CI) |
-  | WASM conformance and adapter | `tests/unit/wasm-packet-adapter.test.ts`, `tests/unit/geometry-determinism.test.ts` |
+  | WASM conformance and adapter | `tests/unit/wasm-packet-adapter.test.ts`: the 35 shared cases the WASM signature can express give the expected codes and totals through the built `validatePacket`, plus adapter limits and `PacketResult` misuse. `tests/unit/geometry-determinism.test.ts`: WASM packets equal the goldens |
   | Ownership and detachment | `geometry-store.test.ts` (aliases detached after commit; rule-1 violations are `ownership`); browser suite (§5) |
   | Derived-data isolation | `geometry-store.test.ts` (no buffer exposure in views, derived views or results); `review-regressions.test.ts` 3 |
   | Accounting and refcounts | `geometry-store.test.ts` (refcounts per owner kind; freed at the settle after the last release); `ledger.test.ts`; `session.test.ts` history budgets |
@@ -59,7 +59,7 @@ One amendment set, `docs/p1a-amendments-am1` at `8011555`, is merged into both g
 
 ## 4. End-to-end export proof
 Pipeline (`tests/unit/p1a-export-pipeline.ts`): P0 scene → GeometryPacket (WASM `sceneToPacket`) → document `commitTrace` with provenance → `.vectra` save → strict load → export draw list (`buildExport`) → Rust bake (WASM `exportDrawList*`) → scene JSON, SVG and PDF.
-- **Full corpus** (`node scripts/document-export-regression.mjs <regression output>`): **636/636** files identical to the frozen `a4cf172.sha256`. That is 106 scenes × 3 files × 2 codecs; the 8 over-budget cases have no scene. Run time 75 s. The frozen regression counts stay **326 + 72**.
+- **Full corpus** (`node scripts/document-export-regression.mjs <regression output>`): **636/636** files identical to the frozen `a4cf172.sha256`. That is 106 scenes × 3 files × 2 codecs; the 8 over-budget cases have no scene. Run time 75 s. The frozen regression counts stay **326 + 72**: verified on G-ENG `3ae7c09`; no file under `crates/` or `packages/` has changed since. The corpus run used integration `c923479`; later commits change no code it executes.
 - **In CI** (`tests/unit/p1a-document-export.test.ts`, 32 tests): the committed corpus subset (12 scenes covering halftone with clip and background, transparent halftone, mosaic, limited palette, colour and B&W) reproduces scene, SVG and PDF hashes for both codecs.
 - **Edited documents export current values** (document form), never the packet's historical styles or provenance:
 
@@ -76,7 +76,7 @@ Pipeline (`tests/unit/p1a-export-pipeline.ts`): P0 scene → GeometryPacket (WAS
 - **Schema and provenance** are described in [G-DOC-REPORT §11](../g-doc/G-DOC-REPORT.md) and contract C10 r1. Original metadata is used only for a single unedited trace on its original artboard.
 
 ## 5. Browser persistence (Chromium, Firefox, Playwright WebKit)
-`pnpm exec playwright test -c tests/browser/persistence/playwright.config.ts`: **28 passed, 2 skipped**. The cross-engine test launches all three engines itself, so it runs once, in the Chromium project; the 2 skips are its Firefox and WebKit copies. Engines: Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2. **Playwright WebKit is not Safari**; real Safari remains NOT RUN (TD-PLATFORM-002).
+`pnpm exec playwright test -c tests/browser/persistence/playwright.config.ts`: **28 passed, 2 skipped** (run on `42b67d4`; since then only `container.test.ts` changed under `src/`, plus documentation). The cross-engine test launches all three engines itself, so it runs once, in the Chromium project; the 2 skips are its Firefox and WebKit copies. Engines: Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2. **Playwright WebKit is not Safari**; real Safari remains NOT RUN (TD-PLATFORM-002).
 
 A harness page runs the production container, session and store. Every engine is compared with the same document built in Node.
 
@@ -109,7 +109,7 @@ All figures use the production validator. Results and machine state are in [`ben
 - **Method:** 30 measured repetitions after a warm-up, 15 for project open. Medians and p95 are reported. Each workload is identified by a hash: the SHA-256 of its C3.0 geometry record, or of the block for copy-out.
 
 ### 7.1 Copy-out at 1M anchors (≤ 2 ms): PARTIAL
-Workload: 995,405 anchors, 42.6 MB, block `b318ecfc…`. Copy-out ms are median / p95.
+Workload: 995,405 anchors, 42.6 MB, block `b318ecfc…` (Node). The browser harness uses the same generator, with the same anchor and byte counts; it records no block hash. Copy-out ms are median / p95.
 
 | Runtime | Compute | **Copy-out** | Transport | Main-thread validation |
 |---|---|---|---|---|
@@ -155,18 +155,18 @@ Open is `loadContainer` end to end: header, inflate, per-section SHA-256, strict
 |---|---|---|---|---|
 | Store commit (move, validate and derive, publish) | 5.3 ms | 15.6 ms | ≤ 50 ms | met |
 | Trace-commit transaction (`commitTrace` dispatch, single run) | 58 ms | — | — (G-TRACE budget) | information |
-| Structural dispatch (transform, rename, hide, recolour, delete group) | 25.2–28.9 ms | 26.9–32.1 ms | ≤ 16 ms (frame) | **missed** |
+| Structural dispatch (transform, rename, hide, recolour, delete group) | 25.2–28.9 ms | 26.9–32.1 ms | no dispatch target in RFC-002 §17; attributable main-thread blocking ≤ 50 ms; interaction frame p95 ≤ 33 ms (16.7 ms aspirational) | within 50 ms; **risk**: uses most of a 33 ms gesture frame |
 | Undo / redo | ≤ 0.003 ms | ≤ 0.004 ms | ≤ 16 ms | met |
 | Open, `none` / `deflate-raw` | 118 / 165 ms | 128 / 170 ms | ≤ 1 s | met |
 
 - **Dispatch profile** (`dispatch-profile.mjs`): 20.8 ms, of which `validateState` takes 16.6 ms (80 %), the node-map copy 2.2 ms, and everything else 2.1 ms. At 250k paths the same profile is 156 ms (79 % in `validateState`).
-- **At 1M anchors**, the store commit is 19.9 ms at A and 24.0 ms at B, within ≤ 50 ms.
+- **At 1M anchors**, the store commit is 19.9 ms at A and 24.0 ms at B, within ≤ 50 ms. Structural dispatch is 34–41 ms at A, within the 50 ms blocking budget. At B (250k paths) it is **172–253 ms**, above that budget (p95 186–300 ms).
 
 ### 7.4 O(nodes) transaction cost: registered as debt
 **TD-PERF-007** (gate **G-EDIT**). Every transaction copies the node map and runs the whole-state invariant pass.
 - **Upgrade path:** incremental invariants over the nodes a transaction touched, and structural sharing for the state maps. The whole-state pass stays authoritative for load, import and recovery, and serves as the test oracle.
-- **Closure criteria:**
-  - a structural dispatch of ≤ 16 ms median and ≤ 33 ms p95 at the interactive target, measured on a quiet machine with the production build;
+- **Closure criteria** (numeric thresholds **proposed** for maintainer decision, derived from RFC-002 §17):
+  - a structural dispatch of ≤ 16.7 ms median and ≤ 33 ms p95 at the interactive target, and ≤ 50 ms at the 1M-anchor stress workloads, measured on a quiet machine with the production build;
   - incremental and full validation agree over at least 10,000 randomized transactions;
   - load still runs the full pass.
 - No store rewrite and no new dependency were made in P1-A. The approach and any dependency need approval at G-EDIT.
@@ -180,7 +180,7 @@ Open is `loadContainer` end to end: header, inflate, per-section SHA-256, strict
 - **TD-PERF-007** (new, G-EDIT): structural transactions cost O(nodes) (§7.3).
 - **Project load at 250k paths** misses ≤ 1 s (§7.2). The recommended amendment is in §7.2; it was not implemented.
 - **TD-PLATFORM-007**: native vs WASM Artistic tracing, 3/65 fixtures.
-- **Copy-out** misses ≤ 2 ms in Chromium and Firefox (§7.1).
+- **Copy-out** misses ≤ 2 ms in Chromium at the median (2.2 ms), and at p95 in every runtime (§7.1).
 - **NOT RUN:**
   - benchmarks on a quiet machine;
   - real Safari and mobile (TD-PLATFORM-002);
@@ -192,8 +192,8 @@ Open is `loadContainer` end to end: header, inflate, per-section SHA-256, strict
 |---|---|---|---|
 | [#8](https://github.com/shortwavlabs/vectra/pull/8) P-CI | `ci/p-ci-minimal` | `a1c3e7f` | **merged** as `d6c1cbf` |
 | [#13](https://github.com/shortwavlabs/vectra/pull/13) AM-1 | `docs/p1a-amendments-am1` | `8011555` | `45549103203` success (docs-only path) |
-| [#10](https://github.com/shortwavlabs/vectra/pull/10) G-ENG | `gate/g-eng-engine-packet` | `a2fd5d9` | see the PR (earlier head `3ae7c09`: `45552017725` success) |
-| [#11](https://github.com/shortwavlabs/vectra/pull/11) G-DOC | `gate/g-doc-document-store` | `6c84d21` | see the PR (earlier head `c5bfb87`: `45552019081` success) |
+| [#10](https://github.com/shortwavlabs/vectra/pull/10) G-ENG | `gate/g-eng-engine-packet` | `ed3994e` | `45556525261` **success** (full checks, 2 min 4 s) |
+| [#11](https://github.com/shortwavlabs/vectra/pull/11) G-DOC | `gate/g-doc-document-store` | `38afd35` | `45556525464` **success** (full checks, 1 min 51 s) |
 | integration | `p1a/integration` | the commit adding this report | see the PR |
 
 **Dependencies.** #10 and #11 each contain `main` and AM-1 (#13) through merge commits. #11 does not depend on #10's code: it validates through its test adapter until integration. The integration PR contains all three plus the wiring, the E2E proof and browser persistence, and it removes the test adapter.
@@ -209,7 +209,7 @@ Alternative: merge #13 and #10, then the integration PR. #11's commits are then 
 ## 10. Disposition
 | Gate | Disposition | Why |
 |---|---|---|
-| **G-ENG** | **PARTIAL** | Engine, packet, determinism and review fixes are done and verified on the production path. Copy-out ≤ 2 ms is missed in Chromium and Firefox, and quiet-machine runs are NOT RUN. |
-| **G-DOC** | **PARTIAL** | Schema, provenance, export semantics, the production wiring, the E2E proof and browser persistence pass. Project load at 250k paths misses ≤ 1 s, interactive structural edits miss the frame budget (TD-PERF-007), and quiet-machine runs are NOT RUN. |
+| **G-ENG** | **PARTIAL** | Engine, packet, determinism and review fixes are done and verified on the production path. Copy-out ≤ 2 ms is missed in Chromium at the median and at p95 in every runtime, and quiet-machine runs are NOT RUN. |
+| **G-DOC** | **PARTIAL** | Schema, provenance, export semantics, the production wiring, the E2E proof and browser persistence pass. Project load at 250k paths misses ≤ 1 s. Structural dispatch exceeds the 50 ms blocking budget at 250k paths and is a risk for gesture frames at the interactive target (TD-PERF-007). Quiet-machine runs are NOT RUN. |
 
 Neither gate is claimed closed. Stopping here for maintainer acceptance.
