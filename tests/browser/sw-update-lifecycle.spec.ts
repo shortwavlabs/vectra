@@ -25,6 +25,13 @@ const TYPES: Record<string, string> = {
 const CSP = readFileSync(join(ROOT, "public/_headers"), "utf8").match(
   /Content-Security-Policy: (.*)/,
 )![1]!;
+/** The files scripts/generate-sw.mjs precaches: every file of the build except these. */
+const precachedFiles = () =>
+  readdirSync(DIST, { recursive: true, withFileTypes: true }).filter(
+    (e) =>
+      e.isFile() &&
+      !(e.parentPath === DIST && ["_headers", "_redirects", "sw.js"].includes(e.name)),
+  ).length;
 
 /** Appends a custom section to a WASM module: same behaviour, different bytes and hash. */
 function wasmVariant(bytes: Buffer): Buffer {
@@ -365,7 +372,7 @@ test("a service-worker-only update gets a new cache; its interrupted install lea
     expect(vB).not.toBe(vA); // identical application files, different template: new cache version
     await loadSynthetic(page);
     const before = await cacheEntries(page);
-    expect(before).toEqual({ [`vectra-${vA}`]: readdirSync(join(DIST, "assets")).length + 2 });
+    expect(before).toEqual({ [`vectra-${vA}`]: precachedFiles() });
 
     // Deploy B; its install fails mid-way (the WASM request is cut).
     site.deploy(variant);
