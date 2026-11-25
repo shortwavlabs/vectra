@@ -82,7 +82,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PROCESS-001](#td-process-001) | No automated required checks | Enhancement | Low | OPEN | Maintainer decision | P-CI |
 | [TD-ARCH-005](#td-arch-005) | Typed-array immutability is a convention | Limitation | **High** | OPEN | G-DOC | G-DOC |
 | [TD-ARCH-006](#td-arch-006) | WebKit offline worker start-up under churn | Defect (prototype-reproduced) | **High** | OPEN | G-JOB | G-JOB |
-| [TD-REN-001](#td-ren-001) | Chromium quadratic incremental Path2D | Defect (browser) | **High** | OPEN | G-R0 | G-R0 |
+| [TD-REN-001](#td-ren-001) | Chromium quadratic incremental Path2D | Defect (browser) | **High** | **CLOSED** (maintainer, 2026-11-25) | G-R0 | G-R0 |
 | [TD-REN-002](#td-ren-002) | Worker-canvas presentation (WebKit) and raster (Firefox) | Untested / limitation | Medium | OPEN | G-R0/G-R1 | G-R0/G-R1 |
 | [TD-REN-003](#td-ren-003) | Layered drag-cache correctness and cost | Limitation (unqualified) | **High** | OPEN | G-R1 | G-R1 |
 | [TD-REN-004](#td-ren-004) | Large compound paths as single objects | Limitation | Medium | OPEN | G-R0 | G-R0 |
@@ -102,6 +102,7 @@ Counts:
 - **RFC-002 inputs:** TD-GEO-001, TD-GEO-007, TD-GEO-009, TD-PERF-001, TD-PERF-003, TD-ARCH-001, TD-ARCH-002, TD-ARCH-003.
 - **G-DOC (2026-11-25):** one item added, TD-PERF-007 (High, gate G-EDIT): 38 open items and 13 High on this branch; 39 open and 13 High once G-ENG's TD-PLATFORM-007 (Medium) is also merged. None is closed by G-DOC.
 - **P1-A foundation acceptance and G-JOB (2026-11-25):** three items added. TD-PERF-008 (Low) and TD-PERF-009 (Medium) register the accepted P1-A performance exceptions ([decision register §7](research/g0/G0-DECISION-REGISTER.md)); TD-PERF-010 (High) is measured by G-JOB. **42 open items, 14 High.** None is closed by G-JOB: every G-JOB item still needs real Safari (TD-PLATFORM-002) or a later gate.
+- **G-R0/G-UI acceptance (2026-11-25):** TD-REN-001 **closed** by maintainer approval. **41 open items, 13 High.** No item added. Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and keyboard path selection are qualified.
 
 ---
 
@@ -705,12 +706,13 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 <a id="td-ren-001"></a>
 ### TD-REN-001 — Chromium builds Path2D incrementally in quadratic time
 - **Review ID:** RISK-R02-PATH2D.
-- **Category / severity / status:** Defect (browser behaviour) · **High** · OPEN.
+- **Category / severity / status:** Defect (browser behaviour) · **High** · **CLOSED** (maintainer approval, 2026-11-25).
 - **Description.** Chromium 159 builds one large Path2D with `moveTo`/`bezierCurveTo` in quadratic time: 16.9 s at 250k anchors, against 30 ms from path data and 8 ms via `addPath`. Firefox and WebKit are linear.
 - **Evidence:** `docs/research/rfc-002-review/artifacts/renderer/path2d-scaling.json`.
 - **Disposition:** stage **ARCHITECTURE ACCEPTED** (A7) / IMPLEMENTATION PENDING; gate **G-R0**.
 - **Closure criteria:** linear construction in the production renderer, plus a scaling regression benchmark in 3 engines.
 - **G-R0 disposition (2026-11-25):** the production renderer builds every Path2D in one pass from SVG path data (`src/renderer/path-data.ts`, unit-tested for linear construction). Scaling for one path of 25k / 125k / 250k anchors: Chromium 0.3 / 2 / 4 ms, Firefox 1 / 4 / 8 ms, Playwright WebKit 1 / 3 / 6 ms (`tests/browser/renderer-perf.spec.ts`). Closure criteria **met; proposed for closure, maintainer to confirm**. [G-R0 report](research/g-r0/G-R0-REPORT.md).
+- **Maintainer disposition (2026-11-25):** closure approved ("Approve closure of TD-REN-001: linear Path2D construction"). **CLOSED.** The scaling benchmark stays in `tests/browser/renderer-perf.spec.ts` as the regression guard. [Decision register §9](research/g0/G0-DECISION-REGISTER.md).
 - **Dependencies:** none.
 - **Owner action:** no.
 
@@ -725,6 +727,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Disposition:** stage **PROTOTYPE DEMONSTRATED** (worker plus cache: gestures 17–23 ms, main thread 17–19 ms) / IMPLEMENTATION PENDING; gates **G-R0** (measure) and **G-R1** (real Safari).
 - **Closure criteria:** first-meaningful-frame latency qualified on real Safari; when it fails, the disclosed main-thread fallback is used and measured.
 - **G-R0 disposition (2026-11-25):** worker host and disclosed main-thread fallback implemented. Playwright WebKit worker canvases can be presented after their exact frame (the tests wait until the screen matches the resvg reference). **Real Safari 26.6.2:** first-frame presentation ≤ 47–58 ms after the exact frame (screenshot-bounded), worker host correct (0 geometry-error pixels on 10 fixtures), fallback correct and disclosed. Firefox worker raster: exact frame 117 ms (worker draw) at 270k anchors and 376 ms at 812k, off the main thread. Closure criteria **met; proposed for closure, maintainer to confirm**. [G-R0 report](research/g-r0/G-R0-REPORT.md).
+- **Maintainer disposition (2026-11-25):** "Record real Safari worker-canvas feasibility as demonstrated under TD-REN-002, retaining end-to-end presentation-latency qualification in G-R1." Stage: **real Safari worker-canvas feasibility DEMONSTRATED**; **OPEN** for end-to-end presentation latency (G-R1). The G-R0 screenshot-bounded Safari figure (47–58 ms) shares the WebDriver capture lag found at G-UI, so G-R1 measures presentation explicitly. [Decision register §9](research/g0/G0-DECISION-REGISTER.md).
 - **Dependencies:** TD-PLATFORM-002.
 - **Owner action:** Safari authorisation.
 
@@ -769,6 +772,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - all 14 G-UI scenarios end with 0 violations.
 
   A same-origin probe script, allowed by the unchanged policy, records violations from the start of the load (disclosed in the G-UI report §7). Closure criteria **met; proposed for closure, maintainer to confirm**.
+- **Maintainer disposition (2026-11-25):** "Approve the demonstrated strict-CSP and third-party-notice solutions, subject to regression verification on the combined application." Combined application (`main` `7f57dd7`, tree `36cb205`): `ui-shell` CSP tests with positive and negative controls pass in Chromium, Firefox and Playwright WebKit (225/225 browser tests), and the real Safari G-UI harness passes 14/14 on the same tree. Stage: **SOLUTION APPROVED; combined-application regression verified**. Closure is the maintainer's act. [Decision register §9](research/g0/G0-DECISION-REGISTER.md).
 
 <a id="td-ui-002"></a>
 ### TD-UI-002 — Colour picker and slider accessibility
@@ -805,6 +809,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Dependencies:** DESIGN-SYSTEM §6.
 - **Owner action:** no.
 - **G-UI disposition (2026-11-25):** `scripts/generate-notices.mjs` reads the copied-source manifest `src/ui/registry/PROVENANCE.json` (registry item, URL, upstream and current SHA-256, recorded patches), fails when a copied file differs from its recorded hash, and adds the shadcn/ui and Dice UI MIT texts (verbatim at the recorded upstream commits; git blob SHAs equal upstream's) and tailwindcss's licence when the built CSS carries its banner; lucide-react (ISC with the MIT Feather section) and class-variance-authority (Apache-2.0) come from the source-map pass. `pnpm run build` verifies the notices (55 components). Stage: **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING** (closure criteria met; closes on G-UI acceptance). [G-UI report](research/g-ui/G-UI-REPORT.md).
+- **Maintainer disposition (2026-11-25):** "Approve the demonstrated strict-CSP and third-party-notice solutions, subject to regression verification on the combined application." Combined application (`main` `7f57dd7`, tree `36cb205`): `pnpm run build` verifies the notices (55 components), and regenerating them produces no diff. Stage: **SOLUTION APPROVED; combined-application regression verified**. Closure is the maintainer's act. [Decision register §9](research/g0/G0-DECISION-REGISTER.md).
 
 <a id="td-geo-010"></a>
 ### TD-GEO-010 — Sliver metric and junction criterion restatement
