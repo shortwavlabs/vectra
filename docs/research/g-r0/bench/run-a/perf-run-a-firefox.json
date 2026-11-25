@@ -1,0 +1,173 @@
+{
+  "browser": "firefox 159.0",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "dpr": 1,
+  "machineStart": {
+    "loadavg": [1.68, 1.85, 1.76],
+    "ngspice": 0
+  },
+  "workloads": {
+    "interactive": {
+      "file": "bark-1224.png",
+      "sha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+      "anchors": 269996,
+      "paths": 16056,
+      "stages": {
+        "traceWorkerMs": 1696,
+        "tracePostMs": 1,
+        "previewCommitMs": 65,
+        "snapshotPrepareMs": 6,
+        "renderCopyMs": 0,
+        "renderPostMs": 5,
+        "bytesCopied": 12851193,
+        "firstFrameMs": 68,
+        "exactFrameMs": 181,
+        "exactDrawWorkerMs": 117
+      },
+      "previewMs": 182,
+      "importToVisibleMs": 2171,
+      "loadMainThread": {
+        "frames": 136,
+        "maxGapMs": 66.66000000000031,
+        "p50": 16.660000000000082,
+        "p95": 17.480000000000018,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "pan": {
+        "p50": 16.659999999999854,
+        "p95": 18.539999999999964,
+        "max": 18.579999999999927,
+        "exactSettleMs": 55
+      },
+      "zoom": {
+        "p50": 16.659999999999854,
+        "p95": 18.580000000000382,
+        "max": 18.59999999999991,
+        "exactSettleMs": 53
+      },
+      "gestureMainThread": {
+        "frames": 126,
+        "maxGapMs": 18.59999999999991,
+        "p50": 16.659999999999854,
+        "p95": 18.559999999999945,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "hits": {
+        "coldMs": 30,
+        "buildMs": 30,
+        "warmP50": 0,
+        "warmP95": 0.05,
+        "warmMax": 0.35
+      },
+      "cache": {
+        "workerHeld": {
+          "chunks": 1,
+          "paths": 16056,
+          "bytes": 13364985
+        },
+        "backingStoreBytes": 1743360
+      },
+      "recoveryMs": 98,
+      "host": "worker",
+      "machine": {
+        "loadavg": [1.62, 1.83, 1.75],
+        "ngspice": 0
+      }
+    },
+    "stress": {
+      "file": "bark-2350.png",
+      "sha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+      "anchors": 812003,
+      "paths": 43621,
+      "stages": {
+        "traceWorkerMs": 6967,
+        "tracePostMs": 4,
+        "previewCommitMs": 151,
+        "snapshotPrepareMs": 20,
+        "renderCopyMs": 2,
+        "renderPostMs": 15,
+        "bytesCopied": 64437968,
+        "firstFrameMs": 110,
+        "exactFrameMs": 536,
+        "exactDrawWorkerMs": 376
+      },
+      "previewMs": 536,
+      "importToVisibleMs": 7930,
+      "loadMainThread": {
+        "frames": 463,
+        "maxGapMs": 150,
+        "p50": 16.659999999999854,
+        "p95": 17.44000000000051,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "pan": {
+        "p50": 16.659999999999854,
+        "p95": 18.5,
+        "max": 18.55999999999949,
+        "exactSettleMs": 100
+      },
+      "zoom": {
+        "p50": 16.659999999999854,
+        "p95": 18.539999999999054,
+        "max": 18.540000000000873,
+        "exactSettleMs": 99
+      },
+      "gestureMainThread": {
+        "frames": 131,
+        "maxGapMs": 18.55999999999949,
+        "p50": 16.659999999999854,
+        "p95": 18.520000000000437,
+        "longTasks": 0,
+        "longestTaskMs": 0
+      },
+      "hits": {
+        "coldMs": 82,
+        "buildMs": 81,
+        "warmP50": 0,
+        "warmP95": 0.05,
+        "warmMax": 0.2
+      },
+      "cache": {
+        "workerHeld": {
+          "chunks": 1,
+          "paths": 43621,
+          "bytes": 40131454
+        },
+        "backingStoreBytes": 1743360
+      },
+      "recoveryMs": 98,
+      "host": "worker",
+      "machine": {
+        "loadavg": [1.6, 1.82, 1.75],
+        "ngspice": 0
+      }
+    }
+  },
+  "pathScaling": [
+    {
+      "anchors": 25000,
+      "ms": 1,
+      "ok": true
+    },
+    {
+      "anchors": 125000,
+      "ms": 4,
+      "ok": true
+    },
+    {
+      "anchors": 250000,
+      "ms": 8,
+      "ok": true
+    }
+  ],
+  "machineEnd": {
+    "loadavg": [1.6, 1.82, 1.75],
+    "ngspice": 0
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "machine": {
+    "loadavg": [1.68, 1.85, 1.76],
+    "ngspice": 0
+  },
+  "interactive": {
+    "load": {
+      "frames": 137,
+      "maxGapMs": 49.90000000000009,
+      "p50": 16.699999999999932,
+      "p95": 18.5,
+      "longTasks": 1,
+      "longestTaskMs": 57
+    },
+    "pan": {
+      "p50": 16.59999999999991,
+      "p95": 18.59999999999991,
+      "max": 18.699999999999818,
+      "exactSettleMs": 16.700000002980232
+    },
+    "gestureMainThread": {
+      "frames": 61,
+      "maxGapMs": 18.699999999999818,
+      "p50": 16.59999999999991,
+      "p95": 18.5,
+      "longTasks": 0,
+      "longestTaskMs": 0
+    },
+    "host": "main-thread"
+  },
+  "stress": {
+    "load": {
+      "frames": 464,
+      "maxGapMs": 116.59999999999854,
+      "p50": 16.699999999999818,
+      "p95": 17.699999999999818,
+      "longTasks": 1,
+      "longestTaskMs": 133
+    },
+    "pan": {
+      "p50": 16.600000000000364,
+      "p95": 18.399999999999636,
+      "max": 18.5,
+      "exactSettleMs": 51.29999999701977
+    },
+    "gestureMainThread": {
+      "frames": 63,
+      "maxGapMs": 18.599999999998545,
+      "p50": 16.600000000000364,
+      "p95": 18.399999999999636,
+      "longTasks": 0,
+      "longestTaskMs": 0
+    },
+    "host": "main-thread"
+  }
+}

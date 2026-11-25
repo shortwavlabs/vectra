@@ -31,6 +31,10 @@ import type {
   Settings,
   TraceRequest,
 } from "../vectorization/types.ts";
+import type { DocumentRenderHost } from "../canvas-host/render-host.ts";
+import type { CanvasHostState } from "../canvas-host/types.ts";
+import type { NodeId } from "../document/model.ts";
+import { loadContainer } from "../persistence/container.ts";
 import { installQualificationApi } from "./qualification.ts";
 import { type ResponsivenessSample, startProbe } from "./responsiveness.ts";
 
@@ -47,7 +51,8 @@ export interface Source extends DecodedImage {
 export interface Result {
   jobId: number;
   revision: number;
-  svg: string;
+  /** SVG of the preview (only with the `?svgPreview=1` comparison toggle). */
+  svg: string | null;
   metrics: EngineMetrics;
   warnings: EngineWarning[];
   timings: {
@@ -56,15 +61,15 @@ export interface Result {
     segmentMs: number;
     estimateMs: number;
     fitMs: number;
-    /** Worker time of the SVG serialisation job (export draw list → SVG). */
-    svgMs: number;
+    /** Worker time of the SVG serialisation job (`?svgPreview=1` only). */
+    svgMs: number | null;
     parseMs: number;
   };
   memoryBytes: number;
-  /** Trace submitted → SVG delivered (both jobs, including any worker start-up). */
+  /** Trace submitted → result received (plus the SVG job with `?svgPreview=1`). */
   roundTripMs: number;
-  svgUrl: string;
-  svgBytes: number;
+  svgUrl: string | null;
+  svgBytes: number | null;
   responsiveness: ResponsivenessSample;
   request: TraceRequest;
   /** The validated preview, held outside the document (a preview is never committed). */
@@ -158,6 +163,10 @@ export function useWorkbench() {
   // start-up timeout. None of them touches artwork.
   const [params] = useState(() => new URLSearchParams(window.location.search));
   const debugMode = params.get("debug") === "1";
+  // ?svgPreview=1: the P0 SVG <img> preview, kept for visual comparison (G-R0); ?renderer=main:
+  // the main-thread renderer instead of the render worker.
+  const svgPreview = params.get("svgPreview") === "1";
+  const forceMainThread = params.get("renderer") === "main";
   const [buildMismatch, setBuildMismatch] = useState<string | null>(null);
   const [jobs] = useState(() => {
     const recycleMiB = Number(params.get("recycleMiB"));
@@ -185,6 +194,18 @@ export function useWorkbench() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [result, setResult] = useState<Result | null>(null);
   const [pdf, setPdf] = useState<PdfInfo | null>(null);
+  const [selection, setSelection] = useState<readonly NodeId[]>([]);
+  /** A document shown instead of the preview (engineering: correctness fixtures). */
+  const [shown, setShown] = useState<DocumentSession | null>(null);
+  const [canvasState, setCanvasState] = useState<CanvasHostState>({ kind: "starting" });
+  const awaitingFrame = useRef(false);
+  const canvasHost = useRef<DocumentRenderHost | null>(null);
+  const selectionRef = useRef(selection);
+  const shownRef = useRef(shown);
+  useEffect(() => {
+    selectionRef.current = selection;
+    shownRef.current = shown;
+  }, [selection, shown]);
   const revision = useRef(0);
   /** The preview jobs in flight (trace, then its SVG); cancel and new files stop them. */
   const previewJobs = useRef(new Set<number>());
@@ -257,7 +278,7 @@ export function useWorkbench() {
       const rev = ++revision.current;
       setStatus({ kind: "decoding" });
       setResult((prev) => {
-        if (prev) URL.revokeObjectURL(prev.svgUrl);
+        if (prev?.svgUrl) URL.revokeObjectURL(prev.svgUrl);
         return null;
       });
       setPdf(null);
@@ -329,7 +350,7 @@ export function useWorkbench() {
 
       const showResult = (
         out: Extract<PreviewOutcome, { status: "succeeded" }>,
-        svgOut: Extract<ExportOutcome, { status: "delivered" }>,
+        svgOut: Extract<ExportOutcome, { status: "delivered" }> | null,
         preview: DocumentSession,
         handling: Record<string, unknown>,
       ) => {
@@ -338,37 +359,36 @@ export function useWorkbench() {
         resultAt.current = performance.now();
         previewProbe.current?.(); // a previous preview never painted: stop its probe
         previewProbe.current = startProbe();
-        const svg = new TextDecoder().decode(svgOut.bytes);
-        const blob = new Blob([svgOut.bytes as Uint8Array<ArrayBuffer>], {
-          type: "image/svg+xml",
-        });
+        const blob = svgOut
+          ? new Blob([svgOut.bytes as Uint8Array<ArrayBuffer>], { type: "image/svg+xml" })
+          : null;
         const wasmCallMs = r.timings.segmentMs + r.timings.estimateMs + r.timings.fitMs;
         const next: Result = {
           jobId: out.jobId,
           revision: src.revision,
-          svg,
+          svg: svgOut ? new TextDecoder().decode(svgOut.bytes) : null,
           metrics: r.metrics,
           warnings: r.warnings,
-          timings: { ...r.timings, wasmCallMs, svgMs: svgOut.timings.exportMs },
+          timings: { ...r.timings, wasmCallMs, svgMs: svgOut?.timings.exportMs ?? null },
           memoryBytes: out.memoryBytes,
-          // Trace submitted → SVG delivered: both jobs, including any worker start-up.
           roundTripMs:
             out.timings.queuedMs +
             out.timings.workerMs +
-            svgOut.timings.queuedMs +
-            svgOut.timings.workerMs,
-          svgUrl: URL.createObjectURL(blob),
-          svgBytes: blob.size,
+            (svgOut ? svgOut.timings.queuedMs + svgOut.timings.workerMs : 0),
+          svgUrl: blob ? URL.createObjectURL(blob) : null,
+          svgBytes: blob?.size ?? null,
           responsiveness,
           request,
           preview,
         };
         setResult((prev) => {
-          if (prev) URL.revokeObjectURL(prev.svgUrl);
+          if (prev?.svgUrl) URL.revokeObjectURL(prev.svgUrl);
           return next;
         });
+        setSelection([]);
         setPdf(null);
         setStatus({ kind: "done" });
+        awaitingFrame.current = true;
         debug.current.results = (debug.current.results as number) + 1;
         debug.current.lastRequest = request;
         debug.current.last = {
@@ -378,16 +398,16 @@ export function useWorkbench() {
           timings: next.timings,
           roundTripMs: next.roundTripMs,
           memoryBytes: out.memoryBytes,
-          svgBytes: blob.size,
+          svgBytes: next.svgBytes,
           responsiveness,
           ready: scheduler.lastReady,
           // Main-thread job handling (C9): the preview's commit into its session, the trace
-          // job's post (source copy), the SVG job's snapshot and post.
+          // job's post (source copy), and with the SVG toggle the SVG job's snapshot and post.
           handling: {
             ...handling,
             tracePostMs: out.timings.postMs,
-            svgSnapshotMs: svgOut.timings.snapshotMs,
-            svgPostMs: svgOut.timings.postMs,
+            svgSnapshotMs: svgOut?.timings.snapshotMs ?? null,
+            svgPostMs: svgOut?.timings.postMs ?? null,
           },
         };
       };
@@ -449,15 +469,19 @@ export function useWorkbench() {
             const code = (e as { code?: unknown }).code;
             return fail(typeof code === "string" ? code : "invalid_result", String(e));
           }
-          runDisplay(out, preview, {
+          const handling = {
             previewCommitMs: performance.now() - tCommit,
             previewStoreCommit: preview.store.lastCommitTiming,
-          });
+          };
+          // The canvas renders the preview's vector geometry directly; the SVG job runs only
+          // for the P0 comparison toggle.
+          if (svgPreview) runDisplay(out, preview, handling);
+          else showResult(out, null, preview, handling);
         });
       };
       runTrace();
     },
-    [jobs, scheduler, maxPixels, fail],
+    [jobs, scheduler, maxPixels, fail, svgPreview],
   );
 
   // Re-trace (debounced) whenever the source or settings change.
@@ -476,13 +500,25 @@ export function useWorkbench() {
     }
   }, [cancelPreviews]);
 
-  const downloadSvg = useCallback(() => {
-    if (result)
-      downloadBlob(
-        new Blob([result.svg], { type: "image/svg+xml" }),
-        `vectra-${result.metrics.mode}.svg`,
-      );
-  }, [result]);
+  const downloadSvg = useCallback(async () => {
+    if (!result) return;
+    let bytes: Uint8Array;
+    if (result.svg !== null) bytes = new TextEncoder().encode(result.svg);
+    else {
+      // An explicit engine export of the displayed preview, frozen now (never the canvas).
+      const sub = jobs.export("svg", null, { session: result.preview });
+      if (!sub.accepted) return fail(sub.code, sub.message);
+      const out = await sub.done;
+      if (out.status === "cancelled") return;
+      if (out.status === "failed") return fail(out.code, out.message);
+      bytes = out.bytes;
+      debug.current.lastSvg = { bytes: out.bytes.byteLength, ms: out.timings.exportMs };
+    }
+    downloadBlob(
+      new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "image/svg+xml" }),
+      `vectra-${result.metrics.mode}.svg`,
+    );
+  }, [jobs, result, fail]);
 
   const downloadPdf = useCallback(
     async (options: PdfOptions) => {
@@ -522,6 +558,81 @@ export function useWorkbench() {
     );
   }, []);
 
+  const select = useCallback((ids: readonly NodeId[], mode: "replace" | "toggle") => {
+    setSelection((prev) =>
+      mode === "replace"
+        ? ids
+        : ids.reduce<readonly NodeId[]>(
+            (acc, id) => (acc.includes(id) ? acc.filter((x) => x !== id) : [...acc, id]),
+            prev,
+          ),
+    );
+  }, []);
+
+  /** Canvas states: the first exact frame of a new preview gives the preview metrics (C9). */
+  const onCanvasState = useCallback((s: CanvasHostState) => {
+    setCanvasState(s);
+    debug.current.canvasState = s;
+    if (s.kind !== "ready" || !awaitingFrame.current) return;
+    awaitingFrame.current = false;
+    const stopProbe = previewProbe.current;
+    previewProbe.current = null;
+    const last = debug.current.last as Record<string, unknown> | undefined;
+    if (!last) return;
+    const now = performance.now();
+    last.previewMs = now - resultAt.current;
+    last.importToVisibleMs = now - importAt.current;
+    last.previewResponsiveness = stopProbe?.() ?? null;
+    last.renderer = s.host;
+    debug.current.previews = ((debug.current.previews as number | undefined) ?? 0) + 1;
+  }, []);
+
+  const onCanvasHost = useCallback(
+    (h: DocumentRenderHost | null) => {
+      canvasHost.current = h;
+      debug.current.canvas = h && {
+        diag: () => ({
+          ...h.diag,
+          client: { ...h.client.diag },
+          host: h.client.host,
+          state: h.state,
+          camera: h.camera,
+          renderRevision: h.renderRevision,
+          documentRevision: h.documentRevision,
+        }),
+        fit: () => h.fitToView(),
+        setView: (scale: number, tx: number, ty: number) => h.setView({ scale, tx, ty }),
+        zoomBy: (f: number) => h.zoomBy(f),
+        panBy: (dx: number, dy: number) => h.panBy(dx, dy),
+        gesture: (phase: "start" | "end") => h.gesture(phase),
+        hitAt: (x: number, y: number) => h.hitAt(x, y),
+        hitDocument: (x: number, y: number) => h.hitDocument(x, y),
+        select: (ids: NodeId[]) => setSelection(ids),
+        selection: () => selectionRef.current,
+        ...(debugMode
+          ? {
+              crash: () => h.client.crashWorker(),
+              /** Shows a .vectra container (base64) instead of the preview. */
+              showContainer: async (b64: string) => {
+                const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+                const session = await loadContainer(bytes, {});
+                setShown(session);
+                setSelection([]);
+                return session.getSnapshot().revision;
+              },
+              edit: (command: unknown) =>
+                (shownRef.current ?? null)?.dispatch(
+                  command as Parameters<DocumentSession["dispatch"]>[0],
+                ),
+              undo: () => shownRef.current?.undo(),
+              redo: () => shownRef.current?.redo(),
+            }
+          : {}),
+      };
+    },
+    [debugMode],
+  );
+
   // Build skew is fatal for this tab: it is shown until the user reloads (RFC §15.3).
   const shownStatus: Status = buildMismatch
     ? {
@@ -542,6 +653,14 @@ export function useWorkbench() {
     maxPixels,
     setMaxPixels,
     status: shownStatus,
+    svgPreview,
+    forceMainThread,
+    selection,
+    select,
+    canvasState,
+    onCanvasState,
+    onCanvasHost,
+    displaySession: shown ?? result?.preview ?? null,
     result,
     pdf,
     loadFile,

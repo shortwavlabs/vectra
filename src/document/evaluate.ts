@@ -41,6 +41,10 @@ export interface DrawItem {
   readonly paletteRef: PaletteId | null;
   /** The root Layer the item belongs to (export attribution; not part of the C8 snapshot). */
   readonly layerId: NodeId;
+  /** The PathObject drawn (hit testing and selection; not part of the C8 snapshot). */
+  readonly nodeId: NodeId;
+  /** The PathObject or an ancestor is locked: drawn, but not selectable on the canvas. */
+  readonly locked: boolean;
 }
 export interface Evaluation {
   readonly runs: readonly Run[];
@@ -74,7 +78,7 @@ export function evaluate(s: DocState): Evaluation {
     runOwner = node.id;
   };
 
-  const visit = (node: ContainerNode, m: Matrix, clip: Rect | null) => {
+  const visit = (node: ContainerNode, m: Matrix, clip: Rect | null, locked: boolean) => {
     let emitted = false;
     for (const childId of node.orderedChildIds) {
       const child = s.nodesById.get(childId)!;
@@ -96,13 +100,15 @@ export function evaluate(s: DocState): Evaluation {
           groupRun: runs.length - 1,
           paletteRef: style.paletteRef,
           layerId,
+          nodeId: child.id,
+          locked: locked || child.locked,
         });
         emitted = true;
       } else if (child.kind === "group") {
         const cm = multiply(m, child.localTransform);
         const cclip = child.clipRef ? intersectRects(clip, mapRect(cm, child.clipRef)) : clip;
         if (cclip && isEmpty(cclip)) continue; // fully clipped: omitted with its runs
-        visit(child, cm, cclip);
+        visit(child, cm, cclip, locked || child.locked);
         emitted = true;
       }
     }
@@ -115,7 +121,7 @@ export function evaluate(s: DocState): Evaluation {
     const clip = n.clipRef ? mapRect(n.localTransform, n.clipRef) : null;
     if (clip && isEmpty(clip)) continue;
     layerId = n.id;
-    visit(n, n.localTransform, clip);
+    visit(n, n.localTransform, clip, n.locked);
   }
   return { runs, drawList };
 }
