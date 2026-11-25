@@ -1,0 +1,138 @@
+{
+  "offline": false,
+  "rapidPreviews": [
+    {
+      "status": "cancelled",
+      "jobId": 3,
+      "settledAt": 1061,
+      "reason": "preempted"
+    },
+    {
+      "status": "cancelled",
+      "jobId": 4,
+      "settledAt": 1061,
+      "reason": "preempted"
+    },
+    {
+      "status": "cancelled",
+      "jobId": 5,
+      "settledAt": 1061,
+      "reason": "preempted"
+    },
+    {
+      "status": "cancelled",
+      "jobId": 6,
+      "settledAt": 1061,
+      "reason": "preempted"
+    },
+    {
+      "status": "succeeded",
+      "jobId": 7,
+      "settledAt": 1352.8999999910593,
+      "anchors": 1069,
+      "estimate": {
+        "kind": "range",
+        "anchorsLow": 2921,
+        "anchorsHigh": 5501,
+        "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+      },
+      "queuedMs": 7.5,
+      "workerMs": 284.5,
+      "postMs": 1.5
+    }
+  ],
+  "exportWithPreview": {
+    "export": {
+      "status": "delivered",
+      "jobId": 9,
+      "settledAt": 1766.8999999910593,
+      "form": "original",
+      "bytes": 31245,
+      "bytesDigest": "c2d8487f75f9f29454f708a9e17549ba5868c0be5b63c9860582eaf79498a2d2",
+      "queuedMs": 0,
+      "workerMs": 9.5,
+      "postMs": 0,
+      "snapshotMs": 0.20000000298023224
+    },
+    "preview": {
+      "status": "succeeded",
+      "jobId": 10,
+      "settledAt": 2162.0999999940395,
+      "anchors": 1781,
+      "estimate": {
+        "kind": "range",
+        "anchorsLow": 4910,
+        "anchorsHigh": 9244,
+        "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+      },
+      "queuedMs": 10.700000002980232,
+      "workerMs": 395.20000000298023,
+      "postMs": 1.2999999970197678
+    }
+  },
+  "cancelAckMs": 0,
+  "undoDuringTrace": {
+    "committedDuringUndo": {
+      "status": "committed",
+      "jobId": 19,
+      "settledAt": 4637.0999999940395,
+      "layerId": "lay_51",
+      "revision": 5,
+      "anchors": 1781,
+      "estimate": {
+        "kind": "range",
+        "anchorsLow": 4910,
+        "anchorsHigh": 9244,
+        "basis": "boundary-length (R03 calibration, Artistic defaults, +10 % high margin)"
+      },
+      "queuedMs": 1.4000000059604645,
+      "workerMs": 393.59999999403954,
+      "postMs": 1.4000000059604645,
+      "commitMs": 0.5,
+      "storeCommit": {
+        "moveMs": 0,
+        "validateMs": 0.09999999403953552,
+        "publishMs": 0.10000000894069672
+      }
+    },
+    "staleAfterSourceUndo": {
+      "status": "stale",
+      "jobId": 20,
+      "settledAt": 5036.0999999940395,
+      "reason": "source_changed"
+    }
+  },
+  "diagnostics": {
+    "submitted": 20,
+    "workersCreated": 5,
+    "terminations": 4,
+    "handshakes": 5,
+    "buildMismatches": 0,
+    "startupTimeouts": 0,
+    "startupFailures": 0,
+    "startupRetries": 0,
+    "crashes": 1,
+    "fatalErrors": 1,
+    "recycles": 0,
+    "rejectedBusy": 0,
+    "superseded": 0,
+    "preempted": 4,
+    "cancelled": 1,
+    "succeeded": 13,
+    "failed": 2,
+    "staleGenerationDropped": 0,
+    "wrongGenerationDropped": 0,
+    "unmatchedDropped": 1,
+    "droppedResults": 0,
+    "droppedErrors": 1,
+    "droppedProgress": 0,
+    "settleViolations": 0,
+    "state": "ok",
+    "running": null,
+    "queued": [],
+    "reservedBytes": 0,
+    "lastMemoryBytes": 108658688,
+    "snapshotRefs": 0,
+    "jobRefs": 0
+  }
+}

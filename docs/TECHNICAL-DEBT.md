@@ -67,6 +67,9 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PERF-005](#td-perf-005) | Halftone pitch at native resolution | Enhancement | Low | DEFERRED | P2 | P2-C |
 | [TD-PERF-006](#td-perf-006) | Precision mode cost on photographs | Limitation | Low | ACCEPTED FOR P0 | Later | Later |
 | [TD-PERF-007](#td-perf-007) | Structural transactions cost O(nodes) | Limitation (measured) | **High** | OPEN | G-EDIT | G-EDIT |
+| [TD-PERF-008](#td-perf-008) | WASM copy-out at 1M anchors above 2 ms | Limitation (measured; accepted exception) | Low | OPEN | quiet re-run | performance follow-up |
+| [TD-PERF-009](#td-perf-009) | Document v1 open above 1 s at 250k paths | Limitation (measured; accepted exception) | Medium | OPEN | before G-PRJ and public Document v1 | compact Document v1 follow-up |
+| [TD-PERF-010](#td-perf-010) | Job handling blocks the main thread above 50 ms | Defect (budget not met, measured) | **High** | OPEN | G-TRACE, G-EXP | G-TRACE/G-EXP |
 | [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
 | [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
 | [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
@@ -98,6 +101,7 @@ Counts:
 - **No item is resolved by G-0.** Choosing an architecture moves an item to ARCHITECTURE ACCEPTED at most.
 - **RFC-002 inputs:** TD-GEO-001, TD-GEO-007, TD-GEO-009, TD-PERF-001, TD-PERF-003, TD-ARCH-001, TD-ARCH-002, TD-ARCH-003.
 - **G-DOC (2026-11-25):** one item added, TD-PERF-007 (High, gate G-EDIT): 38 open items and 13 High on this branch; 39 open and 13 High once G-ENG's TD-PLATFORM-007 (Medium) is also merged. None is closed by G-DOC.
+- **P1-A foundation acceptance and G-JOB (2026-11-25):** three items added. TD-PERF-008 (Low) and TD-PERF-009 (Medium) register the accepted P1-A performance exceptions ([decision register §7](research/g0/G0-DECISION-REGISTER.md)); TD-PERF-010 (High) is measured by G-JOB. **42 open items, 14 High.** None is closed by G-JOB: every G-JOB item still needs real Safari (TD-PLATFORM-002) or a later gate.
 
 ---
 
@@ -410,6 +414,7 @@ Counts:
   - `segment → estimate → fit` exists, and `vectorize` is `fit(segment(..))`.
   - `estimate` returns a boundary-length range (R03 calibration) for B&W and colour at Artistic defaults, and an explicit `Unavailable` for limited, halftone and non-spline fitting.
   - FP/FN validation on a reserved corpus and the 2 s forecast remain G-TRACE work. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
+- **G-JOB disposition (2026-11-25):** the production worker traces through the staged API (`segment` → `estimate` → `fit`), reports each stage as it starts, and returns the estimate with the result. Nothing acts on the estimate: no rejection, no downsampling; the engine's own limits stay authoritative (`too_many_primitives` surfaces as a typed failure and nothing is committed). Held-out estimator qualification remains G-TRACE's. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 <a id="td-perf-003"></a>
 ### TD-PERF-003 — High-resolution image memory usage
@@ -434,6 +439,7 @@ Counts:
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) finding 5.
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (resource ledger, profiles) / IMPLEMENTATION PENDING**; gate G-DOC (ledger), G-R1 (lower-end budget); closure: Documented per-profile budgets measured on lower-end hardware; reserve-before-allocate; recoverable errors; owner action: Yes: lower-end hardware access. Constrained profile is provisional: ≤ 8 MP colour, ≤ 512 MiB recycle, 64 MiB history, ~2 GiB envelope. The 8 MP WASM figure is extrapolated, not measured.
 - **G-DOC disposition (2026-11-25):** ledger skeleton implemented on review branch `gate/g-doc-document-store` (`src/document/ledger.ts`): GeometryStore bytes by owner kind with the exact C3.2 chunk cost, history-only bytes, source bytes (document vs history) and registration hooks for worker, renderer and cache reporters (interfaces only). Covered by Node 24.22.1 unit tests. Per-profile budgets, reserve-before-allocate and lower-end measurements are not part of G-DOC; stage stays **IMPLEMENTATION PENDING** (G-JOB, G-R1). Not closed.
+- **G-JOB disposition (2026-11-25):** jobs reserve their input-copy bytes at submission and release them at settle (`src/jobs/controller.ts`; budget 1 GiB by default), a source over the request's pixel limit is refused before any worker starts, and the controller registers `job-copies` and `compute-worker` reporters with the ledger. Per-profile budgets, the worker-memory estimate and lower-end measurements are still pending (G-R1). Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 <a id="td-perf-004"></a>
 ### TD-PERF-004 — Interactive preview responsiveness
@@ -458,6 +464,7 @@ Counts:
 - **Acceptance criteria:** import→visible ≤ 0.5 s at about 1 MP (B&W); slider feedback ≤ 100 ms at preview resolution; no stale results.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md), [P0-G2](research/p0/P0-G2-WORKER-ARCHITECTURE.md).
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED / IMPLEMENTATION PENDING**; gate G-JOB (scheduler), G-TRACE (preview resolution, no import debounce); closure: per the acceptance criteria above; owner action: No. Scheduler contract in RFC §10.3.
+- **G-JOB disposition (2026-11-25), scheduler part:** implemented (`src/jobs/scheduler.ts`): priorities, preview and thumbnail supersession, a bounded explicit queue, no stale result shown (workbench and qualification specs, 3 engines). The workbench keeps its 200 ms debounce and full-resolution previews; preview resolution, the import debounce and the acceptance criteria above are G-TRACE's. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 <a id="td-perf-005"></a>
 ### TD-PERF-005 — Halftone pitch at native resolution
@@ -534,6 +541,7 @@ Counts:
 - **References:** [P0-G2](research/p0/P0-G2-WORKER-ARCHITECTURE.md), [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md).
 - **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R03: 16/16 in 3 engines, online and offline) / IMPLEMENTATION PENDING**; gate G-DOC, G-JOB; closure: Every editor state survives worker termination in production-build tests (3 engines, online, offline, service-worker update); owner action: Safari authorisation (owner part of G-JOB). Design answered (D01/D05); not closed.
 - **G-DOC disposition (2026-11-25), document side:** the document of record, history and GeometryStore now live on the main thread outside any worker (`src/document`); workers can only receive fresh `jobCopy`/`renderCopy` buffers, and undo/redo restore immutable states by reference. Node 24.22.1 unit tests show committed state unaffected by simulated job transfers and terminations. The closure criterion (every editor state survives real worker termination in production-build tests, 3 engines, online, offline, service-worker update) is G-JOB's and was NOT RUN here; item stage unchanged: **PROTOTYPE DEMONSTRATED / IMPLEMENTATION PENDING**. Not closed.
+- **G-JOB disposition (2026-11-25):** the production scheduler and protocol v2 replace `src/vectorization/client.ts` (deleted). Production-build tests in Chromium, Firefox and Playwright WebKit, online, offline and across a service-worker update, show committed geometry, history and provenance byte-identical (canonical container digest) after repeated terminations, crashes, fatal aborts and recycling, and failed or cancelled jobs never mutate the document. Real Safari NOT RUN (TD-PLATFORM-002). Stage: **PRODUCTION-BUILD VERIFIED in 3 engines / Safari pending**. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 <a id="td-arch-003"></a>
 ### TD-ARCH-003 — Scene v1 expressiveness and JSON transport
@@ -602,6 +610,7 @@ Counts:
 - **Acceptance criteria:** the workflow, offline recovery and exports verified in real Safari (macOS and iOS) and Android Chrome, with performance measured.
 - **References:** [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [OWNER-ACCEPTANCE-CHECKLIST (P0-R) §C](research/p0-r/OWNER-ACCEPTANCE-CHECKLIST.md).
 - **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate G-JOB, G-UI, G-R1 (owner parts); closure: Real Safari coverage per G0-P1-IMPLEMENTATION-PLAN; iOS and Android are separate future gates; owner action: **Yes:** the maintainer runs `sudo safaridriver --enable` locally (approved in principle; never run by an agent). Raised by R03 and R02 WebKit-only findings.
+- **G-JOB disposition (2026-11-25):** real Safari was NOT RUN for G-JOB (no `safaridriver` authorisation). The G-JOB owner part is open: a Safari run, or a documented Safari restriction until it runs. Every G-JOB browser result is Chromium 159, Firefox 159 or Playwright WebKit 27.2. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 <a id="td-platform-003"></a>
 ### TD-PLATFORM-003 — Lower-end desktop hardware
@@ -685,6 +694,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** reproduction and fix verified against the **production build**, offline and across a service-worker update, in 3 engines plus real Safari (or a documented restriction).
 - **Dependencies:** RFC §10.3 rules 4–5; TD-PLATFORM-002.
 - **Owner action:** Safari authorisation.
+- **G-JOB disposition (2026-11-25):** the fix (no termination before the job is posted, R03 v2 rule; RFC §10.3 rule 4) is implemented in the production scheduler. Against the production build, offline, the churn pattern (terminate a running worker, then five previews while the next worker's module graph loads from the service worker) passed 4 of 4 runs in each of Chromium, Firefox and Playwright WebKit, with exactly one worker created per run and no start-up failure. It also passes in an old tab after a deploy, offline, and on the new build offline after the update (3 engines). A scheduler mutation that terminates starting workers fails the unit and property tests. Real Safari NOT RUN; closure needs it or a documented restriction. Stage: **FIX PRODUCTION-BUILD VERIFIED in 3 engines / Safari pending**. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 <a id="td-ren-001"></a>
 ### TD-REN-001 — Chromium builds Path2D incrementally in quadratic time
@@ -797,6 +807,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** update-lifecycle tests (old tabs, worker recreation after deploy, interrupted install, offline after update, mixed-version refusal) pass on the production build in 3 engines and real Safari.
 - **Dependencies:** C5 handshake (`buildId`).
 - **Owner action:** Safari authorisation.
+- **G-JOB disposition (2026-11-25):** implemented in `scripts/generate-sw.mjs`: navigations come from the controlling version's cache; an interrupted install deletes its partial cache; activation claims pages only on a first install; lookups ignore `Vary`. The update-lifecycle spec uses a genuinely different second build (different build ID, page, worker and WASM names; build-1 files removed from the server): old tab after a deploy (update announced, not forced), worker recreation in the old tab online and offline, reload staying on build 1, activation after old tabs close, cache invalidation, offline after the update, interrupted install, and a refused worker from another build: all pass in Chromium, Firefox and Playwright WebKit. Mutations caught: network-first navigation (an old tab reloads into build 2) and no install cleanup. **Found and fixed:** the P0 worker never matched module scripts or stylesheets offline (`Vary: Origin` with CORS requests), so an offline reload of the page was blank. Real Safari NOT RUN. Stage: **PRODUCTION-BUILD VERIFIED in 3 engines / Safari pending**. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 
 ## Added at G-DOC
 
@@ -820,12 +831,56 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   1. Incremental invariants: validate only the nodes a transaction touched, their parents and the derived indices they change, against invariants stated per node.
   2. Structural sharing for the node, style and palette maps (persistent maps, or copy-on-write chunks), so a draft no longer copies the whole map.
   3. The whole-state pass stays authoritative for load, import and recovery, and as a test oracle: a property test compares incremental and full validation on random command sequences.
-- **Closure criteria** (the numeric thresholds are **proposed**, for maintainer decision at G-EDIT; they derive from RFC-002 §17):
+- **Closure criteria** (**approved by the maintainer** at the P1-A foundation acceptance, 2026-11-25; investigate structural sharing and incremental validation during G-R1, qualify before G-EDIT acceptance):
   - a structural command (transform, rename, hide, recolour, delete group) dispatches in ≤ 16.7 ms median and ≤ 33 ms p95 at the interactive target (≈ 250k anchors, ≈ 40k paths), and in ≤ 50 ms at the 1M-anchor stress workloads, on the reference machine, quiet run, production build.
   - Incremental and full validation agree on every state of a randomized command-sequence suite (at least 10,000 transactions, including rejected ones).
   - Load still runs the full pass; no invariant is weakened.
 - **Dependencies:** G-DOC store and invariants (C8 r2); TD-ARCH-005.
 - **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT.
+
+<a id="td-perf-008"></a>
+### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms
+- **Source:** G-ENG / P1-A integration benchmarks; accepted exception at the P1-A foundation acceptance ([decision register §7](research/g0/G0-DECISION-REGISTER.md)).
+- **Category / severity / status:** Limitation (measured) · Low · OPEN (accepted exception; target retained).
+- **Evidence** ([P1A-INTEGRATION-REPORT §7.1](research/p1a-integration/P1A-INTEGRATION-REPORT.md)): 995,405 anchors, 42.6 MB, block `b318ecfc…`. Copy-out median: Node 0.97 ms, Chromium 2.2 ms, Firefox 2 ms, Playwright WebKit 1 ms; p95 above 2 ms in every runtime. Machine not quiet.
+- **Disposition:** keep the single-copy implementation. Do not redesign GeometryPacket v1, reduce coordinate precision or weaken buffer ownership for this marginal miss.
+- **Closure criteria:** the existing benchmark re-run on a quiet reference machine meets ≤ 2 ms, reporting median, p95, workload hashes, byte counts, runtime and timer resolution; or the maintainer re-decides on that evidence.
+- **Owner action:** none (quiet machine time).
+
+<a id="td-perf-009"></a>
+### TD-PERF-009 — Document v1 open above 1 s at 250k paths
+- **Source:** G-DOC / P1-A integration benchmarks; accepted exception at the P1-A foundation acceptance.
+- **Category / severity / status:** Limitation (measured) · Medium · OPEN (accepted exception; target retained).
+- **Evidence** ([P1A-INTEGRATION-REPORT §7.2](research/p1a-integration/P1A-INTEGRATION-REPORT.md)): open at 50k paths 179 ms (`none`) / 300 ms (`deflate-raw`); at 250k paths and 1M anchors **1,048 ms / 1,108 ms**. A single-pass phase profile totals 823 ms at 250k; the gap to the repeated end-to-end median is unexplained.
+- **Approved follow-up (bounded compact Document v1 serialization, before G-PRJ qualification and public Document v1 release; independent of G-JOB):** omit canonical default-valued node properties without changing the in-memory model; pre-registered workloads with the original representation as a control; unambiguous canonical defaults; strict schema validation, deterministic canonical sections, integrity checks and decompression limits, project semantics, export hashes, provenance and ID high-water marks preserved; cross-browser interchange; explicit compatibility with development fixtures; frozen-contract amendment for an adopted schema change; no binary format or new dependency without approval. Explain the profile vs end-to-end gap (allocation, GC, warm-up, instrumentation boundaries). The earlier scratch experiment (−32 % bytes, −21 % parse) is preliminary only: its artefacts were not retained.
+- **Closure criteria:** open ≤ 1 s at 50k and 250k paths at 1M anchors, measured as above, with every preservation requirement verified.
+
+<a id="td-perf-010"></a>
+### TD-PERF-010 — Job handling blocks the main thread above 50 ms
+- **Source:** G-JOB performance qualification (`tests/browser/jobs-perf.spec.ts`, headed, production build).
+- **Category / severity / status:** Defect (budget not met, measured) · **High** · OPEN.
+- **Facts.** RFC-002 §17 allows ≤ 50 ms of attributable main-thread blocking; G-JOB requires no gap above 50 ms in job handling. Scheduling and posting are cheap (source copy at 23.5 MP: 5–7 ms; cancel acknowledgement ≤ 1 ms). The misses are the synchronous main-thread steps that touch whole geometry or whole documents:
+  - **committing a trace result** (C2 store commit: move, validate and derive; then the document transaction, whose whole-state pass is TD-PERF-007);
+  - **freezing an export snapshot** (`buildExport` over the whole document) and **copying it out** at post (`jobCopy`), which run in one task when the worker is idle;
+  - the workbench preview path (preview session commit, SVG snapshot and copy).
+- **Evidence** (G-JOB run C on the final code, `docs/research/g-job/bench/run-c/`; Apple M5 Max; no `ngspice`, but five unrelated CPU-bound processes, load average 8.7 → 10.7: **not quiet**; run B in `run-b/` agrees within about ±25 %). Ranges over the repetitions, ms:
+
+  | Workload | Step | Chromium 159 | Firefox 159 | Playwright WebKit 27.2 |
+  |---|---|---|---|---|
+  | Interactive (270k anchors, bark 1224 px, colour) | final commit | 47.2–56.7 | 71–77 | 55–63 |
+  | | of which store commit | 13.6–20.0 | 20–27 | 18–22 |
+  | | export snapshot + post | 15.1 + 9.0 | 17 + 13 | 31 + 19 |
+  | | workbench preview commit | 69.5 | 83 | 74 |
+  | Stress (812k anchors, bark 2350 px, colour) | final commit | 129.5–135.5 | 174–238 | 146–151 |
+  | | export snapshot + post | 33.8 + 22.4 | 55 + 32 | 89 + 59 |
+  | 23.5 MP B&W source (33k anchors) | job copy and post | 5.1–5.2 | 5–6 | 7 |
+
+- **Upgrade path** (no store rewrite in G-JOB; RFC-002 obligations for G-TRACE and G-PRJ):
+  1. Commits: incremental invariants and structural sharing (TD-PERF-007); time-sliced or worker-prepared validation that keeps the commit atomic and the C2 trust boundary on owned bytes.
+  2. Exports: post in a separate task from the snapshot; evaluate the draw list incrementally or chunk it; consider copying out per chunk across tasks.
+  3. Measure real browser task durations (Long Tasks where available, rAF gaps elsewhere) at the interactive target and the stress workloads.
+- **Closure criteria:** every job-handling step ≤ 50 ms of attributable main-thread blocking at the interactive target and at the designated 1M-anchor stress workloads, in Chromium, Firefox and Playwright WebKit (and Safari), on a quiet reference run.
+- **Dependencies:** TD-PERF-007; G-TRACE (trace commit), G-EXP (export snapshot), G-PRJ (load).
 
 ---
 
