@@ -73,8 +73,27 @@ pub fn bake_draw_list(
     meta: &SceneMeta,
     limits: &Limits,
 ) -> Result<Scene, EngineError> {
+    let mut derived = Vec::with_capacity(packets.len());
     for (k, p) in packets.iter().enumerate() {
-        validate_packet(p, &Limits::ENGINEERING).map_err(|e| bad(format!("packet {k}: {e}")))?;
+        derived.push(validate_packet(p, &Limits::ENGINEERING).map_err(|e| bad(format!("packet {k}: {e}")))?);
+    }
+    // Anchors per reference, checked before any geometry is copied (review finding 4).
+    let mut anchors = 0u64;
+    for (n, item) in list.items.iter().enumerate() {
+        let d = derived
+            .get(item.chunk as usize)
+            .ok_or_else(|| bad(format!("item {n}: chunk {} does not exist", item.chunk)))?;
+        let a = d
+            .path_anchors
+            .get(item.path_index as usize)
+            .ok_or_else(|| bad(format!("item {n}: path {} does not exist", item.path_index)))?;
+        anchors += u64::from(*a);
+        if anchors > limits.max_anchors {
+            return Err(EngineError::TooManyPrimitives {
+                count: anchors,
+                limit: limits.max_anchors,
+            });
+        }
     }
     let mut groups: Vec<Group> = list
         .runs

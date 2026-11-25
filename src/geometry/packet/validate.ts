@@ -94,11 +94,15 @@ export function parseManifest(m: unknown, limits: Limits = PRODUCT_LIMITS): Mani
   if (!Array.isArray(o.styles)) fail("manifest", "styles is not an array");
   const styles = o.styles as unknown[];
   if (styles.length > MAX_TABLE_ENTRIES) fail("budget", "too many styles");
-  styles.forEach((s, i) => validStyle(s) || fail("manifest", `style ${i} is invalid`));
+  // Index loops, not forEach: holes in a sparse array (they survive structured clone) must be
+  // checked as undefined, as Rust does.
+  for (let i = 0; i < styles.length; i++)
+    if (!validStyle(styles[i])) fail("manifest", `style ${i} is invalid`);
   if (!Array.isArray(o.groups)) fail("manifest", "groups is not an array");
   const groups = o.groups as unknown[];
   if (groups.length > MAX_TABLE_ENTRIES) fail("budget", "too many groups");
-  groups.forEach((g, i) => validGroup(g) || fail("manifest", `group ${i} is invalid`));
+  for (let i = 0; i < groups.length; i++)
+    if (!validGroup(groups[i])) fail("manifest", `group ${i} is invalid`);
   const manifest = o as unknown as Manifest;
   checkCaps(manifest, limits);
   return manifest;

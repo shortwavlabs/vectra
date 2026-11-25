@@ -218,3 +218,46 @@ describe("C3.0 codec", () => {
     expect(() => canonicalJson({ x: NaN })).toThrow(PacketError);
   });
 });
+
+describe("corrective review regressions (AM-1)", () => {
+  const code = (fn: () => unknown) => {
+    try {
+      fn();
+      return "ok";
+    } catch (e) {
+      return e instanceof PacketError ? e.code : `untyped:${String(e)}`;
+    }
+  };
+
+  test("sparse styles/groups (holes survive structured clone) are rejected like Rust does", () => {
+    const p = base();
+    const m = structuredClone({ ...p.manifest, styles: new Array(3), groups: new Array(2) });
+    expect(
+      code(() =>
+        validatePacket({ ...p, manifest: m } as unknown as GeometryPacket &
+          Record<string, unknown>),
+      ),
+    ).toBe("manifest");
+  });
+
+  test("canonicalJson refuses sparse arrays instead of writing corrupt JSON", () => {
+    expect(() => canonicalJson({ a: new Array(2) })).toThrow(PacketError);
+  });
+
+  test("a record manifest with a UTF-8 BOM is not canonical and is rejected", () => {
+    const rec = encodeRecord(base());
+    const lm = new DataView(rec.buffer).getUint32(0, true);
+    const json = rec.subarray(4, 4 + lm);
+    const bom = new Uint8Array([0xef, 0xbb, 0xbf, ...json]);
+    const head = bom.length + 4 + ((8 - ((bom.length + 4) % 8)) % 8);
+    const out = new Uint8Array(head + (rec.length - (4 + lm + ((8 - ((4 + lm) % 8)) % 8))));
+    new DataView(out.buffer).setUint32(0, bom.length, true);
+    out.set(bom, 4);
+    out.set(rec.subarray(rec.length - (out.length - head)), head);
+    expect(code(() => decodeRecord(out))).toBe("manifest");
+  });
+
+  test("decodeRecord rejects a non-Uint8Array argument with a typed error", () => {
+    expect(code(() => decodeRecord(new ArrayBuffer(16) as unknown as Uint8Array))).toBe("type");
+  });
+});

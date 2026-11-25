@@ -372,3 +372,87 @@ fn identical_scenes_give_the_committed_packet_bytes() {
     }
     assert!(n >= 8, "only {n} determinism cases");
 }
+
+// ---- Corrective review (AM-1) regression tests ----
+
+fn many_styles_scene(n: u32) -> Scene {
+    use vector_engine::color::Rgba;
+    use vector_engine::scene::{Fill, FillRule, Group, Metadata, Path, SCENE_VERSION};
+    let paths = (0..n)
+        .map(|i| Path {
+            fill: Some(Fill {
+                color: Rgba {
+                    r: (i >> 16) as u8,
+                    g: (i >> 8) as u8,
+                    b: i as u8,
+                    a: 255,
+                },
+                palette_id: None,
+            }),
+            stroke: None,
+            fill_rule: FillRule::Nonzero,
+            verbs: "M".into(),
+            coords: vec![f64::from(i % 100), 1.0],
+        })
+        .collect();
+    Scene {
+        version: SCENE_VERSION,
+        width: 100.0,
+        height: 100.0,
+        background: None,
+        palette: vec![],
+        groups: vec![Group {
+            id: "g".into(),
+            clip: None,
+            paths,
+        }],
+        metadata: Metadata {
+            generator: "vectra".into(),
+            engine_version: "0".into(),
+            mode: "color".into(),
+            preset_version: 1,
+            seed: 1,
+            source_width: 100,
+            source_height: 100,
+            params: serde_json::json!({}),
+        },
+    }
+}
+
+#[test]
+fn from_scene_rejects_more_styles_than_the_table_cap_up_front() {
+    // Review finding 1: a scene with > 65,536 distinct styles is valid scene v1 but cannot be a
+    // C3 packet. from_scene must say so itself (typed `budget`), not produce an invalid packet.
+    let scene = many_styles_scene(70_000);
+    scene.validate(5_000_000).unwrap();
+    let err = GeometryPacket::from_scene(&scene).unwrap_err();
+    assert_eq!(err.code, vector_engine::packet::ErrorCode::Budget, "{err}");
+    assert!(GeometryPacket::from_scene(&many_styles_scene(65_536)).is_ok());
+}
+
+#[test]
+fn json_floats_round_trip_exactly() {
+    // Review finding 3: serde_json must parse JavaScript's shortest float text exactly
+    // (`float_roundtrip`), or the TS and Rust validators and exports see different f64 values.
+    for text in [
+        "10641.677584445979",
+        "0.30000000000000004",
+        "123.45678901234567",
+        "1e-7",
+    ] {
+        let want: f64 = text.parse().unwrap();
+        let got: f64 = serde_json::from_str(text).unwrap();
+        assert_eq!(got.to_bits(), want.to_bits(), "{text}");
+    }
+    // A halfway case JavaScript rounds to 16384: both validators must then accept it.
+    let m = r#"{"packetVersion":1,"width":16384.000000000001818989403545856475830078125,"height":1,"pathCount":0,"verbCount":0,"coordCount":0,"styles":[],"groups":[]}"#;
+    assert!(vector_engine::packet::parse_manifest_json(m, &Limits::PRODUCT).is_ok());
+}
+
+#[test]
+fn manifest_text_is_capped_before_parsing() {
+    // Review finding 8: C3.0's 16 MiB manifest cap applies to text manifests too.
+    let big = format!(r#"{{"packetVersion":1,"pad":"{}"}}"#, "x".repeat(17 << 20));
+    let err = vector_engine::packet::parse_manifest_json(&big, &Limits::PRODUCT).unwrap_err();
+    assert_eq!(err.code, vector_engine::packet::ErrorCode::Budget);
+}

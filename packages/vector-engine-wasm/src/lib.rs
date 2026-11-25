@@ -100,6 +100,18 @@ pub struct PacketResult {
     scene_meta_json: String,
     report_json: String,
     packet: GeometryPacket,
+    /// Bit k set once section k was taken: a second take, or the block after any take, throws.
+    taken: u8,
+}
+
+impl PacketResult {
+    fn take<T>(&mut self, bit: u8, pick: impl FnOnce(&mut GeometryPacket) -> &mut Vec<T>) -> Result<Vec<T>, JsValue> {
+        if self.taken & bit != 0 {
+            return Err(invalid("this packet array was already taken".into()));
+        }
+        self.taken |= bit;
+        Ok(std::mem::take(pick(&mut self.packet)))
+    }
 }
 
 #[wasm_bindgen]
@@ -117,33 +129,36 @@ impl PacketResult {
         self.report_json.clone()
     }
     #[wasm_bindgen(js_name = takeVerbs)]
-    pub fn take_verbs(&mut self) -> Vec<u8> {
-        std::mem::take(&mut self.packet.verbs)
+    pub fn take_verbs(&mut self) -> Result<Vec<u8>, JsValue> {
+        self.take(1, |p| &mut p.verbs)
     }
     #[wasm_bindgen(js_name = takeCoords)]
-    pub fn take_coords(&mut self) -> Vec<f64> {
-        std::mem::take(&mut self.packet.coords)
+    pub fn take_coords(&mut self) -> Result<Vec<f64>, JsValue> {
+        self.take(2, |p| &mut p.coords)
     }
     #[wasm_bindgen(js_name = takeVerbOffsets)]
-    pub fn take_verb_offsets(&mut self) -> Vec<u32> {
-        std::mem::take(&mut self.packet.verb_offsets)
+    pub fn take_verb_offsets(&mut self) -> Result<Vec<u32>, JsValue> {
+        self.take(4, |p| &mut p.verb_offsets)
     }
     #[wasm_bindgen(js_name = takeCoordOffsets)]
-    pub fn take_coord_offsets(&mut self) -> Vec<u32> {
-        std::mem::take(&mut self.packet.coord_offsets)
+    pub fn take_coord_offsets(&mut self) -> Result<Vec<u32>, JsValue> {
+        self.take(8, |p| &mut p.coord_offsets)
     }
     #[wasm_bindgen(js_name = takeStyleIndex)]
-    pub fn take_style_index(&mut self) -> Vec<u32> {
-        std::mem::take(&mut self.packet.style_index)
+    pub fn take_style_index(&mut self) -> Result<Vec<u32>, JsValue> {
+        self.take(16, |p| &mut p.style_index)
     }
     #[wasm_bindgen(js_name = takeGroupIndex)]
-    pub fn take_group_index(&mut self) -> Vec<u32> {
-        std::mem::take(&mut self.packet.group_index)
+    pub fn take_group_index(&mut self) -> Result<Vec<u32>, JsValue> {
+        self.take(32, |p| &mut p.group_index)
     }
     /// The C3.0 block (call before any `take*`), for native/WASM byte-identity checks.
     #[wasm_bindgen(js_name = blockBytes)]
-    pub fn block_bytes(&self) -> Vec<u8> {
-        self.packet.to_bytes()
+    pub fn block_bytes(&self) -> Result<Vec<u8>, JsValue> {
+        if self.taken != 0 {
+            return Err(invalid("blockBytes must be read before any take*".into()));
+        }
+        Ok(self.packet.to_bytes())
     }
 }
 
@@ -155,22 +170,27 @@ fn packet_result(out: vector_engine::Output, limits: &Limits) -> Result<PacketRe
         scene_meta_json: serde_json::to_string(&SceneMeta::from_scene(&out.scene)).expect("meta serializes"),
         report_json: serde_json::json!({ "metrics": out.metrics, "warnings": out.warnings }).to_string(),
         packet,
+        taken: 0,
     })
 }
 
+/// The packet route is capped at the product limits (C3): a request may ask for less, never more,
+/// so every packet produced here is one that `validatePacket` and `PacketSet.add` accept.
 fn request_limits(req: &vector_engine::params::TraceRequest) -> Limits {
     Limits {
-        max_anchors: req.max_anchors,
-        ..Limits::ENGINEERING
+        max_anchors: req.max_anchors.min(Limits::PRODUCT.max_anchors),
+        ..Limits::PRODUCT
     }
 }
 
 /// Traces and returns the result as a validated GeometryPacket (C4 `vectorizePacket`).
 #[wasm_bindgen(js_name = vectorizePacket)]
 pub fn vectorize_packet(rgba: &[u8], width: u32, height: u32, request_json: &str) -> Result<PacketResult, JsValue> {
-    let req = vector_engine::params::TraceRequest::from_json(request_json).map_err(js_error)?;
+    let mut req = vector_engine::params::TraceRequest::from_json(request_json).map_err(js_error)?;
+    let limits = request_limits(&req);
+    req.max_anchors = limits.max_anchors; // the trace itself stops at the product cap
     let out = vector_engine::vectorize(rgba, width, height, &req, &now).map_err(js_error)?;
-    packet_result(out, &request_limits(&req))
+    packet_result(out, &limits)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -314,6 +334,7 @@ pub fn scene_to_packet(scene_json: &str) -> Result<PacketResult, JsValue> {
         scene_meta_json: serde_json::to_string(&SceneMeta::from_scene(&scene)).expect("meta serializes"),
         report_json: "{}".into(),
         packet,
+        taken: 0,
     })
 }
 
@@ -346,7 +367,8 @@ pub struct SegmentationHandle {
 
 #[wasm_bindgen]
 pub fn segment(rgba: Vec<u8>, width: u32, height: u32, request_json: &str) -> Result<SegmentationHandle, JsValue> {
-    let req = vector_engine::params::TraceRequest::from_json(request_json).map_err(js_error)?;
+    let mut req = vector_engine::params::TraceRequest::from_json(request_json).map_err(js_error)?;
+    req.max_anchors = request_limits(&req).max_anchors;
     let seg = segment_owned(rgba, width, height, &req, &now).map_err(js_error)?;
     Ok(SegmentationHandle { inner: Some(seg) })
 }

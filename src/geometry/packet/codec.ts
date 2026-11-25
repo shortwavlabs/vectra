@@ -65,6 +65,7 @@ export function decodeBlock(
   bytes: Uint8Array,
   limits: Limits = PRODUCT_LIMITS,
 ): GeometryPacket {
+  if (!(bytes instanceof Uint8Array)) throw new PacketError("type", "block must be a Uint8Array");
   const m = parseManifest(manifest, limits);
   const { offsets, lengths, block } = blockLayout(m.pathCount, m.verbCount, m.coordCount);
   if (bytes.length !== block)
@@ -103,7 +104,8 @@ export function canonicalJson(v: unknown): string {
     if (!Number.isFinite(v)) throw new PacketError("manifest", "non-finite number");
     return JSON.stringify(v);
   }
-  if (Array.isArray(v)) return `[${v.map(canonicalJson).join(",")}]`;
+  // Array.from visits holes as undefined, which throws below: a sparse array never serialises.
+  if (Array.isArray(v)) return `[${Array.from(v, (x) => canonicalJson(x)).join(",")}]`;
   if (typeof v === "object") {
     const o = v as Record<string, unknown>;
     const keys = Object.keys(o).sort();
@@ -125,6 +127,7 @@ export function encodeRecord(p: GeometryPacket): Uint8Array<ArrayBuffer> {
 }
 
 export function decodeRecord(bytes: Uint8Array, limits: Limits = PRODUCT_LIMITS): GeometryPacket {
+  if (!(bytes instanceof Uint8Array)) throw new PacketError("type", "record must be a Uint8Array");
   if (bytes.length < 4) throw new PacketError("length", "record shorter than its header");
   const lm = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(0, true);
   if (lm > MAX_MANIFEST_BYTES) throw new PacketError("budget", `manifest of ${lm} bytes`);
@@ -133,7 +136,7 @@ export function decodeRecord(bytes: Uint8Array, limits: Limits = PRODUCT_LIMITS)
   let manifest: Manifest;
   try {
     manifest = JSON.parse(
-      new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(4, 4 + lm)),
+      new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes.subarray(4, 4 + lm)),
     );
   } catch {
     throw new PacketError("manifest", "manifest is not valid UTF-8 JSON");

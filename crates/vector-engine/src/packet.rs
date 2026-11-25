@@ -529,6 +529,12 @@ pub fn parse_manifest(v: &Value, limits: &Limits) -> Result<Manifest, PacketErro
 }
 
 pub fn parse_manifest_json(json: &str, limits: &Limits) -> Result<Manifest, PacketError> {
+    if json.len() as u64 > MAX_MANIFEST_BYTES {
+        return fail(
+            ErrorCode::Budget,
+            format!("manifest text larger than {MAX_MANIFEST_BYTES} bytes"),
+        );
+    }
     let v: Value = serde_json::from_str(json).map_err(|e| PacketError {
         code: ErrorCode::Manifest,
         message: format!("manifest is not valid JSON: {e}"),
@@ -678,6 +684,12 @@ impl GeometryPacket {
         let (mut style_index, mut group_index) = (Vec::new(), Vec::new());
         let mut styles: Vec<Style> = Vec::new();
         let mut keys: HashMap<StyleKey, u32> = HashMap::new();
+        if scene.groups.len() > MAX_TABLE_ENTRIES {
+            return fail(
+                ErrorCode::Budget,
+                format!("the scene has more than {MAX_TABLE_ENTRIES} groups"),
+            );
+        }
         for (gi, g) in scene.groups.iter().enumerate() {
             for p in &g.paths {
                 let style = Style {
@@ -698,6 +710,14 @@ impl GeometryPacket {
                 let next = to_u32(styles.len(), "style count")?;
                 let si = *keys.entry(key).or_insert(next);
                 if si == next {
+                    if styles.len() == MAX_TABLE_ENTRIES {
+                        return fail(
+                            ErrorCode::Budget,
+                            format!(
+                                "the scene has more than {MAX_TABLE_ENTRIES} distinct styles; reduce colours or detail"
+                            ),
+                        );
+                    }
                     styles.push(style);
                 }
                 style_index.push(si);
