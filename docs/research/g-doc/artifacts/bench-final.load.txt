@@ -1,0 +1,7 @@
+Tue Nov 24 21:41:23 CST 2026
+v24.22.1
+21:41  up 1 day,  6:40, 1 user, load averages: 27.19 28.26 19.53
+ngspice: 13
+Tue Nov 24 21:42:33 CST 2026
+21:42  up 1 day,  6:41, 1 user, load averages: 32.48 29.83 20.81
+ngspice: 14

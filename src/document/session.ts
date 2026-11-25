@@ -176,7 +176,10 @@ export class DocumentSession {
     let d: StateDerived;
     try {
       for (const c of list) next = applyCommand(next, c, ctx);
-      if (next === prev) return this.#revision;
+      if (next === prev) {
+        store.settle();
+        return this.#revision; // a no-op is not a transaction
+      }
       d = validateState(next, store, this.limits);
       if (!o.withoutHistory) {
         const entry = this.#entryBytes(prev, d);
@@ -200,12 +203,11 @@ export class DocumentSession {
       this.#past.length > 0;
     this.#own(next, "document", 1);
     this.#own(prev, "document", -1);
-    if (o.withoutHistory) {
-      this.#dropHistory();
-    } else if (!coalesce) {
+    if (o.withoutHistory) this.#dropHistory();
+    if (!coalesce && !o.withoutHistory) {
       this.#own(prev, "history", 1);
       this.#past.push(prev);
-    } else if (prev === this.#saved) this.#saved = null; // the merged-away state is unreachable
+    } else if (prev === this.#saved) this.#saved = null; // prev is unreachable from now on
     for (const s of this.#future) this.#own(s, "history", -1);
     this.#future = [];
     this.#coalesce = o.coalesceKey === undefined ? null : { key: o.coalesceKey, at: now };
