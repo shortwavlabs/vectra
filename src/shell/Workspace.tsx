@@ -53,8 +53,11 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/regi
 import { ScrollArea } from "../ui/registry/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/registry/tooltip";
 import {
+  displayName,
   isLocked,
+  isVisible,
   pathCount,
+  pathFill,
   topLevel,
   transformable as canTransform,
   worldTransformCommands,
@@ -379,6 +382,21 @@ export function Workspace() {
       transform: (ids, m) => live.current.onTransform(ids, m),
     });
   }, [jobs, adopt]);
+  /** What keyboard navigation on the canvas announces for a node. */
+  const describe = useCallback((id: NodeId) => {
+    const s = sessionRef.current?.getSnapshot().state;
+    const n = s?.nodesById.get(id);
+    if (!s || !n) return String(id);
+    const parts = [displayName(n, s)];
+    if (n.name) parts.push(n.kind);
+    if (n.kind === "path") {
+      const f = pathFill(s, id);
+      if (f.color !== null) parts.push(`fill #${(f.color >>> 8).toString(16).padStart(6, "0")}`);
+    } else parts.push(`${pathCount(s, id)} paths`);
+    if (isLocked(s, id)) parts.push("locked");
+    if (!isVisible(s, id)) parts.push("hidden");
+    return parts.join(", ");
+  }, []);
   const undo = useCallback(() => session?.undo(), [session]);
   const redo = useCallback(() => session?.redo(), [session]);
   const deleteSelection = useCallback(() => {
@@ -635,7 +653,8 @@ export function Workspace() {
                     onTransform={onTransform}
                     forceMainThread={forceMainThread}
                     label="Artwork canvas"
-                    className="absolute inset-0"
+                    describe={describe}
+                    className="vectra-canvas absolute inset-0"
                   />
 
                   {!session && (
@@ -744,7 +763,7 @@ export function Workspace() {
             {totals ? `${totals.paths} paths · ${totals.anchors} anchors` : "No artwork"}
           </span>
           <span
-            role="status"
+            role={status.error ? "alert" : "status"}
             data-testid="status"
             className={status.error ? "text-destructive" : "text-foreground/85"}
           >

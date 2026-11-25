@@ -10,17 +10,24 @@
 // - a corner handle scales uniformly about the opposite corner, an edge handle along one axis
 //   about the opposite edge; with Alt, about the centre;
 // - Escape during a move or scale cancels it: nothing is reported, no history entry.
+// Keyboard (G-R1 §9): the canvas is focusable and navigable without a DOM node per object.
+// Arrow keys walk the document tree in the Layers panel's order (Up/Down: siblings, Right: into
+// a group or layer, Left: its parent; Home/End, PageUp/PageDown jump), Enter or Space selects the
+// object under the keyboard cursor (with Shift: toggles it). A polite live region announces the
+// object, its position and state; the cursor's box is drawn dashed; the view follows it.
 // The preview is display only (layered drag caches in the renderer); release reports one
 // transform, which the caller dispatches as one command.
 import {
   forwardRef,
+  type KeyboardEvent as ReactKeyboardEvent,
   useEffect,
+  useId,
   useImperativeHandle,
   useRef,
   useState,
   useSyncExternalStore,
 } from "react";
-import type { NodeId } from "../document/model.ts";
+import { isContainer, type DocState, type NodeId } from "../document/model.ts";
 import type { DocumentSession } from "../document/session.ts";
 import type { Affine } from "../renderer/snapshot.ts";
 import { type Bounds, DocumentRenderHost } from "./render-host.ts";
@@ -36,12 +43,40 @@ export interface VectorCanvasProps extends CanvasHostProps {
   readonly haloColor?: string;
   /** Engineering access to the host (qualification API). */
   readonly onHost?: (host: DocumentRenderHost | null) => void;
+  /** Spoken description of a node for keyboard navigation (name, kind, state). */
+  readonly describe?: (id: NodeId) => string;
+}
+
+/** The siblings of a node in display order (top-most first, as the Layers panel lists them). */
+function siblings(s: DocState, parent: NodeId | null): NodeId[] {
+  const list =
+    parent === null
+      ? s.orderedRootIds
+      : (() => {
+          const n = s.nodesById.get(parent);
+          return isContainer(n) ? n.orderedChildIds : [];
+        })();
+  return [...list].reverse();
+}
+function parentOf(s: DocState, id: NodeId): NodeId | null {
+  for (const n of s.nodesById.values())
+    if (isContainer(n) && n.orderedChildIds.includes(id)) return n.id;
+  return null;
 }
 
 const createWorker = () =>
   new Worker(new URL("../renderer/render.worker.ts", import.meta.url), { type: "module" });
 
 const DRAG_PX = 3;
+/** Visually hidden, still announced (the workbench has no utility classes). */
+const SR_ONLY = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  whiteSpace: "nowrap",
+} as const;
 const HANDLE = 9; // CSS px
 const LIME = "#b9e87b";
 const INK = "#191a1c";
@@ -128,6 +163,7 @@ function CanvasOverlay(p: {
   pose: Store<Affine | null>;
   color: string;
   halo: string;
+  cursor: NodeId | null;
 }) {
   const view = useSyncExternalStore(p.views.subscribe, p.views.get);
   const pose = useSyncExternalStore(p.pose.subscribe, p.pose.get);
@@ -141,6 +177,14 @@ function CanvasOverlay(p: {
   const base = p.selection.length ? p.host.boundsOf(p.selection) : null;
   const b = base && pose ? mapBounds(pose, base) : base;
   const css = (x: number, y: number) => [x * view.scale + view.tx, y * view.scale + view.ty];
+  const cb = p.cursor && state.nodesById.has(p.cursor) ? p.host.boundsOf([p.cursor]) : null;
+  const cursorBox =
+    cb &&
+    (() => {
+      const [x0, y0] = css(cb.x, cb.y);
+      const [x1, y1] = css(cb.x + cb.width, cb.y + cb.height);
+      return { left: x0! - 4, top: y0! - 4, width: x1! - x0! + 8, height: y1! - y0! + 8 };
+    })();
   const box =
     b &&
     (() => {
@@ -179,6 +223,18 @@ function CanvasOverlay(p: {
           }}
         />
       )}
+      {cursorBox && (
+        <div
+          data-testid="keyboard-cursor"
+          style={{
+            position: "absolute",
+            ...cursorBox,
+            outline: `2px dashed ${p.color}`,
+            boxShadow: `0 0 0 2px ${p.halo}`,
+            borderRadius: 2,
+          }}
+        />
+      )}
       {b &&
         box &&
         p.transformable &&
@@ -214,9 +270,14 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
     const outer = useRef<HTMLDivElement>(null);
     const surface = useRef<HTMLDivElement>(null);
     const host = useRef<DocumentRenderHost | null>(null);
+    const hintId = useId();
     const [hostObj, setHostObj] = useState<DocumentRenderHost | null>(null);
     const [views] = useState(() => store<CanvasView | null>(null));
     const [pose] = useState(() => store<Affine | null>(null));
+    // The keyboard cursor belongs to one document (node IDs are per document).
+    const [cursorOf, setCursorOf] = useState<{ session: DocumentSession; id: NodeId } | null>(null);
+    const cursor = cursorOf && cursorOf.session === props.session ? cursorOf.id : null;
+    const [spoken, setSpoken] = useState("");
     const latest = useRef(props);
     useEffect(() => {
       latest.current = props;
@@ -422,6 +483,90 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
     useEffect(() => {
       host.current?.setSession(props.session);
     }, [props.session]);
+
+    /** Keyboard navigation over the document tree; announces through the live region. */
+    const onKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      const s = props.session?.getSnapshot().state;
+      if (!s || e.target !== outer.current || e.altKey || e.ctrlKey || e.metaKey) return;
+      const say = (id: NodeId, extra = "") => {
+        const sib = siblings(s, parentOf(s, id));
+        const what = props.describe?.(id) ?? String(id);
+        const selected = props.selection.includes(id) ? ", selected" : "";
+        setSpoken(`${what}, ${sib.indexOf(id) + 1} of ${sib.length}${selected}${extra}`);
+      };
+      const move = (id: NodeId | null | undefined) => {
+        if (!id || !props.session) return;
+        setCursorOf({ session: props.session, id });
+        say(id);
+        // Keep the cursor's object in view (centre it when it is outside the viewport).
+        const h = host.current;
+        const b = h?.boundsOf([id]);
+        const r = outer.current!.getBoundingClientRect();
+        const c = h?.camera;
+        if (h && b && c) {
+          const x0 = b.x * c.scale + c.tx;
+          const y0 = b.y * c.scale + c.ty;
+          const x1 = (b.x + b.width) * c.scale + c.tx;
+          const y1 = (b.y + b.height) * c.scale + c.ty;
+          if (x1 < 0 || y1 < 0 || x0 > r.width || y0 > r.height)
+            h.setView({
+              scale: c.scale,
+              tx: r.width / 2 - (b.x + b.width / 2) * c.scale,
+              ty: r.height / 2 - (b.y + b.height / 2) * c.scale,
+            });
+        }
+      };
+      const cur = cursor && s.nodesById.has(cursor) ? cursor : null;
+      const start = () => props.selection.find((id) => s.nodesById.has(id)) ?? siblings(s, null)[0];
+      const keys = [
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "Home",
+        "End",
+        "PageUp",
+        "PageDown",
+        "Enter",
+        " ",
+      ];
+      if (!keys.includes(e.key)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (!cur) return move(start());
+      const sib = siblings(s, parentOf(s, cur));
+      const i = sib.indexOf(cur);
+      switch (e.key) {
+        case "ArrowDown":
+          return move(sib[Math.min(sib.length - 1, i + 1)]);
+        case "ArrowUp":
+          return move(sib[Math.max(0, i - 1)]);
+        case "PageDown":
+          return move(sib[Math.min(sib.length - 1, i + 10)]);
+        case "PageUp":
+          return move(sib[Math.max(0, i - 10)]);
+        case "Home":
+          return move(sib[0]);
+        case "End":
+          return move(sib.at(-1));
+        case "ArrowRight": {
+          const n = s.nodesById.get(cur);
+          if (isContainer(n) && n.orderedChildIds.length) return move(siblings(s, cur)[0]);
+          return say(cur, ", no objects inside");
+        }
+        case "ArrowLeft":
+          return move(parentOf(s, cur) ?? undefined);
+        default: {
+          // Enter or Space: select (Shift: toggle).
+          const mode = e.shiftKey ? "toggle" : "replace";
+          props.onSelect([cur], mode);
+          const now = mode === "replace" || !props.selection.includes(cur);
+          setSpoken(
+            `${props.describe?.(cur) ?? cur} ${now ? "selected" : "removed from the selection"}`,
+          );
+        }
+      }
+    };
     useEffect(() => {
       host.current?.setSelection(props.selection);
     }, [props.selection]);
@@ -430,12 +575,29 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
       <div
         ref={outer}
         className={props.className}
-        role="img"
+        role="application"
+        aria-roledescription="canvas"
         aria-label={props.label ?? "Vector artwork"}
+        aria-describedby={hintId}
+        tabIndex={0}
+        onKeyDown={onKeyDown}
         data-testid="canvas-host"
         // Positioning comes from the caller's class; the layers inside are absolutely placed.
         style={{ overflow: "hidden", touchAction: "none" }}
       >
+        <span id={hintId} hidden>
+          Arrow keys move between objects: up and down between siblings, right into a group or
+          layer, left to its parent. Enter or Space selects; with Shift, adds or removes.
+        </span>
+        <span
+          role="status"
+          aria-live="polite"
+          data-testid="canvas-announcer"
+          className="sr-only"
+          style={SR_ONLY}
+        >
+          {spoken}
+        </span>
         <div ref={surface} style={{ position: "absolute", inset: 0 }} />
         <CanvasOverlay
           host={hostObj}
@@ -446,6 +608,7 @@ export const VectorCanvas = forwardRef<CanvasHostHandle, VectorCanvasProps>(
           pose={pose}
           color={props.selectionColor ?? LIME}
           halo={props.haloColor ?? INK}
+          cursor={cursor}
         />
       </div>
     );

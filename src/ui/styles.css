@@ -146,3 +146,10 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* The canvas is a focusable widget inside a clipping panel: its lime ring is drawn just inside
+   its edge, over the dark canvas surround (an inset shadow would sit under the canvas layers). */
+.vectra-canvas:focus-visible {
+  outline-offset: -2px;
+  box-shadow: none;
+}
