@@ -305,6 +305,7 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
       const n = idNumber(s.id);
       if (n >= parsed.nextChunkId)
         fail("document", `${s.id} is not below nextChunkId ${parsed.nextChunkId}`);
+      if (n < store.nextChunkId) fail("section", `${s.id} is out of order or below chk_1`);
       store.advanceChunkCounter(n);
       try {
         store.commit(r.packet); // C2: the file → store trust boundary

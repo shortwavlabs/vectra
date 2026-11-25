@@ -145,21 +145,53 @@ export class IdAllocator {
   }
 }
 
+/** A Map that rejects writes once sealed: committed state maps are immutable at runtime. */
+const SEALED = new WeakSet<object>();
+export class SealedMap<K, V> extends Map<K, V> {
+  override set(k: K, v: V): this {
+    if (SEALED.has(this)) throw new TypeError("committed document maps are immutable");
+    return super.set(k, v);
+  }
+  override delete(k: K): boolean {
+    if (SEALED.has(this)) throw new TypeError("committed document maps are immutable");
+    return super.delete(k);
+  }
+  override clear(): void {
+    if (SEALED.has(this)) throw new TypeError("committed document maps are immutable");
+    super.clear();
+  }
+}
+/** Seals `m` (copying it first unless it is an unsealed SealedMap owned by the caller). */
+export function sealMap<K, V>(m: ReadonlyMap<K, V>): ReadonlyMap<K, V> {
+  const out = m instanceof SealedMap && !SEALED.has(m) ? m : new SealedMap(m);
+  SEALED.add(out);
+  return out;
+}
+/** Freezes a node, style, palette entry or asset and its small nested arrays/objects. */
+export function freezeEntry<T extends object>(v: T): T {
+  if (Object.isFrozen(v)) return v;
+  for (const x of Object.values(v))
+    if (x !== null && typeof x === "object" && !Object.isFrozen(x)) freezeEntry(x as object);
+  return Object.freeze(v);
+}
+/** Highest chunk number a `.vectra` section id can carry (15 digits, C1/C7). */
+export const MAX_CHUNK_NUMBER = 999_999_999_999_999;
+
 export function createDocument(o: {
   documentId?: string;
   width: number;
   height: number;
   background?: number | null;
 }): DocState {
-  return {
+  return Object.freeze({
     documentId: o.documentId ?? crypto.randomUUID(),
-    artboard: { width: o.width, height: o.height, background: o.background ?? null },
-    orderedRootIds: [],
-    nodesById: new Map(),
-    stylesById: new Map(),
-    paletteById: new Map(),
-    sourceAssetsById: new Map(),
-  };
+    artboard: Object.freeze({ width: o.width, height: o.height, background: o.background ?? null }),
+    orderedRootIds: Object.freeze([]) as readonly NodeId[],
+    nodesById: sealMap(new Map()),
+    stylesById: sealMap(new Map()),
+    paletteById: sealMap(new Map()),
+    sourceAssetsById: sealMap(new Map()),
+  });
 }
 
 // --- 2×3 affine ---------------------------------------------------------------------------------
@@ -204,6 +236,8 @@ export function transformProblem(m: unknown): string | null {
 
 /** Exact quarter-turn matrices about a pivot (y down; turns clockwise on screen). */
 export function rotate90Matrix(turns: 1 | 2 | 3, px = 0, py = 0): Matrix {
+  if (turns !== 1 && turns !== 2 && turns !== 3)
+    throw new DocumentError("invalid_argument", "rotate90 turns must be 1, 2 or 3");
   if (turns === 1) return [0, 1, -1, 0, px + py, py - px];
   if (turns === 2) return [-1, 0, 0, -1, 2 * px, 2 * py];
   return [0, -1, 1, 0, px - py, px + py];

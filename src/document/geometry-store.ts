@@ -4,7 +4,7 @@
 // the only routes to a transfer list and always return fresh buffers.
 
 import { canonicalJsonBytes } from "../persistence/canonical-json.ts";
-import { type ChunkId, DocumentError } from "./model.ts";
+import { type ChunkId, DocumentError, MAX_CHUNK_NUMBER } from "./model.ts";
 import {
   DEFAULT_PACKET_LIMITS,
   type DerivedMetadata,
@@ -86,6 +86,17 @@ const VIEW_CTORS: Record<string, ViewCtor> = {
   "[object DataView]": DataView,
 };
 const tag = (v: unknown) => Object.prototype.toString.call(v);
+// Intrinsic accessors: a subclass cannot override what the shape check reads (G-DOC review 9c).
+const TypedArrayProto = Object.getPrototypeOf(Uint8Array.prototype) as object;
+const intrinsic = (proto: object, key: PropertyKey) => {
+  // Reflect.get with an explicit receiver runs the intrinsic getter on `v`, ignoring overrides.
+  return (v: unknown): unknown => Reflect.get(proto, key, v);
+};
+const taTag = intrinsic(TypedArrayProto, Symbol.toStringTag);
+const taBuffer = intrinsic(TypedArrayProto, "buffer");
+const taByteOffset = intrinsic(TypedArrayProto, "byteOffset");
+const taByteLength = intrinsic(TypedArrayProto, "byteLength");
+const abByteLength = intrinsic(ArrayBuffer.prototype, "byteLength");
 type BufferExt = ArrayBuffer & { resizable?: boolean; detached?: boolean };
 
 /** C2 rule 1 over the six section values (each read once). Returns the reason, or null. */
@@ -94,13 +105,14 @@ function shapeProblem(views: readonly unknown[]): string | null {
   for (let i = 0; i < views.length; i++) {
     const a = views[i];
     const key = SECTION_KEYS[i];
-    if (!ArrayBuffer.isView(a) || !(tag(a) in VIEW_CTORS))
-      return `${key} is not an ArrayBuffer view`;
-    const buf = a.buffer as BufferExt;
+    const realTag = ArrayBuffer.isView(a) ? (taTag(a) as string | undefined) : undefined;
+    if (realTag === undefined || !(`[object ${realTag}]` in VIEW_CTORS))
+      return `${key} is not a typed array`;
+    const buf = taBuffer(a) as BufferExt;
     if (tag(buf) !== "[object ArrayBuffer]") return `${key} views a SharedArrayBuffer`;
     if (buf.resizable === true) return `${key} views a resizable ArrayBuffer`;
     if (buf.detached === true) return `${key} views a detached ArrayBuffer`;
-    if (a.byteOffset !== 0 || a.byteLength !== buf.byteLength)
+    if (taByteOffset(a) !== 0 || taByteLength(a) !== abByteLength(buf))
       return `${key} does not span its whole buffer`;
     if (seen.has(buf)) return `${key} shares a buffer with another section`;
     seen.add(buf);
@@ -193,6 +205,14 @@ export class GeometryStore {
     this.#port = port;
     this.#limits = o.limits ?? DEFAULT_PACKET_LIMITS;
     this.#nextChunkId = o.nextChunkId ?? 1;
+    if (
+      !(
+        Number.isSafeInteger(this.#nextChunkId) &&
+        this.#nextChunkId >= 1 &&
+        this.#nextChunkId <= MAX_CHUNK_NUMBER + 1
+      )
+    )
+      throw new DocumentError("invariant", "nextChunkId outside the chunk id space");
   }
 
   get nextChunkId(): number {
@@ -201,7 +221,7 @@ export class GeometryStore {
 
   /** Container load only: moves the high-water mark forward (never backwards, C1). */
   advanceChunkCounter(n: number): void {
-    if (!Number.isSafeInteger(n) || n < this.#nextChunkId)
+    if (!Number.isSafeInteger(n) || n < this.#nextChunkId || n > MAX_CHUNK_NUMBER)
       throw new DocumentError(
         "invariant",
         `nextChunkId cannot move from ${this.#nextChunkId} to ${n}`,
@@ -219,8 +239,8 @@ export class GeometryStore {
     const views = SECTION_KEYS.map((k) => (packet as unknown as Record<string, unknown>)[k]);
     const problem = shapeProblem(views);
     if (problem) throw new DocumentError("ownership", problem);
-    const ctors = views.map((v) => VIEW_CTORS[tag(v)]!);
-    const buffers = views.map((v) => (v as ArrayBufferView).buffer as ArrayBuffer);
+    const ctors = views.map((v) => VIEW_CTORS[`[object ${taTag(v) as string}]`]!);
+    const buffers = views.map((v) => taBuffer(v) as ArrayBuffer);
     let moved: ArrayBuffer[];
     try {
       moved = structuredClone(buffers, { transfer: buffers });
@@ -241,6 +261,8 @@ export class GeometryStore {
     const r = this.#port.validate(manifest, arrays, this.#limits);
     if (!r.ok) throw new DocumentError(r.code, r.message);
     const t2 = performance.now();
+    if (this.#nextChunkId > MAX_CHUNK_NUMBER)
+      throw new DocumentError("invariant", "the chunk id space is exhausted");
     const id = `chk_${this.#nextChunkId}`;
     const cost =
       packetMemBytes(manifest) +

@@ -89,7 +89,9 @@ export function evaluate(s: DocState): Evaluation {
           pathIndex: child.geometry.pathIndex,
           transform: multiply(m, child.localTransform),
           fill,
-          ...(style.stroke ? { stroke: style.stroke } : {}),
+          ...(style.stroke
+            ? { stroke: { color: style.stroke.color, width: style.stroke.width } }
+            : {}),
           evenOdd: child.fillRule === "evenodd",
           groupRun: runs.length - 1,
           paletteRef: style.paletteRef,
