@@ -88,7 +88,7 @@ Option 4, a render worker holding a disposable copy, is adopted **for rendering 
 - **Scope of the bake-off:**
   - 4 candidates, 3 engines (headed), DPR 2;
   - 11 workloads in Chromium and 6 in Firefox and WebKit, from 17k to 1M anchors and 1 to 167k paths;
-  - cold plus 5 warm reps; 72 correctness renders against independent resvg;
+  - cold plus 5 warm reps; 84 correctness renders (including the worker variant) against independent resvg;
   - a traced presentation check, a raster cross-check, and display-cache and OffscreenCanvas variants.
 - **Correctness:** every candidate is correct (0 geometry-error pixels; hole, evenodd and clip hit checks pass).
 - **Exact redraw cost differs by engine:** Canvas is ~0.5 / 5 / 2.3 µs per `fill()` in Chromium / Firefox / WebKit. Exact per-frame redraw therefore misses the budget on ≥ 300k-anchor scenes in Firefox and WebKit for Canvas and SVG, and beyond ~30k paths for WebGL.
