@@ -56,6 +56,8 @@ export class RenderClient {
     canvasesCreated: 0,
     fallbackReason: null as string | null,
     lastRecoveryMs: null as number | null,
+    /** What the render worker reports holding after its last snapshot. */
+    workerHeld: null as { chunks: number; paths: number; bytes: number } | null,
   };
   readonly #o: RenderClientOptions;
   #surface: Surface;
@@ -65,6 +67,8 @@ export class RenderClient {
   #retiring: HTMLCanvasElement | null = null;
   #main: CanvasRenderer | null = null;
   #lastRevision = 0;
+  /** The last camera, replayed after every (re)start (messages before `init` are ignored). */
+  #camera: Camera | null = null;
   #recoveringSince: number | null = null;
   #crashTimes: number[] = [];
   #disposed = false;
@@ -118,6 +122,7 @@ export class RenderClient {
   }
 
   camera(camera: Camera): void {
+    this.#camera = camera;
     if (this.#main) return this.#main.setCamera(camera);
     this.#post({ type: "camera", generation: this.#generation, camera });
   }
@@ -158,7 +163,9 @@ export class RenderClient {
 
   /**
    * A fresh canvas element in the container (a canvas whose control was transferred cannot be
-   * reused). The previous canvas keeps showing its last frame until the new one has drawn.
+   * reused). It is inserted underneath the previous canvas, which keeps showing its last frame
+   * until the new one has drawn. (The new canvas is never hidden: WebKit does not present a
+   * worker canvas whose placeholder was hidden when the frame was committed.)
    */
   #newCanvas(): HTMLCanvasElement {
     const c = document.createElement("canvas");
@@ -167,18 +174,16 @@ export class RenderClient {
       this.#retiring?.remove();
       this.#retiring = this.#canvas;
       this.#retiring.dataset.testid = "vector-canvas-retiring";
-      c.style.visibility = "hidden";
     }
     c.dataset.testid = "vector-canvas";
-    this.#o.container.prepend(c);
+    this.#o.container.prepend(c); // earlier in the DOM: painted below the retiring canvas
     this.#canvas = c;
     this.diag.canvasesCreated++;
     return c;
   }
 
   #presented(): void {
-    if (!this.#retiring || !this.#canvas) return;
-    this.#canvas.style.visibility = "";
+    if (!this.#retiring) return;
     this.#retiring.remove();
     this.#retiring = null;
   }
@@ -224,6 +229,7 @@ export class RenderClient {
         this.#post({ type: "init", generation: gen, canvas: offscreen, surface: this.#surface }, [
           offscreen,
         ]);
+        if (this.#camera) this.#post({ type: "camera", generation: gen, camera: this.#camera });
         this.#o.onState({ kind: "ready", host: "worker" });
         this.#o.onNeedReplay();
         return;
@@ -237,6 +243,8 @@ export class RenderClient {
         }
         this.#presented();
         this.#o.onFrame({ ...m, host: "worker" });
+      } else if (m.type === "stats") {
+        this.diag.workerHeld = { chunks: m.chunks, paths: m.paths, bytes: m.bytes };
       } else if (m.type === "error") {
         if (m.code === "no_2d_context")
           this.#fallback("the render worker has no 2D canvas context");
@@ -308,6 +316,7 @@ export class RenderClient {
       return;
     }
     this.held.clear();
+    if (this.#camera) this.#main.setCamera(this.#camera);
     this.#o.onState({ kind: "ready", host: "main-thread", reason });
     this.#o.onNeedReplay();
   }
