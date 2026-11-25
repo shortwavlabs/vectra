@@ -50,9 +50,20 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         };
       },
       hitDocument: (x: number, y: number) => o.host()?.hitDocument(x, y) ?? null,
+      /** The product path: a click's hit query (waits for the index; never a partial one). */
+      hitAsync: async (x: number, y: number) => {
+        const h = o.host();
+        if (!h) return null;
+        const c = h.camera;
+        const t0 = performance.now();
+        const id = await h.hitAt(x * c.scale + c.tx, y * c.scale + c.ty);
+        return { id: id ?? null, stale: id === undefined, ms: performance.now() - t0 };
+      },
       boundsOf: (ids: NodeId[]) => o.host()?.boundsOf(ids) ?? null,
       itemsOf: (id: NodeId) => [...(o.host()?.itemsOf(id) ?? [])],
       setView: (scale: number, tx: number, ty: number) => o.host()?.setView({ scale, tx, ty }),
+      /** A camera gesture's bounds, as pointer and wheel gestures send them (display cache). */
+      gesture: (phase: "start" | "end") => o.host()?.gesture(phase),
       crash: () => o.host()?.client.crashWorker() ?? false,
       remount: () => o.remountCanvas(),
       /** A transform gesture driven exactly (the pointer path rounds to CSS pixels). */
@@ -83,6 +94,17 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
       /** Crashes the compute worker; the next job must recreate it (from the cache offline). */
       crashCompute: () => o.jobs.scheduler.inject("crash-now"),
       /** Shows a `.vectra` container (base64) as the document; persistence loads only here. */
+      /** Loads a `.vectra` from a same-origin URL (tests route it); stage timings. */
+      loadContainerUrl: async (url: string) => {
+        const { loadContainer } = await import("../persistence/container.ts");
+        const t0 = performance.now();
+        const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+        const t1 = performance.now();
+        const session = await loadContainer(bytes, {});
+        const t2 = performance.now();
+        o.adopt(session);
+        return { fetchMs: t1 - t0, loadValidateMs: t2 - t1, loadedAt: t2 };
+      },
       loadContainer: async (b64: string) => {
         const { loadContainer } = await import("../persistence/container.ts");
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
