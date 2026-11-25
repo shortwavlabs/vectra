@@ -74,12 +74,18 @@ const KIND_FIELDS = {
   path: ["geometry", "styleRef", "fillRule"],
   source: ["assetId", "sourceToDocument"],
 } as const;
+const NODE_FIELDS = {
+  layer: [...COMMON, ...KIND_FIELDS.layer],
+  group: [...COMMON, ...KIND_FIELDS.group],
+  path: [...COMMON, ...KIND_FIELDS.path],
+  source: [...COMMON, ...KIND_FIELDS.source],
+};
 
 function parseNode(key: string, v: unknown): DocNode {
   const kind = (v as J | null)?.kind;
   if (kind !== "layer" && kind !== "group" && kind !== "path" && kind !== "source")
     return fail(`node ${key}: unknown kind ${String(kind)}`);
-  const o = obj(v, `node ${key}`, [...COMMON, ...KIND_FIELDS[kind]], ["clipRef"]);
+  const o = obj(v, `node ${key}`, NODE_FIELDS[kind], ["clipRef"]);
   const w = `node ${key}`;
   const base = {
     id: str(o.id, w),

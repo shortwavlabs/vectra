@@ -60,4 +60,35 @@ describe("RFC 8785 canonical JSON", () => {
       expect(parseCanonicalJson(enc(bad)), bad).toBeNull();
     expect(parseCanonicalJson(Uint8Array.of(0x22, 0xff, 0x22))).toBeNull();
   });
+
+  test("strict reader: surrogate escapes refused, escaped backslashes and literal pairs accepted", () => {
+    expect(parseCanonicalJson(enc('"\\ud800"'))).toBeNull(); // a lone surrogate escape
+    expect(parseCanonicalJson(enc('"\\ud83d\\ude00"'))).toBeNull(); // canonical form is literal
+    expect(parseCanonicalJson(enc('"\\\\ud800"'))).toEqual({ value: "\\ud800" }); // backslash + text
+    expect(parseCanonicalJson(enc('"\u{1F600}"'))).toEqual({ value: "\u{1F600}" });
+  });
+
+  test("strict reader agrees with canonicalJson on random values", () => {
+    let seed = 7;
+    const rnd = (n: number) => ((seed = (seed * 1103515245 + 12345) % 2 ** 31), seed % n);
+    const strings = ["", "a", "é", "\u{1F600}", '"q"', "\\", "\n", "lay_10", "lay_9", "\u2028"];
+    const gen = (d: number): unknown => {
+      const k = rnd(d > 3 ? 4 : 7);
+      if (k === 0) return null;
+      if (k === 1) return rnd(2) === 0;
+      if (k === 2) return (rnd(2000) - 1000) / [1, 3, 7, 1e9][rnd(4)]!;
+      if (k === 3) return strings[rnd(strings.length)];
+      if (k === 4) return Array.from({ length: rnd(4) }, () => gen(d + 1));
+      const o: Record<string, unknown> = {};
+      for (let i = rnd(5); i > 0; i--) o[`k${strings[rnd(strings.length)]!}${rnd(3)}`] = gen(d + 1); // no array-index names
+      return o;
+    };
+    for (let i = 0; i < 500; i++) {
+      const v = gen(0);
+      const text = canonicalJson(v);
+      expect(parseCanonicalJson(enc(text))?.value).toEqual(JSON.parse(text));
+      const loose = JSON.stringify(v, null, rnd(2) ? 0 : 1);
+      expect(parseCanonicalJson(enc(loose)) !== null).toBe(loose === text);
+    }
+  });
 });
