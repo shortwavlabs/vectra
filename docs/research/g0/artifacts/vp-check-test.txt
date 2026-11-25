@@ -1,0 +1,11 @@
+$ pnpm exec vp check
+note: You are running `vp check` as a Vite+ built-in command. If you meant to run the check npm script, use `vpr check` instead.
+pass: All 93 files are correctly formatted (62ms, 18 threads)
+pass: Found no warnings, lint errors, or type errors in 38 files (155ms, 18 threads)
+
+$ pnpm exec vp test
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+   Start at  20:00:57
+   Duration  76ms (tests 48%, import 25%, transform 17%, worker 9%)
+
