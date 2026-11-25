@@ -88,9 +88,11 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
 | [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
+| [TD-PLATFORM-007](#td-platform-007) | Native and WASM Artistic output differ on some inputs (found at G-ENG) | Defect (determinism) | Medium | OPEN | before cross-target reproducibility claims | — |
 
 Counts:
 - **37 open items** after G-0: the original 25 (4 confirmed defects, 12 limitations, 5 untested environments, 4 enhancements) plus 12 added at G-0 (11 proposed by the independent review, plus TD-PLATFORM-006 found during reconciliation).
+- **G-ENG (2026-11-25):** one item added, TD-PLATFORM-007 (pre-existing, measured by G-ENG), so there are 38 open items. None is closed by G-ENG.
 - **12 High** (7 original + 5 added).
 - **No item is resolved by G-0.** Choosing an architecture moves an item to ARCHITECTURE ACCEPTED at most.
 - **RFC-002 inputs:** TD-GEO-001, TD-GEO-007, TD-GEO-009, TD-PERF-001, TD-PERF-003, TD-ARCH-001, TD-ARCH-002, TD-ARCH-003.
@@ -401,6 +403,10 @@ Counts:
 - **Acceptance criteria (P0 wording, superseded at G-0; see the disposition below):** over-budget traced jobs report within 2 s on the reference machine, with a recoverable, actionable error; no silent downscaling.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) ("Resource limits review").
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (two-stage) / IMPLEMENTATION PENDING**; gate G-ENG (staged API), G-TRACE (closure candidate); closure: **Revised acceptance wording (approved at G-0):** provide a complexity forecast within two seconds on qualified workloads, followed by a definitive resource-budget decision after segmentation and before expensive fitting. The forecast is approximate, shows a range, offers choices, never auto-rejects and never downsamples. False-positive and false-negative rates are validated on a separately reserved corpus; owner action: No. Evidence (R03): post-segmentation predictor 0 FP / 0 FN; preview forecast 2 FP / 1 FN; segmentation is 66–99 % of colour trace time. The two-second forecast is a qualification requirement, not a guarantee.
+- **G-ENG (2026-11-25), API part:** **PRODUCTION VERIFIED (API) / IMPLEMENTATION PENDING (forecast UI, FP/FN)**.
+  - `segment → estimate → fit` exists, and `vectorize` is `fit(segment(..))`.
+  - `estimate` returns a boundary-length range (R03 calibration) for B&W and colour at Artistic defaults, and an explicit `Unavailable` for limited, halftone and non-spline fitting.
+  - FP/FN validation on a reserved corpus and the 2 s forecast remain G-TRACE work. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 
 <a id="td-perf-003"></a>
 ### TD-PERF-003 — High-resolution image memory usage
@@ -496,6 +502,7 @@ Counts:
 - **Acceptance criteria for an upgrade:** regression corpus byte-identical or explained; geometry corpus not worse.
 - **References:** [RFC-001](RFC-001.md), [P0-G1](research/p0/P0-G1-VECTORIZATION.md), [LICENSING-AND-DISTRIBUTION](research/p0-r/LICENSING-AND-DISTRIBUTION.md).
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (boundary restated)**; gate Ongoing; G-ENG checks the public API; closure: per the acceptance criteria above, plus no VTracer or visioncortex type in any public engine API; owner action: No. RFC §6, C4.
+- **G-ENG (2026-11-25):** boundary check **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**. The staged API (`segment`/`estimate`/`fit`) uses an opaque `Segmentation`. A test asserts that only the private `trace` module references `vtracer::`/`visioncortex::` and that `trace` is neither public nor re-exported. The dependency risk itself is unchanged. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 
 <a id="td-arch-002"></a>
 ### TD-ARCH-002 — Worker lifecycle and persistent editor state
@@ -543,6 +550,11 @@ Counts:
 - **Acceptance criteria:** RFC-002 specifies document and scene versions, migration, and a transport that meets TD-PERF-001's budget.
 - **References:** [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md), [RFC-001](RFC-001.md).
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (packet-only transport; document v1) / IMPLEMENTATION PENDING**; gate G-ENG, G-DOC; closure: C3 conformance in TS and Rust; lossless Scene ↔ Packet; scene v1 exports byte-identical via the packet route; owner action: No. R01: same size as JSON; parse 97–198 ms vs validate 8–20 ms at ~1M anchors.
+- **G-ENG (2026-11-25), engine and validator half:** **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**.
+  - GeometryPacket v1 in Rust and TS; 47 shared conformance cases, with matching codes.
+  - Lossless Scene ↔ Packet over the regression corpus (114 cases).
+  - Packet-route scene, SVG and PDF byte-identical to `a4cf172.sha256` (326/326).
+  - The document half is G-DOC's; integration is pending. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 
 <a id="td-arch-004"></a>
 ### TD-ARCH-004 — Engineering-only engine entry points
@@ -554,6 +566,7 @@ Counts:
 - **Acceptance criteria:** production builds expose only the documented API; evaluation tools still build.
 - **References:** [SELECTED-CORRECTION](research/p0-r-geo/SELECTED-CORRECTION.md).
 - **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-ENG; closure: per the acceptance criteria above; the staged API replaces `segment_layers` for production use; owner action: No. Unchanged target.
+- **G-ENG (2026-11-25):** **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**. `segment_layers` and `vectorize_with_precision_options` are compiled only with the `diagnostics` cargo feature. Tests and examples enable it through a self dev-dependency; the library and WASM builds do not. The review's standalone experiments need `--features vector-engine/diagnostics` to rebuild; they were not edited. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 
 ## Platforms and environments
 
@@ -775,6 +788,27 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Owner action:** Safari authorisation.
 
 ---
+
+## Added at G-ENG
+
+<a id="td-platform-007"></a>
+### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs
+- **Category / severity / status:** Defect (determinism) · Medium · OPEN TECHNICAL DEBT (found by G-ENG; pre-existing).
+- **Facts.**
+  - For 3 of the 65 procedural default-mode cases, the WASM build traces different coordinates from the native build of the same commit: `sharp_corners`/mosaic, `nested_rings`/color and `nested_rings`/mosaic. The maximum differences are 2.0, 1.4 and 0.96 px.
+  - The difference is reproduced with `main`'s own WASM build (`be101bca…`), so G-ENG did not introduce it. The WASM output digest (`68723671…`) is unchanged since P0.
+  - Earlier checks compared WASM with WASM across hosts (65/65) and precision native with WASM (26/26). Default-mode native vs WASM had not been compared.
+  - The C3 requirement "native and WASM builds produce byte-identical packets" therefore holds only where the scenes agree (62/65). The packet encoding adds no difference.
+  - TD-GEO-007's "Current guarantee" sentence ("identical RGBA gives identical scene … in native and WASM") overstates the guarantee for Artistic mode.
+- **Likely cause** (not yet isolated): floating-point library differences between the native and wasm32 targets (for example `atan2`/`powf` in VTracer's spline and corner logic), changing discrete fitting decisions.
+- **Reproduction:**
+  1. run `cargo run --release -p vector-engine --example packet_regression -- <dir>`;
+  2. then run `NATIVE_PACKETS_DIR=<dir> node scripts/wasm-fingerprint.mjs`.
+- **Target phase:** before any claim of cross-target reproducibility (recipes, shared presets).
+- **Acceptance criteria:**
+  - the root cause is isolated;
+  - the default-mode native and WASM fingerprints are identical, or the documented determinism guarantee is narrowed with the maintainer's approval.
+- **References:** [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
 
 ## Resolved during P0 (kept for traceability)
 | Item | Resolution | Evidence |
