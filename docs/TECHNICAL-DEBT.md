@@ -568,6 +568,7 @@ Counts:
 - **Acceptance criteria:** all steps pass on native amd64, with an identical WASM output fingerprint.
 - **References:** [LINUX-REPRODUCIBILITY](research/p0-r/LINUX-REPRODUCIBILITY.md).
 - **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Before published hashes (canonical Linux build approved at G-0); closure: per the acceptance criteria above, on native amd64 (P-CI runs are build evidence, not release qualification); owner action: No (approved). Prefer native amd64 over QEMU.
+- **P-CI (2026-11-25):** partial evidence only. Native amd64 (GitHub `ubuntu-24.04`) passed fmt, clippy, the Rust tests, `vp check`, `vp test` and the production build on PR #8. Browser suites and the WASM output fingerprint did not run on amd64. Stage unchanged (**NOT RUN** for release qualification).
 
 <a id="td-platform-002"></a>
 ### TD-PLATFORM-002 — Safari and mobile
@@ -635,6 +636,7 @@ Counts:
 - **Target phase:** maintainer decision, before P1 work accelerates.
 - **Acceptance criteria:** documented decision; if adopted, a required check on `main`.
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (policy decided at G-0) / IMPLEMENTATION PENDING**; gate P-CI (before P1-A PRs merge); closure: One required lightweight Linux job per the P-CI specification, fail-closed; owner action: No (decided); configuring it is engineering work after G-0 approval. Specification only at G-0; no workflow created.
+- **P-CI (2026-11-25):** stage **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**. `.github/workflows/ci.yml` (one `ci` job, fail-closed path filter) ran green on PR #8 (run 45535732214). Merging and making `ci` a required check are maintainer actions; branch protection is **not** configured. Not closed. [P-CI-REPORT](research/p-ci/P-CI-REPORT.md).
 
 
 ## Added at G-0 (from the independent review and reconciliation)
