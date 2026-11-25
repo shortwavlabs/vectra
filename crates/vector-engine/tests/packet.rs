@@ -322,3 +322,53 @@ fn no_tracer_type_crosses_the_public_api() {
         }
     }
 }
+
+/// What a JavaScript or RFC 8785 round trip does to numbers: whole f64 values become integers.
+fn js_numbers(v: &Value) -> Value {
+    match v {
+        Value::Number(n) => match n.as_f64() {
+            Some(f) if n.is_f64() && f.fract() == 0.0 && f.abs() < 9.0e15 => Value::from(f as i64),
+            _ => v.clone(),
+        },
+        Value::Array(a) => Value::Array(a.iter().map(js_numbers).collect()),
+        Value::Object(o) => Value::Object(o.iter().map(|(k, v)| (k.clone(), js_numbers(v))).collect()),
+        other => other.clone(),
+    }
+}
+
+#[test]
+fn scene_meta_from_json_restores_engine_number_formatting() {
+    // C10: params stored as canonical JSON lose `8.0`; the export path re-types them.
+    for (name, scene) in corpus() {
+        let meta = SceneMeta::from_scene(&scene);
+        let original = serde_json::to_string(&meta).unwrap();
+        let roundtripped = js_numbers(&serde_json::from_str::<Value>(&original).unwrap()).to_string();
+        let back = SceneMeta::from_json(&roundtripped).unwrap();
+        assert_eq!(serde_json::to_string(&back).unwrap(), original, "{name}");
+    }
+    // Non-Settings params (document form) are kept as given.
+    let doc = r##"{"background":null,"palette":[],"metadata":{"generator":"vectra","engineVersion":"0.0.0","mode":"document","presetVersion":0,"seed":0,"sourceWidth":10,"sourceHeight":10,"params":{"documentSchemaVersion":1,"derivedFrom":[]}}}"##;
+    let m = SceneMeta::from_json(doc).unwrap();
+    assert_eq!(m.metadata.params["documentSchemaVersion"], 1);
+}
+
+#[test]
+fn identical_scenes_give_the_committed_packet_bytes() {
+    // C3 r2 (AM-1 AR-3): the native producer of the three-way determinism proof. The TS and
+    // WASM producers are checked against the same goldens in tests/unit/geometry-determinism.
+    let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/fixtures/packet-determinism");
+    let mut n = 0;
+    for entry in std::fs::read_dir(dir).unwrap() {
+        let path = entry.unwrap().path();
+        let name = path.file_name().unwrap().to_string_lossy().to_string();
+        let Some(case) = name.strip_suffix(".scene.json.raw") else {
+            continue;
+        };
+        let scene = Scene::from_json(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        scene.validate(5_000_000).unwrap();
+        let golden = std::fs::read(format!("{dir}/{case}.packet.bin")).unwrap();
+        assert_eq!(GeometryPacket::from_scene(&scene).unwrap().to_bytes(), golden, "{case}");
+        n += 1;
+    }
+    assert!(n >= 8, "only {n} determinism cases");
+}

@@ -272,7 +272,7 @@ impl PacketSet {
 
 fn bake(draw_list_json: &str, scene_meta_json: &str, set: &PacketSet) -> Result<Scene, JsValue> {
     let list: DrawList = serde_json::from_str(draw_list_json).map_err(|e| invalid(format!("draw list: {e}")))?;
-    let meta: SceneMeta = serde_json::from_str(scene_meta_json).map_err(|e| invalid(format!("scene meta: {e}")))?;
+    let meta = SceneMeta::from_json(scene_meta_json).map_err(js_error)?;
     bake_draw_list(&list, &set.packets, &meta, &Limits::PRODUCT).map_err(js_error)
 }
 
@@ -295,11 +295,33 @@ pub fn export_draw_list_pdf(
     to_pdf(&bake(draw_list_json, scene_meta_json, set)?, &opts).map_err(js_error)
 }
 
+/// Export from a frozen draw list: the baked scene v1 JSON (the export writers' exact input).
+#[wasm_bindgen(js_name = exportDrawListScene)]
+pub fn export_draw_list_scene(draw_list_json: &str, scene_meta_json: &str, set: &PacketSet) -> Result<String, JsValue> {
+    Ok(bake(draw_list_json, scene_meta_json, set)?.to_json())
+}
+
+/// `GeometryPacket::from_scene` for a validated scene v1 (interchange; C3 determinism proof).
+#[wasm_bindgen(js_name = sceneToPacket)]
+pub fn scene_to_packet(scene_json: &str) -> Result<PacketResult, JsValue> {
+    let scene = Scene::from_json(scene_json).map_err(js_error)?;
+    let limits = Limits::ENGINEERING;
+    scene.validate(limits.max_anchors).map_err(js_error)?;
+    let packet = GeometryPacket::from_scene(&scene).map_err(packet_error)?;
+    validate_packet(&packet, &limits).map_err(packet_error)?;
+    Ok(PacketResult {
+        manifest_json: serde_json::to_string(&packet.manifest).expect("manifest serializes"),
+        scene_meta_json: serde_json::to_string(&SceneMeta::from_scene(&scene)).expect("meta serializes"),
+        report_json: "{}".into(),
+        packet,
+    })
+}
+
 fn single_packet_scene(scene_meta_json: &str, set: &PacketSet) -> Result<Scene, JsValue> {
     let [p] = set.packets.as_slice() else {
         return Err(invalid("packetToSvg/packetToPdf take exactly one packet".into()));
     };
-    let meta: SceneMeta = serde_json::from_str(scene_meta_json).map_err(|e| invalid(format!("scene meta: {e}")))?;
+    let meta = SceneMeta::from_json(scene_meta_json).map_err(js_error)?;
     Scene::from_packet(p, &meta).map_err(js_error)
 }
 

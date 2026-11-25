@@ -193,6 +193,19 @@ pub struct SceneMeta {
 }
 
 impl SceneMeta {
+    /// Parses scene meta JSON (C10 number formatting). When `metadata.params` parses as the
+    /// engine's `Settings`, it is re-serialised through `Settings`, restoring the engine's own
+    /// formatting (`8.0`, not `8`) after a JavaScript or canonical-JSON round trip. Any other
+    /// params value (for example document-form metadata) is kept as given.
+    pub fn from_json(json: &str) -> Result<SceneMeta, EngineError> {
+        let mut meta: SceneMeta =
+            serde_json::from_str(json).map_err(|e| EngineError::InvalidScene(format!("scene meta: {e}")))?;
+        if let Ok(settings) = serde_json::from_value::<crate::params::Settings>(meta.metadata.params.clone()) {
+            meta.metadata.params = serde_json::to_value(&settings).expect("settings serialize");
+        }
+        Ok(meta)
+    }
+
     pub fn from_scene(scene: &Scene) -> SceneMeta {
         SceneMeta {
             background: scene.background,
