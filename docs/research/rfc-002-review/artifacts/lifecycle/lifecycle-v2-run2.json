@@ -1,0 +1,597 @@
+[
+  {
+    "engine": "webkit",
+    "version": "27.2",
+    "errors": [],
+    "online": {
+      "ok": true,
+      "run": {
+        "label": "online",
+        "ms": 1641,
+        "stats": {
+          "workersCreated": 4,
+          "terminations": 3,
+          "staleDropped": 1,
+          "superseded": 4,
+          "crashes": 1,
+          "recycles": 0
+        }
+      },
+      "log": [
+        { "step": 0, "name": "page controlled by service worker", "pass": true, "online": true },
+        {
+          "step": 1,
+          "name": "preview runs",
+          "pass": true,
+          "anchors": 725,
+          "outcomes": ["Cancelled:", "Cancelled:", "Cancelled:", "Cancelled:", "ok"]
+        },
+        {
+          "step": 2,
+          "name": "only the latest of 5 rapid previews completes; earlier ones cancelled/superseded",
+          "pass": true
+        },
+        {
+          "step": 3,
+          "name": "final trace validated and committed atomically",
+          "pass": true,
+          "ms": 500,
+          "anchors": 3402,
+          "revision": 1
+        },
+        {
+          "step": 4,
+          "name": "export completes from frozen snapshot",
+          "pass": true,
+          "pdfBytes": 57777,
+          "snapshotRevision": 1
+        },
+        { "step": 5, "name": "preview requested during export completes afterwards", "pass": true },
+        {
+          "step": 6,
+          "name": "preview did not cancel export (export finished first)",
+          "pass": true
+        },
+        { "step": 7, "name": "long final cancelled by explicit cancel", "pass": true, "ackMs": 0 },
+        {
+          "step": 8,
+          "name": "committed layer byte-identical after terminate",
+          "pass": true,
+          "coordsByteLength": 160832
+        },
+        {
+          "step": 9,
+          "name": "crash and fatal abort reject the job and replace the worker",
+          "pass": true,
+          "stats": {
+            "workersCreated": 3,
+            "terminations": 3,
+            "staleDropped": 0,
+            "superseded": 4,
+            "crashes": 1,
+            "recycles": 0
+          }
+        },
+        {
+          "step": 9,
+          "name": "late error for a finished job is dropped (stale error)",
+          "pass": true
+        },
+        {
+          "step": 10,
+          "name": "evaluation restored after replacement",
+          "pass": true,
+          "workersCreated": 4
+        },
+        { "step": 11, "name": "undo removes the committed layer", "pass": true },
+        {
+          "step": 11,
+          "name": "result of a job started before undo is discarded as stale (revision guard)",
+          "pass": true
+        },
+        { "step": 11, "name": "redo restores the identical layer", "pass": true, "revision": 3 },
+        {
+          "step": 11,
+          "name": "history survived all worker terminations",
+          "pass": true,
+          "terminations": 3
+        }
+      ]
+    },
+    "offline": {
+      "ok": true,
+      "run": {
+        "label": "offline",
+        "ms": 1651,
+        "stats": {
+          "workersCreated": 4,
+          "terminations": 3,
+          "staleDropped": 1,
+          "superseded": 4,
+          "crashes": 1,
+          "recycles": 0
+        }
+      },
+      "log": [
+        { "step": 0, "name": "page controlled by service worker", "pass": true, "online": false },
+        {
+          "step": 1,
+          "name": "preview runs",
+          "pass": true,
+          "anchors": 725,
+          "outcomes": ["Cancelled:", "Cancelled:", "Cancelled:", "Cancelled:", "ok"]
+        },
+        {
+          "step": 2,
+          "name": "only the latest of 5 rapid previews completes; earlier ones cancelled/superseded",
+          "pass": true
+        },
+        {
+          "step": 3,
+          "name": "final trace validated and committed atomically",
+          "pass": true,
+          "ms": 501,
+          "anchors": 3402,
+          "revision": 1
+        },
+        {
+          "step": 4,
+          "name": "export completes from frozen snapshot",
+          "pass": true,
+          "pdfBytes": 57777,
+          "snapshotRevision": 1
+        },
+        { "step": 5, "name": "preview requested during export completes afterwards", "pass": true },
+        {
+          "step": 6,
+          "name": "preview did not cancel export (export finished first)",
+          "pass": true
+        },
+        { "step": 7, "name": "long final cancelled by explicit cancel", "pass": true, "ackMs": 0 },
+        {
+          "step": 8,
+          "name": "committed layer byte-identical after terminate",
+          "pass": true,
+          "coordsByteLength": 160832
+        },
+        {
+          "step": 9,
+          "name": "crash and fatal abort reject the job and replace the worker",
+          "pass": true,
+          "stats": {
+            "workersCreated": 3,
+            "terminations": 3,
+            "staleDropped": 0,
+            "superseded": 4,
+            "crashes": 1,
+            "recycles": 0
+          }
+        },
+        {
+          "step": 9,
+          "name": "late error for a finished job is dropped (stale error)",
+          "pass": true
+        },
+        {
+          "step": 10,
+          "name": "evaluation restored after replacement",
+          "pass": true,
+          "workersCreated": 4
+        },
+        { "step": 11, "name": "undo removes the committed layer", "pass": true },
+        {
+          "step": 11,
+          "name": "result of a job started before undo is discarded as stale (revision guard)",
+          "pass": true
+        },
+        { "step": 11, "name": "redo restores the identical layer", "pass": true, "revision": 3 },
+        {
+          "step": 11,
+          "name": "history survived all worker terminations",
+          "pass": true,
+          "terminations": 3
+        }
+      ]
+    }
+  },
+  {
+    "engine": "chromium",
+    "version": "159.0.8154.6",
+    "errors": [],
+    "online": {
+      "ok": true,
+      "run": {
+        "label": "online",
+        "ms": 2153.2000000029802,
+        "stats": {
+          "workersCreated": 4,
+          "terminations": 3,
+          "staleDropped": 1,
+          "superseded": 4,
+          "crashes": 1,
+          "recycles": 0
+        }
+      },
+      "log": [
+        { "step": 0, "name": "page controlled by service worker", "pass": true, "online": true },
+        {
+          "step": 1,
+          "name": "preview runs",
+          "pass": true,
+          "anchors": 725,
+          "outcomes": ["Cancelled:", "Cancelled:", "Cancelled:", "Cancelled:", "ok"]
+        },
+        {
+          "step": 2,
+          "name": "only the latest of 5 rapid previews completes; earlier ones cancelled/superseded",
+          "pass": true
+        },
+        {
+          "step": 3,
+          "name": "final trace validated and committed atomically",
+          "pass": true,
+          "ms": 749.5,
+          "anchors": 3402,
+          "revision": 1
+        },
+        {
+          "step": 4,
+          "name": "export completes from frozen snapshot",
+          "pass": true,
+          "pdfBytes": 57777,
+          "snapshotRevision": 1
+        },
+        { "step": 5, "name": "preview requested during export completes afterwards", "pass": true },
+        {
+          "step": 6,
+          "name": "preview did not cancel export (export finished first)",
+          "pass": true
+        },
+        {
+          "step": 7,
+          "name": "long final cancelled by explicit cancel",
+          "pass": true,
+          "ackMs": 0.1
+        },
+        {
+          "step": 8,
+          "name": "committed layer byte-identical after terminate",
+          "pass": true,
+          "coordsByteLength": 160832
+        },
+        {
+          "step": 9,
+          "name": "crash and fatal abort reject the job and replace the worker",
+          "pass": true,
+          "stats": {
+            "workersCreated": 3,
+            "terminations": 3,
+            "staleDropped": 0,
+            "superseded": 4,
+            "crashes": 1,
+            "recycles": 0
+          }
+        },
+        {
+          "step": 9,
+          "name": "late error for a finished job is dropped (stale error)",
+          "pass": true
+        },
+        {
+          "step": 10,
+          "name": "evaluation restored after replacement",
+          "pass": true,
+          "workersCreated": 4
+        },
+        { "step": 11, "name": "undo removes the committed layer", "pass": true },
+        {
+          "step": 11,
+          "name": "result of a job started before undo is discarded as stale (revision guard)",
+          "pass": true
+        },
+        { "step": 11, "name": "redo restores the identical layer", "pass": true, "revision": 3 },
+        {
+          "step": 11,
+          "name": "history survived all worker terminations",
+          "pass": true,
+          "terminations": 3
+        }
+      ]
+    },
+    "offline": {
+      "ok": true,
+      "run": {
+        "label": "offline",
+        "ms": 2158.5999999940395,
+        "stats": {
+          "workersCreated": 4,
+          "terminations": 3,
+          "staleDropped": 1,
+          "superseded": 4,
+          "crashes": 1,
+          "recycles": 0
+        }
+      },
+      "log": [
+        { "step": 0, "name": "page controlled by service worker", "pass": true, "online": false },
+        {
+          "step": 1,
+          "name": "preview runs",
+          "pass": true,
+          "anchors": 725,
+          "outcomes": ["Cancelled:", "Cancelled:", "Cancelled:", "Cancelled:", "ok"]
+        },
+        {
+          "step": 2,
+          "name": "only the latest of 5 rapid previews completes; earlier ones cancelled/superseded",
+          "pass": true
+        },
+        {
+          "step": 3,
+          "name": "final trace validated and committed atomically",
+          "pass": true,
+          "ms": 750.5999999940395,
+          "anchors": 3402,
+          "revision": 1
+        },
+        {
+          "step": 4,
+          "name": "export completes from frozen snapshot",
+          "pass": true,
+          "pdfBytes": 57777,
+          "snapshotRevision": 1
+        },
+        { "step": 5, "name": "preview requested during export completes afterwards", "pass": true },
+        {
+          "step": 6,
+          "name": "preview did not cancel export (export finished first)",
+          "pass": true
+        },
+        {
+          "step": 7,
+          "name": "long final cancelled by explicit cancel",
+          "pass": true,
+          "ackMs": 0.1
+        },
+        {
+          "step": 8,
+          "name": "committed layer byte-identical after terminate",
+          "pass": true,
+          "coordsByteLength": 160832
+        },
+        {
+          "step": 9,
+          "name": "crash and fatal abort reject the job and replace the worker",
+          "pass": true,
+          "stats": {
+            "workersCreated": 3,
+            "terminations": 3,
+            "staleDropped": 0,
+            "superseded": 4,
+            "crashes": 1,
+            "recycles": 0
+          }
+        },
+        {
+          "step": 9,
+          "name": "late error for a finished job is dropped (stale error)",
+          "pass": true
+        },
+        {
+          "step": 10,
+          "name": "evaluation restored after replacement",
+          "pass": true,
+          "workersCreated": 4
+        },
+        { "step": 11, "name": "undo removes the committed layer", "pass": true },
+        {
+          "step": 11,
+          "name": "result of a job started before undo is discarded as stale (revision guard)",
+          "pass": true
+        },
+        { "step": 11, "name": "redo restores the identical layer", "pass": true, "revision": 3 },
+        {
+          "step": 11,
+          "name": "history survived all worker terminations",
+          "pass": true,
+          "terminations": 3
+        }
+      ]
+    }
+  },
+  {
+    "engine": "firefox",
+    "version": "159.0",
+    "errors": [],
+    "online": {
+      "ok": true,
+      "run": {
+        "label": "online",
+        "ms": 1955,
+        "stats": {
+          "workersCreated": 4,
+          "terminations": 3,
+          "staleDropped": 1,
+          "superseded": 4,
+          "crashes": 1,
+          "recycles": 0
+        }
+      },
+      "log": [
+        { "step": 0, "name": "page controlled by service worker", "pass": true, "online": true },
+        {
+          "step": 1,
+          "name": "preview runs",
+          "pass": true,
+          "anchors": 725,
+          "outcomes": ["Cancelled:", "Cancelled:", "Cancelled:", "Cancelled:", "ok"]
+        },
+        {
+          "step": 2,
+          "name": "only the latest of 5 rapid previews completes; earlier ones cancelled/superseded",
+          "pass": true
+        },
+        {
+          "step": 3,
+          "name": "final trace validated and committed atomically",
+          "pass": true,
+          "ms": 643,
+          "anchors": 3402,
+          "revision": 1
+        },
+        {
+          "step": 4,
+          "name": "export completes from frozen snapshot",
+          "pass": true,
+          "pdfBytes": 57777,
+          "snapshotRevision": 1
+        },
+        { "step": 5, "name": "preview requested during export completes afterwards", "pass": true },
+        {
+          "step": 6,
+          "name": "preview did not cancel export (export finished first)",
+          "pass": true
+        },
+        { "step": 7, "name": "long final cancelled by explicit cancel", "pass": true, "ackMs": 0 },
+        {
+          "step": 8,
+          "name": "committed layer byte-identical after terminate",
+          "pass": true,
+          "coordsByteLength": 160832
+        },
+        {
+          "step": 9,
+          "name": "crash and fatal abort reject the job and replace the worker",
+          "pass": true,
+          "stats": {
+            "workersCreated": 3,
+            "terminations": 3,
+            "staleDropped": 0,
+            "superseded": 4,
+            "crashes": 1,
+            "recycles": 0
+          }
+        },
+        {
+          "step": 9,
+          "name": "late error for a finished job is dropped (stale error)",
+          "pass": true
+        },
+        {
+          "step": 10,
+          "name": "evaluation restored after replacement",
+          "pass": true,
+          "workersCreated": 4
+        },
+        { "step": 11, "name": "undo removes the committed layer", "pass": true },
+        {
+          "step": 11,
+          "name": "result of a job started before undo is discarded as stale (revision guard)",
+          "pass": true
+        },
+        { "step": 11, "name": "redo restores the identical layer", "pass": true, "revision": 3 },
+        {
+          "step": 11,
+          "name": "history survived all worker terminations",
+          "pass": true,
+          "terminations": 3
+        }
+      ]
+    },
+    "offline": {
+      "ok": true,
+      "run": {
+        "label": "offline",
+        "ms": 1958,
+        "stats": {
+          "workersCreated": 4,
+          "terminations": 3,
+          "staleDropped": 1,
+          "superseded": 4,
+          "crashes": 1,
+          "recycles": 0
+        }
+      },
+      "log": [
+        { "step": 0, "name": "page controlled by service worker", "pass": true, "online": false },
+        {
+          "step": 1,
+          "name": "preview runs",
+          "pass": true,
+          "anchors": 725,
+          "outcomes": ["Cancelled:", "Cancelled:", "Cancelled:", "Cancelled:", "ok"]
+        },
+        {
+          "step": 2,
+          "name": "only the latest of 5 rapid previews completes; earlier ones cancelled/superseded",
+          "pass": true
+        },
+        {
+          "step": 3,
+          "name": "final trace validated and committed atomically",
+          "pass": true,
+          "ms": 637,
+          "anchors": 3402,
+          "revision": 1
+        },
+        {
+          "step": 4,
+          "name": "export completes from frozen snapshot",
+          "pass": true,
+          "pdfBytes": 57777,
+          "snapshotRevision": 1
+        },
+        { "step": 5, "name": "preview requested during export completes afterwards", "pass": true },
+        {
+          "step": 6,
+          "name": "preview did not cancel export (export finished first)",
+          "pass": true
+        },
+        { "step": 7, "name": "long final cancelled by explicit cancel", "pass": true, "ackMs": 0 },
+        {
+          "step": 8,
+          "name": "committed layer byte-identical after terminate",
+          "pass": true,
+          "coordsByteLength": 160832
+        },
+        {
+          "step": 9,
+          "name": "crash and fatal abort reject the job and replace the worker",
+          "pass": true,
+          "stats": {
+            "workersCreated": 3,
+            "terminations": 3,
+            "staleDropped": 0,
+            "superseded": 4,
+            "crashes": 1,
+            "recycles": 0
+          }
+        },
+        {
+          "step": 9,
+          "name": "late error for a finished job is dropped (stale error)",
+          "pass": true
+        },
+        {
+          "step": 10,
+          "name": "evaluation restored after replacement",
+          "pass": true,
+          "workersCreated": 4
+        },
+        { "step": 11, "name": "undo removes the committed layer", "pass": true },
+        {
+          "step": 11,
+          "name": "result of a job started before undo is discarded as stale (revision guard)",
+          "pass": true
+        },
+        { "step": 11, "name": "redo restores the identical layer", "pass": true, "revision": 3 },
+        {
+          "step": 11,
+          "name": "history survived all worker terminations",
+          "pass": true,
+          "terminations": 3
+        }
+      ]
+    }
+  }
+]

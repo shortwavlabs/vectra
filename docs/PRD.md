@@ -5,7 +5,9 @@ Status: proposed | 2026-11-23
 Make vector conversion accessible without subscriptions, upload queues or professional illustration software. Combine accurate tracing with intentional print aesthetics. Target designers, artists, hobbyists and print-on-demand creators. Not a full Illustrator replacement.
 
 ## Release scope
-P1 core: import PNG/JPEG/WebP (TIFF deferred until decoder evidence); drag/drop and file picker; preserve alpha and EXIF orientation where applicable; black & white, grayscale, limited color, full color, silhouette and line-art presets; adjustable threshold, palette size, detail, smoothing and speckle removal; synchronized original/vector preview; transparent background; SVG and vector PDF downloads. P2 artistic: Old Print, Halftone, Screen Print, Poster, Comic Ink. P3 experimental: woodcut, engraving, blueprint, stencil. Artistic presets must be implemented before advertising them as available.
+> **G-0 (2026-11-25):** phased scope is superseded by [PRD-002](PRD-002-VECTOR-STUDIO.md) and [RFC-002 §18–19](RFC-002.md). P1 core presets are Black & White, Full Colour, Limited Palette, Grayscale and Silhouette. **Line Art moves to P2-A** (TD-GEO-005). Old Print and DIY Underground are P2-C flagship work. The requirements and non-goals below still apply.
+
+P1 core: import PNG/JPEG/WebP (TIFF deferred until decoder evidence); drag/drop and file picker; preserve alpha and EXIF orientation where applicable; black & white, grayscale, limited color, full color and silhouette presets (line art: P2-A); adjustable threshold, palette size, detail, smoothing and speckle removal; synchronized original/vector preview; transparent background; SVG and vector PDF downloads. P2 artistic: Old Print, Halftone, Screen Print, Poster, Comic Ink. P3 experimental: woodcut, engraving, blueprint, stencil. Artistic presets must be implemented before advertising them as available.
 
 ## User stories and acceptance
 - A logo owner imports a transparent PNG and exports closed paths with holes intact; no opaque background is introduced.

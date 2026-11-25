@@ -1,0 +1,107 @@
+[
+  {
+    "engine": "chromium",
+    "version": "159.0.8154.6",
+    "ok": true,
+    "results": [
+      {
+        "name": "concert-small-venue-1280-halftone",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 0.47000000029802325,
+        "B_readbackEveryDrawMs": 65.5300000011921,
+        "C_cpuCanvasPerDrawMs": 75.55
+      },
+      {
+        "name": "architecture-street-halftone",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 0.12000000029802323,
+        "B_readbackEveryDrawMs": 474.179999999702,
+        "C_cpuCanvasPerDrawMs": 585.879999999702
+      },
+      {
+        "name": "portrait-large-color",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 13.86000000089407,
+        "B_readbackEveryDrawMs": 72.6,
+        "C_cpuCanvasPerDrawMs": 78.6
+      },
+      {
+        "name": "synthetic-many-1m",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 90.77000000029803,
+        "B_readbackEveryDrawMs": 259.62999999970197,
+        "C_cpuCanvasPerDrawMs": 293.57999999970195
+      }
+    ]
+  },
+  {
+    "engine": "firefox",
+    "version": "159.0",
+    "ok": true,
+    "results": [
+      {
+        "name": "concert-small-venue-1280-halftone",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 2.4,
+        "B_readbackEveryDrawMs": 5.6,
+        "C_cpuCanvasPerDrawMs": 76.4
+      },
+      {
+        "name": "architecture-street-halftone",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 17.4,
+        "B_readbackEveryDrawMs": 20,
+        "C_cpuCanvasPerDrawMs": 610.1
+      },
+      {
+        "name": "portrait-large-color",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 149.3,
+        "B_readbackEveryDrawMs": 152.5,
+        "C_cpuCanvasPerDrawMs": 92.9
+      },
+      {
+        "name": "synthetic-many-1m",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 774.6,
+        "B_readbackEveryDrawMs": 780.1,
+        "C_cpuCanvasPerDrawMs": 320.5
+      }
+    ]
+  },
+  {
+    "engine": "webkit",
+    "version": "27.2",
+    "ok": true,
+    "results": [
+      {
+        "name": "concert-small-venue-1280-halftone",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 19.6,
+        "B_readbackEveryDrawMs": 29.6,
+        "C_cpuCanvasPerDrawMs": 1838.4
+      },
+      {
+        "name": "architecture-street-halftone",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 173.9,
+        "B_readbackEveryDrawMs": 250.9,
+        "C_cpuCanvasPerDrawMs": 1505.9
+      },
+      {
+        "name": "portrait-large-color",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 68.7,
+        "B_readbackEveryDrawMs": 73.7,
+        "C_cpuCanvasPerDrawMs": 200.1
+      },
+      {
+        "name": "synthetic-many-1m",
+        "anchors": null,
+        "A_tenDrawsOneReadbackPerDrawMs": 514.6,
+        "B_readbackEveryDrawMs": 205.3,
+        "C_cpuCanvasPerDrawMs": 821.9
+      }
+    ]
+  }
+]

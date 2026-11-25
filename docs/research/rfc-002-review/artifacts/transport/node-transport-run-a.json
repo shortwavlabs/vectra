@@ -1,0 +1,883 @@
+{
+  "node": "v24.22.1",
+  "platform": "darwin-arm64",
+  "reps": 6,
+  "results": [
+    {
+      "kind": "real",
+      "name": "concert-small-venue-bw",
+      "encode": {
+        "mode": "encode",
+        "name": "concert-small-venue-bw",
+        "encodeMs": {
+          "cold": 0.83,
+          "p50": 0.21,
+          "max": 1.15
+        },
+        "packetBytes": 791069,
+        "binBytes": 791080,
+        "jsonBytes": 746316,
+        "jsonDeflate": 231280,
+        "binDeflate": 248110,
+        "manifestBytes": 199,
+        "paths": 184,
+        "verbs": 17973,
+        "coords": 96268
+      },
+      "json": {
+        "mode": "json",
+        "name": "concert-small-venue-bw",
+        "decodeMs": {
+          "cold": 0.12,
+          "p50": 0.1,
+          "max": 0.11
+        },
+        "cloneMs": {
+          "cold": 0.35,
+          "p50": 0.1,
+          "max": 0.11
+        },
+        "parseMs": {
+          "cold": 2.16,
+          "p50": 1.92,
+          "max": 2.24
+        },
+        "residentHeap": 918104,
+        "residentRss": 4161536,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "concert-small-venue-bw",
+        "loadMs": {
+          "cold": 0.07,
+          "p50": 0.03,
+          "max": 0.04
+        },
+        "wasmCopyOutMs": {
+          "cold": 0.07,
+          "p50": 0.03,
+          "max": 0.05
+        },
+        "cloneNoTransferMs": {
+          "cold": 0.17,
+          "p50": 0.04,
+          "max": 0.15
+        },
+        "validateMs": {
+          "cold": 1.86,
+          "p50": 0.56,
+          "max": 1.9
+        },
+        "anchors": 16816,
+        "subpaths": 1157,
+        "residentArrayBuffers": 801596,
+        "residentHeap": 162488,
+        "derivedBytes": 10516
+      }
+    },
+    {
+      "kind": "real",
+      "name": "concert-small-venue-1280-halftone",
+      "encode": {
+        "mode": "encode",
+        "name": "concert-small-venue-1280-halftone",
+        "encodeMs": {
+          "cold": 1.31,
+          "p50": 0.79,
+          "max": 1.61
+        },
+        "packetBytes": 4153550,
+        "binBytes": 4153556,
+        "jsonBytes": 3604329,
+        "jsonDeflate": 921861,
+        "binDeflate": 983133,
+        "manifestBytes": 246,
+        "paths": 1,
+        "verbs": 116454,
+        "coords": 504634
+      },
+      "json": {
+        "mode": "json",
+        "name": "concert-small-venue-1280-halftone",
+        "decodeMs": {
+          "cold": 0.36,
+          "p50": 0.14,
+          "max": 0.21
+        },
+        "cloneMs": {
+          "cold": 0.63,
+          "p50": 0.41,
+          "max": 0.44
+        },
+        "parseMs": {
+          "cold": 10.18,
+          "p50": 9.01,
+          "max": 9.65
+        },
+        "residentHeap": 4252856,
+        "residentRss": 28672000,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "concert-small-venue-1280-halftone",
+        "loadMs": {
+          "cold": 0.34,
+          "p50": 0.1,
+          "max": 0.16
+        },
+        "wasmCopyOutMs": {
+          "cold": 0.31,
+          "p50": 0.09,
+          "max": 0.13
+        },
+        "cloneNoTransferMs": {
+          "cold": 0.61,
+          "p50": 0.13,
+          "max": 0.24
+        },
+        "validateMs": {
+          "cold": 3.51,
+          "p50": 2.03,
+          "max": 4.17
+        },
+        "anchors": 97045,
+        "subpaths": 19409,
+        "residentArrayBuffers": 4231192,
+        "residentHeap": 162760,
+        "derivedBytes": 77668
+      }
+    },
+    {
+      "kind": "real",
+      "name": "architecture-street-bw",
+      "encode": {
+        "mode": "encode",
+        "name": "architecture-street-bw",
+        "encodeMs": {
+          "cold": 6.94,
+          "p50": 1.84,
+          "max": 2.29
+        },
+        "packetBytes": 6010200,
+        "binBytes": 6010208,
+        "jsonBytes": 5947740,
+        "jsonDeflate": 1525216,
+        "binDeflate": 1689330,
+        "manifestBytes": 202,
+        "paths": 4130,
+        "verbs": 141088,
+        "coords": 725378
+      },
+      "json": {
+        "mode": "json",
+        "name": "architecture-street-bw",
+        "decodeMs": {
+          "cold": 0.57,
+          "p50": 0.25,
+          "max": 0.32
+        },
+        "cloneMs": {
+          "cold": 0.99,
+          "p50": 0.66,
+          "max": 1.09
+        },
+        "parseMs": {
+          "cold": 18.65,
+          "p50": 17.01,
+          "max": 17.72
+        },
+        "residentHeap": 6726176,
+        "residentRss": 51970048,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "architecture-street-bw",
+        "loadMs": {
+          "cold": 0.52,
+          "p50": 0.15,
+          "max": 0.16
+        },
+        "wasmCopyOutMs": {
+          "cold": 0.43,
+          "p50": 0.12,
+          "max": 0.14
+        },
+        "cloneNoTransferMs": {
+          "cold": 0.9,
+          "p50": 0.22,
+          "max": 0.24
+        },
+        "validateMs": {
+          "cold": 6.07,
+          "p50": 3.22,
+          "max": 4.54
+        },
+        "anchors": 128973,
+        "subpaths": 12115,
+        "residentArrayBuffers": 6190828,
+        "residentHeap": 141080,
+        "derivedBytes": 180620
+      }
+    },
+    {
+      "kind": "real",
+      "name": "architecture-street-limited",
+      "encode": {
+        "mode": "encode",
+        "name": "architecture-street-limited",
+        "encodeMs": {
+          "cold": 9.35,
+          "p50": 4.38,
+          "max": 4.71
+        },
+        "packetBytes": 14316349,
+        "binBytes": 14316356,
+        "jsonBytes": 13764339,
+        "jsonDeflate": 3554345,
+        "binDeflate": 3903121,
+        "manifestBytes": 675,
+        "paths": 9793,
+        "verbs": 317141,
+        "coords": 1730314
+      },
+      "json": {
+        "mode": "json",
+        "name": "architecture-street-limited",
+        "decodeMs": {
+          "cold": 1.26,
+          "p50": 0.51,
+          "max": 0.67
+        },
+        "cloneMs": {
+          "cold": 2.19,
+          "p50": 1.44,
+          "max": 1.75
+        },
+        "parseMs": {
+          "cold": 42.62,
+          "p50": 39.76,
+          "max": 39.82
+        },
+        "residentHeap": 15917232,
+        "residentRss": 109264896,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "architecture-street-limited",
+        "loadMs": {
+          "cold": 1.12,
+          "p50": 0.34,
+          "max": 0.4
+        },
+        "wasmCopyOutMs": {
+          "cold": 1.09,
+          "p50": 0.32,
+          "max": 0.45
+        },
+        "cloneNoTransferMs": {
+          "cold": 2.07,
+          "p50": 0.49,
+          "max": 0.79
+        },
+        "validateMs": {
+          "cold": 9.51,
+          "p50": 7.35,
+          "max": 8.42
+        },
+        "anchors": 303869,
+        "subpaths": 13272,
+        "residentArrayBuffers": 14682820,
+        "residentHeap": 122632,
+        "derivedBytes": 366464
+      }
+    },
+    {
+      "kind": "real",
+      "name": "portrait-large-color",
+      "encode": {
+        "mode": "encode",
+        "name": "portrait-large-color",
+        "encodeMs": {
+          "cold": 26.45,
+          "p50": 12.91,
+          "max": 18.51
+        },
+        "packetBytes": 20589448,
+        "binBytes": 20589456,
+        "jsonBytes": 22548271,
+        "jsonDeflate": 6145667,
+        "binDeflate": 6354078,
+        "manifestBytes": 1412680,
+        "paths": 29944,
+        "verbs": 461264,
+        "coords": 2456134
+      },
+      "json": {
+        "mode": "json",
+        "name": "portrait-large-color",
+        "decodeMs": {
+          "cold": 1.91,
+          "p50": 0.9,
+          "max": 0.97
+        },
+        "cloneMs": {
+          "cold": 3.26,
+          "p50": 2.36,
+          "max": 2.54
+        },
+        "parseMs": {
+          "cold": 78.8,
+          "p50": 69.69,
+          "max": 70.47
+        },
+        "residentHeap": 27138256,
+        "residentRss": 166264832,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "portrait-large-color",
+        "loadMs": {
+          "cold": 1.59,
+          "p50": 0.5,
+          "max": 0.77
+        },
+        "wasmCopyOutMs": {
+          "cold": 1.53,
+          "p50": 0.52,
+          "max": 0.67
+        },
+        "cloneNoTransferMs": {
+          "cold": 2.87,
+          "p50": 0.8,
+          "max": 1.31
+        },
+        "validateMs": {
+          "cold": 13.95,
+          "p50": 12.47,
+          "max": 14.41
+        },
+        "anchors": 430119,
+        "subpaths": 31145,
+        "residentArrayBuffers": 21672244,
+        "residentHeap": -1287472,
+        "derivedBytes": 1082788
+      }
+    },
+    {
+      "kind": "real",
+      "name": "portrait-face-limited",
+      "encode": {
+        "mode": "encode",
+        "name": "portrait-face-limited",
+        "encodeMs": {
+          "cold": 14.78,
+          "p50": 8.89,
+          "max": 13.09
+        },
+        "packetBytes": 31862857,
+        "binBytes": 31862872,
+        "jsonBytes": 30542560,
+        "jsonDeflate": 7614118,
+        "binDeflate": 8350228,
+        "manifestBytes": 676,
+        "paths": 18584,
+        "verbs": 702241,
+        "coords": 3857908
+      },
+      "json": {
+        "mode": "json",
+        "name": "portrait-face-limited",
+        "decodeMs": {
+          "cold": 10.61,
+          "p50": 1.16,
+          "max": 1.27
+        },
+        "cloneMs": {
+          "cold": 5.2,
+          "p50": 3.23,
+          "max": 3.45
+        },
+        "parseMs": {
+          "cold": 89.32,
+          "p50": 85.55,
+          "max": 93.81
+        },
+        "residentHeap": 34783616,
+        "residentRss": 213925888,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "portrait-face-limited",
+        "loadMs": {
+          "cold": 2.31,
+          "p50": 0.71,
+          "max": 0.74
+        },
+        "wasmCopyOutMs": {
+          "cold": 2.28,
+          "p50": 0.72,
+          "max": 0.84
+        },
+        "cloneNoTransferMs": {
+          "cold": 4.8,
+          "p50": 1.54,
+          "max": 2.01
+        },
+        "validateMs": {
+          "cold": 15.9,
+          "p50": 17.27,
+          "max": 18.09
+        },
+        "anchors": 670486,
+        "subpaths": 31755,
+        "residentArrayBuffers": 32584580,
+        "residentHeap": -870720,
+        "derivedBytes": 721708
+      }
+    },
+    {
+      "kind": "real",
+      "name": "architecture-street-halftone",
+      "encode": {
+        "mode": "encode",
+        "name": "architecture-street-halftone",
+        "encodeMs": {
+          "cold": 7.21,
+          "p50": 6.86,
+          "max": 9.22
+        },
+        "packetBytes": 41837238,
+        "binBytes": 41837244,
+        "jsonBytes": 39711766,
+        "jsonDeflate": 9855331,
+        "binDeflate": 10038023,
+        "manifestBytes": 250,
+        "paths": 1,
+        "verbs": 1173006,
+        "coords": 5083026
+      },
+      "json": {
+        "mode": "json",
+        "name": "architecture-street-halftone",
+        "decodeMs": {
+          "cold": 3.64,
+          "p50": 1.78,
+          "max": 2.07
+        },
+        "cloneMs": {
+          "cold": 6.36,
+          "p50": 4.36,
+          "max": 4.65
+        },
+        "parseMs": {
+          "cold": 102.55,
+          "p50": 99.38,
+          "max": 103.12
+        },
+        "residentHeap": 41936544,
+        "residentRss": 213811200,
+        "paths": 1
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "architecture-street-halftone",
+        "loadMs": {
+          "cold": 2.81,
+          "p50": 0.79,
+          "max": 1.32
+        },
+        "wasmCopyOutMs": {
+          "cold": 2.9,
+          "p50": 1.08,
+          "max": 1.16
+        },
+        "cloneNoTransferMs": {
+          "cold": 7.38,
+          "p50": 1.87,
+          "max": 2.2
+        },
+        "validateMs": {
+          "cold": 18.44,
+          "p50": 18.97,
+          "max": 20.87
+        },
+        "anchors": 977505,
+        "subpaths": 195501,
+        "residentArrayBuffers": 42619248,
+        "residentHeap": -872736,
+        "derivedBytes": 782036
+      }
+    },
+    {
+      "kind": "synth",
+      "name": "synthetic-many-10k",
+      "encode": {
+        "mode": "encode",
+        "name": "synthetic-many-10k",
+        "encodeMs": {
+          "cold": 1.19,
+          "p50": 0.53,
+          "max": 0.76
+        },
+        "packetBytes": 454488,
+        "binBytes": 454492,
+        "jsonBytes": 577692,
+        "jsonDeflate": 111978,
+        "binDeflate": 118522,
+        "manifestBytes": 1374,
+        "paths": 1655,
+        "verbs": 12000,
+        "coords": 52000
+      },
+      "json": {
+        "mode": "json",
+        "name": "synthetic-many-10k",
+        "decodeMs": {
+          "cold": 0.14,
+          "p50": 0.07,
+          "max": 0.09
+        },
+        "cloneMs": {
+          "cold": 0.24,
+          "p50": 0.08,
+          "max": 0.11
+        },
+        "parseMs": {
+          "cold": 1.49,
+          "p50": 1.49,
+          "max": 1.51
+        },
+        "residentHeap": 791512,
+        "residentRss": 4653056,
+        "paths": 8
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "synthetic-many-10k",
+        "loadMs": {
+          "cold": 0.06,
+          "p50": 0.03,
+          "max": 0.08
+        },
+        "wasmCopyOutMs": {
+          "cold": 0.05,
+          "p50": 0.02,
+          "max": 0.04
+        },
+        "cloneNoTransferMs": {
+          "cold": 0.09,
+          "p50": 0.03,
+          "max": 0.11
+        },
+        "validateMs": {
+          "cold": 1.45,
+          "p50": 1.25,
+          "max": 1.36
+        },
+        "anchors": 10000,
+        "subpaths": 2000,
+        "residentArrayBuffers": 515452,
+        "residentHeap": 121944,
+        "derivedBytes": 60960
+      }
+    },
+    {
+      "kind": "synth",
+      "name": "synthetic-many-100k",
+      "encode": {
+        "mode": "encode",
+        "name": "synthetic-many-100k",
+        "encodeMs": {
+          "cold": 6.42,
+          "p50": 3.69,
+          "max": 3.91
+        },
+        "packetBytes": 4546936,
+        "binBytes": 4546940,
+        "jsonBytes": 5780482,
+        "jsonDeflate": 1109399,
+        "binDeflate": 1180522,
+        "manifestBytes": 1377,
+        "paths": 16683,
+        "verbs": 120000,
+        "coords": 520000
+      },
+      "json": {
+        "mode": "json",
+        "name": "synthetic-many-100k",
+        "decodeMs": {
+          "cold": 0.5,
+          "p50": 0.32,
+          "max": 0.35
+        },
+        "cloneMs": {
+          "cold": 0.92,
+          "p50": 0.73,
+          "max": 0.93
+        },
+        "parseMs": {
+          "cold": 18.91,
+          "p50": 15.37,
+          "max": 15.56
+        },
+        "residentHeap": 7034744,
+        "residentRss": 44859392,
+        "paths": 8
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "synthetic-many-100k",
+        "loadMs": {
+          "cold": 0.39,
+          "p50": 0.12,
+          "max": 0.13
+        },
+        "wasmCopyOutMs": {
+          "cold": 0.32,
+          "p50": 0.08,
+          "max": 0.12
+        },
+        "cloneNoTransferMs": {
+          "cold": 0.73,
+          "p50": 0.16,
+          "max": 0.17
+        },
+        "validateMs": {
+          "cold": 5.56,
+          "p50": 2.44,
+          "max": 4.05
+        },
+        "anchors": 100000,
+        "subpaths": 20000,
+        "residentArrayBuffers": 5160796,
+        "residentHeap": 161192,
+        "derivedBytes": 613856
+      }
+    },
+    {
+      "kind": "synth",
+      "name": "synthetic-many-250k",
+      "encode": {
+        "mode": "encode",
+        "name": "synthetic-many-250k",
+        "encodeMs": {
+          "cold": 11.79,
+          "p50": 8.72,
+          "max": 9.01
+        },
+        "packetBytes": 11369656,
+        "binBytes": 11369660,
+        "jsonBytes": 14457070,
+        "jsonDeflate": 2771523,
+        "binDeflate": 2955924,
+        "manifestBytes": 1378,
+        "paths": 41853,
+        "verbs": 300000,
+        "coords": 1300000
+      },
+      "json": {
+        "mode": "json",
+        "name": "synthetic-many-250k",
+        "decodeMs": {
+          "cold": 1.74,
+          "p50": 0.65,
+          "max": 0.74
+        },
+        "cloneMs": {
+          "cold": 2.87,
+          "p50": 1.53,
+          "max": 3.31
+        },
+        "parseMs": {
+          "cold": 42.68,
+          "p50": 38.65,
+          "max": 41.66
+        },
+        "residentHeap": 17456504,
+        "residentRss": 134152192,
+        "paths": 8
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "synthetic-many-250k",
+        "loadMs": {
+          "cold": 0.79,
+          "p50": 0.27,
+          "max": 0.38
+        },
+        "wasmCopyOutMs": {
+          "cold": 0.68,
+          "p50": 0.23,
+          "max": 0.36
+        },
+        "cloneNoTransferMs": {
+          "cold": 1.6,
+          "p50": 0.41,
+          "max": 0.68
+        },
+        "validateMs": {
+          "cold": 8.25,
+          "p50": 6.22,
+          "max": 6.33
+        },
+        "anchors": 250000,
+        "subpaths": 50000,
+        "residentArrayBuffers": 12908956,
+        "residentHeap": 121904,
+        "derivedBytes": 1539296
+      }
+    },
+    {
+      "kind": "synth",
+      "name": "synthetic-many-500k",
+      "encode": {
+        "mode": "encode",
+        "name": "synthetic-many-500k",
+        "encodeMs": {
+          "cold": 20.38,
+          "p50": 17.72,
+          "max": 23.95
+        },
+        "packetBytes": 22733166,
+        "binBytes": 22733172,
+        "jsonBytes": 28877972,
+        "jsonDeflate": 5538103,
+        "binDeflate": 5905121,
+        "manifestBytes": 1378,
+        "paths": 83309,
+        "verbs": 600006,
+        "coords": 2600026
+      },
+      "json": {
+        "mode": "json",
+        "name": "synthetic-many-500k",
+        "decodeMs": {
+          "cold": 2.64,
+          "p50": 1.14,
+          "max": 1.49
+        },
+        "cloneMs": {
+          "cold": 4.3,
+          "p50": 2.97,
+          "max": 3.94
+        },
+        "parseMs": {
+          "cold": 85.68,
+          "p50": 76.14,
+          "max": 82.9
+        },
+        "residentHeap": 34763112,
+        "residentRss": 236912640,
+        "paths": 8
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "synthetic-many-500k",
+        "loadMs": {
+          "cold": 1.71,
+          "p50": 0.45,
+          "max": 0.51
+        },
+        "wasmCopyOutMs": {
+          "cold": 1.77,
+          "p50": 0.45,
+          "max": 0.53
+        },
+        "cloneNoTransferMs": {
+          "cold": 3.33,
+          "p50": 0.8,
+          "max": 1.08
+        },
+        "validateMs": {
+          "cold": 11.36,
+          "p50": 10.04,
+          "max": 10.16
+        },
+        "anchors": 500005,
+        "subpaths": 100001,
+        "residentArrayBuffers": 25799064,
+        "residentHeap": -873880,
+        "derivedBytes": 3065892
+      }
+    },
+    {
+      "kind": "synth",
+      "name": "synthetic-many-1m",
+      "encode": {
+        "mode": "encode",
+        "name": "synthetic-many-1m",
+        "encodeMs": {
+          "cold": 56.1,
+          "p50": 38.05,
+          "max": 47.17
+        },
+        "packetBytes": 45465576,
+        "binBytes": 45465584,
+        "jsonBytes": 57734665,
+        "jsonDeflate": 11074512,
+        "binDeflate": 11811917,
+        "manifestBytes": 1380,
+        "paths": 166598,
+        "verbs": 1200000,
+        "coords": 5200000
+      },
+      "json": {
+        "mode": "json",
+        "name": "synthetic-many-1m",
+        "decodeMs": {
+          "cold": 5.84,
+          "p50": 1.87,
+          "max": 2.3
+        },
+        "cloneMs": {
+          "cold": 9.62,
+          "p50": 6.16,
+          "max": 6.69
+        },
+        "parseMs": {
+          "cold": 170.1,
+          "p50": 157.85,
+          "max": 168.41
+        },
+        "residentHeap": 69423864,
+        "residentRss": 399425536,
+        "paths": 8
+      },
+      "packet": {
+        "mode": "packet",
+        "name": "synthetic-many-1m",
+        "loadMs": {
+          "cold": 3.64,
+          "p50": 0.8,
+          "max": 1.09
+        },
+        "wasmCopyOutMs": {
+          "cold": 2.93,
+          "p50": 1.04,
+          "max": 1.33
+        },
+        "cloneNoTransferMs": {
+          "cold": 6.98,
+          "p50": 2.3,
+          "max": 2.43
+        },
+        "validateMs": {
+          "cold": 17.38,
+          "p50": 16.04,
+          "max": 16.47
+        },
+        "anchors": 1000000,
+        "subpaths": 200000,
+        "residentArrayBuffers": 51596720,
+        "residentHeap": -873544,
+        "derivedBytes": 6131136
+      }
+    }
+  ]
+}

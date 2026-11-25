@@ -1,0 +1,245 @@
+{
+  "chromium": {
+    "CSP header is the _headers policy; mitigated build loads clean; detector fires": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "positive control: without CSPProvider, Base UI inline <style> is blocked": {
+      "violations": [
+        {
+          "step": "load (ScrollArea)",
+          "directive": "style-src-elem",
+          "blocked": "inline",
+          "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+          "line": 9,
+          "sample": ""
+        }
+      ],
+      "console": [],
+      "external": []
+    },
+    "tool rail: names, pressed state, tooltip on keyboard focus": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "dialog: keyboard open, focus trap, Escape closes, focus returns": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "popover: keyboard open/close and focus return": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "slider: transient previews vs commits (keyboard and drag)": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "numeric input: commit on Enter, clamp, Escape reverts": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "colour picker: keyboard, hex entry, Apply commits once, Escape cancels": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "sortable: keyboard reorder (Space, ArrowDown, Space)": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "sortable: mouse drag reorder": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "resizable: keyboard and pointer resize update canvas CSS and backing size": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "file input: keyboard-opened chooser, local File only, zero requests": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "global shortcut: fires on canvas, not in inputs or dialogs": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "screenshot": {
+      "violations": [],
+      "console": [],
+      "external": []
+    }
+  },
+  "firefox": {
+    "CSP header is the _headers policy; mitigated build loads clean; detector fires": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "positive control: without CSPProvider, Base UI inline <style> is blocked": {
+      "violations": [
+        {
+          "step": "load (ScrollArea)",
+          "directive": "style-src-elem",
+          "blocked": "inline",
+          "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+          "line": 9,
+          "sample": ""
+        }
+      ],
+      "console": [],
+      "external": []
+    },
+    "tool rail: names, pressed state, tooltip on keyboard focus": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "dialog: keyboard open, focus trap, Escape closes, focus returns": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "popover: keyboard open/close and focus return": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "slider: transient previews vs commits (keyboard and drag)": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "numeric input: commit on Enter, clamp, Escape reverts": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "colour picker: keyboard, hex entry, Apply commits once, Escape cancels": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "sortable: keyboard reorder (Space, ArrowDown, Space)": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "sortable: mouse drag reorder": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "resizable: keyboard and pointer resize update canvas CSS and backing size": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "file input: keyboard-opened chooser, local File only, zero requests": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "global shortcut: fires on canvas, not in inputs or dialogs": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "screenshot": {
+      "violations": [],
+      "console": [],
+      "external": []
+    }
+  },
+  "webkit": {
+    "CSP header is the _headers policy; mitigated build loads clean; detector fires": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "positive control: without CSPProvider, Base UI inline <style> is blocked": {
+      "violations": [
+        {
+          "step": "load (ScrollArea)",
+          "directive": "style-src-elem",
+          "blocked": "inline",
+          "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+          "line": 9,
+          "sample": ""
+        }
+      ],
+      "console": [],
+      "external": []
+    },
+    "tool rail: names, pressed state, tooltip on keyboard focus": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "dialog: keyboard open, focus trap, Escape closes, focus returns": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "popover: keyboard open/close and focus return": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "slider: transient previews vs commits (keyboard and drag)": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "numeric input: commit on Enter, clamp, Escape reverts": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "colour picker: keyboard, hex entry, Apply commits once, Escape cancels": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "sortable: keyboard reorder (Space, ArrowDown, Space)": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "sortable: mouse drag reorder": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "resizable: keyboard and pointer resize update canvas CSS and backing size": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "file input: keyboard-opened chooser, local File only, zero requests": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "global shortcut: fires on canvas, not in inputs or dialogs": {
+      "violations": [],
+      "console": [],
+      "external": []
+    },
+    "screenshot": {
+      "violations": [],
+      "console": [],
+      "external": []
+    }
+  }
+}

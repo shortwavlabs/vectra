@@ -25,7 +25,7 @@ Use lucide-react in implementation; confirm exact exports in pinned package. Ico
 Additional artistic tools: Carve (Brush), Stipple (CircleDot), Geometrize (Triangle); P3 candidates. Keep these inside the Style inspector until rail usability is tested.
 
 ## Preset taxonomy
-Core: Black & White, Grayscale, Full Color, Limited Color, Line Art, Silhouette.
+Core: Black & White, Grayscale, Full Color, Limited Color, Line Art, Silhouette. *(G-0: P1 core is B&W, Full Colour, Limited Palette, Grayscale, Silhouette; Line Art is P2-A; RFC-002 §18.)*
 Print: Old Print, Halftone, Screen Print, Poster, Comic Ink.
 DIY Underground: Xerox (working label; trademark review before public naming), Newsprint, Hardcore, Cut & Paste, Copy of a Copy, Bootleg.
 Advanced: Woodcut, Engraving, Blueprint, Stencil, Stipple, Geometrize.
@@ -56,7 +56,7 @@ Candidate sources for follow-up, not pinned dependencies or verified benchmarks:
 - [Lucide](https://lucide.dev/): icon system and accessibility integration.
 - [SVG 2 paths](https://www.w3.org/TR/SVG2/paths.html): interchange semantics.
 
-Propose RFC-002 after P0: editable document (stable IDs, layers, groups, source asset references), command history (atomic edits), versioned effect recipes, derived render scene shared by preview/export. Source raster stays local and excluded from export. Separate source-dependent effects from vector-only modifiers; reordering must respect input type/dependency. Bake produces new editable geometry, preserves history, and warns if complexity cap approached. Project format candidate: bounded archive containing manifest, local source blobs, document JSON and effect recipes; schema migrations, path traversal/size limits, explicit local saves. No arbitrary executable recipes.
+Propose RFC-002 after P0: editable document (stable IDs, layers, groups, source asset references), command history (atomic edits), versioned effect recipes, derived render scene shared by preview/export. Source raster stays local and excluded from export. Separate source-dependent effects from vector-only modifiers; reordering must respect input type/dependency. Bake produces new editable geometry, preserves history, and warns if complexity cap approached. Project format candidate: bounded archive containing manifest, local source blobs, document JSON and effect recipes; schema migrations, path traversal/size limits, explicit local saves. *(Decided at G-0: bounded `.vectra` container v1, RFC-002 §14.)* No arbitrary executable recipes.
 
 ## Validation extensions
 - Smooth vs simplify: compare curvature changes and point counts separately; enforce max deviation for simplify, protect holes/corners.

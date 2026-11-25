@@ -1,0 +1,134 @@
+[
+  {
+    "engine": "chromium",
+    "version": "159.0.8154.6",
+    "name": "synthetic-correctness",
+    "errors": [],
+    "ok": true,
+    "W": 800,
+    "H": 600,
+    "dpr": 1,
+    "placeholderNonWhite": 158527
+  },
+  {
+    "engine": "chromium",
+    "version": "159.0.8154.6",
+    "name": "synthetic-correctness",
+    "errors": [],
+    "ok": true,
+    "W": 1600,
+    "H": 1200,
+    "dpr": 1,
+    "placeholderNonWhite": 630157
+  },
+  {
+    "engine": "chromium",
+    "version": "159.0.8154.6",
+    "name": "nested_rings-color-precision",
+    "errors": [],
+    "ok": true,
+    "W": 1024,
+    "H": 1024,
+    "dpr": 1,
+    "placeholderNonWhite": 369928
+  },
+  {
+    "engine": "chromium",
+    "version": "159.0.8154.6",
+    "name": "logo_transparent_hole-color-precision",
+    "errors": [],
+    "ok": true,
+    "W": 1024,
+    "H": 1024,
+    "dpr": 1,
+    "placeholderNonWhite": 1028697
+  },
+  {
+    "engine": "firefox",
+    "version": "159.0",
+    "name": "synthetic-correctness",
+    "errors": [],
+    "ok": true,
+    "W": 800,
+    "H": 600,
+    "dpr": 1,
+    "placeholderNonWhite": 159379
+  },
+  {
+    "engine": "firefox",
+    "version": "159.0",
+    "name": "synthetic-correctness",
+    "errors": [],
+    "ok": true,
+    "W": 1600,
+    "H": 1200,
+    "dpr": 1,
+    "placeholderNonWhite": 632230
+  },
+  {
+    "engine": "firefox",
+    "version": "159.0",
+    "name": "nested_rings-color-precision",
+    "errors": [],
+    "ok": true,
+    "W": 1024,
+    "H": 1024,
+    "dpr": 1,
+    "placeholderNonWhite": 371312
+  },
+  {
+    "engine": "firefox",
+    "version": "159.0",
+    "name": "logo_transparent_hole-color-precision",
+    "errors": [],
+    "ok": true,
+    "W": 1024,
+    "H": 1024,
+    "dpr": 1,
+    "placeholderNonWhite": 1028762
+  },
+  {
+    "engine": "webkit",
+    "version": "27.2",
+    "name": "synthetic-correctness",
+    "errors": [],
+    "ok": true,
+    "W": 800,
+    "H": 600,
+    "dpr": 1,
+    "placeholderNonWhite": 0
+  },
+  {
+    "engine": "webkit",
+    "version": "27.2",
+    "name": "synthetic-correctness",
+    "errors": [],
+    "ok": true,
+    "W": 1600,
+    "H": 1200,
+    "dpr": 1,
+    "placeholderNonWhite": 0
+  },
+  {
+    "engine": "webkit",
+    "version": "27.2",
+    "name": "nested_rings-color-precision",
+    "errors": [],
+    "ok": true,
+    "W": 1024,
+    "H": 1024,
+    "dpr": 1,
+    "placeholderNonWhite": 0
+  },
+  {
+    "engine": "webkit",
+    "version": "27.2",
+    "name": "logo_transparent_hole-color-precision",
+    "errors": [],
+    "ok": true,
+    "W": 1024,
+    "H": 1024,
+    "dpr": 1,
+    "placeholderNonWhite": 0
+  }
+]

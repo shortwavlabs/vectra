@@ -1,0 +1,263 @@
+{
+  "note": "Registry URLs are unversioned; hashes pin the content observed. Copied via the pinned CLI; patched files differ only by the R05-A accessible-name patch (see report).",
+  "cli": {
+    "package": "shadcn@4.23.0",
+    "license": "MIT",
+    "command": "DO_NOT_TRACK=1 pnpm --ignore-workspace dlx shadcn@4.23.0 add --yes button input slider tooltip popover dialog dropdown-menu resizable scroll-area https://diceui.com/r/color-picker.json https://diceui.com/r/sortable.json https://diceui.com/r/file-upload.json",
+    "telemetry": "no telemetry/analytics strings found in dist (grep telemetry|posthog|DO_NOT_TRACK)"
+  },
+  "registry_json_fetched_at": "2026-11-24T22:42:09Z",
+  "registry_json_stable_vs_earlier_fetch": true,
+  "upstream_heads_at_spike": {
+    "shadcn-ui/ui": "055aa6b7837b1808456a24beb4c97a677864aa82 (2026-11-23, MIT)",
+    "sadmann7/diceui": "8b94856ee5c4387ab869fb7b09ee8f2e1b8ce669 (2026-11-23, MIT, Copyright (c) 2024 Sadman Sakib)",
+    "mui/base-ui": "df283577954738d028f43629af7d50e96200dd82 (2026-11-24, MIT)"
+  },
+  "other_copied": [
+    {
+      "path": "src/shadcn-tailwind.css",
+      "source": "shadcn@4.23.0 npm tarball dist/tailwind.css (MIT, Copyright (c) 2023 shadcn)",
+      "sha256": "4c371f7a1ff5d219ae2f7ff28bd256b4346fd546fe46fbae22092e57db2f0fae"
+    }
+  ],
+  "items": [
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "button",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/button.json",
+      "json_sha256": "9ba7e870178813f0552b818a913a2792fb500c779e36395740b4973e3025d427",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/button.tsx",
+          "sha256_as_written_by_cli": "313353436d0fcc8e44ab470adb614b9fd013d28626f624328ea0d66d41a6c81b",
+          "sha256_current": "313353436d0fcc8e44ab470adb614b9fd013d28626f624328ea0d66d41a6c81b",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "input",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/input.json",
+      "json_sha256": "bbad1bba130ac9750a61844eeb8f043e8a710846e07689fa85398b80a46c2741",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/input.tsx",
+          "sha256_as_written_by_cli": "dab990dfefa0ba78854ab6602ad074270dba9d7d1262184d9bfbb62bd990903b",
+          "sha256_current": "dab990dfefa0ba78854ab6602ad074270dba9d7d1262184d9bfbb62bd990903b",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "slider",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/slider.json",
+      "json_sha256": "646bcd7913417b786bbf7578484f851bf89c81a62f70ef9c4f3522e2af80a951",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/slider.tsx",
+          "sha256_as_written_by_cli": "1fd32ee03ddaa382aabccce0bd88669aa8f91e4fe487622a68745d2ed1d5f5b9",
+          "sha256_current": "ed5e3fed144a485a91a3335ebac2d9d618e8b9cf3b9fd2f6a3ea29f3a4e6e51b",
+          "locally_patched": true
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "tooltip",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/tooltip.json",
+      "json_sha256": "2f55867faecee2d3616cfd8c6a80b538909a21e62fdfa2788b1ead56093e5395",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "sha256_as_written_by_cli": "100101631756e1bebc1f1831e1642b26cd11a6a6c4affb6c638c42001dc14e83",
+          "sha256_current": "100101631756e1bebc1f1831e1642b26cd11a6a6c4affb6c638c42001dc14e83",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "popover",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/popover.json",
+      "json_sha256": "ba5fe84f353f6c0fd2133a2ab893f5e8861fc60dc4dea548a7ec875acaa37b2c",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/popover.tsx",
+          "sha256_as_written_by_cli": "b6bc5045e7b67414816f813788b5f699d0cc5e4a23debe76c89a6ddb68079c26",
+          "sha256_current": "b6bc5045e7b67414816f813788b5f699d0cc5e4a23debe76c89a6ddb68079c26",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "dialog",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/dialog.json",
+      "json_sha256": "40fc321d25eb9590d07db54b00d9bc1a74274a549aa06d5915a34ba302ed8b94",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "sha256_as_written_by_cli": "e1a331d1617ef6381511f537c5652b13e1f9a4d627a25d80853d6171b7e8b8a5",
+          "sha256_current": "e1a331d1617ef6381511f537c5652b13e1f9a4d627a25d80853d6171b7e8b8a5",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "dropdown-menu",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/dropdown-menu.json",
+      "json_sha256": "335c59dba30145f434a9cc9ccb0438a3c5e2afe857fc11b029de1ecb415224d7",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "sha256_as_written_by_cli": "38eb2d79c390295e7038ed4c016543afdd5441611e9692f10c85f78434752a3f",
+          "sha256_current": "38eb2d79c390295e7038ed4c016543afdd5441611e9692f10c85f78434752a3f",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "resizable",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/resizable.json",
+      "json_sha256": "7415e497f342485720b6c878c81604eda0aa8b479a2211e4355c324de89a1672",
+      "deps": ["cn", "react-resizable-panels"],
+      "files": [
+        {
+          "path": "src/components/ui/resizable.tsx",
+          "sha256_as_written_by_cli": "c45c4e1a32aefb83d60406366e2368b9d8a6e772406f8b964154e7202d6304f7",
+          "sha256_current": "c45c4e1a32aefb83d60406366e2368b9d8a6e772406f8b964154e7202d6304f7",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "scroll-area",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/scroll-area.json",
+      "json_sha256": "be6cdcfbf02a2fa091ec92cb2bc34e35b8a4e4b3a2d041973cfcd68396e6da1d",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "sha256_as_written_by_cli": "6befabe60becf093bb0740e172e50447c2ae70d757abb08fa2d479b4f2a511ff",
+          "sha256_current": "6befabe60becf093bb0740e172e50447c2ae70d757abb08fa2d479b4f2a511ff",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "select",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/select.json",
+      "json_sha256": "425e9b0a28b72617f18fabd75384050113295b88e7ba01c35bede2c72bd5d476",
+      "deps": ["cn"],
+      "files": [
+        {
+          "path": "src/components/ui/select.tsx",
+          "sha256_as_written_by_cli": "d3c275e0212325c0bba459800fb155839783d33d5c91d363b5b974973aa7e9e0",
+          "sha256_current": "d3c275e0212325c0bba459800fb155839783d33d5c91d363b5b974973aa7e9e0",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "shadcn/ui",
+      "style": "base-nova",
+      "item": "direction",
+      "url": "https://ui.shadcn.com/r/styles/base-nova/direction.json",
+      "json_sha256": "bf226602a949b5da7b3f8b3cbd0ed962d1e5d8a76c634055cdb05816c6bd1f32",
+      "deps": ["@base-ui/react"],
+      "files": [
+        {
+          "path": "src/components/ui/direction.tsx",
+          "sha256_as_written_by_cli": "661ff5b9c0dc26edde1226bfedc0ab50976d84f8bae42ca83a38dc3b478fd4d4",
+          "sha256_current": "661ff5b9c0dc26edde1226bfedc0ab50976d84f8bae42ca83a38dc3b478fd4d4",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "Dice UI (diceui/base)",
+      "item": "color-picker",
+      "url": "https://diceui.com/r/color-picker.json",
+      "json_sha256": "58c55c6a07d5a216e421626fbf28ba00b51ac37735554d9aa027bf6e2b289e39",
+      "deps": ["cn", "@base-ui/react", "@base-ui/utils"],
+      "registryDependencies": ["button", "input", "popover", "select", "direction"],
+      "files": [
+        {
+          "path": "src/components/ui/color-picker.tsx",
+          "sha256_as_written_by_cli": "3585dba7bebdbf994d21ae1d8400e1259e35e4707bf707ef7502f381db7c0647",
+          "sha256_current": "ba9eb01c74abddcef60584ce109843509e0b9e2196581edbeceea698501671c6",
+          "locally_patched": true
+        },
+        {
+          "path": "src/components/visually-hidden-input.tsx",
+          "sha256_as_written_by_cli": "6d73d4f04524bce4e494c9b986d1740ccd3deca3556b25608383bcbf71112b43",
+          "sha256_current": "6d73d4f04524bce4e494c9b986d1740ccd3deca3556b25608383bcbf71112b43",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "Dice UI (diceui/base)",
+      "item": "sortable",
+      "url": "https://diceui.com/r/sortable.json",
+      "json_sha256": "a50701d9b772d765dc35fcc2ec0b0c89751e6e5d40b472ca1971c808a5f36d20",
+      "deps": [
+        "cn",
+        "@base-ui/react",
+        "@base-ui/utils",
+        "@dnd-kit/core",
+        "@dnd-kit/modifiers",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "src/components/ui/sortable.tsx",
+          "sha256_as_written_by_cli": "cec925e9ba25a7eea79b7b508ab801bec7a3f4bfa0f90d7b89497bc1b5c6be92",
+          "sha256_current": "cec925e9ba25a7eea79b7b508ab801bec7a3f4bfa0f90d7b89497bc1b5c6be92",
+          "locally_patched": false
+        }
+      ]
+    },
+    {
+      "registry": "Dice UI (diceui/base)",
+      "item": "file-upload",
+      "url": "https://diceui.com/r/file-upload.json",
+      "json_sha256": "68e5bce9a975190626c52dbd71a2dbae8ba9bbde78bfaffb1d042347ca6fc9ed",
+      "deps": ["cn", "@base-ui/react", "@base-ui/utils"],
+      "registryDependencies": ["direction"],
+      "files": [
+        {
+          "path": "src/components/ui/file-upload.tsx",
+          "sha256_as_written_by_cli": "6e1e8ae4f6e526ffeecfa8256479db7363d2d7bd28651b74be8f778c685a264f",
+          "sha256_current": "6e1e8ae4f6e526ffeecfa8256479db7363d2d7bd28651b74be8f778c685a264f",
+          "locally_patched": false
+        }
+      ]
+    }
+  ]
+}

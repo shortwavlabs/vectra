@@ -1,0 +1,16 @@
+# R04 hash confirmation at HEAD 0e32fdabdbfa9aae5f7613be46c60dee375ca788 (branch review/rfc-002-architecture), Tue Nov 24 22:47:53 UTC 2026
+# rustc: rustc 1.96.0 (ac68faa20 2026-05-25) ; cargo: cargo 1.96.0 (30a34c682 2026-05-25)
+## commands
+cargo build --release --locked -p vector-engine --examples
+./target/release/examples/geo_bundle tests/output/rfc002-r04/bundle-v2            # 5.16s user
+./target/release/examples/regression_corpus tests/output/rfc002-r04/regression tests/output/regression-inputs/*.png   # 7:03.24 total
+(cd tests/output/regression-inputs && shasum -a 256 *.png) | diff - docs/research/p0-r-geo/artifacts/regression/inputs.sha256   -> identical (9 inputs)
+## bundle v2 (Artistic = p0-spline, Precision = corrected-precision), SVG + PDF
+committed files vs regenerated: IDENTICAL (72 files: 18 cases x 2 fits x SVG/PDF)
+MANIFEST.json svgSha256/pdfSha256 vs regenerated: 72 checked, 0 mismatches
+## byte regression corpus (114 cases: 13 procedural x 6 modes + 9 photos x 4 default modes; scene JSON, SVG, PDF)
+regenerated vs docs/research/p0-r-geo/artifacts/regression/a4cf172.sha256: IDENTICAL (326 hashes)
+regenerated vs baseline-7cdde36.sha256 (pre-P0-R-GEO): IDENTICAL
+## spike cross-check (experiments/rfc-002-review/shared-boundary)
+production precision SVG for 04 / discs-two-deep / h-discs-three / adjacent-overlap == bundle v2 04 / 22 / 21 / 20 corrected-precision.svg: true x4
+replica of trace.rs precision_compose through the public API: max coordinate difference vs production 0.0 on all 6 fixtures

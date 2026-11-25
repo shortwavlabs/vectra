@@ -1,0 +1,5 @@
+html, body { margin: 0; padding: 0; overflow: hidden; background: #303134; }
+#stage { position: relative; overflow: hidden; }
+#stage.white { background: #fff; }
+#stage canvas, #stage svg { display: block; }
+.svgimg { position: absolute; left: 0; top: 0; transform-origin: 0 0; }

@@ -1,0 +1,849 @@
+{
+  "env": {
+    "playwright": "1.65.1",
+    "startTime": "2026-11-24T22:55:51.533Z",
+    "stats": {
+      "startTime": "2026-11-24T22:55:51.533Z",
+      "duration": 32535.7,
+      "expected": 42,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "results": [
+    {
+      "test": "CSP header is the _headers policy; mitigated build loads clean; detector fires",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 638,
+      "retries": 0,
+      "notes": {
+        "scrollbar-width on .base-ui-disable-scrollbar": "none",
+        "control": [
+          {
+            "step": "negative-control-injected-style",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "",
+            "line": 1,
+            "sample": ""
+          }
+        ],
+        "control console errors (expected, removed)": [
+          "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-7yqHVAesot11p6HczDsgKRipvI5UPgs97z80zNXlans='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked."
+        ],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "CSP header is the _headers policy; mitigated build loads clean; detector fires",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 1289,
+      "retries": 0,
+      "notes": {
+        "scrollbar-width on .base-ui-disable-scrollbar": "none",
+        "control": [
+          {
+            "step": "negative-control-injected-style",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "debugger eval code line 370 > eval",
+            "line": 1,
+            "sample": ""
+          }
+        ],
+        "control console errors (expected, removed)": [
+          "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked an inline style (style-src-elem) from being applied because it violates the following directive: “style-src 'self'”. Consider using a hash ('sha256-7yqHVAesot11p6HczDsgKRipvI5UPgs97z80zNXlans=', requires 'unsafe-hashes' for style attributes) or a nonce.\" {file: \"debugger eval code line 370 > eval\" line: 1}]"
+        ],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "CSP header is the _headers policy; mitigated build loads clean; detector fires",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 1012,
+      "retries": 0,
+      "notes": {
+        "scrollbar-width on .base-ui-disable-scrollbar": "none",
+        "control": [
+          {
+            "step": "negative-control-injected-style",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "",
+            "line": 1,
+            "sample": ""
+          }
+        ],
+        "control console errors (expected, removed)": [
+          "Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."
+        ],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "positive control: without CSPProvider, Base UI inline <style> is blocked",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 940,
+      "retries": 0,
+      "notes": {
+        "violations": {
+          "load": [
+            {
+              "step": "load (ScrollArea)",
+              "directive": "style-src-elem",
+              "blocked": "inline",
+              "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+              "line": 9,
+              "sample": ""
+            }
+          ],
+          "select": []
+        },
+        "expected CSP console messages": [
+          "Applying inline style violates the following Content Security Policy directive 'style-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked."
+        ],
+        "csp-violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+            "line": 9,
+            "sample": ""
+          }
+        ],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "positive control: without CSPProvider, Base UI inline <style> is blocked",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 1049,
+      "retries": 0,
+      "notes": {
+        "violations": {
+          "load": [
+            {
+              "step": "load (ScrollArea)",
+              "directive": "style-src-elem",
+              "blocked": "inline",
+              "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+              "line": 9,
+              "sample": ""
+            }
+          ],
+          "select": []
+        },
+        "expected CSP console messages": [
+          "[JavaScript Error: \"Content-Security-Policy: The page’s settings blocked an inline style (style-src-elem) from being applied because it violates the following directive: “style-src 'self'”. Consider using a hash ('sha256-kLmvWqfziFavKtqHqRsb90f006UAK2Dmd0It5Iz2KFA=', requires 'unsafe-hashes' for style attributes) or a nonce.\" {file: \"http://127.0.0.1:4317/assets/index-DlM-Pl8S.js\" line: 9}]"
+        ],
+        "csp-violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+            "line": 9,
+            "sample": ""
+          }
+        ],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "positive control: without CSPProvider, Base UI inline <style> is blocked",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 1218,
+      "retries": 0,
+      "notes": {
+        "violations": {
+          "load": [
+            {
+              "step": "load (ScrollArea)",
+              "directive": "style-src-elem",
+              "blocked": "inline",
+              "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+              "line": 9,
+              "sample": ""
+            }
+          ],
+          "select": []
+        },
+        "expected CSP console messages": [
+          "Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."
+        ],
+        "csp-violations": [
+          {
+            "step": "load (ScrollArea)",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "http://127.0.0.1:4317/assets/index-DlM-Pl8S.js",
+            "line": 9,
+            "sample": ""
+          }
+        ],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "tool rail: names, pressed state, tooltip on keyboard focus",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 267,
+      "retries": 0,
+      "notes": {
+        "tab presses to first tool": 3,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "tool rail: names, pressed state, tooltip on keyboard focus",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 350,
+      "retries": 0,
+      "notes": {
+        "tab presses to first tool": 3,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "tool rail: names, pressed state, tooltip on keyboard focus",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 530,
+      "retries": 0,
+      "notes": {
+        "tab presses to first tool": 3,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "dialog: keyboard open, focus trap, Escape closes, focus returns",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 514,
+      "retries": 0,
+      "notes": {
+        "focus stops visited inside dialog": ["Cancel", "Export", "Close", "export-name"],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "dialog: keyboard open, focus trap, Escape closes, focus returns",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 656,
+      "retries": 0,
+      "notes": {
+        "focus stops visited inside dialog": ["Cancel", "Export", "Close", "export-name"],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "dialog: keyboard open, focus trap, Escape closes, focus returns",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 654,
+      "retries": 0,
+      "notes": {
+        "focus stops visited inside dialog": ["Cancel", "Export", "Close", "export-name"],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "popover: keyboard open/close and focus return",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 239,
+      "retries": 0,
+      "notes": {
+        "focus moved into popover": true,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "popover: keyboard open/close and focus return",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 361,
+      "retries": 0,
+      "notes": {
+        "focus moved into popover": true,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "popover: keyboard open/close and focus return",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 587,
+      "retries": 0,
+      "notes": {
+        "focus moved into popover": true,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "slider: transient previews vs commits (keyboard and drag)",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 488,
+      "retries": 0,
+      "notes": {
+        "keyboard 5x ArrowRight": {
+          "previews": 5,
+          "commits": 5
+        },
+        "mouse drag (10 moves)": {
+          "previews": 10,
+          "commits": 1,
+          "committed": "13"
+        },
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "slider: transient previews vs commits (keyboard and drag)",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 555,
+      "retries": 0,
+      "notes": {
+        "keyboard 5x ArrowRight": {
+          "previews": 5,
+          "commits": 5
+        },
+        "mouse drag (10 moves)": {
+          "previews": 10,
+          "commits": 1,
+          "committed": "13"
+        },
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "slider: transient previews vs commits (keyboard and drag)",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 596,
+      "retries": 0,
+      "notes": {
+        "keyboard 5x ArrowRight": {
+          "previews": 5,
+          "commits": 5
+        },
+        "mouse drag (10 moves)": {
+          "previews": 10,
+          "commits": 1,
+          "committed": "13"
+        },
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "numeric input: commit on Enter, clamp, Escape reverts",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 232,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "numeric input: commit on Enter, clamp, Escape reverts",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 379,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "numeric input: commit on Enter, clamp, Escape reverts",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 548,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "colour picker: keyboard, hex entry, Apply commits once, Escape cancels",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 380,
+      "retries": 0,
+      "notes": {
+        "onValueChange calls on mount, no interaction": 2,
+        "area tabIndex (2D saturation/value area)": -1,
+        "onValueChange calls for 2 hue ArrowRight presses": 8,
+        "hex field after each typed key of '#3366cc' (select-all first)": [
+          "#→#b5e87b",
+          "3→#b5e87b",
+          "3→#b5e87b",
+          "6→#b5e87b",
+          "6→#b5e87b",
+          "c→#b5e87b",
+          "c→#b5e87b"
+        ],
+        "focus returned to trigger after Apply": true,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "colour picker: keyboard, hex entry, Apply commits once, Escape cancels",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 634,
+      "retries": 0,
+      "notes": {
+        "onValueChange calls on mount, no interaction": 2,
+        "area tabIndex (2D saturation/value area)": -1,
+        "onValueChange calls for 2 hue ArrowRight presses": 8,
+        "hex field after each typed key of '#3366cc' (select-all first)": [
+          "#→#b5e87b",
+          "3→#b5e87b",
+          "3→#b5e87b",
+          "6→#b5e87b",
+          "6→#b5e87b",
+          "c→#b5e87b",
+          "c→#b5e87b"
+        ],
+        "focus returned to trigger after Apply": true,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "colour picker: keyboard, hex entry, Apply commits once, Escape cancels",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 721,
+      "retries": 0,
+      "notes": {
+        "onValueChange calls on mount, no interaction": 2,
+        "area tabIndex (2D saturation/value area)": -1,
+        "onValueChange calls for 2 hue ArrowRight presses": 8,
+        "hex field after each typed key of '#3366cc' (select-all first)": [
+          "#→#b5e87b",
+          "3→#b5e87b",
+          "3→#b5e87b",
+          "6→#b5e87b",
+          "6→#b5e87b",
+          "c→#b5e87b",
+          "c→#b5e87b"
+        ],
+        "focus returned to trigger after Apply": true,
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "sortable: keyboard reorder (Space, ArrowDown, Space)",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 523,
+      "retries": 0,
+      "notes": {
+        "dnd-kit live region text": "Sortable item \"ink-1\" dropped at position 2 of 4.",
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "sortable: keyboard reorder (Space, ArrowDown, Space)",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 671,
+      "retries": 0,
+      "notes": {
+        "dnd-kit live region text": "Sortable item \"ink-1\" dropped at position 2 of 4.",
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "sortable: keyboard reorder (Space, ArrowDown, Space)",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 823,
+      "retries": 0,
+      "notes": {
+        "dnd-kit live region text": "Sortable item \"ink-1\" dropped at position 2 of 4.",
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "sortable: mouse drag reorder",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 601,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "sortable: mouse drag reorder",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 1034,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "sortable: mouse drag reorder",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 682,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "resizable: keyboard and pointer resize update canvas CSS and backing size",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 1034,
+      "retries": 0,
+      "notes": {
+        "canvas sizes": {
+          "before": {
+            "w": 907,
+            "h": 648,
+            "dpr": 1,
+            "bw": 907,
+            "bh": 648
+          },
+          "keyboard": {
+            "w": 747,
+            "h": 648,
+            "dpr": 1,
+            "bw": 747,
+            "bh": 648
+          },
+          "pointer": {
+            "w": 827,
+            "h": 648,
+            "dpr": 1,
+            "bw": 827,
+            "bh": 648
+          },
+          "ariaValueNow": "67.4"
+        },
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "resizable: keyboard and pointer resize update canvas CSS and backing size",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 976,
+      "retries": 0,
+      "notes": {
+        "canvas sizes": {
+          "before": {
+            "w": 907,
+            "h": 648,
+            "dpr": 1,
+            "bw": 907,
+            "bh": 648
+          },
+          "keyboard": {
+            "w": 747,
+            "h": 648,
+            "dpr": 1,
+            "bw": 747,
+            "bh": 648
+          },
+          "pointer": {
+            "w": 827,
+            "h": 648,
+            "dpr": 1,
+            "bw": 827,
+            "bh": 648
+          },
+          "ariaValueNow": "67.4"
+        },
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "resizable: keyboard and pointer resize update canvas CSS and backing size",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 1313,
+      "retries": 0,
+      "notes": {
+        "canvas sizes": {
+          "before": {
+            "w": 907,
+            "h": 648,
+            "dpr": 2,
+            "bw": 1814,
+            "bh": 1296
+          },
+          "keyboard": {
+            "w": 747,
+            "h": 648,
+            "dpr": 2,
+            "bw": 1494,
+            "bh": 1296
+          },
+          "pointer": {
+            "w": 827,
+            "h": 648,
+            "dpr": 2,
+            "bw": 1654,
+            "bh": 1296
+          },
+          "ariaValueNow": "67.4"
+        },
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "file input: keyboard-opened chooser, local File only, zero requests",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 1124,
+      "retries": 0,
+      "notes": {
+        "requests during file selection": [],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "file input: keyboard-opened chooser, local File only, zero requests",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 1246,
+      "retries": 0,
+      "notes": {
+        "requests during file selection": [],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "file input: keyboard-opened chooser, local File only, zero requests",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 1412,
+      "retries": 0,
+      "notes": {
+        "requests during file selection": [],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "global shortcut: fires on canvas, not in inputs or dialogs",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 375,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "global shortcut: fires on canvas, not in inputs or dialogs",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 611,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "global shortcut: fires on canvas, not in inputs or dialogs",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 642,
+      "retries": 0,
+      "notes": {
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "screenshot",
+      "engine": "chromium",
+      "status": "passed",
+      "durationMs": 645,
+      "retries": 0,
+      "notes": {
+        "violations after screenshot (tool-induced, not app)": [],
+        "console errors after screenshot (tool-induced, not app)": [],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "screenshot",
+      "engine": "firefox",
+      "status": "passed",
+      "durationMs": 651,
+      "retries": 0,
+      "notes": {
+        "violations after screenshot (tool-induced, not app)": [],
+        "console errors after screenshot (tool-induced, not app)": [],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    },
+    {
+      "test": "screenshot",
+      "engine": "webkit",
+      "status": "passed",
+      "durationMs": 773,
+      "retries": 0,
+      "notes": {
+        "violations after screenshot (tool-induced, not app)": [
+          {
+            "step": "after screenshot",
+            "directive": "style-src-elem",
+            "blocked": "inline",
+            "source": "",
+            "line": 5,
+            "sample": ""
+          }
+        ],
+        "console errors after screenshot (tool-induced, not app)": [
+          "Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."
+        ],
+        "csp-violations": [],
+        "external-requests": [],
+        "console-errors": []
+      },
+      "errors": []
+    }
+  ]
+}

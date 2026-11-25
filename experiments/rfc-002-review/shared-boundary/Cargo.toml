@@ -1,0 +1,22 @@
+# RFC-002 review gate R04: shared colour boundary spike (TD-GEO-001 / TD-GEO-009).
+# Standalone workspace with its own lockfile; never shipped, never part of the app build.
+# Reads the approved engine through its public (incl. doc-hidden diagnostic) API only.
+[package]
+name = "shared-boundary"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[workspace]
+
+[dependencies]
+vector-engine = { path = "../../../crates/vector-engine" }
+# Same pins as the engine's dev-dependencies (test helpers are #[path]-included).
+resvg = { version = "=0.50.0", default-features = false }
+png = "=0.18.1"
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.154"
+
+[profile.release]
+debug = false
