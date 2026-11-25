@@ -1,6 +1,7 @@
 // Breaks loadContainer time down by phase for a 1M-anchor document (diagnostic; not gated).
 //   node docs/research/g-doc/bench/open-profile.mjs [paths] [anchorsPerPath]
 // Each phase calls the same functions loadContainer uses, in the same order.
+import { TEST_PROVENANCE } from "../../../../src/document/testing/provenance.ts";
 import { loadavg } from "node:os";
 import { decodeRecord } from "../../../../src/document/packet-port.ts";
 import { GeometryStore } from "../../../../src/document/geometry-store.ts";
@@ -19,6 +20,7 @@ const session = new DocumentSession(new GeometryStore(), {
 });
 session.dispatch({
   type: "commitTrace",
+  provenance: TEST_PROVENANCE,
   packet: syntheticPacket({ paths, anchorsPerPath, groups: 8, seed: 42 }),
 });
 const out = {

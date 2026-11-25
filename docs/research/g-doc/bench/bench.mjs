@@ -7,6 +7,9 @@
 //   2. Structural undo/redo (and, for information, the command dispatch itself).
 //   3. Opening a 1M-anchor container (loadContainer), codecs deflate-raw and none.
 // Records node version and load averages; the caller records `uptime` and the ngspice count.
+import { TEST_PROVENANCE } from "../../../../src/document/testing/provenance.ts";
+import { createHash } from "node:crypto";
+import { encodeRecord } from "../../../../src/document/packet-port.ts";
 import { writeFileSync } from "node:fs";
 import { loadavg, cpus, totalmem } from "node:os";
 import { copyIncoming, GeometryStore } from "../../../../src/document/geometry-store.ts";
@@ -22,17 +25,24 @@ const arg = (name, dflt) => {
 const REPS = Number(arg("--reps", "7"));
 const OUT = arg("--out", null);
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+const p95 = (xs) => [...xs].sort((a, b) => a - b)[Math.max(0, Math.ceil(0.95 * xs.length) - 1)];
 const stats = (xs) => ({
+  n: xs.length,
   median: +median(xs).toFixed(3),
+  p95: +p95(xs).toFixed(3),
   min: +Math.min(...xs).toFixed(3),
   max: +Math.max(...xs).toFixed(3),
 });
 const now = () => performance.now();
 
-const CONFIGS = [
+const ALL_CONFIGS = [
   { name: "A", paths: 50_000, anchorsPerPath: 20, groups: 8 },
   { name: "B", paths: 250_000, anchorsPerPath: 4, groups: 8 },
+  // The interactive target (RFC §8.8): ~250k anchors and ~40k paths.
+  { name: "I", paths: 41_666, anchorsPerPath: 6, groups: 8 },
 ];
+const only = arg("--configs", "A,B,I").split(",");
+const CONFIGS = ALL_CONFIGS.filter((c) => only.includes(c.name));
 
 const result = {
   node: process.version,
@@ -56,6 +66,8 @@ for (const cfg of CONFIGS) {
     C: m.coordCount,
     anchors: cfg.paths * cfg.anchorsPerPath,
     packetBytes: m.verbCount + 8 * m.coordCount + 16 * m.pathCount + 8,
+    // Workload hash: SHA-256 of the packet's C3.0 geometry record (seeded generator).
+    workloadSha256: createHash("sha256").update(encodeRecord(probe.manifest, probe)).digest("hex"),
   };
 
   // 1. commit (fresh packet per rep; generation not timed)
@@ -96,7 +108,7 @@ for (const cfg of CONFIGS) {
     state: createDocument({ documentId: "bench", width: 1000, height: 1000 }),
   });
   const tc0 = now();
-  session.dispatch({ type: "commitTrace", packet: make() });
+  session.dispatch({ type: "commitTrace", packet: make(), provenance: TEST_PROVENANCE });
   out.commitTraceDispatchMs = +(now() - tc0).toFixed(3);
   out.nodes = session.state.nodesById.size;
   const layer = session.state.orderedRootIds[0];
