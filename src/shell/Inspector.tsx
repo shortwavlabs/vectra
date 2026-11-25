@@ -165,12 +165,23 @@ export function SelectionInspector(p: {
               step={1}
               disabled={locked}
               value={[Math.round(draftScale ?? scalePct)]}
-              onPointerDown={() => (drag.current = { active: true, cancelled: false })}
-              onKeyDown={(e) => {
-                if (e.key === "Escape" && drag.current.active) {
+              onPointerDown={() => {
+                drag.current = { active: true, cancelled: false };
+                // Escape cancels the drag (RFC §7) wherever focus is (WebKit does not focus the
+                // thumb on click); it is consumed so it does not also clear the selection.
+                const onKey = (e: KeyboardEvent) => {
+                  if (e.key !== "Escape" || !drag.current.active) return;
+                  e.preventDefault();
+                  e.stopPropagation();
                   drag.current.cancelled = true;
                   setDraftScale(null);
-                }
+                };
+                window.addEventListener("keydown", onKey, true);
+                window.addEventListener(
+                  "pointerup",
+                  () => window.removeEventListener("keydown", onKey, true),
+                  { once: true },
+                );
               }}
               onValueChange={(v) => {
                 if (!drag.current.cancelled)

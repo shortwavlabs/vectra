@@ -159,7 +159,7 @@ export function InterimCanvasHost({ ref, ...p }: InterimCanvasHostProps) {
       aria-describedby="canvas-host-help"
       tabIndex={0}
       data-host="interim"
-      className={`relative overflow-hidden bg-canvas-surround ${p.className ?? ""}`}
+      className={`overflow-hidden bg-canvas-surround ${p.className ?? "relative"}`}
       onClick={(e) => {
         if (!s || !session) return;
         const r = e.currentTarget.getBoundingClientRect();

@@ -17,6 +17,7 @@ import {
   Spline,
   Undo2,
   Upload,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -32,20 +33,33 @@ import type { CanvasHostHandle, CanvasHostState, CanvasView } from "../canvas-ho
 import type { Command } from "../document/commands.ts";
 import type { NodeId } from "../document/model.ts";
 import type { DispatchOptions, DocumentSession, SessionSnapshot } from "../document/session.ts";
+import { downloadBlob } from "../export/download.ts";
+import type { LengthUnit } from "../vectorization/types.ts";
 import { Button } from "../ui/registry/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "../ui/registry/dialog";
+import { Input } from "../ui/registry/input";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/registry/resizable";
 import { ScrollArea } from "../ui/registry/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/registry/tooltip";
 import { isLocked, pathCount, topLevel } from "./document.ts";
 import { DocumentInspector, RecolorInspector, Section, SelectionInspector } from "./Inspector.tsx";
 import { InterimCanvasHost, type RenderSvg } from "./InterimCanvasHost.tsx";
+import {
+  createJobs,
+  exportDocument,
+  PRESETS,
+  type PresetId,
+  renderPreviewSvg,
+  startTrace,
+} from "./jobs.ts";
 import { LayersPanel } from "./LayersPanel.tsx";
 
 type ToolId = "select" | "trace" | "smooth" | "simplify" | "cleanup" | "recolor";
@@ -67,8 +81,8 @@ const TOOLS: readonly Tool[] = [
   { id: "recolor", label: "Recolor", icon: Palette, key: "R" },
 ];
 
-const IMPORT_UNAVAILABLE = "Import and tracing are not connected in this build yet.";
-const EXPORT_UNAVAILABLE = "Export is not connected in this build yet.";
+const ACCEPT = "image/png,image/jpeg,image/webp";
+const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 const noSubscribe = () => () => {};
 const noSnapshot = () => null;
@@ -148,9 +162,18 @@ const SHORTCUTS: [string, string][] = [
 ];
 
 export function Workspace() {
-  // Pre-G-JOB: there is no way to create artwork in this build, so no document exists.
-  const [session] = useState<DocumentSession | null>(null);
-  const renderSvg: RenderSvg | null = null;
+  const [status, setStatus] = useState<{ text: string; error?: boolean }>({ text: "Ready" });
+  const [jobs] = useState(() =>
+    createJobs((detail) => setStatus({ text: `This page is out of date: ${detail}`, error: true })),
+  );
+  const [session, setSession] = useState<DocumentSession | null>(null);
+  const renderSvg = useMemo<RenderSvg>(() => (s) => renderPreviewSvg(jobs, s), [jobs]);
+  const [preset, setPreset] = useState<PresetId>("bw");
+  const [tracing, setTracing] = useState<{ jobId: number; name: string; stage: string } | null>(
+    null,
+  );
+  const [exportOpen, setExportOpen] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const snap: SessionSnapshot | null = useSyncExternalStore(
     session?.subscribe ?? noSubscribe,
     session?.getSnapshot ?? noSnapshot,
@@ -162,7 +185,6 @@ export function Workspace() {
     [state, rawSelection],
   );
   const [tool, setTool] = useState<ToolId>("select");
-  const [status, setStatus] = useState<{ text: string; error?: boolean }>({ text: "Ready" });
   const [hostState, setHostState] = useState<CanvasHostState>({ kind: "empty" });
   const [view, setView] = useState<CanvasView | null>(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -170,10 +192,45 @@ export function Workspace() {
   const canvas = useRef<CanvasHostHandle>(null);
 
   useEffect(() => {
-    void navigator.serviceWorker?.ready.then(() =>
-      setOffline(navigator.serviceWorker.controller !== null),
-    );
-  }, []);
+    // Offline use needs the service worker to control this page (it claims on first install).
+    const sw = navigator.serviceWorker;
+    const update = () => setOffline(sw.controller !== null);
+    sw?.addEventListener("controllerchange", update);
+    void sw?.ready.then(update);
+    // Start the compute worker early, so the first import does not wait for the engine.
+    void jobs.scheduler.warmup();
+    return () => sw?.removeEventListener("controllerchange", update);
+  }, [jobs]);
+
+  const importFile = async (file: File) => {
+    if (tracing) return;
+    setStatus({ text: `Reading ${file.name}…` });
+    try {
+      const t = await startTrace(jobs, file, preset, session, (stage) =>
+        setTracing((cur) => cur && { ...cur, stage }),
+      );
+      setTracing({ jobId: t.jobId, name: file.name, stage: "queued" });
+      setStatus({ text: `Tracing ${file.name}…` });
+      const out = await t.done;
+      setTracing(null);
+      if (out.status === "committed") {
+        setSession(t.session);
+        setRawSelection([out.layerId]);
+        const m = out.result.metrics.stats;
+        const ms = out.timings.queuedMs + out.timings.workerMs + out.timings.commitMs;
+        setStatus({
+          text: `Traced ${file.name}: ${m.paths} paths, ${m.anchors} anchors in ${Math.round(ms)} ms`,
+        });
+      } else if (out.status === "stale")
+        setStatus({ text: `Trace discarded: the document changed (${out.reason})`, error: true });
+      else if (out.status === "failed")
+        setStatus({ text: `Trace failed: ${out.message}`, error: true });
+      else setStatus({ text: "Trace cancelled; the document is unchanged" });
+    } catch (e) {
+      setTracing(null);
+      setStatus({ text: `Import failed: ${message(e)}`, error: true });
+    }
+  };
 
   const run = useCallback(
     (c: Command | Command[], o?: DispatchOptions) => {
@@ -182,7 +239,7 @@ export function Workspace() {
         session.dispatch(c, o);
       } catch (e) {
         setStatus({
-          text: `Edit rejected: ${e instanceof Error ? e.message : String(e)}`,
+          text: `Edit rejected: ${message(e)}`,
           error: true,
         });
       }
@@ -244,15 +301,44 @@ export function Workspace() {
   const inspector = (() => {
     if (tool === "trace")
       return (
-        <Section title="Trace">
-          <p className="text-xs text-muted-foreground">{IMPORT_UNAVAILABLE}</p>
+        <Section title="Trace preset">
+          <div role="radiogroup" aria-label="Trace preset" className="grid gap-1">
+            {PRESETS.map((p) => (
+              <label
+                key={p.id}
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-elevated"
+              >
+                <input
+                  type="radio"
+                  name="preset"
+                  value={p.id}
+                  checked={preset === p.id}
+                  onChange={() => setPreset(p.id)}
+                  className="accent-primary"
+                />
+                {p.label}
+              </label>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            className="border-control-border"
+            disabled={tracing !== null}
+            onClick={() => fileInput.current?.click()}
+          >
+            <Upload data-icon="inline-start" /> Import and trace…
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Each import is traced with the engine defaults of the chosen preset and added as a new
+            layer. Trace parameters cannot be adjusted in this build yet.
+          </p>
         </Section>
       );
     if (!session || !snap)
       return (
         <Section title="No document">
           <p className="text-xs text-muted-foreground">
-            Import an image to create a document. {IMPORT_UNAVAILABLE}
+            Import an image to create a document: it is traced on this device and added as a layer.
           </p>
         </Section>
       );
@@ -314,20 +400,32 @@ export function Workspace() {
               onClick={() => setShortcutsOpen(true)}
             />
           </div>
+          <input
+            ref={fileInput}
+            type="file"
+            accept={ACCEPT}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+            data-testid="import-input"
+            onChange={(e) => {
+              const f = e.currentTarget.files?.[0];
+              e.currentTarget.value = "";
+              if (f) void importFile(f);
+            }}
+          />
           <Button
             variant="outline"
-            aria-disabled="true"
-            aria-label={`Import, ${IMPORT_UNAVAILABLE}`}
-            title={IMPORT_UNAVAILABLE}
-            className="h-8 border-control-border opacity-60"
+            className="h-8 border-control-border"
+            disabled={tracing !== null}
+            onClick={() => fileInput.current?.click()}
           >
             <Upload data-icon="inline-start" /> Import
           </Button>
           <Button
-            aria-disabled="true"
-            aria-label={`Export, ${EXPORT_UNAVAILABLE}`}
-            title={EXPORT_UNAVAILABLE}
-            className="h-8 px-4 font-semibold opacity-60"
+            className="h-8 px-4 font-semibold"
+            disabled={!session}
+            onClick={() => setExportOpen(true)}
           >
             <Download data-icon="inline-start" /> Export
           </Button>
@@ -348,6 +446,7 @@ export function Workspace() {
                 ariaShortcut={t.key}
                 unavailable={t.unavailable}
                 pressed={t.unavailable ? undefined : tool === t.id}
+                className={tool === t.id ? undefined : "bg-elevated"}
                 onClick={() => setTool(t.id)}
               />
             ))}
@@ -384,7 +483,15 @@ export function Workspace() {
                     ))}
                   </div>
                 </div>
-                <div className="relative min-h-0 flex-1">
+                <div
+                  className="relative min-h-0 flex-1"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const f = e.dataTransfer.files[0];
+                    if (f) void importFile(f);
+                  }}
+                >
                   <InterimCanvasHost
                     ref={canvas}
                     session={session}
@@ -402,8 +509,16 @@ export function Workspace() {
                         <Upload className="size-7 text-muted-foreground" aria-hidden="true" />
                         <h2 className="text-base font-semibold">Import an image to start</h2>
                         <p className="text-xs text-muted-foreground">
-                          PNG, JPEG or WebP, processed on this device. {IMPORT_UNAVAILABLE}
+                          PNG, JPEG or WebP, traced on this device with the{" "}
+                          {PRESETS.find((p) => p.id === preset)!.label} preset. Drop a file here or
+                          choose one.
                         </p>
+                        <Button
+                          disabled={tracing !== null}
+                          onClick={() => fileInput.current?.click()}
+                        >
+                          <Upload data-icon="inline-start" /> Choose image…
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -502,8 +617,18 @@ export function Workspace() {
             className={status.error ? "text-destructive" : "text-foreground/85"}
           >
             {status.error ? "Error: " : ""}
-            {status.text}
+            {tracing ? `Tracing ${tracing.name} (${tracing.stage})…` : status.text}
           </span>
+          {tracing && (
+            <Button
+              variant="outline"
+              size="xs"
+              className="border-control-border"
+              onClick={() => jobs.cancel(tracing.jobId)}
+            >
+              <X data-icon="inline-start" /> Cancel trace
+            </Button>
+          )}
           <div className="flex-1" />
           <span data-testid="canvas-state">
             Preview: interim SVG host ({hostState.kind}); production renderer pending
@@ -511,6 +636,30 @@ export function Workspace() {
           <span>{offline ? "Offline ready" : "Offline not ready"}</span>
         </footer>
       </div>
+
+      {session && (
+        <ExportDialog
+          open={exportOpen}
+          onOpenChange={setExportOpen}
+          onExport={async (format, pdf, name) => {
+            setStatus({ text: `Exporting ${format.toUpperCase()}…` });
+            try {
+              const bytes = await exportDocument(jobs, session, format, pdf);
+              if (!bytes) return setStatus({ text: "Export cancelled" });
+              const type = format === "svg" ? "image/svg+xml" : "application/pdf";
+              downloadBlob(
+                new Blob([bytes as Uint8Array<ArrayBuffer>], { type }),
+                `${name}.${format}`,
+              );
+              setStatus({
+                text: `Exported ${name}.${format} (${Math.ceil(bytes.byteLength / 1024)} KB)`,
+              });
+            } catch (e) {
+              setStatus({ text: `Export failed: ${message(e)}`, error: true });
+            }
+          }}
+        />
+      )}
 
       <Dialog open={shortcutsOpen} onOpenChange={setShortcutsOpen}>
         <DialogContent className="sm:max-w-md">
@@ -535,5 +684,90 @@ export function Workspace() {
         </DialogContent>
       </Dialog>
     </TooltipProvider>
+  );
+}
+
+function ExportDialog(p: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onExport: (format: "svg" | "pdf", pdf: { width: number; unit: LengthUnit }, name: string) => void;
+}) {
+  const [format, setFormat] = useState<"svg" | "pdf">("svg");
+  const [name, setName] = useState("artwork");
+  const [width, setWidth] = useState(200);
+  const [unit, setUnit] = useState<LengthUnit>("mm");
+  const valid = name.trim() !== "" && (format === "svg" || width > 0);
+  return (
+    <Dialog open={p.open} onOpenChange={p.onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Export artwork</DialogTitle>
+          <DialogDescription>
+            Vector paths only, generated on this device by the engine. Nothing is uploaded.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          className="grid gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!valid) return;
+            p.onOpenChange(false);
+            p.onExport(format, { width, unit }, name.trim());
+          }}
+        >
+          <fieldset className="grid gap-1.5">
+            <legend className="mb-1.5 text-xs text-muted-foreground">Format</legend>
+            {(["svg", "pdf"] as const).map((f) => (
+              <label key={f} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="format"
+                  checked={format === f}
+                  onChange={() => setFormat(f)}
+                  className="accent-primary"
+                />
+                {f === "svg" ? "SVG (editable vector)" : "PDF (vector, physical size)"}
+              </label>
+            ))}
+          </fieldset>
+          <label className="grid gap-1 text-xs text-muted-foreground">
+            File name
+            <Input value={name} onChange={(e) => setName(e.target.value)} className="text-sm" />
+          </label>
+          {format === "pdf" && (
+            <div className="grid grid-cols-[1fr_6rem] gap-2">
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                Page width
+                <Input
+                  type="number"
+                  min={1}
+                  value={width}
+                  onChange={(e) => setWidth(e.target.valueAsNumber)}
+                  className="text-sm"
+                />
+              </label>
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                Unit
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value as LengthUnit)}
+                  className="h-8 rounded-md border border-control-border bg-background px-2 text-sm text-foreground"
+                >
+                  <option value="mm">mm</option>
+                  <option value="in">in</option>
+                  <option value="pt">pt</option>
+                </select>
+              </label>
+            </div>
+          )}
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" type="button" />}>Cancel</DialogClose>
+            <Button type="submit" disabled={!valid}>
+              Export {format.toUpperCase()}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

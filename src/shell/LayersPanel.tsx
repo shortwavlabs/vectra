@@ -47,9 +47,16 @@ export function LayersPanel({ state, selection, onSelect, run }: LayersPanelProp
   const [renaming, setRenaming] = useState<NodeId | null>(null);
   if (!state)
     return (
-      <p className="px-3 py-2 text-xs text-muted-foreground">
-        No document. Imported artwork appears here as layers.
-      </p>
+      <section aria-labelledby="layers-heading" className="flex min-h-0 flex-1 flex-col">
+        <div className="flex h-10 shrink-0 items-center border-b border-border px-3">
+          <h2 id="layers-heading" className="text-sm font-semibold">
+            Layers
+          </h2>
+        </div>
+        <p className="px-3 py-2 text-xs text-muted-foreground">
+          No document. Imported artwork appears here as layers.
+        </p>
+      </section>
     );
   const roots = [...state.orderedRootIds].reverse();
   const name = (id: NodeId) => displayName(state.nodesById.get(id)!, state);
