@@ -23,7 +23,7 @@ Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Li
 | P0-G4 | Pages preview deploy | clean static build, MIME/headers/assets confirmed |
 | P0-G5 | privacy and initial benchmark | network/offline test, performance report |
 | P1 | *(superseded at G-0: see the gate plan above)* workspace, five core presets, export, Save/Open | gate reports and owner acceptance |
-| P2 | *(superseded at G-0)* Line Art (P2-A); Old Print, DIY Underground, press, halftone and screen print (P2-C) | deterministic vector styles and owner art review |
+| P2 | *(superseded at G-0)* Line Art (P2-A); flagship Old Print, DIY Underground, Virtual Printing Press, initial Variation Lab (P2-C); the other Print presets (Halftone, Screen Print, Poster, Comic Ink) after the flagship within P2 | deterministic vector styles and owner art review |
 | P3 | woodcut, engraving, blueprint, stencil, batch/PWA | per-feature qualification, no silent raster fallback |
 
 P0 may use a disposable harness; no polished UI before engine proof. Each gate has its own report and reviewable commit. Stop and report if a dependency fails instead of silently substituting it. Scope changes require RFC update. After P0, pick a release version and actual browser support from evidence.

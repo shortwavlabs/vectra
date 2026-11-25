@@ -175,7 +175,7 @@ Counts:
 - **Target phase:** P1-C or later, driven by real hard-edged logo samples.
 - **Acceptance criteria:** on hard-thresholded circles r ≥ 20, 0 tangent breaks > 2° and ≤ 12 anchors per full circle, with the tier C position limits kept and the negative controls unaffected.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md), [GEOMETRIC-FIDELITY-METRICS](research/p0-r-geo/GEOMETRIC-FIDELITY-METRICS.md).
-- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO (partial); closure: As above, on `circle-hard-r40` and real hard-edged logos, behind a provisional precision identifier; owner action: Yes: visual review, version allocation. Curve-fitting defect class, qualified separately from shared boundaries (RFC §12.1).
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO (partial); closure: per the acceptance criteria above, on `circle-hard-r40` and real hard-edged logos, behind a provisional precision identifier; owner action: Yes: visual review, version allocation. Curve-fitting defect class, qualified separately from shared boundaries (RFC §12.1).
 
 <a id="td-geo-003"></a>
 ### TD-GEO-003 — Thin bars and acute corners
@@ -206,7 +206,7 @@ Counts:
   - 0 tangent breaks on straight edges.
   - No regression on rectangles and triangles.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md) ("What is still missed").
-- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO; closure: As above; owner action: Yes: visual review, version allocation. Starts after the byte-neutral fitter refactor (C6).
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO; closure: per the acceptance criteria above; owner action: Yes: visual review, version allocation. Starts after the byte-neutral fitter refactor (C6).
 
 <a id="td-geo-004"></a>
 ### TD-GEO-004 — Straight-edge curvature near rebuilt corners
@@ -226,7 +226,7 @@ Counts:
 - **Target phase:** P1-C.
 - **Acceptance criteria:** max |κ| ≤ 0.005 /px on straight truth beyond 2 px from corners, on all corpus fixtures.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md).
-- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO; closure: As above; owner action: Yes: visual review, version allocation. Same machinery as the end-constrained open-section fitter needed by G-SB.
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO; closure: per the acceptance criteria above; owner action: Yes: visual review, version allocation. Same machinery as the end-constrained open-section fitter needed by G-SB.
 
 <a id="td-geo-005"></a>
 ### TD-GEO-005 — One-pixel diagonal strokes
@@ -253,7 +253,7 @@ Counts:
 - **Target phase:** P1 Line Art *(superseded at G-0: P2-A Line Art)*.
 - **Acceptance criteria:** 1-px diagonal strokes at 30–60° are preserved as one connected stroke or shape, with their position within 0.5 px.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §2](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md), [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md).
-- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-A Line Art; closure: As above; owner action: No (decided at G-0: Line Art moves to P2-A). Moves with Line Art (RFC §18).
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-A Line Art; closure: per the acceptance criteria above; owner action: No (decided at G-0: Line Art moves to P2-A). Moves with Line Art (RFC §18).
 
 <a id="td-geo-006"></a>
 ### TD-GEO-006 — Partial source transparency
@@ -275,7 +275,7 @@ Counts:
 - **Target phase:** later, driven by a preset that needs soft edges.
 - **Acceptance criteria:** soft-shadow fixtures reproduced within a defined alpha-profile error, using only vector constructs, verified in SVG and PDF.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §3](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md).
-- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate Later (preset-driven); closure: As above; owner action: No. Needs scene v2 opacity or gradient constructs.
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate Later (preset-driven); closure: per the acceptance criteria above; owner action: No. Needs scene v2 opacity or gradient constructs.
 
 <a id="td-geo-007"></a>
 ### TD-GEO-007 — Browser-dependent image decoding
@@ -305,7 +305,7 @@ Counts:
 - **Target phase:** RFC-002 decides the reproducibility promise; P1 implements.
 - **Acceptance criteria:** identical decoded RGBA for the corpus in Chromium, Firefox and Safari; decode time within an agreed budget.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §5](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md), [DEFECT-REPRODUCTION](research/p0-r-geo/DEFECT-REPRODUCTION.md).
-- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (promise wording)**; gate P2-C (in-WASM decoding, before shared recipes claim cross-browser reproducibility); closure: As above; owner action: No. Promise: identical decoded RGBA, versions and seed, and the same WASM build (RFC §13).
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (promise wording)**; gate P2-C (in-WASM decoding, before shared recipes claim cross-browser reproducibility); closure: per the acceptance criteria above; owner action: No. Promise: identical decoded RGBA, versions and seed, and the same WASM build (RFC §13).
 
 <a id="td-geo-008"></a>
 ### TD-GEO-008 — Residual transparency approximation
@@ -325,7 +325,7 @@ Counts:
 - **Target phase:** later (monitor only).
 - **Acceptance criteria:** leaked pixels, if any, lie within 0.25 px of the true edge.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md), [GEOMETRY-QUALITY-DISPOSITION §4](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md).
-- **G-0 disposition (2026-11-25):** stage **ACCEPTED FOR P0 (monitor)**; gate Later; closure: As above; owner action: No. Unchanged.
+- **G-0 disposition (2026-11-25):** stage **ACCEPTED FOR P0 (monitor)**; gate Later; closure: per the acceptance criteria above; owner action: No. Unchanged.
 
 <a id="td-geo-009"></a>
 ### TD-GEO-009 — Precision compositing limitations
@@ -447,7 +447,7 @@ Counts:
 - **Target phase:** P1-B.
 - **Acceptance criteria:** import→visible ≤ 0.5 s at about 1 MP (B&W); slider feedback ≤ 100 ms at preview resolution; no stale results.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md), [P0-G2](research/p0/P0-G2-WORKER-ARCHITECTURE.md).
-- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED / IMPLEMENTATION PENDING**; gate G-JOB (scheduler), G-TRACE (preview resolution, no import debounce); closure: As above; owner action: No. Scheduler contract in RFC §10.3.
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED / IMPLEMENTATION PENDING**; gate G-JOB (scheduler), G-TRACE (preview resolution, no import debounce); closure: per the acceptance criteria above; owner action: No. Scheduler contract in RFC §10.3.
 
 <a id="td-perf-005"></a>
 ### TD-PERF-005 — Halftone pitch at native resolution
@@ -460,7 +460,7 @@ Counts:
 - **Target phase:** P2.
 - **Acceptance criteria:** the default pitch stays under the interactive anchor warning for supported sizes, at a fixed physical screen ruling.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md), [OLD-PRINT-FEASIBILITY](research/p0/OLD-PRINT-FEASIBILITY.md).
-- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-C (before Old Print becomes a product preset); closure: As above; owner action: No. The 977k-anchor halftone remains the renderer and hit-test stress case.
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-C (before Old Print becomes a product preset); closure: per the acceptance criteria above; owner action: No. The 977k-anchor halftone remains the renderer and hit-test stress case.
 
 <a id="td-perf-006"></a>
 ### TD-PERF-006 — Precision mode cost on photographs
@@ -471,7 +471,7 @@ Counts:
 - **Proposed approach.** Product guidance (Artistic vs Precision naming); optional per-region mode choice later.
 - **Target phase:** later.
 - **References:** [PERFORMANCE-REGRESSION](research/p0-r-geo/PERFORMANCE-REGRESSION.md).
-- **G-0 disposition (2026-11-25):** stage **ACCEPTED FOR P0**; gate Later (product guidance); closure: As above; owner action: No. Unchanged.
+- **G-0 disposition (2026-11-25):** stage **ACCEPTED FOR P0**; gate Later (product guidance); closure: Artistic vs Precision guidance shipped in the trace UI (G-TRACE), with measured anchor and time ratios disclosed; this item has no other acceptance criteria; owner action: No. Unchanged.
 
 ## Architecture
 
@@ -495,7 +495,7 @@ Counts:
 - **Target phase:** ongoing; RFC-002 restates the boundary.
 - **Acceptance criteria for an upgrade:** regression corpus byte-identical or explained; geometry corpus not worse.
 - **References:** [RFC-001](RFC-001.md), [P0-G1](research/p0/P0-G1-VECTORIZATION.md), [LICENSING-AND-DISTRIBUTION](research/p0-r/LICENSING-AND-DISTRIBUTION.md).
-- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (boundary restated)**; gate Ongoing; G-ENG checks the public API; closure: As above, plus no VTracer or visioncortex type in any public engine API; owner action: No. RFC §6, C4.
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (boundary restated)**; gate Ongoing; G-ENG checks the public API; closure: per the acceptance criteria above, plus no VTracer or visioncortex type in any public engine API; owner action: No. RFC §6, C4.
 
 <a id="td-arch-002"></a>
 ### TD-ARCH-002 — Worker lifecycle and persistent editor state
@@ -553,7 +553,7 @@ Counts:
 - **Target phase:** P1-A.
 - **Acceptance criteria:** production builds expose only the documented API; evaluation tools still build.
 - **References:** [SELECTED-CORRECTION](research/p0-r-geo/SELECTED-CORRECTION.md).
-- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-ENG; closure: As above; the staged API replaces `segment_layers` for production use; owner action: No. Unchanged target.
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-ENG; closure: per the acceptance criteria above; the staged API replaces `segment_layers` for production use; owner action: No. Unchanged target.
 
 ## Platforms and environments
 
@@ -567,7 +567,7 @@ Counts:
 - **Target phase:** before any public release or published build hashes.
 - **Acceptance criteria:** all steps pass on native amd64, with an identical WASM output fingerprint.
 - **References:** [LINUX-REPRODUCIBILITY](research/p0-r/LINUX-REPRODUCIBILITY.md).
-- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Before published hashes (canonical Linux build approved at G-0); closure: As above, on native amd64 (P-CI runs are build evidence, not release qualification); owner action: No (approved). Prefer native amd64 over QEMU.
+- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Before published hashes (canonical Linux build approved at G-0); closure: per the acceptance criteria above, on native amd64 (P-CI runs are build evidence, not release qualification); owner action: No (approved). Prefer native amd64 over QEMU.
 
 <a id="td-platform-002"></a>
 ### TD-PLATFORM-002 — Safari and mobile
@@ -607,7 +607,7 @@ Counts:
 - **Target phase:** when a suitable UI exists; the maintainer approves deployment.
 - **Acceptance criteria:** `verify-deployment.sh` passes against a real HTTPS preview, including offline cancellation recovery.
 - **References:** [DEPLOYMENT-READINESS](research/p0-r/DEPLOYMENT-READINESS.md), [DEPLOYMENT](DEPLOYMENT.md).
-- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate When a suitable UI exists; closure: As above; owner action: Yes: deployment approval. No deployment, domain or DNS changes in G-0 or P1.
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate When a suitable UI exists; closure: per the acceptance criteria above; owner action: Yes: deployment approval. No deployment, domain or DNS changes in G-0 or P1.
 
 <a id="td-platform-005"></a>
 ### TD-PLATFORM-005 — Cross-host precision reproducibility
@@ -620,7 +620,7 @@ Counts:
 - **Target phase:** at the next Linux verification run.
 - **Acceptance criteria:** identical precision digest from macOS- and Linux-built WASM.
 - **References:** [EXPORT-REGRESSION](research/p0-r-geo/EXPORT-REGRESSION.md), [LINUX-REPRODUCIBILITY](research/p0-r/LINUX-REPRODUCIBILITY.md).
-- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Next Linux verification run; closure: As above; owner action: No. Unchanged.
+- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Next Linux verification run; closure: per the acceptance criteria above; owner action: No. Unchanged.
 
 ## Process
 

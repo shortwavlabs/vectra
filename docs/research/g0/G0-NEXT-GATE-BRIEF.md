@@ -41,13 +41,15 @@ G-ENG and G-DOC run as **two independent review branches and PRs**. Their shared
    - `segment`, `estimate` and `fit`, with an opaque Vectra-owned `Segmentation` and no VTracer types.
    - bw and colour: the boundary-length estimator from R03.
    - limited and halftone: a staged estimator, or an explicit `Estimate::Unavailable`.
-5. **WASM exports:** `vectorizePacket`, `validatePacket`, `packetToSvg`, `packetToPdf`, plus the segment/estimate handle API. The existing exports stay.
-6. **TD-ARCH-004.** Move `segment_layers` and `vectorize_with_precision_options` behind a `diagnostics` cargo feature. The examples enable it.
+5. **Export baking:** `bake_draw_list(&DrawList, &[GeometryPacket]) -> Scene` (C3.1, C4) applies effective transforms (f64), styles, fill rules and clips to visible items. Identity transforms with unchanged styles must reproduce the original coordinates bit for bit. It is consumed by G-EXP.
+6. **WASM exports:** `vectorizePacket`, `validatePacket`, `exportDrawList`, `packetToSvg`, `packetToPdf`, plus the segment/estimate handle API. The existing exports stay.
+7. **TD-ARCH-004.** Move `segment_layers` and `vectorize_with_precision_options` behind a `diagnostics` cargo feature. The examples enable it.
 
 **Automated acceptance.**
 - `cargo test`: Scene → Packet → Scene is lossless for **every** scene of the regression corpus (`regression_corpus` output), compared structurally and by re-serialised JSON bytes.
 - Packet-route SVG and PDF are byte-identical to direct `to_svg`/`to_pdf` over the corpus.
 - `fit(segment(x))` is byte-identical to `vectorize(x)` over the corpus.
+- `bake_draw_list` with identity transforms and unchanged styles reproduces the corpus scenes byte for byte; transformed cases match an f64 reference.
 - TS and Rust validators return identical codes on every adversarial fixture.
 - Native and WASM packets are byte-identical (extend `scripts/wasm-fingerprint.mjs`).
 - `regression_corpus` hashes equal `a4cf172.sha256` (326/326); `geo_bundle` matches the 72 bundle-v2 hashes.

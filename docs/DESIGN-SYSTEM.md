@@ -147,7 +147,7 @@ The approved charcoal/lime studio direction stays; it must not become a generic 
 - Context-sensitive controls with explicit Apply/Cancel/Reset, warnings and scopes.
 - No inaccessible fake controls for future features; meaningful empty and error states.
 - Unsplash, Press and Variation dialogs are later slices.
-- The mockups are visual references; this document and RFC-002 are normative.
+- The mockups are visual references; this document and RFC-002 are normative. Compared at G-0: the mockups use the palette tokens, but show foreground `#e5e6e7` (normative `#eeeef0`; both pass contrast), and predate `control-border` and the dual focus ring. The `#e6ddc6` family is placeholder artwork, not theme. The mockups are unchanged.
 
 ## 10. Root integration changes (G-UI; none made at G-0)
 1. Runtime dependencies plus `tailwindcss` and `@tailwindcss/vite` as exact pins.

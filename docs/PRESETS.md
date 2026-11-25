@@ -1,5 +1,5 @@
 # Preset system
-Status: proposed. **G-0 (2026-11-25):** the order is set by [RFC-002 §18](RFC-002.md): P1 core is bw, color, limited, gray, silhouette; P2-A line-art; P2-C Old Print and DIY Underground ([VECTOR-STUDIO-TOOLS](VECTOR-STUDIO-TOOLS.md)). Artistic and Precision are fit modes, not presets. Every preset outputs vector paths or vector primitives, never raster texture. Presets are versioned declarative recipes over allowlisted operations; user parameters validated by schema. Defaults below are starting hypotheses.
+Status: proposed. **G-0 (2026-11-25):** the order is set by [RFC-002 §18](RFC-002.md): P1 core is bw, color, limited, gray, silhouette; P2-A line-art; P2-C flagship Old Print and DIY Underground ([VECTOR-STUDIO-TOOLS](VECTOR-STUDIO-TOOLS.md)); the other P2 rows below stay P2, after the flagship; P3 rows unchanged. Artistic and Precision are fit modes, not presets. Every preset outputs vector paths or vector primitives, never raster texture. Presets are versioned declarative recipes over allowlisted operations; user parameters validated by schema. Defaults below are starting hypotheses.
 
 | ID | Pipeline | Controls | Phase |
 |---|---|---|---|

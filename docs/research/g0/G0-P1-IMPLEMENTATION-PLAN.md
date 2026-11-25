@@ -68,7 +68,7 @@ The graph has no cycles:
 - Prefer native amd64 over QEMU.
 - **Linux amd64 stays unqualified** (TD-PLATFORM-001) until a successful run is recorded. A `ci` run is build evidence, not release qualification.
 
-**Not verified at G-0:** whether `cargo clippy -D warnings` is clean at baseline. It is checked locally in the G-0 verification (see G0-FINAL-REPORT).
+**Baseline:** `cargo clippy --workspace --all-targets --locked -- -D warnings` exits 0 at the G-0 head (verified locally; G0-FINAL-REPORT).
 
 ## Platform qualification prerequisites
 **Real Safari** (approved in principle; TD-PLATFORM-002).
@@ -130,6 +130,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** none required beyond PR approval.
 - **Stop if:** any frozen hash changes; a VTracer type leaks; the packet route cannot reproduce the scene v1 exports.
 - **Debt:** TD-ARCH-003 (implementation), TD-ARCH-004, TD-ARCH-001 (boundary), TD-PERF-002 (API part).
+- **Regressions:** global rule (326 + 72 hashes; all local checks).
 - **Prerequisites:** none beyond G-0 approval.
 
 ### G-DOC — Document, GeometryStore, commands, history, serializer (P1-A)
@@ -156,7 +157,8 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Performance:** committing a 1M-anchor result ≤ 50 ms on the main thread; structural undo and redo ≤ 16 ms (reference machine).
 - **Owner acceptance:** none beyond PR approval.
 - **Stop if:** the document needs renderer types or worker handles; a structural command copies geometry.
-- **Debt:** TD-ARCH-002 and TD-ARCH-003 (document side), TD-PERF-003 (ledger skeleton).
+- **Debt:** TD-ARCH-002 and TD-ARCH-003 (document side), TD-PERF-003 (ledger skeleton), TD-ARCH-005.
+- **Regressions:** global rule; no change to the existing workbench behaviour.
 - **Prerequisites:** none.
 
 ### G-JOB — Scheduler, protocol v2, worker lifecycle (P1-A)
@@ -182,6 +184,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** a real Safari run (needs `safaridriver` authorisation), **or** a documented Safari restriction until it is run.
 - **Stop if:** a preview can cancel an apply or export; committed state is lost on any termination; a mixed-version session can occur.
 - **Debt:** TD-ARCH-002, TD-PERF-004 (scheduler part), TD-ARCH-006, TD-PLATFORM-006.
+- **Regressions:** the existing P0 browser suites (`offline-recovery`, `smoke`, `csp`, `privacy`) still pass in 3 engines.
 - **Prerequisites:** Safari authorisation for the owner part only.
 
 ### G-R0 — Minimal renderer with worker host (P1-A, engineering workbench)
@@ -210,6 +213,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** none beyond PR approval.
 - **Stop if:** a correctness failure in any engine; the worker host cannot present in an engine and the fallback is not disclosed.
 - **Debt:** TD-PERF-001 (first part), TD-REN-001, TD-REN-002 (measured), TD-REN-004.
+- **Regressions:** the P0 preview measurements stay reproducible behind the debug toggle; no export change.
 - **Prerequisites:** none. Real Safari presentation is checked in G-R1.
 
 ### G-UI — Design-system shell (P1-B)
@@ -235,6 +239,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** visual review of the charcoal/lime shell against the mockups.
 - **Stop if:** `unsafe-inline` is needed; a Radix primitive appears; an accessibility gap is unresolved without an approved exception.
 - **Debt:** TD-UI-001 to TD-UI-004.
+- **Regressions:** P0 CSP, privacy and offline suites; notices build check.
 - **Prerequisites:** none for engineering. Real Safari for the owner sign-off.
 
 ### G-R1 — Production rendering and interactions (P1-B)
@@ -261,6 +266,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** hands-on review; **lower-end hardware qualification**; **real Safari** qualification, or a documented restriction.
 - **Stop if:** any compositing error versus exact frames; a budget miss at 250k without an owner decision.
 - **Debt:** TD-PERF-001 (closure candidate), TD-PERF-004, TD-REN-002, TD-REN-003, TD-PLATFORM-002, TD-PLATFORM-003.
+- **Regressions:** G-R0 correctness and hit-test suites; main-thread gap budget.
 - **Prerequisites:** lower-end hardware access; Safari authorisation.
 
 ### G-TRACE — Artistic and Precision tracing in the product (P1-C)
@@ -284,6 +290,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** artistic review on licensed photographs.
 - **Stop if:** silent downsampling or auto-rejection on a forecast.
 - **Debt:** TD-PERF-002 (closure candidate), TD-PERF-004.
+- **Regressions:** Artistic default and Precision v1 outputs byte-identical (326 + 72).
 - **Prerequisites:** none.
 
 ### G-EDIT — Geometry operations (P1-C)
@@ -297,10 +304,12 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** review.
 - **Stop if:** any topology change without explicit authorisation.
 - **Debt:** none closed.
+- **Regressions:** global rule; no trace-output change.
 - **Prerequisites:** none.
 
 ### G-EXP — Frozen-snapshot vector export (P1-C)
-- **Objective.** Export SVG and PDF from frozen snapshots via the packet route.
+- **Objective.** Export SVG and PDF from frozen snapshots via the packet route and draw-list baking (C3.1, C4).
+- **Excludes:** CMYK, PDF/X, spot colours, print certification; raster output of any kind.
 - **Depends on:** G-ENG, G-DOC and G-JOB; UI hook after G-UI.
 - **Contracts:** C3, C4, C5.
 - **Deliverables:** the export job; physical size; background option.
@@ -312,6 +321,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** the owner opens the SVG and PDF in external tools.
 - **Stop if:** any raster appears in an export.
 - **Debt:** none; preserves the P0 export approvals.
+- **Regressions:** P0 export verification (`verify-exports.mjs`, qpdf and poppler) unchanged.
 - **Prerequisites:** none.
 
 ### G-PRJ — Save/Open UI (P1-C)
@@ -328,6 +338,7 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
 - **Owner acceptance:** scope as approved at G-0.
 - **Stop if:** any automatic persistence of artwork.
 - **Debt:** none.
+- **Regressions:** the G-DOC container suites.
 - **Prerequisites:** none.
 
 ### G-GEO — Geometric fidelity (curve fitting) (P1-C, geometry track)
@@ -342,13 +353,17 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
   - pre-registered tiers on the existing corpus;
   - curve metrics;
   - no Artistic or Precision v1 regressions.
-- **Owner acceptance:** a visual bundle (clean circles, 04, 05, rings, real artwork). `PRECISION_FIT_VERSION` allocation by the maintainer (C6).
+- **Performance:** fitter time and memory against the precision v1 PERFORMANCE-REGRESSION baseline, reported.
+- **Owner acceptance:** a visual bundle (clean circles, 04, 05, rings, real artwork). **No version is allocated at G-GEO acceptance** (C6). The fixes stay on `precision-next-geo` until the joint v2 qualification.
 - **Stop if:** a threshold change after seeing results; a v1 hash change.
 - **Debt:** TD-GEO-003, TD-GEO-004, TD-GEO-002 (partial).
+- **Regressions:** 326 + 72 hashes byte-identical (Artistic and v1 untouched).
 - **Prerequisites:** none.
 
 ### G-SB — Shared-boundary graph (P1-C → may defer to P2)
-- **Objective.** The trace-local graph (RFC §12.3) behind `precision-next-sb`, qualified with G-GEO for the planned v2.
+- **Objective.** The trace-local graph (RFC §12.3) behind `precision-next-sb`, qualified with G-GEO for the planned v2. The **joint v2 release qualification**, which spends the fresh holdout once.
+- **Excludes:** editor integration beyond materialisation at commit; global linked edges; plate coupling.
+- **Contracts:** C6 (version allocation), C3 (outputs are standard packets), RFC §12.4 metrics.
 - **Depends on:** G-GEO (fitter API), the restated metric (ratified at G-0), and a **fresh, untouched holdout corpus**.
 - **Deliverables:** the graph, junction-local correction and junction estimator; stacked and mosaic output; emitted-geometry validators.
 - **Automated tests:** the RFC §12.4 metrics table plus validators, run on:
@@ -357,10 +372,12 @@ Each gate below lists: objective and scope; exclusions; dependencies; contracts;
   - negative controls (0 substitutions);
   - real artwork.
 - **Performance:** edge, junction and face counts, time and memory versus precision v1, with budget rejection before fitting.
-- **Owner acceptance:** the visual bundle; version allocation.
+- **Owner acceptance:** the visual bundle; **v2 allocation** (C6).
 - **Stop if:** an Artistic or v1 byte change; post-hoc threshold changes or fixture removal.
 - **Deferral:** allowed to P2. It must stay **visible** in reports and must not be presented as a precision-quality qualification. The maintainer decides v2 allocation (RFC §12.2).
 - **Debt:** TD-GEO-001, TD-GEO-009, TD-GEO-010.
+- **Regressions:** 326 + 72 hashes byte-identical; negative controls unchanged.
+- **Prerequisites:** metric restatement (decided at G-0); a fresh holdout corpus assembled and pre-registered before the freeze.
 
 ## Sequencing summary
 1. **G-0 approval**, then **P-CI**, then **G-ENG ‖ G-DOC**.

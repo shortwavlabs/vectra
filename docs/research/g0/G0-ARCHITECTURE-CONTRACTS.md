@@ -120,6 +120,18 @@ interface GeometryStore {
 
 The anchor count is M, L and C verbs (Z excluded), exactly as `Scene::validate`.
 
+### C3.1 — Authority after commit (packet vs document)
+A packet's `styles`, `evenOdd`, `styleIndex`, `groups` and `groupIndex` are **commit-time inputs and provenance**. The commit command (G-DOC) maps them deterministically:
+
+| Packet | Document |
+|---|---|
+| The whole packet (one chunk) | One new **Layer** (or the replaced layer, on explicit replace) |
+| `groups[g]` | One **Group** node per group, in group order; `name` = group id; `clip` → rect `clipRef` |
+| Path `i` in group `g` | One **PathObject** `{ chunkId, pathIndex: i }` under that Group, in path order |
+| `styles[styleIndex[i]]` | A document style (`styleRef`): fill, stroke, `paletteId` → palette entry. `fillRule` = `evenOdd ? "evenodd" : "nonzero"` on the PathObject |
+
+After commit, the **document is authoritative** for style, fill rule, transform, visibility, lock, order and clip. Renderers (C8) and exporters (C5 `export`) receive **effective** values in a draw list and must not treat packet style tables as authority. The container (C7) stores chunks unchanged, including their provenance tables, and stores authoritative values in the document section.
+
 **Derived metadata** (from the same pass; never transported):
 - `bounds: f64[4·pathCount]` (control-point bounds);
 - `subpathStart: u32[]` (verb index of each M);
@@ -137,6 +149,7 @@ vectorize(rgba, w, h, &TraceRequest, clock) -> Result<Output>            // unch
 GeometryPacket::from_scene(&Scene) -> GeometryPacket                     // lossless for scene v1
 Scene::from_packet(&GeometryPacket, &SceneMeta) -> Result<Scene>
 validate_packet(&GeometryPacket, &Limits) -> Result<Derived, PacketError>  // codes = C3
+bake_draw_list(&DrawList, &[GeometryPacket]) -> Result<Scene>            // export: applies effective transforms (f64), styles, fill rules, clips; visible items only; identity + unchanged style ⇒ original coordinates bit-identical
 segment(rgba, w, h, &TraceRequest) -> Result<Segmentation>               // opaque Vectra-owned handle
 estimate(&Segmentation, &TraceRequest) -> Estimate { anchors_low, anchors_high, basis }
 fit(Segmentation, &TraceRequest, clock) -> Result<Output>                 // == vectorize output, byte-identical
@@ -149,8 +162,8 @@ fit(Segmentation, &TraceRequest, clock) -> Result<Output>                 // == 
 vectorizePacket(rgba, w, h, requestJson) -> { manifestJson, verbs, coords, verbOffsets, coordOffsets,
                                              styleIndex, groupIndex, sceneMetaJson, reportJson }   // one copy out per array
 validatePacket(manifestJson, ...arrays) -> derived | throws {code, message}
-packetToSvg(manifestJson, sceneMetaJson, ...arrays) -> string
-packetToPdf(manifestJson, sceneMetaJson, optionsJson, ...arrays) -> Uint8Array
+exportDrawList(format, drawListJson, sceneMetaJson, optionsJson, ...packets) -> string | Uint8Array  // via bake_draw_list → scene v1 → writers
+packetToSvg / packetToPdf (single-packet convenience, used for the byte-identity regression)
 segment/estimate (handle-scoped to the worker instance)
 ```
 - The existing `vectorize`, `sceneToSvg` and `sceneToPdf` stay until G-EXP shows byte-identical packet-route exports over the regression corpus.
@@ -162,7 +175,7 @@ segment/estimate (handle-scoped to the worker instance)
 - Unmatched responses are dropped, and the drops are counted in diagnostics.
 
 **Compute worker.**
-- **Requests:** `trace{rgba(transfer), width, height, request, quality: "preview"|"final", sourceDigest}`, `estimate{...}`, `op{opId, opVersion, params, inputs: TransferPacket[], sideInputs}`, `export{format: "svg"|"pdf", snapshot: TransferPacket[], sceneMeta, options}`.
+- **Requests:** `trace{rgba(transfer), width, height, request, quality: "preview"|"final", sourceDigest}`, `estimate{...}`, `op{opId, opVersion, params, inputs: TransferPacket[], sideInputs}`, `export{format: "svg"|"pdf", drawList (effective transform, style, fillRule, clip; visible items in paint order), chunks: TransferPacket[] (job copies), sceneMeta, options}`.
 - **Responses:**
   - `status{state}`;
   - `progress{stage: "segment"|"estimate"|"fit"|"validate"|"serialize"}`, staged only; **no fabricated percentages**;
@@ -183,7 +196,7 @@ segment/estimate (handle-scoped to the worker instance)
 | Version | Owner | Rule |
 |---|---|---|
 | `fit.mode` (`spline`=Artistic, `polygon`, `pixel`, `precision`) | engine | Unchanged. Artistic is the default |
-| `PRECISION_FIT_VERSION` | maintainer allocates at geometry-gate acceptance | v1 frozen (hash-protected). Development uses provisional IDs (`precision-next-geo`, `precision-next-sb`), never persisted. Next integer allocated in acceptance order; plan: v2 = G-GEO fixes + G-SB graph. If G-SB defers, the maintainer decides explicitly (RFC §12.2) |
+| `PRECISION_FIT_VERSION` | maintainer, **only at a release qualification** | v1 frozen (hash-protected). Development uses provisional IDs (`precision-next-geo`, `precision-next-sb`), never persisted and not user-selectable. **G-GEO acceptance allocates no version.** Plan: v2 = G-GEO fixes + G-SB graph, allocated at G-SB acceptance; the fresh holdout is spent once, by that joint qualification. If G-SB defers, the maintainer decides explicitly (RFC §12.2) |
 | `presetVersion` (`TraceRequest`) | engine | Bumped on any default change; old versions keep working |
 | `packetVersion` | C3 | 1 |
 | scene version | engine | v1 for export and interchange; v2 only for a needed capability, with dual-format regression |
@@ -225,7 +238,7 @@ The layout is in RFC §14. Normative limits:
 ```text
 RenderSnapshot { renderRevision, documentRevision, dpr, cssWidth, cssHeight, camera {s, tx, ty},
                  drawList: [ { chunkId, pathIndex, transform /* 2×3 f64, effective */,
-                               fill: u32|null, stroke?, evenOdd, clip?: {x,y,w,h}, groupRun: u32 } ],  // paint order
+                               fill: u32|null, stroke?, evenOdd /* from the document fillRule */, clip?: {x,y,w,h}, groupRun: u32 } ],  // paint order; effective values per C3.1
                  selection?: { runs: [ [startIndex, endIndex) ] } }
 ```
 - Snapshots are immutable once sent. The renderer receives packet render copies only for chunks it does not hold, and is told when to release chunks.

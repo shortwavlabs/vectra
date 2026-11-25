@@ -43,6 +43,18 @@
 | 28 | Review gate labels (R03, R04, R05-A PARTIAL) vs reconciled acceptance | Review FINAL-REPORT | Historical results preserved as PARTIAL; acceptance of the architecture is not production qualification | G0-FINAL-REPORT; TECHNICAL-DEBT lifecycle stages |
 | 29 | Absolute review timings could be read as clean reference measurements | Review artefacts | Background `ngspice` load disclosed in RFC §3, §17 and C9; clean runs must record load | RFC §3, §17; C9 |
 
+### Found during the G-0 self-review (resolved before the PR)
+| # | Inconsistency | Location(s) | Resolution | Where resolved |
+|---|---|---|---|---|
+| 30 | The first reconciled draft dropped unamended draft clauses: export rules (no preview-as-final, no SVG→PDF, no CMYK/PDF-X claims, deterministic edited metadata); decoding and preview-downsampling rules; the arbitrary-clip policy; stack, cache, plate and overprint rules; persistence extras; UI behaviours; P0 guardrails; culling and memory bounds; no domain hard-coding; recipe child-ID stability; dependency candidates; IoU and metric ratification; preset envelope fields; reporting integrity | Draft RFC §6–§14 vs first reconciled text | Restored into the matching sections after a clause-by-clause comparison with `0e32fda` | RFC §4, §5.1, §6.1, §8.2, §10.4, §12.3–12.4, §13, §14, §15.1, §16, §17 |
+| 31 | The 24 MP B&W ≤ 2.5 s target was re-scoped from import → visible to worker-job time, a silent loosening | Draft §13 vs first reconciled §17 | Restored to import → visible. The colour 12 MP ≤ 8 s target takes the stricter reading (request → committed result visible). Exact settled frames have explicitly **no numeric target yet** | RFC §17; owner checklist |
+| 32 | Precision v2: G-GEO acceptance could allocate v2 alone ("acceptance order"), contradicting v2 = G-GEO + G-SB; the holdout spender was unspecified | First reconciled RFC §12.2, C6, plan | G-GEO allocates no version. Allocation only at a release qualification. The joint v2 qualification at G-SB spends the fresh holdout once. Deferral handled explicitly | RFC §12.2; C6; plan; decision register; checklist |
+| 33 | Contract gap: packet style, group and fill-rule tables vs document `styleRef` and tree; export lacked transforms | C2–C5, C7 | C3.1 commit mapping; document authoritative after commit; `PathObject.fillRule`; export via a draw list baked in Rust (`bake_draw_list`) | C3.1, C4, C5, C8; RFC §5.1, §6.1; next-gate brief |
+| 34 | Print preset phases conflicted (ROADMAP P2-C vs RFC §18 P3+ vs PRESETS P2) | ROADMAP; RFC §18; PRESETS | The flagship (Old Print, DIY Underground, press, Variation Lab) is P2-C. The other approved Print presets (Halftone, Screen Print, Poster, Comic Ink) stay P2, after the flagship. Advanced styles P3 | RFC §18; ROADMAP; PRESETS |
+| 35 | Mockups vs normative tokens | `docs/mockups/*` vs DESIGN-SYSTEM §4 | Compared: palette tokens match. Mockup foreground `#e5e6e7` vs normative `#eeeef0`; mockups predate `control-border` and the dual focus ring; `#e6ddc6` is placeholder artwork. Mockups unchanged (visual references) | DESIGN-SYSTEM §9 |
+| 36 | P-CI vs "G-CI" naming; stale "clippy not verified" sentence | RFC §19; plan | Unified to P-CI; baseline clippy exit 0 recorded | RFC §19; plan |
+| 37 | Debt dispositions said "closure: As above" with no antecedent (TD-PERF-006) | TECHNICAL-DEBT | Replaced with explicit closure text | TECHNICAL-DEBT |
+
 **Residual open items** (explicit dispositions, not contradictions):
 - lower-end and Safari qualification (owner prerequisites);
 - G-SB possible deferral;

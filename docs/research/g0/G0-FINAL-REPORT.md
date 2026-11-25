@@ -28,7 +28,10 @@ RFC-002 was **rewritten as one coherent normative specification**: the amendment
 - provisional budgets with measurement scopes;
 - build variants and single-build service-worker sessions;
 - the core preset order;
-- explicitly scoped limits.
+- explicitly scoped limits;
+- packet-vs-document authority after commit, and export through a draw list baked in Rust (C3.1).
+
+The unamended requirements of the draft were checked clause by clause against `0e32fda` and retained: export rules, decoding and preview downsampling, arbitrary clips, stack and plate rules, P0 guardrails, reporting integrity (audit #30). Performance scopes keep the draft's import → visible meaning; exact settled frames have no numeric target yet (audit #31).
 
 Cross-module details are frozen in [G0-ARCHITECTURE-CONTRACTS](G0-ARCHITECTURE-CONTRACTS.md) (C1–C9), so G-ENG and G-DOC can proceed independently after approval.
 
@@ -92,7 +95,7 @@ Additional G-0 interpretations awaiting confirmation are listed in [G0-OWNER-ACC
 - all production code.
 
 ## 5. Contradictions resolved
-29 inconsistencies are listed with their resolutions in [G0-CONSISTENCY-AUDIT](G0-CONSISTENCY-AUDIT.md). Notable ones:
+37 inconsistencies are listed with their resolutions in [G0-CONSISTENCY-AUDIT](G0-CONSISTENCY-AUDIT.md). Rows 30–37 were found in a self-review before the PR. Notable ones:
 - the preset order, which conflicted across PRD, ROADMAP, PRESETS and TOOLS;
 - persistence placed in P4;
 - the JSON fallback;
@@ -106,7 +109,11 @@ Additional G-0 interpretations awaiting confirmation are listed in [G0-OWNER-ACC
 - **service-worker version skew** (new: TD-PLATFORM-006, found by source inspection, not reproduced);
 - IoU used as circle evidence;
 - held-out fixture exposure;
-- the stale LICENSE sentence.
+- the stale LICENSE sentence;
+- clauses dropped by the first rewrite (restored);
+- a re-scoped 24 MP target (restored to the draft's meaning);
+- Precision allocation at G-GEO (clarified);
+- the packet-vs-document contract gap (closed).
 
 No contradiction is left without an explicit disposition.
 
@@ -129,7 +136,7 @@ No contradiction is left without an explicit disposition.
 | 1 | Branch and PR integrity | Remote `docs/rfc-002-vector-studio` = `0e32fda`, `review/rfc-002-architecture` = `91552aa` (unchanged). This branch contains `91552aa` with its history; review commits are not rewritten |
 | 2 | 20 amendments dispositioned and traced | 20/20 in the decision register and traceability matrix |
 | 3 | 12 decision categories addressed | 12/12 |
-| 4 | Contradictions | 29 resolved, each with a disposition; residual items are explicit owner or qualification items |
+| 4 | Contradictions | 37 resolved, each with a disposition; residual items are explicit owner or qualification items |
 | 5 | Historical review evidence unaltered | `git diff 91552aa -- docs/research/rfc-002-review experiments/rfc-002-review` is empty |
 | 6 | No production, algorithm, root-dependency or lockfile changes | `git diff 0e32fda -- crates packages src public scripts tests package.json pnpm-lock.yaml pnpm-workspace.yaml Cargo.toml Cargo.lock vite.config.ts tsconfig.json playwright.config.ts rust-toolchain.toml .node-version wrangler.jsonc LICENSE` is empty |
 | 7 | P0 Artistic and Precision v1 baselines | `regression_corpus` re-run: **326/326 identical** to `a4cf172.sha256`. `geo_bundle` re-run: **72/72 identical** to the committed bundle v2 (`artifacts/rust-and-regression.txt`) |

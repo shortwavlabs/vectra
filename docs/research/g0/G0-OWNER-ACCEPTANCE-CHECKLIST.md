@@ -16,12 +16,15 @@ Tick each item to accept, or annotate it. G-0 closes only when the first two ite
   - 250k anchors and ~40k paths is a per-rendered-snapshot **performance target, not an editing limit**;
   - history geometry is budgeted in bytes.
 - [ ] **Precision version allocation rule** (RFC §12.2, C6):
-  - provisional development IDs;
-  - you allocate `PRECISION_FIT_VERSION` integers at geometry-gate acceptance;
-  - planned v2 = G-GEO fixes + G-SB graph.
+  - provisional development IDs (never persisted, not user-selectable);
+  - **G-GEO acceptance allocates no version**;
+  - you allocate `PRECISION_FIT_VERSION` only at a release qualification: planned v2 = G-GEO fixes + G-SB graph at G-SB acceptance, which spends the fresh holdout once;
+  - if G-SB defers, you decide between a G-GEO-only v2 (spending the holdout) and holding back.
 - [ ] **Single-build service-worker sessions** (RFC §15.3) and the new debt item TD-PLATFORM-006.
 - [ ] **Main-thread renderer fallback** is acceptable when disclosed: same renderer, measured, used where worker OffscreenCanvas presentation fails qualification.
 - [ ] **Layered drag cache**: compositing-preserving segmentation must pass the RFC §8.4 matrix in G-R1. Incorrect rendering is never accepted.
+- [ ] **Packet vs document authority** (C3.1): packet styles and groups are commit-time provenance. After commit, the document is authoritative, and exports receive effective values through a draw list baked in Rust.
+- [ ] **Performance scopes** (RFC §17): 24 MP B&W ≤ 2.5 s is **import → visible** (as in the draft); colour ≤ 8 s uses the stricter request → committed-and-visible reading; exact settled frames have no numeric target yet (proposed from G-R1 evidence).
 
 ## Authorise (separately, when ready)
 - [ ] **Merge order:**
