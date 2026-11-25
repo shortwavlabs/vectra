@@ -66,11 +66,11 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PERF-004](#td-perf-004) | Interactive preview responsiveness | Enhancement (with one measured defect) | Medium | OPEN | P1-B | G-JOB/G-TRACE |
 | [TD-PERF-005](#td-perf-005) | Halftone pitch at native resolution | Enhancement | Low | DEFERRED | P2 | P2-C |
 | [TD-PERF-006](#td-perf-006) | Precision mode cost on photographs | Limitation | Low | ACCEPTED FOR P0 | Later | Later |
-| [TD-PERF-007](#td-perf-007) | Structural transactions cost O(nodes) | Limitation (measured) | **High** | OPEN | G-EDIT | G-EDIT |
+| [TD-PERF-007](#td-perf-007) | Structural transactions cost O(nodes) | Limitation (measured) | **High** | OPEN (authorised: G-DOC-R) | G-DOC-R | G-DOC-R |
 | [TD-PERF-008](#td-perf-008) | WASM copy-out at 1M anchors above 2 ms | Limitation (measured; accepted exception) | Low | OPEN | quiet re-run | performance follow-up |
 | [TD-PERF-009](#td-perf-009) | Document v1 open above 1 s at 250k paths | Limitation (measured; accepted exception) | Medium | OPEN | before G-PRJ and public Document v1 | compact Document v1 follow-up |
 | [TD-PERF-010](#td-perf-010) | Job handling blocks the main thread above 50 ms | Defect (budget not met, measured; accepted temporary exception) | **High** | OPEN | G-R1, G-TRACE, G-EXP, G-PRJ | G-TRACE/G-EXP/G-PRJ |
-| [TD-PERF-011](#td-perf-011) | History retains a full node-map table per entry | Limitation (measured) | **High** | OPEN | G-EDIT | G-EDIT |
+| [TD-PERF-011](#td-perf-011) | History retains a full node-map table per entry | Limitation (measured) | **High** | OPEN (authorised: G-DOC-R) | G-DOC-R | G-DOC-R |
 | [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
 | [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
 | [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
@@ -105,6 +105,11 @@ Counts:
 - **P1-A foundation acceptance and G-JOB (2026-11-25):** three items added. TD-PERF-008 (Low) and TD-PERF-009 (Medium) register the accepted P1-A performance exceptions ([decision register §7](research/g0/G0-DECISION-REGISTER.md)); TD-PERF-010 (High) is measured by G-JOB. **42 open items, 14 High.** None is closed by G-JOB: every G-JOB item still needs real Safari (TD-PLATFORM-002) or a later gate.
 - **G-R0/G-UI acceptance (2026-11-25):** TD-REN-001 **closed** by maintainer approval. **41 open items, 13 High.** No item added. Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and keyboard path selection are qualified.
 - **G-R1 (2026-11-25):** one item added, TD-PERF-011 (High, measured by the TD-PERF-007 investigation). **42 open items, 14 High.** None is closed by G-R1. TD-REN-003 has met its closure criteria on the reference machine and TD-REN-004 in substance; both are proposed for closure, maintainer to confirm.
+- **G-R1/G-UI-R maintainer review (2026-11-25):**
+  - No item is closed or added: **42 open items, 14 High**.
+  - TD-PERF-001: the complete-preview miss is accepted temporarily for downstream engineering. The item and every target are retained.
+  - TD-PERF-007 and TD-PERF-011 are authorised as the follow-up gate G-DOC-R (options B, C, D; [scope](research/g-doc-r/G-DOC-R-SCOPE.md)).
+  - Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and the stock-Safari keyboard check are executed. The canvas focus ring is fixed at the canvas-host level (#19).
 
 ---
 
@@ -391,6 +396,10 @@ Counts:
 - **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R02: Canvas 2D + cache + worker host) / IMPLEMENTATION PENDING**; gate G-R0 (architecture), G-R1 (closure candidate); closure: RFC §17 budgets on the reference machine **and** lower-end devices; real Safari or a documented restriction; owner action: Yes: lower-end hardware access; Safari authorisation. Renderer decided (D04).
 - **G-R0 disposition (2026-11-25), first part:** retained Canvas 2D in an OffscreenCanvas worker with the display cache. At 270k anchors / 16k paths the exact frame takes 96 / 181 / 103 ms (Chromium / Firefox / Playwright WebKit) and 116 ms in real Safari: the ≤ 100 ms preview target is met only in Chromium. Gestures p95 18–19 ms everywhere, main thread ≤ 21 ms during gestures. Closure stays with G-R1 and lower-end hardware. [G-R0 report](research/g-r0/G-R0-REPORT.md).
 - **G-R1 disposition (2026-11-25):** measured on the registered interactive target (synthetic-many-250k: 250,000 anchors, 41,853 paths), validated document to exact frame: **146 / 270 / 147 ms** (Chromium / Firefox / Playwright WebKit). **NOT MET**; covered by the temporary exception accepted at G-R0. Per the G-R1 stop condition this needs an owner decision; no target is lowered. Path construction (137–657 ms summed) and progressive drawing dominate. Lower-end hardware NOT RUN. [G-R1 report](research/g-r1/G-R1-REPORT.md).
+- **Maintainer review (2026-11-25):**
+  - The miss is accepted temporarily for downstream engineering. This item and every numerical target are retained.
+  - Grading distinguishes the interactive target (≤ 250k anchors and ~40k paths: preview ≤ 100 ms) from stress workloads (500k–1M anchors, RFC-002 §8.8). Stress workloads, the 977k halftone among them, stay measured, but no 100 ms preview threshold is applied to them.
+  - Quiet-machine and lower-end-hardware qualifications are retained. **OPEN.**
 
 <a id="td-perf-002"></a>
 ### TD-PERF-002 — Late geometry budget enforcement
@@ -794,6 +803,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Owner action:** no.
 - **G-UI disposition (2026-11-25):** the Dice colour picker is replaced by an owned picker built from Base UI sliders (`src/ui/color-picker.tsx`): named thumbs (D3), a free-text hex draft committed on Enter or blur (D4), a keyboard-operable saturation/brightness area (D5) and one commit on Apply, none on Cancel, Escape, outside click or an unchanged colour (D6). The shadcn Slider keeps the D1 patch and is always given array values (D2). Keyboard steps carry a coalesce key and focus changes end the run (D7, RFC §7; session window 1000 ms, unchanged). dnd-kit announcements are name-based (D8). Qualified in `tests/browser/ui-document.spec.ts` in 3 Playwright engines (names, values, keyboard, commit/cancel, one undo entry per gesture or keyboard run). Screen-reader (VoiceOver) smoke test NOT RUN; Playwright aria snapshots are recorded as a proxy only. Stage: **PRODUCTION VERIFIED (automated) / screen-reader pass pending**. Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
 - **G-R1 note (2026-11-25):** keyboard selection of single paths on the canvas is implemented (it was G-UI §5.4's open gap), with announcements (`workspace-a11y`, 3 engines; real Safari keyboard scenario PASS). The VoiceOver smoke test is still **NOT RUN**: the owner checklist is [VOICEOVER-CHECKLIST.md](research/g-r1/VOICEOVER-CHECKLIST.md). Not closed.
+- **Maintainer review (2026-11-25):** VoiceOver remains mandatory. It is not marked PASS until executed; the checklist gives the exact build to test. Not closed.
 
 <a id="td-ui-003"></a>
 ### TD-UI-003 — Border, slider-track and focus-ring contrast
@@ -805,6 +815,11 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** the contrast table passes in the production shell, plus an owner visual review.
 - **Dependencies:** none.
 - **Owner action:** visual review.
+- **G-R1 correction (2026-11-25):**
+  - The canvas's keyboard focus ring was invisible in Chromium: the host's outline was painted under its own canvas layers (WCAG 2.4.7).
+  - The canvas host now draws the dual ring as its top layer. The ring follows `:focus-visible`, is an outline (so it survives forced-colours mode) and takes no pointer input.
+  - It is verified from rendered pixels, not computed style, along all four edges over artwork and the selection overlay: `workspace-a11y` in Chromium, Firefox and Playwright WebKit, and `tests/safari/gr1.mjs` 'focus' in real Safari 26.6.2.
+  - Mutations (no ring layer; ring under the layers) fail the test in all 3 engines. Not closed: owner visual review.
 - **G-UI disposition (2026-11-25):** tokens shipped as in DESIGN-SYSTEM §4, including `control-border` #787a7e (input outlines, slider tracks, resize grips) and the dual focus ring (2 px lime outline, 2 px offset filled by a #191a1c ring), one unlayered `:focus-visible` rule. The contrast table is computed from the running production build (all pairs pass; control-border 3.02–4.05:1; dark inner ring 14.24:1 on paper, 12.35:1 on lime), and the computed colours of a real input border, slider track and resize grip are measured at 3.70, 3.70 and 4.05:1 in 3 engines; the rendered ring is asserted. Stage: **OWNER ACCEPTANCE PENDING** (visual review). Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
 
 <a id="td-ui-004"></a>
@@ -871,8 +886,9 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - Incremental and full validation agree on every state of a randomized command-sequence suite (at least 10,000 transactions, including rejected ones).
   - Load still runs the full pass; no invariant is weakened.
 - **Dependencies:** G-DOC store and invariants (C8 r2); TD-ARCH-005.
-- **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT.
+- **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT. *Superseded on 2026-11-25: G-DOC-R is authorised, with no new dependency.*
 - **G-R1 investigation (2026-11-25):** whole-state validation is 62–89 % of a structural transaction and copying 10–18 %. A one-node edit: 22 ms at 43k paths, 144 ms at 250k. A prototype incremental validator (not wired) agrees with the full validator on 62,124 randomized comparisons over 5 seeds, invalid transactions included, with 0 disagreements. Options B (wire it, with a comparison mode), C (Draft key tracking) and D (a chunked copy-on-write map, the only route found to ≤ 50 ms at 250k) are an owner decision. **OPEN.** [Investigation](research/g-r1/TD-PERF-007-INVESTIGATION.md).
+- **Maintainer review (2026-11-25):** options **B, C and D are authorised, in that order**, as the dedicated gate **G-DOC-R**, with no new dependency. The frozen-contract amendment process applies. Retained targets: median ≤ 16.7 ms and p95 ≤ 33 ms at the interactive target, ≤ 50 ms at the stress workloads, and ≥ 10,000 randomized differential transactions. [Scope](research/g-doc-r/G-DOC-R-SCOPE.md). **OPEN.**
 
 <a id="td-perf-008"></a>
 ### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms
@@ -931,7 +947,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Evidence:** [TD-PERF-007 investigation](research/g-r1/TD-PERF-007-INVESTIGATION.md) (G-R1, 2026-11-25).
 - **Disposition:** stage **MEASURED**; gate **G-EDIT**. Option D of the investigation (a chunked copy-on-write node map) measured about 0.02 MiB per state; it needs approval.
 - **Closure criteria:** history memory bounded and counted in the budget, with the full validator still the oracle.
-- **Owner action:** a decision on the TD-PERF-007 options.
+- **Owner action:** a decision on the TD-PERF-007 options. *Decided on 2026-11-25: option D is authorised within G-DOC-R, after B and C. History accounting covers retained node maps, node objects, indexes, geometry and source assets, counting shared allocations once ([scope](research/g-doc-r/G-DOC-R-SCOPE.md)).*
 <a id="td-platform-007"></a>
 ### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs
 - **Category / severity / status:** Defect (determinism) · Medium · OPEN TECHNICAL DEBT (found by G-ENG; pre-existing).

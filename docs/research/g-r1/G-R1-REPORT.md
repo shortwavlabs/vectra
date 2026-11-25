@@ -1,6 +1,6 @@
 # G-R1 — Production rendering and interactions (P1-B)
 
-**Status:** **PARTIAL**, waiting for maintainer review.
+**Status:** **PARTIAL**. Maintainer review on 2026-11-25: accepted in principle. The decisions and the corrections they required are in §12 ([decision register §10](../g0/G0-DECISION-REGISTER.md)).
 
 The G-R0 renderer now drives the real workspace. In Chromium, Firefox and Playwright WebKit:
 - transform handles and compositing-preserving layered drag caches are qualified against exact frames, with 0 geometry errors in all 12 matrix cases;
@@ -9,8 +9,8 @@ The G-R0 renderer now drives the real workspace. In Chromium, Firefox and Playwr
 - gestures and drags stay at frame rate (p95 ≤ 19 ms).
 
 These remain open:
-- **Preview ≤ 100 ms** on the registered interactive target is missed in every engine: 146 / 270 / 147 ms. This is the temporary exception accepted at G-R0; the target is not lowered, and G-R1 closure needs an owner decision.
-- **TD-PERF-007** structural transactions: investigated, with a recommendation; options need owner approval.
+- **Preview ≤ 100 ms** on the registered interactive target is missed in every engine: 146 / 270 / 147 ms. The maintainer accepted the miss temporarily for downstream engineering. TD-PERF-001 and the target are retained.
+- **TD-PERF-007** structural transactions: investigated. Options B, C and D are authorised as the follow-up gate G-DOC-R.
 - **Real Safari timing** is NOT RUN (the automation window was hidden). **VoiceOver** and the **stock-Safari keyboard** check are NOT RUN; owner checklists are provided.
 - **Lower-end hardware** and a **quiet-machine** run are NOT RUN.
 
@@ -105,7 +105,7 @@ Tests: stepping by 1, 7, 64 and 4096 units agrees with the reference build on fi
 | Workload | Paths | Anchors | Subpaths | Input |
 |---|---|---|---|---|
 | synthetic-many-250k (RFC interactive target) | 41,853 | 250,000 | 50,000 | R02 register `46280a24…` (holes, translucency, palette refs) |
-| bark-1224 | 16,056 | 269,996 | 16,357 | G-JOB `a4629ed3…`, Full Colour defaults |
+| bark-1224 (just above the 250k interactive bound, below the stress range) | 16,056 | 269,996 | 16,357 | G-JOB `a4629ed3…`, Full Colour defaults |
 | bark-2350 (stress) | 43,621 | 812,003 | 45,211 | G-JOB `daa939de…`, Full Colour defaults |
 | architecture-street-halftone (stress) | 1 | 977,505 | 195,501 | a4cf172 `482181c8…` |
 
@@ -154,7 +154,8 @@ Tests: stepping by 1, 7, 64 and 4096 units agrees with the reference build on fi
 
 | Target | Result |
 |---|---|
-| Preview ≤ 100 ms at ≤ 250k anchors and ~40k paths | **NOT MET**: 146 / 270 / 147 on the interactive target (accepted temporary exception; owner decision for G-R1 closure, TD-PERF-001) |
+| Preview ≤ 100 ms at ≤ 250k anchors and ~40k paths (interactive target only) | **NOT MET**: 146 / 270 / 147 on the interactive target. Accepted temporarily by the maintainer for downstream engineering; TD-PERF-001 and the target are retained |
+| Stress workloads (500k–1M anchors, RFC §8.8): bark-2350, 977k halftone | **Measured, no preview threshold**: the RFC sets the 100 ms target for the interactive target only, so no identical stress threshold is invented. Preview 298 / 582 / 296 and 281 / 842 / 247 ms. bark-1224 (270k anchors, just above the interactive bound) is reported, not graded: 105 / 204 / 116 |
 | Gesture frame p95 ≤ 33 ms | **MET**: ≤ 19 ms everywhere. Single-frame maxima of 140 ms (pan) and 92 ms (zoom) on the WebKit halftone |
 | ≤ 50 ms attributable blocking: renderer | **MET**: per snapshot, evaluation + snapshot + copy + post is 15–42 ms; hit-index slices ≤ 11 ms (cold index previously 30–93 ms); drag main-thread gaps ≤ 38.6 ms |
 | ≤ 50 ms attributable blocking: load | **NOT MET, outside G-R1**: load-time gaps of 100–300 ms come from container validation (G-PRJ, TD-PERF-009), or from the trace commit for imports (TD-PERF-010) |
@@ -186,12 +187,12 @@ Tests: stepping by 1, 7, 64 and 4096 units agrees with the reference build on fi
 - Seed 20261125 (12,427 comparisons) runs in `vp test`.
 - `validateState` remains the oracle and the only path for loaded documents.
 
-**Owner decision.** The options are:
+**Decision (maintainer, 2026-11-25).** Options B, C and D are authorised, in that order, as the dedicated gate **G-DOC-R** ([scope](../g-doc-r/G-DOC-R-SCOPE.md)). The options:
 - **B:** wire the prototype in with a comparison mode;
 - **C:** Draft-recorded keys, plus cheap command fixes;
 - **D:** a chunked copy-on-write node map, the only route found to ≤ 50 ms at 250k and to bounded history memory.
 
-The subtree recheck for whole-layer transforms at 250k (~56 ms) needs a decision too.
+G-DOC-R also investigates per-subtree summaries for the whole-layer transform recheck at 250k (~56 ms).
 
 ## 7. Bundle (gzip -9; `node docs/research/g-ui/measure-bundle.mjs`)
 
@@ -217,5 +218,5 @@ See the PR description: exact head, CI run, and the final regression run (full b
 **G-R1: PARTIAL.**
 - Functionally complete and correct (compositing matrix 0 errors in four engines).
 - Interaction budgets met on the reference machine.
-- Not met: preview ≤ 100 ms at the interactive target (an owner decision, per the G-R1 stop condition) and the TD-PERF-007 structural dispatch targets.
+- Not met: preview ≤ 100 ms at the interactive target, accepted temporarily by the maintainer (TD-PERF-001 retained), and the TD-PERF-007 structural dispatch targets, authorised for G-DOC-R.
 - NOT RUN: real-Safari timing, VoiceOver, the stock-Safari keyboard check, lower-end hardware and a quiet run.
