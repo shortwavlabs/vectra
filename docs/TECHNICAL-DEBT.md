@@ -86,7 +86,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-REN-002](#td-ren-002) | Worker-canvas presentation (WebKit) and raster (Firefox) | Untested / limitation | Medium | OPEN | G-R0/G-R1 | G-R0/G-R1 |
 | [TD-REN-003](#td-ren-003) | Layered drag-cache correctness and cost | Limitation (unqualified) | **High** | OPEN | G-R1 | G-R1 |
 | [TD-REN-004](#td-ren-004) | Large compound paths as single objects | Limitation | Medium | OPEN | G-R0 | G-R0 |
-| [TD-UI-001](#td-ui-001) | Base UI inline style vs strict CSP | Limitation (mitigated in harness) | Medium | OPEN | G-UI | G-UI |
+| [TD-UI-001](#td-ui-001) | Base UI inline style vs strict CSP | Limitation (mitigated in the production shell) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-002](#td-ui-002) | Colour picker and slider accessibility | Defect (upstream) | **High** | OPEN | G-UI | G-UI |
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
@@ -755,6 +755,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** a production CSP regression test with positive and negative controls passes in 3 engines and real Safari.
 - **Dependencies:** none.
 - **Owner action:** no.
+- **G-UI disposition (2026-11-25):** the workspace (`workspace.html`) wraps its root in `<CSPProvider disableStyleElements>` and owns the `.base-ui-disable-scrollbar` rule (`src/ui/styles.css`); the CSP in `public/_headers` is unchanged. `tests/browser/ui-shell.spec.ts`: the served header equals `_headers`, 0 violations and 0 inline `<style>` elements at load with a ScrollArea on screen; negative control (injected `<style>` reported) and positive control (`?csp=default` drops the provider: 1 `style-src-elem` violation at load) pass in Chromium 159, Firefox 159 and Playwright WebKit 27.2; every UI test asserts 0 violations and 0 off-host requests. Real Safari NOT RUN. Stage: **PRODUCTION VERIFIED (3 Playwright engines) / real Safari pending**. Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
 
 <a id="td-ui-002"></a>
 ### TD-UI-002 — Colour picker and slider accessibility
@@ -766,6 +767,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** explicit qualification of the repaired controls (keyboard, names, values, commit/cancel, coalesced history) plus a screen-reader smoke test. The review's 42/42 result does not close this item.
 - **Dependencies:** RFC §7.
 - **Owner action:** no.
+- **G-UI disposition (2026-11-25):** the Dice colour picker is replaced by an owned picker built from Base UI sliders (`src/ui/color-picker.tsx`): named thumbs (D3), a free-text hex draft committed on Enter or blur (D4), a keyboard-operable saturation/brightness area (D5) and one commit on Apply, none on Cancel, Escape, outside click or an unchanged colour (D6). The shadcn Slider keeps the D1 patch and is always given array values (D2). Keyboard steps carry a coalesce key and focus changes end the run (D7, RFC §7; session window 1000 ms, unchanged). dnd-kit announcements are name-based (D8). Qualified in `tests/browser/ui-document.spec.ts` in 3 Playwright engines (names, values, keyboard, commit/cancel, one undo entry per gesture or keyboard run). Screen-reader (VoiceOver) smoke test NOT RUN; Playwright aria snapshots are recorded as a proxy only. Stage: **PRODUCTION VERIFIED (automated) / screen-reader pass pending**. Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
 
 <a id="td-ui-003"></a>
 ### TD-UI-003 — Border, slider-track and focus-ring contrast
@@ -777,6 +779,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** the contrast table passes in the production shell, plus an owner visual review.
 - **Dependencies:** none.
 - **Owner action:** visual review.
+- **G-UI disposition (2026-11-25):** tokens shipped as in DESIGN-SYSTEM §4, including `control-border` #787a7e (input outlines, slider tracks, resize grips) and the dual focus ring (2 px lime outline, 2 px offset filled by a #191a1c ring), one unlayered `:focus-visible` rule. The contrast table is computed from the running production build (all pairs pass; control-border 3.02–4.05:1; dark inner ring 14.24:1 on paper, 12.35:1 on lime), and the computed colours of a real input border, slider track and resize grip are measured at 3.70, 3.70 and 4.05:1 in 3 engines; the rendered ring is asserted. Stage: **OWNER ACCEPTANCE PENDING** (visual review). Not closed. [G-UI report](research/g-ui/G-UI-REPORT.md).
 
 <a id="td-ui-004"></a>
 ### TD-UI-004 — Notices do not cover copied sources and emitted CSS
@@ -788,6 +791,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** notices include copied sources (via the manifest with hashes), Tailwind CSS, lucide ISC and MIT, and cva Apache-2.0; the build fails if they are stale.
 - **Dependencies:** DESIGN-SYSTEM §6.
 - **Owner action:** no.
+- **G-UI disposition (2026-11-25):** `scripts/generate-notices.mjs` reads the copied-source manifest `src/ui/registry/PROVENANCE.json` (registry item, URL, upstream and current SHA-256, recorded patches), fails when a copied file differs from its recorded hash, and adds the shadcn/ui and Dice UI MIT texts (verbatim at the recorded upstream commits; git blob SHAs equal upstream's) and tailwindcss's licence when the built CSS carries its banner; lucide-react (ISC with the MIT Feather section) and class-variance-authority (Apache-2.0) come from the source-map pass. `pnpm run build` verifies the notices (55 components). Stage: **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING** (closure criteria met; closes on G-UI acceptance). [G-UI report](research/g-ui/G-UI-REPORT.md).
 
 <a id="td-geo-010"></a>
 ### TD-GEO-010 — Sliver metric and junction criterion restatement

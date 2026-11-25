@@ -163,3 +163,12 @@ The approved charcoal/lime studio direction stays; it must not become a generic 
 - Use semantic tokens and build-time Tailwind; artwork rendering never depends on utility classes.
 - Keyboard and reorder actions are offered even when drag and drop fails.
 - No production UI before G-UI. The R05-A harness stays a disposable experiment.
+
+## 12. G-UI implementation record (2026-11-25; review branch, not yet accepted)
+The G-UI shell follows §1–§11 with these recorded deviations ([G-UI report](research/g-ui/G-UI-REPORT.md) §3):
+- **Locations:** copied registry sources in `src/ui/registry/` with the manifest `PROVENANCE.json`; owned components in `src/ui/`; the shell in `src/shell/` (instead of `src/components/ui` and `src/components/editor`, per the parallel-development file ownership).
+- **No `@` alias, no `components.json`:** the two copied files that used `@/…` imports were patched to relative imports (recorded in the manifest); the shadcn CLI was not re-run (sources copied from the hash-verified R05-A harness).
+- **Colour picker:** the owned picker of §3 (Base UI sliders), not the patched Dice picker.
+- **Import:** a native file input and a canvas drop target instead of Dice `file-upload` (local `File` only, zero network, as §3 requires).
+- **Copied sources** are excluded from formatting (kept byte-identical for hash provenance) but linted and type-checked by the root `vp check` (§10.7).
+- **Dark only, deterministic:** registry `dark:` styles follow a `dark` class on `<html>`, never the OS colour scheme.

@@ -1,0 +1,44 @@
+- banner:
+  - text: vectra / Studio
+  - paragraph: No document
+  - group "History":
+    - button "Undo" [disabled]
+    - button "Redo" [disabled]
+    - button "Keyboard shortcuts"
+  - button "Import"
+  - button "Export" [disabled]
+- navigation "Tools":
+  - button "Select" [pressed]
+  - button "Trace"
+  - button "Smooth, not available yet" [disabled]
+  - button "Simplify, not available yet" [disabled]
+  - button "Cleanup, not available yet" [disabled]
+  - button "Recolor"
+- region "Canvas":
+  - group "View":
+    - button "Artwork" [pressed]
+    - button "Paths view, available with the production renderer" [disabled]: Paths
+    - button "Compare view, available with the production renderer" [disabled]: Compare
+  - region "Artwork canvas":
+    - paragraph: Interim preview. Click an object to select it (bounding-box hit test); select with the keyboard in the Layers panel.
+  - heading "Import an image to start" [level=2]
+  - paragraph: PNG, JPEG or WebP, traced on this device with the Black & White preset. Drop a file here or choose one.
+  - button "Choose image…"
+  - button "Zoom out" [disabled]
+  - text: —
+  - button "Zoom in" [disabled]
+  - button "Fit artboard" [disabled]
+  - text: No artboard
+- separator "Resize inspector"
+- complementary "Inspector":
+  - heading "Select" [level=2]
+  - heading "No document" [level=3]
+  - paragraph: "Import an image to create a document: it is traced on this device and added as a layer."
+- separator "Resize layers"
+- region "Layers":
+  - heading "Layers" [level=2]
+  - paragraph: No document. Imported artwork appears here as layers.
+- contentinfo:
+  - text: RGB · Vector document No artwork
+  - status: Ready
+  - text: "Preview: interim SVG host (empty); production renderer pending Offline ready"
