@@ -129,18 +129,32 @@ export async function canvasSettled(page: Page) {
   });
 }
 
-/** Clicks artboard points (fractions) until the exact hit test selects a single path. */
+/** Clicks artboard points (fractions) until the exact hit test selects a single path. The hit
+ * is asynchronous (it waits for the current revision's hit index, rebuilt in slices after an
+ * edit), so each probe waits for its own answer (bounded) instead of reading the name at once:
+ * under load every immediate read ran ahead of the answers. */
 export async function selectOnCanvas(page: Page, points: [number, number][] = DEFAULT_POINTS) {
   const art = (await page.getByTestId("artboard").boundingBox())!;
+  const seen: (string | null)[] = [];
   for (const [fx, fy] of points) {
     await page.mouse.click(art.x + art.width * fx, art.y + art.height * fy);
-    const name = await page
-      .getByTestId("selection-name")
-      .textContent({ timeout: 1000 })
-      .catch(() => null);
-    if (name && /^Path \d+$/.test(name)) return [fx, fy] as const;
+    const hit = await expect(page.getByTestId("selection-name"))
+      .toHaveText(/^Path \d+$/, { timeout: 3000 })
+      .then(() => true)
+      .catch(() => false);
+    if (hit) return [fx, fy] as const;
+    seen.push(await page.getByTestId("selection-name").textContent());
   }
-  throw new Error("no path under any probe point");
+  // Diagnosable if it recurs: what each probe left selected, and the hit counters (debug pages).
+  const diag = await page.evaluate(() => {
+    const d = (
+      window as unknown as { __vectra?: { canvas: { diag(): Record<string, unknown> | null } } }
+    ).__vectra?.canvas.diag();
+    return d
+      ? { waitMs: d.hitTestWaitMs, stale: d.hitTestStaleAnswers, readyMs: d.hitTestReadyMs }
+      : null;
+  });
+  throw new Error(`no path under any probe point: ${JSON.stringify({ seen, diag })}`);
 }
 const DEFAULT_POINTS: [number, number][] = [
   [0.7, 0.62],
