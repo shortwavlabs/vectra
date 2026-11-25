@@ -1,0 +1,25 @@
+uptime: 20:00  up 1 day,  4:59, 1 user, load averages: 1.30 1.32 3.12
+ngspice procs: 3
+
+$ cargo fmt --all --check
+fmt: PASS
+
+$ cargo clippy --workspace --all-targets --locked -- -D warnings
+    Checking vector-engine v0.0.0 (/Users/shortwavlabs/Workspace/shortwavlabs/vectra/crates/vector-engine)
+    Checking vector-engine-wasm v0.0.0 (/Users/shortwavlabs/Workspace/shortwavlabs/vectra/packages/vector-engine-wasm)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.57s
+clippy exit: 
+
+$ cargo test --workspace --locked
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test malformed_inputs_return_typed_errors ... ok
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.78s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.79s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+$ regression_corpus -> tests/output/g0-regression
+regression: IDENTICAL (     326 files vs a4cf172.sha256)
+clippy exit code: 0
+bundle-v2: 72 committed SVG/PDF files; regenerated identical: 72; differing: 0; missing: 0

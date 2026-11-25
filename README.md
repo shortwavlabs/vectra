@@ -2,7 +2,7 @@
 
 **From pixels to paths.** An open-source, local-first browser studio for raster tracing and artistic vector print effects.
 
-**Status: P0 accepted and complete** as an engineering baseline (P0, P0-R, P0-R-GEO), not a production release. **Next: RFC-002, the Vector Studio architecture.**
+**Status: P0 accepted and complete** as an engineering baseline (P0, P0-R, P0-R-GEO), not a production release. **RFC-002 (Vector Studio architecture) has been independently reviewed, reconciled and approved (G-0)** ([G-0 report](docs/research/g0/G0-FINAL-REPORT.md)). P1-A (engine API and document foundation) is authorised after the minimal CI gate (P-CI).
 - A temporary engineering workbench runs locally. There is no product UI and no public deployment.
 - Start at the [P1 handoff](docs/P1-HANDOFF.md). See also the [acceptance record](docs/research/P0-ACCEPTANCE.md), the [technical debt register](docs/TECHNICAL-DEBT.md) and the [P0 postmortem](docs/research/P0-POSTMORTEM.md).
 

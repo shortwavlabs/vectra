@@ -7,7 +7,7 @@ A living engineering register: outstanding limitations, their evidence and their
 - When an item changes, update its status and add the evidence. Do not delete history.
 - An item accepted for P0 is **not fixed**: acceptance means the P0 baseline may ship to the next phase with this behaviour documented.
 
-Created at P0 closure (2026-11-24) from the P0, P0-R and P0-R-GEO reports. The consolidated narrative is in the [P0 postmortem](research/P0-POSTMORTEM.md); decisions are in [P0-ACCEPTANCE](research/P0-ACCEPTANCE.md).
+Created at P0 closure (2026-11-24) from the P0, P0-R and P0-R-GEO reports. Updated at G-0 (2026-11-25) from the independent RFC-002 review: dispositions per item, lifecycle stages, and 12 added items. The consolidated narrative is in the [P0 postmortem](research/P0-POSTMORTEM.md); decisions are in [P0-ACCEPTANCE](research/P0-ACCEPTANCE.md).
 
 ## Conventions
 **Category:**
@@ -27,6 +27,16 @@ Created at P0 closure (2026-11-24) from the P0, P0-R and P0-R-GEO reports. The c
 - DEFERRED: intentionally postponed to a named phase.
 - NOT RUN: never measured.
 
+**Lifecycle stage** (added at G-0, 2026-11-25). This is orthogonal to status; an item can be OPEN at any stage before the last:
+- **ARCHITECTURE ACCEPTED:** the solution is chosen in RFC-002; nothing is implemented.
+- **IMPLEMENTATION PENDING:** gate work has not started or is in progress.
+- **PROTOTYPE DEMONSTRATED:** a disposable experiment showed feasibility. This is evidence, not proof.
+- **PRODUCTION VERIFIED:** the production implementation passes its gate's automated criteria.
+- **OWNER ACCEPTANCE PENDING:** verified, and awaiting maintainer sign-off.
+- **QUALIFIED AND CLOSED:** accepted by the maintainer. Only this stage resolves an item.
+
+Gates (`G-ENG`, `G-DOC`, `G-JOB`, `G-R0`, `G-UI`, `G-R1`, `G-TRACE`, `G-EDIT`, `G-EXP`, `G-PRJ`, `G-GEO`, `G-SB`, plus the `P-CI` prerequisite) are defined in [G0-P1-IMPLEMENTATION-PLAN](research/g0/G0-P1-IMPLEMENTATION-PLAN.md).
+
 **Target phase:**
 - RFC-002 (architecture input);
 - P1-A (document, layers, selection, transforms, history);
@@ -39,37 +49,50 @@ Created at P0 closure (2026-11-24) from the P0, P0-R and P0-R-GEO reports. The c
 All paths are relative to the repository root. Unless stated otherwise, fixtures come from `crates/vector-engine/tests/common/corpus.rs` (generate PNGs with `cargo run --release -p vector-engine --example geo_corpus`) or `tests/fixtures/`.
 
 ## Summary
-| ID | Title | Category | Severity | Status | Target |
-|---|---|---|---|---|---|
-| [TD-GEO-001](#td-geo-001) | Shared colour boundaries and lower-layer slivers | Limitation (with measured defects) | **High** | ACCEPTED FOR P0 / OPEN | **RFC-002**, P1-C |
-| [TD-GEO-002](#td-geo-002) | Non-antialiased geometric shapes | Limitation | Medium | ACCEPTED FOR P0 / OPEN | P1-C or later |
-| [TD-GEO-003](#td-geo-003) | Thin bars and acute corners | Defect | Medium | ACCEPTED FOR P0 / OPEN | P1-C |
-| [TD-GEO-004](#td-geo-004) | Straight-edge curvature near rebuilt corners | Defect | Low | ACCEPTED FOR P0 / OPEN | P1-C |
-| [TD-GEO-005](#td-geo-005) | One-pixel diagonal strokes | Limitation | Medium | DEFERRED | P1 Line Art |
-| [TD-GEO-006](#td-geo-006) | Partial source transparency | Limitation | Medium | ACCEPTED FOR P0 / OPEN | Later (preset-driven) |
-| [TD-GEO-007](#td-geo-007) | Browser-dependent image decoding | Limitation | Medium | DEFERRED | RFC-002 decision, P1 |
-| [TD-GEO-008](#td-geo-008) | Residual transparency approximation | Limitation | Low | ACCEPTED FOR P0 | Later |
-| [TD-GEO-009](#td-geo-009) | Precision compositing limitations | Limitation | Medium | ACCEPTED FOR P0 / OPEN | RFC-002, P1-C |
-| [TD-PERF-001](#td-perf-001) | Large-scene preview rendering | Defect (budget not met) | **High** | OPEN | **RFC-002**, P1-B |
-| [TD-PERF-002](#td-perf-002) | Late geometry budget enforcement | Defect | Medium | OPEN | P1-A/B |
-| [TD-PERF-003](#td-perf-003) | High-resolution image memory usage | Limitation | **High** | OPEN | **RFC-002**, P1 |
-| [TD-PERF-004](#td-perf-004) | Interactive preview responsiveness | Enhancement (with one measured defect) | Medium | OPEN | P1-B |
-| [TD-PERF-005](#td-perf-005) | Halftone pitch at native resolution | Enhancement | Low | DEFERRED | P2 |
-| [TD-PERF-006](#td-perf-006) | Precision mode cost on photographs | Limitation | Low | ACCEPTED FOR P0 | Later |
-| [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 |
-| [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** |
-| [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** |
-| [TD-ARCH-004](#td-arch-004) | Engineering-only engine entry points | Enhancement | Low | OPEN | P1-A |
-| [TD-PLATFORM-001](#td-platform-001) | Linux amd64 | Untested | Low | NOT RUN | Before public release |
-| [TD-PLATFORM-002](#td-platform-002) | Safari and mobile | Untested | **High** | NOT RUN | P1-B and before public release |
-| [TD-PLATFORM-003](#td-platform-003) | Lower-end desktop hardware | Untested | **High** | NOT RUN | Before any public performance claim; RFC-002 budget |
-| [TD-PLATFORM-004](#td-platform-004) | Real deployment | Untested | Medium | DEFERRED | When a suitable UI exists |
-| [TD-PLATFORM-005](#td-platform-005) | Cross-host precision reproducibility | Untested | Low | NOT RUN | Next Linux run |
-| [TD-PROCESS-001](#td-process-001) | No automated required checks | Enhancement | Low | OPEN | Maintainer decision |
+| ID | Title | Category | Severity | Status | Target | G-0 gate |
+|---|---|---|---|---|---|---|
+| [TD-GEO-001](#td-geo-001) | Shared colour boundaries and lower-layer slivers | Limitation (with measured defects) | **High** | ACCEPTED FOR P0 / OPEN | **RFC-002**, P1-C | G-SB |
+| [TD-GEO-002](#td-geo-002) | Non-antialiased geometric shapes | Limitation | Medium | ACCEPTED FOR P0 / OPEN | P1-C or later | G-GEO |
+| [TD-GEO-003](#td-geo-003) | Thin bars and acute corners | Defect | Medium | ACCEPTED FOR P0 / OPEN | P1-C | G-GEO |
+| [TD-GEO-004](#td-geo-004) | Straight-edge curvature near rebuilt corners | Defect | Low | ACCEPTED FOR P0 / OPEN | P1-C | G-GEO |
+| [TD-GEO-005](#td-geo-005) | One-pixel diagonal strokes | Limitation | Medium | DEFERRED | P1 Line Art | P2-A |
+| [TD-GEO-006](#td-geo-006) | Partial source transparency | Limitation | Medium | ACCEPTED FOR P0 / OPEN | Later (preset-driven) | Later |
+| [TD-GEO-007](#td-geo-007) | Browser-dependent image decoding | Limitation | Medium | DEFERRED | RFC-002 decision, P1 | P2-C |
+| [TD-GEO-008](#td-geo-008) | Residual transparency approximation | Limitation | Low | ACCEPTED FOR P0 | Later | Later |
+| [TD-GEO-009](#td-geo-009) | Precision compositing limitations | Limitation | Medium | ACCEPTED FOR P0 / OPEN | RFC-002, P1-C | G-SB |
+| [TD-PERF-001](#td-perf-001) | Large-scene preview rendering | Defect (budget not met) | **High** | OPEN | **RFC-002**, P1-B | G-R0/G-R1 |
+| [TD-PERF-002](#td-perf-002) | Late geometry budget enforcement | Defect | Medium | OPEN | P1-A/B | G-ENG/G-TRACE |
+| [TD-PERF-003](#td-perf-003) | High-resolution image memory usage | Limitation | **High** | OPEN | **RFC-002**, P1 | G-DOC/G-R1 |
+| [TD-PERF-004](#td-perf-004) | Interactive preview responsiveness | Enhancement (with one measured defect) | Medium | OPEN | P1-B | G-JOB/G-TRACE |
+| [TD-PERF-005](#td-perf-005) | Halftone pitch at native resolution | Enhancement | Low | DEFERRED | P2 | P2-C |
+| [TD-PERF-006](#td-perf-006) | Precision mode cost on photographs | Limitation | Low | ACCEPTED FOR P0 | Later | Later |
+| [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
+| [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
+| [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
+| [TD-ARCH-004](#td-arch-004) | Engineering-only engine entry points | Enhancement | Low | OPEN | P1-A | G-ENG |
+| [TD-PLATFORM-001](#td-platform-001) | Linux amd64 | Untested | Low | NOT RUN | Before public release | release |
+| [TD-PLATFORM-002](#td-platform-002) | Safari and mobile | Untested | **High** | NOT RUN | P1-B and before public release | G-JOB/G-UI/G-R1 |
+| [TD-PLATFORM-003](#td-platform-003) | Lower-end desktop hardware | Untested | **High** | NOT RUN | Before any public performance claim; RFC-002 budget | G-R1 |
+| [TD-PLATFORM-004](#td-platform-004) | Real deployment | Untested | Medium | DEFERRED | When a suitable UI exists | later |
+| [TD-PLATFORM-005](#td-platform-005) | Cross-host precision reproducibility | Untested | Low | NOT RUN | Next Linux run | next Linux run |
+| [TD-PROCESS-001](#td-process-001) | No automated required checks | Enhancement | Low | OPEN | Maintainer decision | P-CI |
+| [TD-ARCH-005](#td-arch-005) | Typed-array immutability is a convention | Limitation | **High** | OPEN | G-DOC | G-DOC |
+| [TD-ARCH-006](#td-arch-006) | WebKit offline worker start-up under churn | Defect (prototype-reproduced) | **High** | OPEN | G-JOB | G-JOB |
+| [TD-REN-001](#td-ren-001) | Chromium quadratic incremental Path2D | Defect (browser) | **High** | OPEN | G-R0 | G-R0 |
+| [TD-REN-002](#td-ren-002) | Worker-canvas presentation (WebKit) and raster (Firefox) | Untested / limitation | Medium | OPEN | G-R0/G-R1 | G-R0/G-R1 |
+| [TD-REN-003](#td-ren-003) | Layered drag-cache correctness and cost | Limitation (unqualified) | **High** | OPEN | G-R1 | G-R1 |
+| [TD-REN-004](#td-ren-004) | Large compound paths as single objects | Limitation | Medium | OPEN | G-R0 | G-R0 |
+| [TD-UI-001](#td-ui-001) | Base UI inline style vs strict CSP | Limitation (mitigated in harness) | Medium | OPEN | G-UI | G-UI |
+| [TD-UI-002](#td-ui-002) | Colour picker and slider accessibility | Defect (upstream) | **High** | OPEN | G-UI | G-UI |
+| [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
+| [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
+| [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
+| [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
 
 Counts:
-- **25 open items:** 4 confirmed defects, 12 limitations, 5 untested environments, 4 enhancements.
-- **7 High.**
+- **37 open items** after G-0: the original 25 (4 confirmed defects, 12 limitations, 5 untested environments, 4 enhancements) plus 12 added at G-0 (11 proposed by the independent review, plus TD-PLATFORM-006 found during reconciliation).
+- **12 High** (7 original + 5 added).
+- **No item is resolved by G-0.** Choosing an architecture moves an item to ARCHITECTURE ACCEPTED at most.
 - **RFC-002 inputs:** TD-GEO-001, TD-GEO-007, TD-GEO-009, TD-PERF-001, TD-PERF-003, TD-ARCH-001, TD-ARCH-002, TD-ARCH-003.
 
 ---
@@ -116,11 +139,12 @@ Counts:
   - **This must be decided in RFC-002.**
 - **Target phase:** RFC-002 (representation); P1-C (implementation).
 - **Acceptance criteria:**
-  - No component of a lower layer's colour ≥ 0.25 source px² visible at 4× on the disc and overlap fixtures.
+  - No component of a lower layer's colour ≥ 0.25 source px² visible at 4× on the disc and overlap fixtures. *(G-0: measured with the crisp-sampled metric; the antialiased metric is still reported, TD-GEO-010.)*
   - |κ|·r − 1 RMS ≤ 0.15 and max ≤ 0.5 beyond 2 px from true junctions.
-  - Every junction shared by all incident paths within 0.1 px.
+  - Every junction shared by all incident paths within 0.1 px. *(G-0: restated as bit-identical mosaic junctions, and consistent shared-edge geometry for stacked output, RFC-002 §12.4.)*
   - No regression of the brief's targets or of spline outputs.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md), [ALGORITHM-EVALUATION](research/p0-r-geo/ALGORITHM-EVALUATION.md) ("Curvature near junctions"), [ROOT-CAUSE-ANALYSIS](research/p0-r-geo/ROOT-CAUSE-ANALYSIS.md).
+- **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R04: graph prototype, 6 synthetic fixtures) / IMPLEMENTATION PENDING**; gate G-SB (may defer to P2, visibly); closure: RFC-002 §12.4 metrics on the existing corpus plus a pre-registered fresh holdout; visual owner bundle; Precision version allocated; owner action: Yes: version allocation; G-SB deferral decision if needed. Representation decided (RFC §12.3). The sliver metric is restated as crisp-sampled (TD-GEO-010); the antialiased metric is still reported.
 
 <a id="td-geo-002"></a>
 ### TD-GEO-002 — Non-antialiased geometric shapes
@@ -151,6 +175,7 @@ Counts:
 - **Target phase:** P1-C or later, driven by real hard-edged logo samples.
 - **Acceptance criteria:** on hard-thresholded circles r ≥ 20, 0 tangent breaks > 2° and ≤ 12 anchors per full circle, with the tier C position limits kept and the negative controls unaffected.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md), [GEOMETRIC-FIDELITY-METRICS](research/p0-r-geo/GEOMETRIC-FIDELITY-METRICS.md).
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO (partial); closure: per the acceptance criteria above, on `circle-hard-r40` and real hard-edged logos, behind a provisional precision identifier; owner action: Yes: visual review, version allocation. Curve-fitting defect class, qualified separately from shared boundaries (RFC §12.1).
 
 <a id="td-geo-003"></a>
 ### TD-GEO-003 — Thin bars and acute corners
@@ -181,6 +206,7 @@ Counts:
   - 0 tangent breaks on straight edges.
   - No regression on rectangles and triangles.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md) ("What is still missed").
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO; closure: per the acceptance criteria above; owner action: Yes: visual review, version allocation. Starts after the byte-neutral fitter refactor (C6).
 
 <a id="td-geo-004"></a>
 ### TD-GEO-004 — Straight-edge curvature near rebuilt corners
@@ -200,6 +226,7 @@ Counts:
 - **Target phase:** P1-C.
 - **Acceptance criteria:** max |κ| ≤ 0.005 /px on straight truth beyond 2 px from corners, on all corpus fixtures.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md).
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-GEO; closure: per the acceptance criteria above; owner action: Yes: visual review, version allocation. Same machinery as the end-constrained open-section fitter needed by G-SB.
 
 <a id="td-geo-005"></a>
 ### TD-GEO-005 — One-pixel diagonal strokes
@@ -223,9 +250,10 @@ Counts:
   - 8-connected ink, with dual 4-connected background, for line-art presets;
   - or centreline / thin-feature tracing that emits strokes or thin closed shapes.
 - **Dependencies.** Centreline output needs stroke semantics in the evaluated scene (scene v1 supports strokes; the exporters handle them).
-- **Target phase:** P1 Line Art.
+- **Target phase:** P1 Line Art *(superseded at G-0: P2-A Line Art)*.
 - **Acceptance criteria:** 1-px diagonal strokes at 30–60° are preserved as one connected stroke or shape, with their position within 0.5 px.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §2](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md), [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md).
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-A Line Art; closure: per the acceptance criteria above; owner action: No (decided at G-0: Line Art moves to P2-A). Moves with Line Art (RFC §18).
 
 <a id="td-geo-006"></a>
 ### TD-GEO-006 — Partial source transparency
@@ -247,6 +275,7 @@ Counts:
 - **Target phase:** later, driven by a preset that needs soft edges.
 - **Acceptance criteria:** soft-shadow fixtures reproduced within a defined alpha-profile error, using only vector constructs, verified in SVG and PDF.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §3](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md).
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate Later (preset-driven); closure: per the acceptance criteria above; owner action: No. Needs scene v2 opacity or gradient constructs.
 
 <a id="td-geo-007"></a>
 ### TD-GEO-007 — Browser-dependent image decoding
@@ -276,6 +305,7 @@ Counts:
 - **Target phase:** RFC-002 decides the reproducibility promise; P1 implements.
 - **Acceptance criteria:** identical decoded RGBA for the corpus in Chromium, Firefox and Safari; decode time within an agreed budget.
 - **References:** [GEOMETRY-QUALITY-DISPOSITION §5](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md), [DEFECT-REPRODUCTION](research/p0-r-geo/DEFECT-REPRODUCTION.md).
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (promise wording)**; gate P2-C (in-WASM decoding, before shared recipes claim cross-browser reproducibility); closure: per the acceptance criteria above; owner action: No. Promise: identical decoded RGBA, versions and seed, and the same WASM build (RFC §13).
 
 <a id="td-geo-008"></a>
 ### TD-GEO-008 — Residual transparency approximation
@@ -295,6 +325,7 @@ Counts:
 - **Target phase:** later (monitor only).
 - **Acceptance criteria:** leaked pixels, if any, lie within 0.25 px of the true edge.
 - **References:** [GEOMETRY-VALIDATION](research/p0-r-geo/GEOMETRY-VALIDATION.md), [GEOMETRY-QUALITY-DISPOSITION §4](research/p0-r/GEOMETRY-QUALITY-DISPOSITION.md).
+- **G-0 disposition (2026-11-25):** stage **ACCEPTED FOR P0 (monitor)**; gate Later; closure: per the acceptance criteria above; owner action: No. Unchanged.
 
 <a id="td-geo-009"></a>
 ### TD-GEO-009 — Precision compositing limitations
@@ -316,6 +347,7 @@ Counts:
 - **Target phase:** RFC-002 / P1-C.
 - **Acceptance criteria:** precision with mosaic compositing passes the geometry targets with no seams between neighbouring regions.
 - **References:** [SELECTED-CORRECTION](research/p0-r-geo/SELECTED-CORRECTION.md).
+- **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R04: stacked and mosaic from one edge set) / IMPLEMENTATION PENDING**; gate G-SB; closure: Precision with mosaic passes the RFC §12.4 metrics; the validation error is lifted only after the gate; owner action: Yes: version allocation. Route is the shared-boundary graph.
 
 ## Performance and resources
 
@@ -344,6 +376,7 @@ Counts:
 - **Target phase:** RFC-002 (decision), P1-B (implementation).
 - **Acceptance criteria:** on the reference machine and on the lower-end target (TD-PLATFORM-003), no frame gap > 50 ms while displaying, panning or zooming scenes up to 250 k anchors; scenes up to 1 M anchors displayable.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) finding 4, [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md).
+- **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R02: Canvas 2D + cache + worker host) / IMPLEMENTATION PENDING**; gate G-R0 (architecture), G-R1 (closure candidate); closure: RFC §17 budgets on the reference machine **and** lower-end devices; real Safari or a documented restriction; owner action: Yes: lower-end hardware access; Safari authorisation. Renderer decided (D04).
 
 <a id="td-perf-002"></a>
 ### TD-PERF-002 — Late geometry budget enforcement
@@ -365,8 +398,9 @@ Counts:
   - offer explicit "reduce to N MP" and "increase pitch" actions.
 - **Dependencies:** none architectural.
 - **Target phase:** P1-A/B.
-- **Acceptance criteria:** over-budget traced jobs report within 2 s on the reference machine, with a recoverable, actionable error; no silent downscaling.
+- **Acceptance criteria (P0 wording, superseded at G-0; see the disposition below):** over-budget traced jobs report within 2 s on the reference machine, with a recoverable, actionable error; no silent downscaling.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) ("Resource limits review").
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (two-stage) / IMPLEMENTATION PENDING**; gate G-ENG (staged API), G-TRACE (closure candidate); closure: **Revised acceptance wording (approved at G-0):** provide a complexity forecast within two seconds on qualified workloads, followed by a definitive resource-budget decision after segmentation and before expensive fitting. The forecast is approximate, shows a range, offers choices, never auto-rejects and never downsamples. False-positive and false-negative rates are validated on a separately reserved corpus; owner action: No. Evidence (R03): post-segmentation predictor 0 FP / 0 FN; preview forecast 2 FP / 1 FN; segmentation is 66–99 % of colour trace time. The two-second forecast is a qualification requirement, not a guarantee.
 
 <a id="td-perf-003"></a>
 ### TD-PERF-003 — High-resolution image memory usage
@@ -389,6 +423,7 @@ Counts:
 - **Target phase:** RFC-002 (budget model); P1.
 - **Acceptance criteria:** documented per-device budgets; ≤ 512 MiB WASM on the lower-end target for its supported image sizes; recoverable errors, never silent degradation.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) finding 5.
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (resource ledger, profiles) / IMPLEMENTATION PENDING**; gate G-DOC (ledger), G-R1 (lower-end budget); closure: Documented per-profile budgets measured on lower-end hardware; reserve-before-allocate; recoverable errors; owner action: Yes: lower-end hardware access. Constrained profile is provisional: ≤ 8 MP colour, ≤ 512 MiB recycle, 64 MiB history, ~2 GiB envelope. The 8 MP WASM figure is extrapolated, not measured.
 
 <a id="td-perf-004"></a>
 ### TD-PERF-004 — Interactive preview responsiveness
@@ -412,6 +447,7 @@ Counts:
 - **Target phase:** P1-B.
 - **Acceptance criteria:** import→visible ≤ 0.5 s at about 1 MP (B&W); slider feedback ≤ 100 ms at preview resolution; no stale results.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md), [P0-G2](research/p0/P0-G2-WORKER-ARCHITECTURE.md).
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED / IMPLEMENTATION PENDING**; gate G-JOB (scheduler), G-TRACE (preview resolution, no import debounce); closure: per the acceptance criteria above; owner action: No. Scheduler contract in RFC §10.3.
 
 <a id="td-perf-005"></a>
 ### TD-PERF-005 — Halftone pitch at native resolution
@@ -424,6 +460,7 @@ Counts:
 - **Target phase:** P2.
 - **Acceptance criteria:** the default pitch stays under the interactive anchor warning for supported sizes, at a fixed physical screen ruling.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md), [OLD-PRINT-FEASIBILITY](research/p0/OLD-PRINT-FEASIBILITY.md).
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate P2-C (before Old Print becomes a product preset); closure: per the acceptance criteria above; owner action: No. The 977k-anchor halftone remains the renderer and hit-test stress case.
 
 <a id="td-perf-006"></a>
 ### TD-PERF-006 — Precision mode cost on photographs
@@ -434,6 +471,7 @@ Counts:
 - **Proposed approach.** Product guidance (Artistic vs Precision naming); optional per-region mode choice later.
 - **Target phase:** later.
 - **References:** [PERFORMANCE-REGRESSION](research/p0-r-geo/PERFORMANCE-REGRESSION.md).
+- **G-0 disposition (2026-11-25):** stage **ACCEPTED FOR P0**; gate Later (product guidance); closure: Artistic vs Precision guidance shipped in the trace UI (G-TRACE), with measured anchor and time ratios disclosed; this item has no other acceptance criteria; owner action: No. Unchanged.
 
 ## Architecture
 
@@ -457,6 +495,7 @@ Counts:
 - **Target phase:** ongoing; RFC-002 restates the boundary.
 - **Acceptance criteria for an upgrade:** regression corpus byte-identical or explained; geometry corpus not worse.
 - **References:** [RFC-001](RFC-001.md), [P0-G1](research/p0/P0-G1-VECTORIZATION.md), [LICENSING-AND-DISTRIBUTION](research/p0-r/LICENSING-AND-DISTRIBUTION.md).
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (boundary restated)**; gate Ongoing; G-ENG checks the public API; closure: per the acceptance criteria above, plus no VTracer or visioncortex type in any public engine API; owner action: No. RFC §6, C4.
 
 <a id="td-arch-002"></a>
 ### TD-ARCH-002 — Worker lifecycle and persistent editor state
@@ -482,6 +521,7 @@ Counts:
 - **Target phase:** RFC-002.
 - **Acceptance criteria:** RFC-002 defines geometry ownership, the recovery path and cache invalidation, and every editor state survives a worker termination test.
 - **References:** [P0-G2](research/p0/P0-G2-WORKER-ARCHITECTURE.md), [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md).
+- **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R03: 16/16 in 3 engines, online and offline) / IMPLEMENTATION PENDING**; gate G-DOC, G-JOB; closure: Every editor state survives worker termination in production-build tests (3 engines, online, offline, service-worker update); owner action: Safari authorisation (owner part of G-JOB). Design answered (D01/D05); not closed.
 
 <a id="td-arch-003"></a>
 ### TD-ARCH-003 — Scene v1 expressiveness and JSON transport
@@ -502,6 +542,7 @@ Counts:
 - **Target phase:** RFC-002.
 - **Acceptance criteria:** RFC-002 specifies document and scene versions, migration, and a transport that meets TD-PERF-001's budget.
 - **References:** [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md), [RFC-001](RFC-001.md).
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (packet-only transport; document v1) / IMPLEMENTATION PENDING**; gate G-ENG, G-DOC; closure: C3 conformance in TS and Rust; lossless Scene ↔ Packet; scene v1 exports byte-identical via the packet route; owner action: No. R01: same size as JSON; parse 97–198 ms vs validate 8–20 ms at ~1M anchors.
 
 <a id="td-arch-004"></a>
 ### TD-ARCH-004 — Engineering-only engine entry points
@@ -512,6 +553,7 @@ Counts:
 - **Target phase:** P1-A.
 - **Acceptance criteria:** production builds expose only the documented API; evaluation tools still build.
 - **References:** [SELECTED-CORRECTION](research/p0-r-geo/SELECTED-CORRECTION.md).
+- **G-0 disposition (2026-11-25):** stage **IMPLEMENTATION PENDING**; gate G-ENG; closure: per the acceptance criteria above; the staged API replaces `segment_layers` for production use; owner action: No. Unchanged target.
 
 ## Platforms and environments
 
@@ -525,6 +567,7 @@ Counts:
 - **Target phase:** before any public release or published build hashes.
 - **Acceptance criteria:** all steps pass on native amd64, with an identical WASM output fingerprint.
 - **References:** [LINUX-REPRODUCIBILITY](research/p0-r/LINUX-REPRODUCIBILITY.md).
+- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Before published hashes (canonical Linux build approved at G-0); closure: per the acceptance criteria above, on native amd64 (P-CI runs are build evidence, not release qualification); owner action: No (approved). Prefer native amd64 over QEMU.
 
 <a id="td-platform-002"></a>
 ### TD-PLATFORM-002 — Safari and mobile
@@ -537,6 +580,7 @@ Counts:
 - **Target phase:** P1-B (workspace), and before any public release.
 - **Acceptance criteria:** the workflow, offline recovery and exports verified in real Safari (macOS and iOS) and Android Chrome, with performance measured.
 - **References:** [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [OWNER-ACCEPTANCE-CHECKLIST (P0-R) §C](research/p0-r/OWNER-ACCEPTANCE-CHECKLIST.md).
+- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate G-JOB, G-UI, G-R1 (owner parts); closure: Real Safari coverage per G0-P1-IMPLEMENTATION-PLAN; iOS and Android are separate future gates; owner action: **Yes:** the maintainer runs `sudo safaridriver --enable` locally (approved in principle; never run by an agent). Raised by R03 and R02 WebKit-only findings.
 
 <a id="td-platform-003"></a>
 ### TD-PLATFORM-003 — Lower-end desktop hardware
@@ -549,6 +593,7 @@ Counts:
 - **Target phase:** before any public performance claim; feeds the RFC-002 budget.
 - **Acceptance criteria:** the native and geometry benchmarks run on the target device; the P1 budget is ratified or revised from those measurements.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) ("Device support").
+- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate G-R1 sign-off; closure: Benchmarks on an M1 8 GB and a 4c/8t ~8 GB laptop; until then no broad performance-compatibility claims; owner action: **Yes:** obtain or borrow hardware (does not block G-ENG or G-DOC). CPU throttling is not a substitute.
 
 <a id="td-platform-004"></a>
 ### TD-PLATFORM-004 — Real deployment
@@ -562,6 +607,7 @@ Counts:
 - **Target phase:** when a suitable UI exists; the maintainer approves deployment.
 - **Acceptance criteria:** `verify-deployment.sh` passes against a real HTTPS preview, including offline cancellation recovery.
 - **References:** [DEPLOYMENT-READINESS](research/p0-r/DEPLOYMENT-READINESS.md), [DEPLOYMENT](DEPLOYMENT.md).
+- **G-0 disposition (2026-11-25):** stage **DEFERRED**; gate When a suitable UI exists; closure: per the acceptance criteria above; owner action: Yes: deployment approval. No deployment, domain or DNS changes in G-0 or P1.
 
 <a id="td-platform-005"></a>
 ### TD-PLATFORM-005 — Cross-host precision reproducibility
@@ -574,6 +620,7 @@ Counts:
 - **Target phase:** at the next Linux verification run.
 - **Acceptance criteria:** identical precision digest from macOS- and Linux-built WASM.
 - **References:** [EXPORT-REGRESSION](research/p0-r-geo/EXPORT-REGRESSION.md), [LINUX-REPRODUCIBILITY](research/p0-r/LINUX-REPRODUCIBILITY.md).
+- **G-0 disposition (2026-11-25):** stage **NOT RUN**; gate Next Linux verification run; closure: per the acceptance criteria above; owner action: No. Unchanged.
 
 ## Process
 
@@ -587,6 +634,145 @@ Counts:
 - **Proposed approach.** The maintainer decides whether one cheap pinned CI job (fmt, clippy, cargo test, vp check, vp test, build) should become a required check. Browser and benchmark suites stay local.
 - **Target phase:** maintainer decision, before P1 work accelerates.
 - **Acceptance criteria:** documented decision; if adopted, a required check on `main`.
+- **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (policy decided at G-0) / IMPLEMENTATION PENDING**; gate P-CI (before P1-A PRs merge); closure: One required lightweight Linux job per the P-CI specification, fail-closed; owner action: No (decided); configuring it is engineering work after G-0 approval. Specification only at G-0; no workflow created.
+
+
+## Added at G-0 (from the independent review and reconciliation)
+These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-DEBT-DISPOSITION.md`) to stable register IDs. The review document is unchanged.
+
+<a id="td-arch-005"></a>
+### TD-ARCH-005 — Typed-array immutability is a convention
+- **Review ID:** RISK-R01-IMMUTABLE.
+- **Category / severity / status:** Limitation · **High** · OPEN.
+- **Description.** Committed geometry buffers cannot be frozen. Placing one in a transfer list silently detaches it (`byteLength` 0) and destroys committed artwork.
+- **Evidence:** `docs/research/rfc-002-review/artifacts/transport/adversarial.json` (detachment demonstration).
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (A2: copy-out-only GeometryStore, C2) / IMPLEMENTATION PENDING; gate **G-DOC**.
+- **Closure criteria:** no API exposes committed buffers; tests assert no committed buffer is detached after any sequence of jobs and terminations.
+- **Dependencies:** C2, C3.
+- **Owner action:** no.
+
+<a id="td-arch-006"></a>
+### TD-ARCH-006 — WebKit offline worker start-up under termination churn
+- **Review ID:** RISK-R03-WKCHURN.
+- **Category / severity / status:** Defect (reproduced in a prototype) · **High** · OPEN.
+- **Description.** In Playwright WebKit 27.2, terminating module workers while their service-worker-served module graph is still loading made the next worker fail with "Importing a module script failed". It happened offline only, deterministically (4 of 4 runs). The P0 client has the same pattern.
+- **Evidence:** `docs/research/rfc-002-review/artifacts/lifecycle/lifecycle-v1-*.json` (14/16) and `lifecycle-v2-*.json` (16/16 after the fix).
+- **Disposition:** stage **PROTOTYPE DEMONSTRATED** (fix) / IMPLEMENTATION PENDING; gate **G-JOB**.
+- **Closure criteria:** reproduction and fix verified against the **production build**, offline and across a service-worker update, in 3 engines plus real Safari (or a documented restriction).
+- **Dependencies:** RFC §10.3 rules 4–5; TD-PLATFORM-002.
+- **Owner action:** Safari authorisation.
+
+<a id="td-ren-001"></a>
+### TD-REN-001 — Chromium builds Path2D incrementally in quadratic time
+- **Review ID:** RISK-R02-PATH2D.
+- **Category / severity / status:** Defect (browser behaviour) · **High** · OPEN.
+- **Description.** Chromium 159 builds one large Path2D with `moveTo`/`bezierCurveTo` in quadratic time: 16.9 s at 250k anchors, against 30 ms from path data and 8 ms via `addPath`. Firefox and WebKit are linear.
+- **Evidence:** `docs/research/rfc-002-review/artifacts/renderer/path2d-scaling.json`.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (A7) / IMPLEMENTATION PENDING; gate **G-R0**.
+- **Closure criteria:** linear construction in the production renderer, plus a scaling regression benchmark in 3 engines.
+- **Dependencies:** none.
+- **Owner action:** no.
+
+<a id="td-ren-002"></a>
+### TD-REN-002 — Worker-canvas presentation (WebKit) and worker raster (Firefox)
+- **Review ID:** RISK-R02-WKOFFSCREEN.
+- **Category / severity / status:** Untested / limitation · Medium · OPEN.
+- **Description.**
+  - In Playwright WebKit 27.2, the first worker-hosted OffscreenCanvas frame appeared in screenshots only after a delay: blank captures at 0–1 s for some sizes, visible at every size after 1.5 s.
+  - Firefox rasters the 977k-anchor single path slowly in a worker (594 ms draw; first draw 1.1 s vs 0.78 s on the main thread).
+- **Evidence:** `artifacts/renderer/offscreen-visibility.json`, `offscreen.json`, `offscreen-cache.json`.
+- **Disposition:** stage **PROTOTYPE DEMONSTRATED** (worker plus cache: gestures 17–23 ms, main thread 17–19 ms) / IMPLEMENTATION PENDING; gates **G-R0** (measure) and **G-R1** (real Safari).
+- **Closure criteria:** first-meaningful-frame latency qualified on real Safari; when it fails, the disclosed main-thread fallback is used and measured.
+- **Dependencies:** TD-PLATFORM-002.
+- **Owner action:** Safari authorisation.
+
+<a id="td-ren-003"></a>
+### TD-REN-003 — Layered drag-cache correctness and cost
+- **Review ID:** RISK-R02-DRAG.
+- **Category / severity / status:** Limitation (unqualified) · **High** · OPEN.
+- **Description.** Object drags with exact redraw cost one exact frame per frame (Firefox 467–917 ms on halftones). A naive two-layer cache (background plus selection) breaks paint order when the selection sits within the paint order.
+- **Evidence:** the R02 editing table (`artifacts/renderer/bench-*.json`).
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (compositing-preserving segmentation, RFC §8.4) / IMPLEMENTATION PENDING; gate **G-R1**.
+- **Closure criteria:** the RFC §8.4 qualification matrix matches exact frames, with drag performance within budget.
+- **Dependencies:** G-R0.
+- **Owner action:** hands-on review.
+
+<a id="td-ren-004"></a>
+### TD-REN-004 — Large compound paths as single objects
+- **Review ID:** RISK-R02-COMPOUND.
+- **Category / severity / status:** Limitation · Medium · OPEN.
+- **Description.** One traced object can be a compound path with 195k subpaths (halftone). Hit testing needs a subpath index: without it, 12.8 ms warm p95. "Select a dot" needs an explicit split command.
+- **Evidence:** `artifacts/renderer/index-bench.json`.
+- **Disposition:** stage **PROTOTYPE DEMONSTRATED** (subpath and band index) / IMPLEMENTATION PENDING; gate **G-R0** (index); the split command is later.
+- **Closure criteria:** warm hit-test p95 ≤ 8 ms on the stress halftone in production; cold queries addressed by idle pre-flattening.
+- **Dependencies:** C2.
+- **Owner action:** no.
+
+<a id="td-ui-001"></a>
+### TD-UI-001 — Base UI inline `<style>` vs strict CSP
+- **Review ID:** RISK-R05-CSP.
+- **Category / severity / status:** Limitation (mitigated in the harness) · Medium · OPEN.
+- **Description.** Base UI's ScrollArea injects a `<style>` that violates `style-src 'self'`. Playwright's WebKit screenshot also injects one.
+- **Evidence:** `artifacts/design-system/csp-violations.json`.
+- **Disposition:** stage **PROTOTYPE DEMONSTRATED** (`CSPProvider disableStyleElements` plus an owned rule: 0 violations in 3 engines) / IMPLEMENTATION PENDING; gate **G-UI**.
+- **Closure criteria:** a production CSP regression test with positive and negative controls passes in 3 engines and real Safari.
+- **Dependencies:** none.
+- **Owner action:** no.
+
+<a id="td-ui-002"></a>
+### TD-UI-002 — Colour picker and slider accessibility
+- **Review ID:** RISK-R05-A11Y.
+- **Category / severity / status:** Defect (upstream sources) · **High** · OPEN.
+- **Description.** Dice colour picker defects D3–D6: unnamed thumbs; hex typing reverts; saturation/value area pointer-only; no commit/cancel. The shadcn Slider drops `aria-label` (D1) and renders two thumbs for scalar values (D2). Keyboard commits are per key (D7).
+- **Evidence:** `docs/research/rfc-002-review/DESIGN-SYSTEM-FEASIBILITY.md` §8.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (owned patches or an owned picker; keyboard coalescing) / IMPLEMENTATION PENDING; gate **G-UI**.
+- **Closure criteria:** explicit qualification of the repaired controls (keyboard, names, values, commit/cancel, coalesced history) plus a screen-reader smoke test. The review's 42/42 result does not close this item.
+- **Dependencies:** RFC §7.
+- **Owner action:** no.
+
+<a id="td-ui-003"></a>
+### TD-UI-003 — Border, slider-track and focus-ring contrast
+- **Review ID:** RISK-R05-TOKENS.
+- **Category / severity / status:** Defect (tokens) · Medium · OPEN.
+- **Description.** `border` #414347 reaches 1.31–1.76:1 and the slider track 1.11:1, against a 3:1 requirement. The lime ring fails on paper (1.15:1) and on lime fills (1.00:1).
+- **Evidence:** `artifacts/design-system/contrast.json`.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (control-border #787a7e, dual focus ring, destructive and warning tokens) / IMPLEMENTATION PENDING; gate **G-UI**.
+- **Closure criteria:** the contrast table passes in the production shell, plus an owner visual review.
+- **Dependencies:** none.
+- **Owner action:** visual review.
+
+<a id="td-ui-004"></a>
+### TD-UI-004 — Notices do not cover copied sources and emitted CSS
+- **Review ID:** RISK-R05-NOTICES.
+- **Category / severity / status:** Limitation (licence compliance) · Medium · OPEN.
+- **Description.** The notice generator relies on JS source maps. Copied shadcn and Dice sources and Tailwind's emitted CSS are not covered.
+- **Evidence:** R05-A §10.
+- **Disposition:** stage **IMPLEMENTATION PENDING**; gate **G-UI**, before any distributed build that includes the design system.
+- **Closure criteria:** notices include copied sources (via the manifest with hashes), Tailwind CSS, lucide ISC and MIT, and cva Apache-2.0; the build fails if they are stale.
+- **Dependencies:** DESIGN-SYSTEM §6.
+- **Owner action:** no.
+
+<a id="td-geo-010"></a>
+### TD-GEO-010 — Sliver metric and junction criterion restatement
+- **Review ID:** RISK-R04-METRIC.
+- **Category / severity / status:** Limitation (measurement) · Medium · OPEN.
+- **Description.** The registered antialiased sliver metric flags exact analytic shapes (4 on `discs-x2`). The "junction within 0.1 px" criterion assumes a partition.
+- **Evidence:** `docs/research/rfc-002-review/SHARED-BOUNDARY-STRATEGY.md` §3.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED**, decided at G-0: the crisp-sampled metric at 4× with the 0.25 px² threshold is accepted; the antialiased metric continues to be reported; junction criteria are restated per mosaic and stacked output (RFC §12.4). Implementation is PENDING in the evaluation tooling; gate **G-SB**.
+- **Closure criteria:** both metrics implemented and reported for every geometry gate. Visible artifacts are never suppressed.
+- **Dependencies:** TD-GEO-001.
+- **Owner action:** no (decided).
+
+<a id="td-platform-006"></a>
+### TD-PLATFORM-006 — Service-worker version skew under network-first navigation
+- **Source:** G-0 reconciliation (source inspection of `scripts/generate-sw.mjs`).
+- **Category / severity / status:** Defect (source inspection; not reproduced) · Medium · OPEN.
+- **Description.** Navigations are network-first while an older service worker controls the page. A tab can load a newer shell whose hashed assets are absent from the old cache, and offline worker recreation can then fail: a mixed-version session.
+- **Evidence:** source inspection only. NOT RUN as a reproduction.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (single-build sessions, RFC §15.3) / IMPLEMENTATION PENDING; gate **G-JOB**.
+- **Closure criteria:** update-lifecycle tests (old tabs, worker recreation after deploy, interrupted install, offline after update, mixed-version refusal) pass on the production build in 3 engines and real Safari.
+- **Dependencies:** C5 handshake (`buildId`).
+- **Owner action:** Safari authorisation.
 
 ---
 

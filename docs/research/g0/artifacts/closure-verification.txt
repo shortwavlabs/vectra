@@ -1,0 +1,25 @@
+G-0 closure clarification pass — local verification (2026-11-25 UTC)
+Machine: Apple M5 Max, 128 GB. uptime: load averages 0.49 0.85 1.27; ngspice processes: 0.
+
+$ python3 linkcheck.py . <26 changed or new Markdown files since 91552aa>
+checked 267 relative links in 26 files; problems: 0 (re-run after the follow-up commit: same result)
+
+$ cargo fmt --all --check
+fmt: PASS
+$ cargo clippy --workspace --all-targets --locked -- -D warnings
+clippy exit: 0
+$ cargo test --workspace --locked
+test result: ok. 14 passed / 15 passed / 3 passed / 4 passed / 0 / 0 — 0 failed
+
+$ regression_corpus tests/output/g0c-regression tests/output/regression-inputs/*.png
+regression: IDENTICAL (326 files vs a4cf172.sha256)
+$ geo_bundle tests/output/g0c-bundle  (compared with docs/research/p0-r-geo/owner-acceptance-bundle-v2)
+bundle-v2: identical 72; differing 0; missing 0
+
+$ pnpm exec vp check
+pass: All 93 files are correctly formatted; no warnings, lint errors, or type errors in 38 files
+$ pnpm exec vp test
+Test Files 3 passed (3); Tests 14 passed (14)
+
+$ git diff 91552aa -- docs/research/rfc-002-review experiments/rfc-002-review      -> empty
+$ git diff 0e32fda -- crates packages src public scripts tests package.json pnpm-lock.yaml pnpm-workspace.yaml Cargo.toml Cargo.lock vite.config.ts tsconfig.json playwright.config.ts rust-toolchain.toml .node-version wrangler.jsonc LICENSE      -> empty

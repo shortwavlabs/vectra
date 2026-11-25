@@ -40,7 +40,7 @@ Alternatives include Illustrator (trace, expand, simplify, recolor), Inkscape (t
 | VS-09 | Must P2-C | Initial Print and DIY Underground style family; artistic output remains vector geometry |
 | VS-10 | Should P2-C | User presets and deterministic seeds; same source/recipe/seed reproduce result within documented runtime |
 | VS-11 | Should P3 | Advanced engraving, carve, stipple, geometric abstraction and stencil |
-| VS-12 | Should P4 | Local .vectra project round trip, batch and validated professional print features |
+| VS-12 | Must P1 (G-0) / Should P4 | Local `.vectra` project round trip: container v1 serializer in P1-A (G-DOC), Save/Open UI in P1-C (G-PRJ); no autosave. Batch and validated professional print features stay P4 |
 | VS-13 | Should post-core | Local preset import/export, versioned recipes and optional static community library with moderated submissions |
 | VS-14 | Could post-core | Optional online image provider browser, Unsplash first, subject to policy, privacy and feasibility gates |
 | VS-15 | Must all phases | No AI in the creative runtime; deterministic conventional algorithms and procedural vector generation |
@@ -52,7 +52,7 @@ Alternatives include Illustrator (trace, expand, simplify, recolor), Inkscape (t
 | VS-21 | Must all phases | Free open-source creative engine, no paid-only tools, activation, watermarks or export restrictions |
 | VS-22 | Could post-V1 | Optional paid curated preset collections, using the same offline-compatible recipe format as free presets |
 
-P1 is the minimum usable studio, not the full flagship release. P2-C establishes the creative differentiator. Persisting projects may move earlier if owner prioritizes continuity; P1 must warn about unsaved changes and offer export. No full typography, multi-page publishing, 3D, general painting, SVG import of arbitrary active content, AI redraw or cloud collaboration in initial scope.
+P1 is the minimum usable studio, not the full flagship release. P2-C establishes the creative differentiator. Project persistence moved to P1 at G-0 (explicit Save/Open; no autosave). P1 must still warn about unsaved changes. No full typography, multi-page publishing, 3D, general painting, SVG import of arbitrary active content, AI redraw or cloud collaboration in initial scope.
 
 ## Interaction model
 Default to the Selection tool after a trace is committed. Left rail changes the inspector without applying edits; selection remains intact. Tools distinguish live preview from committed state, offer Apply/Cancel/Reset and report scope. Disabled tools explain why (e.g. boolean operation needs two objects). Selection scope is explicit: selected objects, layer or entire artwork. Source raster is locked/reference-only by default and excluded from vector exports. A new trace must never silently replace manually edited paths: offer new layer or explicit replace with undo. Direct node edits on an evaluated stack require explicit bake or editing the base object; no silent discard.
@@ -88,7 +88,7 @@ Desktop target: 48–56 px left rail, flexible central canvas, 288–336 px righ
 - Zero raster images in both SVG and PDF; independent render agreement; privacy tests from VALIDATION.md.
 
 ## Delivery sequence
-P0 unchanged. After P0 review, write RFC-002 with editor state and command/geometry contracts, then P1-A document/selection/history, P1-B production workspace, P1-C core editing/export, P2-A advanced geometry, P2-B effects, P2-C Print/DIY Underground, P3 advanced effects, P4 project persistence/print/batch. Review scope and adjust sequencing after prototype evidence. Each phase needs a gate report, tests, screenshots and owner review. No dependency or gate is approved merely by appearing in this PR.
+P0 unchanged. After P0 review, write RFC-002 with editor state and command/geometry contracts, then P1-A document/selection/history, P1-B production workspace, P1-C core editing/export, P2-A advanced geometry, P2-B effects, P2-C Print/DIY Underground, P3 advanced effects, P4 print/batch. *(G-0, 2026-11-25: persistence moved to P1; Line Art is P2-A; gates per [RFC-002 §19](RFC-002.md).)* Review scope and adjust sequencing after prototype evidence. Each phase needs a gate report, tests, screenshots and owner review. No dependency or gate is approved merely by appearing in this PR.
 
 ## Future creative ecosystem
 The Import panel may offer Local file, Clipboard and optional Browse images (Unsplash first). A community preset website may support browsing, downloading, remixing and submitting recipes. These are optional extensions, not required for local editing. Any credential-protecting Cloudflare Worker/Pages Function is an isolated online adapter, not an artwork-processing backend. Online requests and provider tracking must be disclosed; the original no-network guarantee applies to the local core. See [image sources and community specification](IMAGE-SOURCES-AND-COMMUNITY.md) for requirements, research, licensing and acceptance gates. No changes to current P0 scope.
