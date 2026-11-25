@@ -7,6 +7,11 @@ rust-version.workspace = true
 license.workspace = true
 publish.workspace = true
 
+[features]
+# Engineering-only entry points (`segment_layers`, `vectorize_with_precision_options`), kept out
+# of the default public API (TD-ARCH-004). Examples and tests that need them enable it.
+diagnostics = []
+
 [dependencies]
 # Exact pins where upstream API stability is a concern; Cargo.lock pins everything else.
 vtracer = "=1.0.0-alpha.4"
@@ -17,6 +22,9 @@ serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 
 [dev-dependencies]
+# Self dev-dependency: tests and examples get the `diagnostics` entry points; the library and
+# the WASM adapter do not.
+vector-engine = { path = ".", features = ["diagnostics"] }
 # Independent SVG renderer for geometry tests (test-only, never shipped).
 resvg = { version = "=0.50.0", default-features = false }
 # PNG writer for the fixture generator example (test-only).

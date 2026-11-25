@@ -560,6 +560,7 @@ dependencies = [
  "resvg",
  "serde",
  "serde_json",
+ "vector-engine",
  "visioncortex",
  "vtracer",
 ]
