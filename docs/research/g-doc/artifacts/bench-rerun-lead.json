@@ -3,11 +3,7 @@
   "cpu": "Apple M5 Max",
   "cpus": 18,
   "totalMemGiB": 128,
-  "loadavgStart": [
-    11.32,
-    13.47,
-    16.01
-  ],
+  "loadavgStart": [11.32, 13.47, 16.01],
   "reps": 7,
   "validator": "test-only adapter (src/document/testing/packet-adapter.ts)",
   "configs": [
@@ -308,9 +304,5 @@
       }
     }
   ],
-  "loadavgEnd": [
-    11.23,
-    13.18,
-    15.78
-  ]
+  "loadavgEnd": [11.23, 13.18, 15.78]
 }
