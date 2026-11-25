@@ -25,15 +25,15 @@ Every shared file and interface has **exactly one owner**. A gate never edits a 
 | `vite.config.ts`, `tsconfig*.json` | **neither** (test globs already cover `src/**/*.test.ts` and `tests/unit/**`) | — |
 | README, ROADMAP status lines | the integration step | — |
 
-**How G-DOC stays independent without a second production validator.**
-- G-DOC production code depends on a narrow **validator port** (`src/document/packet-port.ts`): a function type plus the minimal C3 shapes it consumes.
-- The store receives the validator at construction.
-- G-DOC tests inject the test-only adapter.
-- There is exactly **one production validator**, owned by G-ENG.
+**How G-DOC stays independent without a second production validator or codec.**
+- G-DOC production code depends on a narrow **packet port** (`src/document/packet-port.ts`): the minimal C3 shapes it consumes plus three functions: `validate` (C3), and `encodeRecord`/`decodeRecord` (the C3.0 geometry record).
+- The GeometryStore and the container serializer and loader receive the port at construction.
+- Until integration, the **test-only adapter supplies all three**, and G-DOC tests inject it. G-DOC production modules are not wired into the app before G-PRJ, so nothing ships with the adapter.
+- There is exactly **one production validator and one production codec**, both owned by G-ENG (`src/geometry/packet/`).
 
 **Integration procedure** (a separate small PR after **both** gate PRs are accepted and merged):
 1. Merge `main` into the integration branch. No rebase and no force-push.
-2. Wire the G-ENG production validator and types into the G-DOC store as the default. Delete the port's duplicated shapes in favour of imports from `src/geometry/packet`, and delete `src/document/testing/` along with its architectural exemption.
+2. Wire G-ENG's production validator, codec and types into the G-DOC store and container code as the defaults. Delete the port's duplicated shapes in favour of imports from `src/geometry/packet`, and delete `src/document/testing/` along with its architectural exemption.
 3. Run the **final shared conformance test** (`tests/unit/p1a-conformance.test.ts`, written in the integration PR):
    - for every fixture in `tests/fixtures/packet-conformance`, the Rust validator, the TS validator **and** `GeometryStore.commit` return the same code;
    - for every regression scene, Rust `from_scene` → `to_bytes` → TS decode → `commit` → container save → load → TS encode yields bytes identical to Rust's `to_bytes`, and Rust `from_bytes` → `Scene::from_packet` reproduces the scene JSON byte for byte.
@@ -65,7 +65,7 @@ Every shared file and interface has **exactly one owner**. A gate never edits a 
    - `validate_packet(&GeometryPacket, &Limits) -> Result<Derived, PacketError>`, with the C3 validation order and error codes;
    - C3.0 byte serialisation (`to_bytes`/`from_bytes`): little-endian, 8-byte section alignment, offsets computed from counts, zero padding;
    - C3.2 checked accounting in `u64` (wasm32 `usize` is 32-bit), with caps checked **before allocating**; per-path `pathAnchors` in the derived metadata.
-2. **Shared adversarial fixtures** (`tests/fixtures/packet-adversarial/`).
+2. **Shared adversarial fixtures** (`tests/fixtures/packet-conformance/`).
    - Port the review's 27 cases (`experiments/rfc-002-review/bench/adversarial.mjs`) into language-neutral fixtures: binary packet plus manifest JSON plus expected error code.
    - Add cases for byte serialisation: misalignment, truncated sections, oversized declared counts, non-zero padding.
 3. **Production TS validator and codec** (`src/geometry/packet/`): C3 types, `validatePacket` with the C3 order, codes and checked accounting, and the C3.0 byte encoder/decoder. It runs the same fixtures as Rust. It is the **only** production validator; G-DOC adopts it at integration.

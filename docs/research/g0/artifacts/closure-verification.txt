@@ -2,7 +2,7 @@ G-0 closure clarification pass — local verification (2026-11-25 UTC)
 Machine: Apple M5 Max, 128 GB. uptime: load averages 0.49 0.85 1.27; ngspice processes: 0.
 
 $ python3 linkcheck.py . <26 changed or new Markdown files since 91552aa>
-checked 267 relative links in 26 files; problems: 0
+checked 267 relative links in 26 files; problems: 0 (re-run after the follow-up commit: same result)
 
 $ cargo fmt --all --check
 fmt: PASS

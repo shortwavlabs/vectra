@@ -64,7 +64,7 @@ An `IncomingPacket` is a C3 manifest plus the six section arrays (`Uint8Array` v
    Views into WASM linear memory, a file buffer or any shared buffer fail this check. They are never committed directly.
 2. **Move.** The store takes exclusive ownership with `structuredClone(buffers, { transfer: buffers })`.
    - This **detaches every source buffer**. Every caller alias then reports `byteLength === 0` and can neither read nor write committed bytes. Aliases include the input arrays, any other typed array or DataView over those buffers, and references kept by message listeners.
-   - No bytes are copied. G-DOC measures the move and reports it.
+   - No bytes are expected to be copied. Measured at G-0 closure on Node 24.22.1 (V8): median 0.03 ms to transfer a 52 MiB buffer, against 1.24 ms to copy it. G-DOC measures the move in each target browser.
    - From this step on, the packet is **consumed whether commit succeeds or fails**.
 3. **Validate the owned bytes.** C3 validation runs on the store-owned buffers, after the move, and computes the derived metadata in the same pass.
    - Commit has **no pre-validated fast path**: a packet validated earlier is validated again here.
@@ -145,7 +145,7 @@ No browser version numbers are frozen here; the browser baseline is decided from
 - Sections appear in table order. Section k starts at offset `o_k` from the start of the block: `o_1 = 0` and `o_(k+1) = align8(o_k + L_k)`, where `align8(x) = x + ((8 − x mod 8) mod 8)`.
 - The block length is `B = align8(o_6 + L_6)`. Every element is little-endian, and every padding byte is zero.
 - **Offsets are not stored.** They are computed from the manifest counts, which serve as the header. A reader rejects a block whose length differs from `B` (`length`) or whose padding is non-zero (`padding`, a byte-decoding-only code).
-- `B − M_mem` lies in `[0, 15]` (at most 7 bytes after verbs plus 8 across the u32 sections), where `M_mem` is the in-memory size defined below.
+- `B − M_mem = 8 + ((8 − V mod 8) mod 8)`, which lies in `[8, 15]`: the four u32 sections always contribute exactly 8 padding bytes, for either parity of P. `M_mem` is the in-memory size defined below.
 
 **Geometry record** (the uncompressed content of a container `geometry` section, C7):
 ```text
@@ -277,11 +277,11 @@ segment/estimate (handle-scoped to the worker instance)
 
 ## C5 — Worker protocol v2
 **Handshake (both workers; startup and every recreation).**
-- Main creates the worker and sends `init{generation, …}`.
-- The worker answers with `ready`:
-  - compute worker: `{protocolVersion: 2, buildId, engineVersion, packetVersion: 1, generation}`;
-  - render worker: `{protocolVersion: 2, buildId, packetVersion: 1, generation, workerRaf}`.
-- **No job or snapshot is posted before the handshake passes.**
+- When its module has loaded, the worker posts `ready` unsolicited:
+  - compute worker: `{protocolVersion: 2, buildId, engineVersion, packetVersion: 1}`;
+  - render worker: `{protocolVersion: 2, buildId, packetVersion: 1, workerRaf}`.
+- Main binds `generation` to the worker instance. Every request carries it and every response echoes it (common rules). The render worker receives it in `init`.
+- **No job, `init` or snapshot is posted before the handshake passes.** This is the ordering of the review's R03 prototype (`bench/scheduler.mjs` posts only after `ready`), so the 16/16 WebKit start-up evidence applies to it unchanged.
 - **Identity mismatch is fatal build skew.** A mismatch in `protocolVersion`, `buildId`, `packetVersion` or (compute only) `engineVersion` means:
   - the worker is discarded, with no requeue;
   - accepted explicit jobs end as `failed{code: "build_mismatch"}`;
@@ -303,7 +303,7 @@ segment/estimate (handle-scoped to the worker instance)
 
 **Render worker.**
 - **Requests:** `init{generation, canvas(OffscreenCanvas transfer), dpr, cssWidth, cssHeight}`, `snapshot{renderRevision, documentRevision, drawList, packets(transfer, new chunks only), releaseChunks}`, `camera{...}`, `gesture{phase: "start"|"end"}`, `resize{...}`, `release`.
-- **Responses:** `ready{…as above}`, `frame{generation, renderRevision, kind: "interaction"|"exact", ms}`, `error{generation, code, fatal}`.
+- **Responses:** `ready{…as above}` (on load, before `init`), `frame{generation, renderRevision, kind: "interaction"|"exact", ms}`, `error{generation, code, fatal}`.
 
 **Scheduling semantics** (normative in RFC §10.3; summary):
 - **Supersession applies to previews and thumbnails only.** At most one pending job per `(kind, scope)` for those kinds: a newer one replaces the pending one and may pre-empt a running one.
@@ -354,7 +354,7 @@ The layout is in RFC §14. Normative limits:
 - An unknown or newer `formatVersion`, `documentSchemaVersion` or `packetVersion` is refused with a typed error.
 
 ### Canonical content
-Every section's **uncompressed** bytes are a pure function of the saved state.
+Every section's **uncompressed** bytes are a pure function of the saved state. Canonical JSON is produced **only by the TypeScript container code** (G-DOC). The Rust engine never emits container JSON, so it needs no ECMAScript number formatting; serde_json, for example, prints the f64 `1280` as `1280.0`, which RFC 8785 forbids.
 - **JSON** (header, manifest section, document section, packet manifests): canonical JSON per **RFC 8785 (JCS)**.
   - UTF-8 with no BOM and no insignificant whitespace.
   - Object members are sorted by UTF-16 code units.
@@ -428,8 +428,10 @@ RenderSnapshot { renderRevision, documentRevision, dpr, cssWidth, cssHeight, cam
    - It feeds the render snapshot, the hit-test service (RFC §9; clip test closed on the boundary) and the export draw list (C5).
    - Preview, hit testing and export therefore agree by construction. A G-EDIT test asserts agreement on nested, transformed, reflected, 90°-rotated and empty-intersection cases.
 6. **Export mapping.**
-   - `bake_draw_list` emits one scene-v1 group per run, with `clip` = the run's effective clip.
-   - A run is a maximal sequence of consecutive items sharing the same nearest Group and the same effective clip.
+   - `bake_draw_list` emits one scene-v1 group per run, in order, with `clip` = the run's effective clip.
+   - A run is a maximal sequence of consecutive items sharing the same nearest Group or Layer and the same effective clip.
+   - **Runs may be empty.** A visible Group or Layer with no visible PathObject children yields one run with no items, so an unedited empty packet group round-trips. (The regression corpus has no empty groups, checked at G-0 closure.)
+   - A run whose effective clip is empty is omitted entirely, because scene v1 rejects zero-area clips.
    - The run `id` is the Group's `name` when it is a valid scene-v1 id not used by an earlier run; otherwise it is `run-<k>`. So an unedited P0 trace keeps its original group id and hashes.
 7. **Outside P1.**
    - Arbitrary path clips and rotated or skewed rect clips require scene v2 (RFC §6.1), with dual-format regression. They come in P2-A, or earlier only after qualification.
