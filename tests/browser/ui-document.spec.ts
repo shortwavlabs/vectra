@@ -389,3 +389,27 @@ test("export: dialog focus management; SVG and PDF are real engine output", asyn
   expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
   note("pdf bytes", bytes.byteLength);
 });
+
+// As the P0 privacy suite: offline after load (an offline reload is not exercised; Playwright
+// Firefox refuses navigations in offline mode before the service worker can answer).
+test("offline: once loaded, import, trace, edit and export work with no network", async ({
+  page,
+  context,
+}) => {
+  await openWorkspace(page);
+  await expect(page.getByText("Offline ready")).toBeVisible({ timeout: 30_000 });
+  await context.setOffline(true);
+  await importFixture(page, "procedural/nested_rings.png");
+  await page.getByRole("button", { name: "Hide nested_rings" }).click();
+  await canvasSettled(page);
+  const [svg] = await Promise.all([
+    page.waitForEvent("download"),
+    (async () => {
+      await page.getByRole("button", { name: "Export", exact: true }).click();
+      await page.getByRole("button", { name: "Export SVG" }).click();
+    })(),
+  ]);
+  expect(svg.suggestedFilename()).toBe("artwork.svg");
+  await expect(page.getByTestId("layer-row")).toHaveCount(1);
+  await context.setOffline(false);
+});
