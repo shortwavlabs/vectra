@@ -1,0 +1,163 @@
+{
+  "commit": "8c71d3c0ab5b2c41daad8db4c91f2092dd13dc9f",
+  "loadavgStart": [1.15185546875, 1.40673828125, 1.38720703125],
+  "scenarios": [
+    {
+      "name": "render: interactive target and halftone through the worker; presentation",
+      "pass": true,
+      "ms": 20037,
+      "detail": {
+        "synthetic-many-250k": {
+          "host": "worker",
+          "loadValidateMs": 293,
+          "evaluateMs": 16,
+          "snapshotMs": 4,
+          "copyMs": 1,
+          "postMs": 11,
+          "pathBuildMs": 272.9999999999927,
+          "firstFrameMs": 100,
+          "exactFrameMs": 160,
+          "exactDrawRendererMs": 97.00000000000182,
+          "previewMs": 190,
+          "presentation": {
+            "sampler": "displayed canvas",
+            "visibleAfterLoadMs": 206,
+            "visibleAfterExactMessageMs": 16,
+            "screenshotStableAfterSettleMs": 485,
+            "domControlCaptureMs": null,
+            "wallToSettledMs": 503
+          },
+          "hitIndex": {
+            "readyMs": 89,
+            "slices": 11,
+            "maxSliceMs": 4
+          },
+          "timingsValid": true
+        },
+        "architecture-street-halftone": {
+          "host": "worker",
+          "loadValidateMs": 68,
+          "evaluateMs": 0,
+          "snapshotMs": 0,
+          "copyMs": 3,
+          "postMs": 0,
+          "pathBuildMs": 0,
+          "firstFrameMs": 292,
+          "exactFrameMs": 292,
+          "exactDrawRendererMs": 0,
+          "previewMs": 302,
+          "presentation": {
+            "sampler": "displayed canvas",
+            "visibleAfterLoadMs": 478,
+            "visibleAfterExactMessageMs": 176,
+            "screenshotStableAfterSettleMs": 565,
+            "domControlCaptureMs": null,
+            "wallToSettledMs": 406
+          },
+          "hitIndex": {
+            "readyMs": 288,
+            "slices": 31,
+            "maxSliceMs": 4.999999999998181
+          },
+          "timingsValid": true
+        }
+      }
+    },
+    {
+      "name": "drag: drag frames equal exact frames (RFC §8.4 cases)",
+      "pass": true,
+      "ms": 4455,
+      "detail": [
+        {
+          "case": "middle of paint order",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 2
+        },
+        {
+          "case": "non-contiguous",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "translucent overlap",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "clip owned outside",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "clip owned by the selection",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "scale (vectors redrawn)",
+          "mode": "live",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 2
+        }
+      ]
+    },
+    {
+      "name": "gestures: pan and zoom frame intervals with the display cache; exact settle",
+      "pass": true,
+      "ms": 2156,
+      "detail": {
+        "pan": {
+          "p50": 17,
+          "p95": 17,
+          "max": 25,
+          "exactSettleWallMs": 4
+        },
+        "zoom": {
+          "p50": 17,
+          "p95": 18,
+          "max": 18,
+          "exactSettleWallMs": 8
+        }
+      }
+    },
+    {
+      "name": "keyboard: select a single path from the canvas; announcements",
+      "pass": true,
+      "ms": 196,
+      "detail": {
+        "layer": "Trace, layer, 11 paths, 1 of 1",
+        "path": "Path 11, fill #0f766e, 1 of 1",
+        "selected": "Path 11, fill #0f766e selected"
+      }
+    },
+    {
+      "name": "offline: workspace reload, import and both workers recreated from the cache",
+      "pass": true,
+      "ms": 491,
+      "detail": {
+        "recoveryMs": 10,
+        "buildMismatches": 0
+      }
+    }
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2"
+  },
+  "page": {
+    "visibility": "visible",
+    "rafsIn500ms": 31
+  },
+  "loadavgEnd": [1.765625, 1.513671875, 1.42529296875]
+}

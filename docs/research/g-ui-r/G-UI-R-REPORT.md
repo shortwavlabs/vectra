@@ -295,17 +295,30 @@ Total initial workspace JS measured 228.1 at `24550b8` and 227.8 at `ee72fb3`. R
    - The reads after clicks and after the replacement now poll. A kept selection still fails.
    - Other reads after a second load (`documentId`, `tree`, and the lifecycle spec's `held`/`chunks`) are synchronous or polled, so `load()` is unchanged.
 
-**Real Safari.** `node tests/safari/gui.mjs` on `d283ef8` gave 14 PASS, 0 PARTIAL, 0 FAIL, findings 0 (Safari 26.6.2, macOS 26.6.2; load average 1.18 → 1.27). Record: `docs/research/g-ui-r/safari/gui-d283ef8.json`.
+**Real Safari** (Safari 26.6.2, macOS 26.6.2; the two scripts that load `workspace.html`):
+- `node tests/safari/gui.mjs` on `d283ef8`: 14 PASS, 0 PARTIAL, 0 FAIL, findings 0 (load average 1.18 → 1.27). Record: `docs/research/g-ui-r/safari/gui-d283ef8.json`.
+- `node tests/safari/gr1.mjs` on `8c71d3c` (same build): **5/5 passed, 0 NOT RUN**. The page was visible (31 animation frames in 500 ms), so the timing scenarios ran; for #19 they were NOT RUN because the window was hidden. Inputs: the registered G-R1 workloads, copied from the main checkout and verified against the container SHA-256 values in `docs/research/g-r1/bench/workloads.json` (all 4 match). Load average 1.15 → 1.77. One run on a shared machine, so this is not a quiet-machine qualification. Record: `docs/research/g-ui-r/safari/gr1-8c71d3c.json`.
+
+  | Measure (real Safari) | synthetic-many-250k | architecture-street-halftone |
+  |---|---|---|
+  | Preview (budget ≤ 100 ms) | **190 ms (miss)** | **302 ms (miss)** |
+  | First / exact frame | 100 / 160 ms | 292 / 292 ms |
+  | Visible after load (displayed-canvas sampler) | 206 ms | 478 ms |
+  | Hit index ready, slices, max slice | 89 ms, 11, 4 ms | 288 ms, 31, 5 ms |
+
+  Gestures (display cache): pan p50/p95/max 17/17/25 ms, zoom 17/18/18 ms (budget p95 ≤ 33 ms); exact settle 4 and 8 ms. Drag: 6 of 6 cases with 0 geometry errors and 0 % of pixels over 32 (layers, and live for scale). Keyboard selection and offline recovery passed.
+
+  The renderer, hit-test and canvas-host code is identical to #19's head. The shell around the canvas differs, and so does the canvas size.
 
 **VoiceOver.** NOT RUN. The owner checklist (`docs/research/g-r1/VOICEOVER-CHECKLIST.md`) now describes this layout:
-- E1: the inspector Tab order is X, Y, Scale value, Reset, Scale slider, Rotate.
+- E1: the inspector Tab order is X, Y, Scale value, Scale slider, Rotate. Reset sits between Scale value and the slider, and is disabled, so skipped, while the scale is 100 %.
 - E2: the picker's named document-colour swatches.
 
 Accessible names are unchanged.
 
 **NOT RUN on the merged head.**
 - VoiceOver (owner checklist).
-- The Safari G-JOB, G-R0, persistence and `gr1` scripts: no file on their paths changed since the G-R1 runs.
+- The Safari G-JOB, G-R0 and persistence scripts. They load the workbench page or the persistence harness, and those import none of the changed files: the changed `src/ui` modules are imported only by `src/shell`, and `src/ui/styles.css` only by the workspace entry.
 - `workspace-perf` (`R1_PERF`) and the other opt-in benchmarks: no renderer, hit-test or job change.
 - The 326 + 72 and 636 exports and bundle v1: crates, packages, export and persistence are identical to `24550b8`.
 - Lower-end hardware, Windows and Linux, and touch input.
