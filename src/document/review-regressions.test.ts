@@ -197,3 +197,27 @@ describe("G-DOC review regressions", () => {
     expect(errorCode(() => new GeometryStore().commit(spoofed))).toBe("ownership");
   });
 });
+
+describe("missing sources and digest-verified relinking (RFC §14)", () => {
+  test("a reopened non-embedded source can be relinked only with matching bytes", async () => {
+    const s = emptySession();
+    const bytes = png(64, 64, 128);
+    await s.attachSource(bytes, { embedded: false });
+    const asset = [...s.state.sourceAssetsById.keys()][0]!;
+    const reopened = await loadContainer(await saveContainer(s, { codec: "none" }), { port });
+    expect(reopened.missingSources()).toEqual([asset]);
+    const wrong = png(64, 64, 128);
+    wrong[100] = 1;
+    await expect(reopened.relinkSource(asset, wrong)).rejects.toMatchObject({
+      code: "invalid_argument",
+    });
+    await expect(reopened.relinkSource(asset, png(32, 64, 128))).rejects.toMatchObject({
+      code: "invalid_argument",
+    });
+    const rev = reopened.getSnapshot().revision;
+    await reopened.relinkSource(asset, bytes);
+    expect(reopened.missingSources()).toEqual([]);
+    expect(reopened.getSnapshot().revision).toBe(rev);
+    expect(reopened.sourceBytes(asset)).toEqual(bytes);
+  });
+});

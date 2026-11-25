@@ -367,6 +367,38 @@ export class DocumentSession {
     return this.#state.orderedRootIds[0]!;
   }
 
+  /**
+   * Digest-verified relinking (RFC §14): supplies the bytes of an asset whose bytes are missing
+   * (for example a non-embedded source after reopening a project). The bytes must match the
+   * asset's SHA-256 digest, image signature and dimensions. Relinking is not a document edit:
+   * no transaction, no revision change, no history entry.
+   */
+  async relinkSource(assetId: AssetId, bytes: Uint8Array): Promise<void> {
+    const asset = this.#state.sourceAssetsById.get(assetId);
+    if (!asset) throw new DocumentError("not_found", `no source asset ${assetId}`);
+    const owned = bytes.slice();
+    const sniffed = sniffImage(owned); // throws IntakeError on a bad signature
+    if (
+      MIME[sniffed.format] !== asset.mime ||
+      sniffed.width !== asset.width ||
+      sniffed.height !== asset.height
+    )
+      throw new DocumentError(
+        "invalid_argument",
+        `${assetId}: image type or size does not match the asset`,
+      );
+    if ((await sha256Hex(owned)) !== asset.digest)
+      throw new DocumentError(
+        "invalid_argument",
+        `${assetId}: bytes do not match the asset's SHA-256 digest`,
+      );
+    this.#sources.set(assetId, owned);
+  }
+  /** Assets of the current document whose bytes this session does not hold. */
+  missingSources(): AssetId[] {
+    return [...this.#state.sourceAssetsById.keys()].filter((a) => !this.#sources.has(a));
+  }
+
   #sourceOwners(): { document: Set<AssetId>; history: Set<AssetId> } {
     const document = new Set(this.#state.sourceAssetsById.keys());
     const history = new Set<AssetId>();
