@@ -9,7 +9,12 @@ import {
 import { DocumentSession, sha256Hex } from "../document/session.ts";
 import { downloadBlob } from "../export/download.ts";
 import { BUILD_IDENTITY } from "../jobs/build-info.ts";
-import { JobController, type TraceSource } from "../jobs/controller.ts";
+import {
+  type ExportOutcome,
+  JobController,
+  type PreviewOutcome,
+  type TraceSource,
+} from "../jobs/controller.ts";
 import type { TraceResult } from "../jobs/protocol.ts";
 import { JobScheduler, type WorkerLike } from "../jobs/scheduler.ts";
 import { DEFAULT_SETTINGS, makeRequest } from "../presets/defaults.ts";
@@ -171,6 +176,7 @@ export function useWorkbench() {
   const previewProbe = useRef<(() => ResponsivenessSample) | null>(null);
   const debug = useRef<Record<string, unknown>>({ stats: scheduler.diag, results: 0 });
   const sourceRef = useRef<Source | null>(null);
+  const live = useRef(0);
   useEffect(() => {
     sourceRef.current = source;
   }, [source]);
@@ -201,7 +207,16 @@ export function useWorkbench() {
         w?.addEventListener("statechange", update);
       });
     });
-    return () => jobs.dispose();
+    const mounts = live; // a counter, not a DOM ref: the same object in setup and cleanup
+    mounts.current++;
+    return () => {
+      mounts.current--;
+      // React StrictMode (development) runs this cleanup and the setup again at once with the
+      // same state: dispose only if no setup followed, so the scheduler survives the remount.
+      setTimeout(() => {
+        if (mounts.current === 0) jobs.dispose();
+      });
+    };
   }, [jobs, scheduler, debugMode]);
 
   const cancelPreviews = useCallback(() => {
@@ -274,41 +289,95 @@ export function useWorkbench() {
     setStatus({ kind: "error", code, message });
   }, []);
 
+  /** Increments per trace request; only the latest request may update the UI. */
+  const latestTrace = useRef(0);
+
+  // One preview pipeline per workbench: the trace, then its SVG job, both scope "workbench", so
+  // a newer request pre-empts or supersedes either step. Only the latest request (same image,
+  // latest settings) may update the UI; a step pre-empted by an explicit job (an export) is
+  // submitted again, so the latest settings are always shown in the end.
   const trace = useCallback(
     (src: Source, s: Settings) => {
+      const token = ++latestTrace.current;
+      const isLatest = () => token === latestTrace.current && src.revision === revision.current;
       const stop = startProbe();
       setStatus({ kind: "processing", since: performance.now(), revision: src.revision });
       const request = makeRequest(s, maxPixels);
-      const sub = jobs.tracePreview(src.trace, request, "workbench");
-      if (!sub.accepted) {
-        stop();
-        return fail(sub.code, sub.message);
-      }
-      previewJobs.current.add(sub.jobId);
-      void sub.done.then((out) => {
-        previewJobs.current.delete(sub.jobId);
-        if (out.status === "cancelled") return void stop();
-        if (out.status === "failed") {
-          stop();
-          if (src.revision === revision.current) fail(out.code, out.message);
-          return;
-        }
-        if (src.revision !== revision.current) return void stop();
-        let preview: DocumentSession;
-        const tCommit = performance.now();
-        try {
-          preview = previewSession(src, request, out.result);
-        } catch (e) {
-          stop();
-          const code = (e as { code?: unknown }).code;
-          return fail(typeof code === "string" ? code : "invalid_result", String(e));
-        }
-        const previewCommitMs = performance.now() - tCommit;
-        const previewStoreCommit = preview.store.lastCommitTiming;
+
+      const showResult = (
+        out: Extract<PreviewOutcome, { status: "succeeded" }>,
+        svgOut: Extract<ExportOutcome, { status: "delivered" }>,
+        preview: DocumentSession,
+        handling: Record<string, unknown>,
+      ) => {
+        const responsiveness = stop();
+        const r = out.result;
+        resultAt.current = performance.now();
+        previewProbe.current?.(); // a previous preview never painted: stop its probe
+        previewProbe.current = startProbe();
+        const svg = new TextDecoder().decode(svgOut.bytes);
+        const blob = new Blob([svgOut.bytes as Uint8Array<ArrayBuffer>], {
+          type: "image/svg+xml",
+        });
+        const wasmCallMs = r.timings.segmentMs + r.timings.estimateMs + r.timings.fitMs;
+        const next: Result = {
+          jobId: out.jobId,
+          revision: src.revision,
+          svg,
+          metrics: r.metrics,
+          warnings: r.warnings,
+          timings: { ...r.timings, wasmCallMs, svgMs: svgOut.timings.exportMs },
+          memoryBytes: out.memoryBytes,
+          // Trace submitted → SVG delivered: both jobs, including any worker start-up.
+          roundTripMs:
+            out.timings.queuedMs +
+            out.timings.workerMs +
+            svgOut.timings.queuedMs +
+            svgOut.timings.workerMs,
+          svgUrl: URL.createObjectURL(blob),
+          svgBytes: blob.size,
+          responsiveness,
+          request,
+          preview,
+        };
+        setResult((prev) => {
+          if (prev) URL.revokeObjectURL(prev.svgUrl);
+          return next;
+        });
+        setPdf(null);
+        setStatus({ kind: "done" });
+        debug.current.results = (debug.current.results as number) + 1;
+        debug.current.lastRequest = request;
+        debug.current.last = {
+          jobId: out.jobId,
+          metrics: r.metrics,
+          estimate: r.estimate,
+          timings: next.timings,
+          roundTripMs: next.roundTripMs,
+          memoryBytes: out.memoryBytes,
+          svgBytes: blob.size,
+          responsiveness,
+          ready: scheduler.lastReady,
+          // Main-thread job handling (C9): the preview's commit into its session, the trace
+          // job's post (source copy), the SVG job's snapshot and post.
+          handling: {
+            ...handling,
+            tracePostMs: out.timings.postMs,
+            svgSnapshotMs: svgOut.timings.snapshotMs,
+            svgPostMs: svgOut.timings.postMs,
+          },
+        };
+      };
+
+      const runDisplay = (
+        out: Extract<PreviewOutcome, { status: "succeeded" }>,
+        preview: DocumentSession,
+        handling: Record<string, unknown>,
+      ) => {
         const display = jobs.export("svg", null, {
           session: preview,
           kind: "preview",
-          scope: "display",
+          scope: "workbench",
         });
         if (!display.accepted) {
           stop();
@@ -317,69 +386,53 @@ export function useWorkbench() {
         previewJobs.current.add(display.jobId);
         void display.done.then((svgOut) => {
           previewJobs.current.delete(display.jobId);
-          const responsiveness = stop();
-          if (svgOut.status === "cancelled") return;
-          if (svgOut.status === "failed") return fail(svgOut.code, svgOut.message);
-          if (src.revision !== revision.current) return;
-          const r = out.result;
-          resultAt.current = performance.now();
-          previewProbe.current?.(); // a previous preview never painted: stop its probe
-          previewProbe.current = startProbe();
-          const svg = new TextDecoder().decode(svgOut.bytes);
-          const blob = new Blob([svgOut.bytes as Uint8Array<ArrayBuffer>], {
-            type: "image/svg+xml",
-          });
-          const wasmCallMs = r.timings.segmentMs + r.timings.estimateMs + r.timings.fitMs;
-          const next: Result = {
-            jobId: out.jobId,
-            revision: src.revision,
-            svg,
-            metrics: r.metrics,
-            warnings: r.warnings,
-            timings: { ...r.timings, wasmCallMs, svgMs: svgOut.timings.exportMs },
-            memoryBytes: out.memoryBytes,
-            // Trace submitted → SVG delivered: both jobs, including any worker start-up.
-            roundTripMs:
-              out.timings.queuedMs +
-              out.timings.workerMs +
-              svgOut.timings.queuedMs +
-              svgOut.timings.workerMs,
-            svgUrl: URL.createObjectURL(blob),
-            svgBytes: blob.size,
-            responsiveness,
-            request,
-            preview,
-          };
-          setResult((prev) => {
-            if (prev) URL.revokeObjectURL(prev.svgUrl);
-            return next;
-          });
-          setPdf(null);
-          setStatus({ kind: "done" });
-          debug.current.results = (debug.current.results as number) + 1;
-          debug.current.lastRequest = request;
-          debug.current.last = {
-            jobId: out.jobId,
-            metrics: r.metrics,
-            estimate: r.estimate,
-            timings: next.timings,
-            roundTripMs: next.roundTripMs,
-            memoryBytes: out.memoryBytes,
-            svgBytes: blob.size,
-            responsiveness,
-            ready: scheduler.lastReady,
-            // Main-thread job handling (C9): the preview's commit into its session, the trace
-            // job's post (source copy), the SVG job's snapshot and post.
-            handling: {
-              previewCommitMs,
-              previewStoreCommit,
-              tracePostMs: out.timings.postMs,
-              svgSnapshotMs: svgOut.timings.snapshotMs,
-              svgPostMs: svgOut.timings.postMs,
-            },
-          };
+          if (!isLatest()) return void stop();
+          if (svgOut.status === "cancelled") {
+            if (svgOut.reason === "preempted") return runDisplay(out, preview, handling);
+            return void stop();
+          }
+          if (svgOut.status === "failed") {
+            stop();
+            return fail(svgOut.code, svgOut.message);
+          }
+          showResult(out, svgOut, preview, handling);
         });
-      });
+      };
+
+      const runTrace = () => {
+        const sub = jobs.tracePreview(src.trace, request, "workbench");
+        if (!sub.accepted) {
+          stop();
+          return fail(sub.code, sub.message);
+        }
+        previewJobs.current.add(sub.jobId);
+        void sub.done.then((out) => {
+          previewJobs.current.delete(sub.jobId);
+          if (!isLatest()) return void stop();
+          if (out.status === "cancelled") {
+            if (out.reason === "preempted") return runTrace();
+            return void stop();
+          }
+          if (out.status === "failed") {
+            stop();
+            return fail(out.code, out.message);
+          }
+          let preview: DocumentSession;
+          const tCommit = performance.now();
+          try {
+            preview = previewSession(src, request, out.result);
+          } catch (e) {
+            stop();
+            const code = (e as { code?: unknown }).code;
+            return fail(typeof code === "string" ? code : "invalid_result", String(e));
+          }
+          runDisplay(out, preview, {
+            previewCommitMs: performance.now() - tCommit,
+            previewStoreCommit: preview.store.lastCommitTiming,
+          });
+        });
+      };
+      runTrace();
     },
     [jobs, scheduler, maxPixels, fail],
   );

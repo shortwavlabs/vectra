@@ -150,7 +150,7 @@ export class JobController {
   get session(): DocumentSession {
     return this.#session;
   }
-  /** Bytes currently reserved by accepted, unsettled jobs. */
+  /** Bytes currently reserved by accepted, unsettled jobs (trace input copies, export copies). */
   get reservedBytes(): number {
     return this.#reserved;
   }
@@ -209,9 +209,9 @@ export class JobController {
         )
           return { status: "stale", jobId, reason: "target_changed" };
         const { packet, ...rest } = out.result;
-        const sceneMeta = JSON.parse(rest.sceneMetaJson) as SceneMetaJson;
         const settings = request.settings as { fit?: { mode?: string } };
         try {
+          const sceneMeta = JSON.parse(rest.sceneMetaJson) as SceneMetaJson;
           const provenance = traceProvenanceFromSceneMeta({
             sceneMeta,
             width: packet.manifest.width,
@@ -326,17 +326,24 @@ export class JobController {
       this.#reserved -= bytes;
       const jobId = sub.jobId;
       const out: PreviewOutcome =
-        o.status === "succeeded"
+        o.status === "succeeded" && o.result.type !== "trace"
           ? {
-              status: "succeeded",
+              status: "failed",
               jobId,
-              result: o.result as TraceResult,
-              memoryBytes: o.memoryBytes,
-              timings: o.timings,
+              code: "protocol_error",
+              message: "a trace job returned a non-trace result",
             }
-          : o.status === "failed"
-            ? { status: "failed", jobId, code: o.code, message: o.message }
-            : { status: "cancelled", jobId, reason: o.reason };
+          : o.status === "succeeded"
+            ? {
+                status: "succeeded",
+                jobId,
+                result: o.result as TraceResult,
+                memoryBytes: o.memoryBytes,
+                timings: o.timings,
+              }
+            : o.status === "failed"
+              ? { status: "failed", jobId, code: o.code, message: o.message }
+              : { status: "cancelled", jobId, reason: o.reason };
       return finish(jobId, out);
     });
     return { accepted: true, jobId: sub.jobId, done };
@@ -364,13 +371,21 @@ export class JobController {
     const store = session.store;
     const t0 = performance.now();
     const job = deepFreeze(buildExport(session.state, store, this.#engineVersion));
+    // The job copies made at post time are reserved now (RFC §11.3: reserve before allocating).
+    const bytes = job.chunks.reduce((n, c) => n + store.cost(c), 0);
+    if (this.#reserved + bytes > this.#maxReserved)
+      return this.#budget(
+        `this export needs ${bytes} bytes of copies but only ${this.#maxReserved - this.#reserved} are free for pending work. Wait for other operations to finish`,
+      );
     const owner: OwnerRef = { kind: "snapshot" };
     for (const c of job.chunks) store.retain(c, owner);
     const snapshotMs = performance.now() - t0;
+    this.#reserved += bytes;
     let released = false;
     const release = () => {
       if (released) return;
       released = true;
+      this.#reserved -= bytes;
       for (const c of job.chunks) store.release(c, owner);
       store.settle();
     };
@@ -406,7 +421,14 @@ export class JobController {
       if (o.status === "failed")
         return { status: "failed", jobId, code: o.code, message: o.message };
       if (o.status === "cancelled") return { status: "cancelled", jobId, reason: o.reason };
-      const r = o.result as ExportResult;
+      if (o.result.type !== "export")
+        return {
+          status: "failed",
+          jobId,
+          code: "protocol_error",
+          message: "an export job returned a non-export result",
+        };
+      const r: ExportResult = o.result;
       return {
         status: "delivered",
         jobId,

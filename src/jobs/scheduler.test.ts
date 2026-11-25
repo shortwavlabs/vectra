@@ -376,6 +376,15 @@ describe("faults and stale messages", () => {
     expect(s.diag.wrongGenerationDropped).toBe(1);
   });
 
+  test("an unknown message type for the posted job is dropped and counted", () => {
+    const { s, w, submit } = setup();
+    submit("final");
+    w().ready();
+    w().emit({ type: "mystery", jobId: 1, generation: 1 } as unknown as WorkerResponse);
+    expect(s.diag.unmatchedDropped).toBe(1);
+    expect(s.running?.jobId).toBe(1);
+  });
+
   test("a job that leaves WASM memory above the threshold recycles the worker", async () => {
     const { s, workers, submit } = setup({ recycleAboveBytes: 10 });
     submit("final");

@@ -500,6 +500,8 @@ export class JobScheduler {
         this.#settle(r, { status: "failed", code: m.code, message: m.message });
         this.#dispatch();
         return;
+      default:
+        this.diag.unmatchedDropped++; // an unknown message type is never acted on
     }
   }
 

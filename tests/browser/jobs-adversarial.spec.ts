@@ -328,3 +328,31 @@ test("a worker from another build is refused: no job posted, explicit jobs fail,
   results.mixedVersion = d;
   await context.close();
 });
+
+test("a workbench preview pre-empted by an explicit job is resubmitted; the latest settings are shown", async ({
+  page,
+  context,
+}) => {
+  await openWorkbench(page, context, false);
+  await loadSynthetic(page);
+  // A colour preview takes seconds on this image, so the export lands while it runs.
+  await page.getByTestId("mode").selectOption("color");
+  await waitForState(page, "processing");
+  await expect.poll(async () => (await diag(page)).running).not.toBeNull();
+  const preempted = (await diag(page)).preempted as number;
+  // (The UI disables downloads while a preview runs; any explicit job pre-empts a preview.)
+  const exp = jobId(await api(page, "exportDocument", "svg"));
+  expect((await diag(page)).preempted as number).toBeGreaterThan(preempted);
+  expect((await outcome(page, exp)).status).toBe("delivered");
+  await waitForState(page, "done");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __vectra: { lastRequest: { settings: { mode: string } } } })
+            .__vectra.lastRequest.settings.mode,
+      ),
+    )
+    .toBe("color");
+  results.exportDuringPreview = { preemptedBefore: preempted, after: await diag(page) };
+});

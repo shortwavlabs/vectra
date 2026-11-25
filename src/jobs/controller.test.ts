@@ -417,3 +417,54 @@ test("property: random job outcomes never leave reservations, snapshots or a cor
   expect(t.session.store.checkIntegrity()).toBe(true);
   expect(t.scheduler.diag.settleViolations).toBe(0);
 });
+
+describe("review fixes", () => {
+  test("an export reserves its job-copy bytes until it settles, and is refused over budget", async () => {
+    const t = setup({ maxReservedBytes: 10_000_000 });
+    const job = accepted(t.c.traceFinal(source(), request));
+    t.e().ready();
+    t.e().trace();
+    await job.done;
+    const exp = accepted(t.c.export("svg"));
+    const held = t.c.reservedBytes;
+    expect(held).toBeGreaterThan(0);
+    expect(t.ledger.snapshot().reporters["jobs.reserved"]!.bytes).toBe(held);
+    t.e().exportBytes();
+    await exp.done;
+    expect(t.c.reservedBytes).toBe(0);
+    const tight = setup({ maxReservedBytes: 100 });
+    const j2 = accepted(tight.c.traceFinal(source(), request));
+    tight.e().ready();
+    tight.e().trace();
+    await j2.done;
+    expect(tight.c.export("svg")).toMatchObject({ accepted: false, code: "resource_budget" });
+    expect(owners(tight.session).snapshot).toBe(0);
+  });
+
+  test("a result of the wrong type or with unreadable metadata fails typed; nothing commits", async () => {
+    const t = setup();
+    const before = t.session.state;
+    const a = accepted(t.c.traceFinal(source(), request));
+    t.e().ready();
+    t.e().exportBytes(); // an export result answering a trace
+    expect(await a.done).toMatchObject({ status: "failed", code: "protocol_error" });
+    const b = accepted(t.c.traceFinal(source(), request));
+    t.e().emit({
+      type: "result",
+      jobId: t.e().job.jobId,
+      generation: t.e().job.generation,
+      memoryBytes: 1,
+      result: {
+        type: "trace",
+        packet: fixturePacket("circle-bw"),
+        sceneMetaJson: "{not json",
+        metrics: {} as never,
+        warnings: [],
+        estimate: { kind: "unavailable", reason: "test" },
+        timings: { segmentMs: 0, estimateMs: 0, fitMs: 0, parseMs: 0 },
+      },
+    });
+    expect((await b.done).status).toBe("failed");
+    expect(t.session.state).toBe(before);
+  });
+});
