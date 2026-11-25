@@ -229,14 +229,15 @@ test("selection: canvas clicks pick paths; shift adds; undo/redo keep it; replac
   const shapes = ids.find((n) => n.name === "shapes")!.children!;
   await clickDoc(page, 110, 112); // nonzero pentagram centre: path 4
   await expect(page.getByTestId("selection-name")).toHaveText(/^Path \d+$/);
-  expect(await a.selection()).toEqual([shapes[4]!.id]);
+  await expect.poll(() => a.selection()).toEqual([shapes[4]!.id]);
   await clickDoc(page, 40, 40); // a hole: nothing
-  expect(await a.selection()).toEqual([]);
+  // Hits answer asynchronously (in click order): wait for the answer, not the click.
+  await expect.poll(() => a.selection()).toEqual([]);
   await expect(page.getByTestId("selection-bounds")).toHaveCount(0);
   await clickDoc(page, 110, 112);
   await clickDoc(page, 162, 112, true); // topmost translucent disc, added
   const both = [shapes[4]!.id, shapes[7]!.id];
-  expect(await a.selection()).toEqual(both);
+  await expect.poll(() => a.selection()).toEqual(both);
   await expect(page.getByTestId("selection-name")).toHaveText("2 objects");
   near(
     (await a.bounds(both))!,
@@ -270,7 +271,9 @@ test("selection: canvas clicks pick paths; shift adds; undo/redo keep it; replac
   await load(page, "multi-layer");
   const inNext = new Set(flat(await a.tree()).map((n) => n.id));
   expect(shared.some((id) => inNext.has(id))).toBe(true); // the check below is not vacuous
-  expect(await a.selection()).toEqual([]);
+  // selection() is the last committed render; `load` can return before React commits the new
+  // document (the old one was already "ready"), so wait for it. A kept selection still fails.
+  await expect.poll(() => a.selection()).toEqual([]);
   await expect(page.getByTestId("selection-bounds")).toHaveCount(0);
 });
 
