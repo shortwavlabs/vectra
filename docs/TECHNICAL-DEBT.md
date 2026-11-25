@@ -804,6 +804,15 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - Earlier checks compared WASM with WASM across hosts (65/65) and precision native with WASM (26/26). Default-mode native vs WASM had not been compared.
   - The C3 requirement "native and WASM builds produce byte-identical packets" therefore holds only where the scenes agree (62/65). The packet encoding adds no difference.
   - TD-GEO-007's "Current guarantee" sentence ("identical RGBA gives identical scene … in native and WASM") overstates the guarantee for Artistic mode.
+- **Confirmed on the frozen G-0 baseline (AM-1 corrective review).** The native side is the G-0 regression output (byte-identical to `a4cf172.sha256`). The WASM side is a fresh build of `main` at `29432da` (`be101bca…`). The first divergent values:
+
+  | Fixture | Paths (native/WASM) | Differing paths | Differing coords | Max \|Δ\| (px) | First divergence (path, coord index, verb) | Native | WASM |
+  |---|---|---|---|---|---|---|---|
+  | `nested_rings`/color | 6/6 | 1 | 4 | 1.40 | path 1, coord 94 (x), verb 18 `C` | 169.54 | 169.07 |
+  | `nested_rings`/mosaic | 6/6 | 4 | 16 | 0.96 | path 2, coord 868 (x), verb 147 `C` | 68.74 | 68.48 |
+  | `sharp_corners`/mosaic | 2/2 | 2 | 8 | 2.00 | path 0, coord 592 (x), verb 101 `C` | 31.67 | 32.33 |
+
+  The path structure (verb strings) is identical; only cubic coordinates differ. Packets are unaffected: from identical scene input, native, WASM and TS give identical blocks (C3 r2; 106/106 corpus scenes).
 - **Likely cause** (not yet isolated): floating-point library differences between the native and wasm32 targets (for example `atan2`/`powf` in VTracer's spline and corner logic), changing discrete fitting decisions.
 - **Reproduction:**
   1. run `cargo run --release -p vector-engine --example packet_regression -- <dir>`;
