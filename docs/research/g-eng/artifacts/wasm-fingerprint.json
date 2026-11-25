@@ -1,0 +1,529 @@
+{
+  "wasmSha256": "e4571a645e8d51a837d10494beb93dfa513e1f9bcb54d2727fd7d73b6b356e58",
+  "cases": {
+    "circle/bw": {
+      "svg": "c04c116dacf30d53",
+      "pdf": "986a1c4a060e85d2",
+      "scene": "ae4641b06976de01"
+    },
+    "circle/color": {
+      "svg": "e19811cbe59b5208",
+      "pdf": "8d63e410190b43b5",
+      "scene": "899ba66b5d2221d8"
+    },
+    "circle/mosaic": {
+      "svg": "e4fb685b4ee5793b",
+      "pdf": "c651b1de911a70d7",
+      "scene": "9f06b21ab340590d"
+    },
+    "circle/limited": {
+      "svg": "f388b56fba50b635",
+      "pdf": "e5ab23e265a48f76",
+      "scene": "f2c1b25af57ac8de"
+    },
+    "circle/halftone": {
+      "svg": "3901d8cc505fa402",
+      "pdf": "677c641d95484446",
+      "scene": "a13e8fc3f40ea760"
+    },
+    "rectangles/bw": {
+      "svg": "aa7ca02f7bda1a45",
+      "pdf": "e951c4910035f750",
+      "scene": "e6017397d8cb9081"
+    },
+    "rectangles/color": {
+      "svg": "5b5b6a8a755f3fea",
+      "pdf": "6c72cd033363b723",
+      "scene": "740469de29da0ddd"
+    },
+    "rectangles/mosaic": {
+      "svg": "c026b1b849df7f32",
+      "pdf": "be7b4c023da80c41",
+      "scene": "27cf973a485df10a"
+    },
+    "rectangles/limited": {
+      "svg": "18a80349441a11ce",
+      "pdf": "625905802fda1fb7",
+      "scene": "3233dc35d9deb8b1"
+    },
+    "rectangles/halftone": {
+      "svg": "6fc808eb905e5ebe",
+      "pdf": "9c1706efda998a9a",
+      "scene": "937a9784db7b7405"
+    },
+    "sharp_corners/bw": {
+      "svg": "64f6a3b7d06e1951",
+      "pdf": "75b7b7e6228c633d",
+      "scene": "aa93dafcde97d6bc"
+    },
+    "sharp_corners/color": {
+      "svg": "d26d89915de7f22c",
+      "pdf": "b57a57908f31cd70",
+      "scene": "1f15fdb8cf4acb3e"
+    },
+    "sharp_corners/mosaic": {
+      "svg": "0f4ba24f9644a378",
+      "pdf": "3ec3fa4483821fbb",
+      "scene": "6256dc0626b295e2"
+    },
+    "sharp_corners/limited": {
+      "svg": "1a50b93b4ad98300",
+      "pdf": "83a4f2d9ee5562a7",
+      "scene": "85348b7cc0486a88"
+    },
+    "sharp_corners/halftone": {
+      "svg": "9165fbe11eb0fcbd",
+      "pdf": "82bec09cba766aa8",
+      "scene": "0dd274cb39baf1e3"
+    },
+    "nested_rings/bw": {
+      "svg": "3573271f18c8817c",
+      "pdf": "14d1198132fdd7c4",
+      "scene": "c152d59bf4a0d841"
+    },
+    "nested_rings/color": {
+      "svg": "4731bbf1ad1dd15c",
+      "pdf": "f578ebc8ac39c14b",
+      "scene": "e2d4a182693a33a2"
+    },
+    "nested_rings/mosaic": {
+      "svg": "7288357366e8ff76",
+      "pdf": "29f9d6b8792a9c50",
+      "scene": "c9b2ca83f195bd2a"
+    },
+    "nested_rings/limited": {
+      "svg": "fb19463f2e519b57",
+      "pdf": "2aec10d52e530d32",
+      "scene": "ab9f044f492625ae"
+    },
+    "nested_rings/halftone": {
+      "svg": "b55707666c16bd87",
+      "pdf": "4601f4e627794935",
+      "scene": "b777db2293f02fb9"
+    },
+    "thin_strokes/bw": {
+      "svg": "e88a493af783bf0f",
+      "pdf": "ccbc1b3a1e96454c",
+      "scene": "8ffab2837cfd2843"
+    },
+    "thin_strokes/color": {
+      "svg": "a7c39f75cbb10fbb",
+      "pdf": "bfac6730c98108e3",
+      "scene": "3d6094486da07f38"
+    },
+    "thin_strokes/mosaic": {
+      "svg": "55aeade421a74520",
+      "pdf": "009d9939df65dbd2",
+      "scene": "763dc4bf81fb9205"
+    },
+    "thin_strokes/limited": {
+      "svg": "44b4eb72e3268cb9",
+      "pdf": "322a5c1f9ea68e33",
+      "scene": "3a503f9ab5649644"
+    },
+    "thin_strokes/halftone": {
+      "svg": "21b42396973cf63b",
+      "pdf": "024fff42cbddf4cc",
+      "scene": "559e167a18b42328"
+    },
+    "transparent_ring/bw": {
+      "svg": "340036b4aedcdb82",
+      "pdf": "284621e89777fa84",
+      "scene": "fd41cd6a717c3105"
+    },
+    "transparent_ring/color": {
+      "svg": "42272422336e4ae3",
+      "pdf": "ae0912092d39b876",
+      "scene": "b8ebb862dbb5fa90"
+    },
+    "transparent_ring/mosaic": {
+      "svg": "2248d97380bfc108",
+      "pdf": "62877975004bde3b",
+      "scene": "7db27fa94a2ecef5"
+    },
+    "transparent_ring/limited": {
+      "svg": "58e575cb6c4086c2",
+      "pdf": "62877975004bde3b",
+      "scene": "8dba0a7b0ef15b8c"
+    },
+    "transparent_ring/halftone": {
+      "svg": "d799469b5a5c495e",
+      "pdf": "8bd8661ec29a8f70",
+      "scene": "a9edee4a5da53eab"
+    },
+    "logo_transparent_hole/bw": {
+      "svg": "04c7ccfe32f13bef",
+      "pdf": "298f4739253c269e",
+      "scene": "a9e326eb4a75d71a"
+    },
+    "logo_transparent_hole/color": {
+      "svg": "a06a08b9448d0cc4",
+      "pdf": "1c691a9374bfb45d",
+      "scene": "80818b69e2418ea9"
+    },
+    "logo_transparent_hole/mosaic": {
+      "svg": "44e52dc45da6908b",
+      "pdf": "ce0cbe3bc1353aa0",
+      "scene": "174a787799ca2c69"
+    },
+    "logo_transparent_hole/limited": {
+      "svg": "45aa413aeb86dc24",
+      "pdf": "ce0cbe3bc1353aa0",
+      "scene": "563a1fb722f4530e"
+    },
+    "logo_transparent_hole/halftone": {
+      "svg": "654f72a38d7e82ab",
+      "pdf": "1ee9f479d1275044",
+      "scene": "238a8eea78a94944"
+    },
+    "adjacent_colors/bw": {
+      "svg": "25d6b1f810ef97ec",
+      "pdf": "e37821cc4b568c00",
+      "scene": "800704078a371c36"
+    },
+    "adjacent_colors/color": {
+      "svg": "54de6e936c2cb715",
+      "pdf": "6625e7476b9b2947",
+      "scene": "287072317cf227b5"
+    },
+    "adjacent_colors/mosaic": {
+      "svg": "ce230fc411bf85ea",
+      "pdf": "4dbd3e3b0c160e78",
+      "scene": "0935ce99124d57df"
+    },
+    "adjacent_colors/limited": {
+      "svg": "b66d57e7abcb4227",
+      "pdf": "4dbd3e3b0c160e78",
+      "scene": "bcc6f36d1e3b3018"
+    },
+    "adjacent_colors/halftone": {
+      "svg": "8f7c25f0f2346e9a",
+      "pdf": "e2cf8200abf7dd57",
+      "scene": "09de693c8a105b16"
+    },
+    "antialiased_discs/bw": {
+      "svg": "e828a8d167c5e4c8",
+      "pdf": "b8188a8916e3e523",
+      "scene": "8bc21d661bdf9ebb"
+    },
+    "antialiased_discs/color": {
+      "svg": "43398fc9ade046f0",
+      "pdf": "0202a24934d36436",
+      "scene": "1dda7e0729a65afb"
+    },
+    "antialiased_discs/mosaic": {
+      "svg": "79dffc763d74479f",
+      "pdf": "17ef2e412e97edba",
+      "scene": "063f380fa73bcba7"
+    },
+    "antialiased_discs/limited": {
+      "svg": "f0fcdbcd0f0edeab",
+      "pdf": "1f8c6ac2bbdcfb3b",
+      "scene": "3f1c71e31de72687"
+    },
+    "antialiased_discs/halftone": {
+      "svg": "6baea135b2505a63",
+      "pdf": "2bbb16937b02ec57",
+      "scene": "2ae08684885e970c"
+    },
+    "noise/bw": {
+      "svg": "a0b0f6896e79787b",
+      "pdf": "4aaab5e8e10caffd",
+      "scene": "716cacb5689fdbdd"
+    },
+    "noise/color": {
+      "svg": "577449decf48fc2e",
+      "pdf": "e847fa9368894bd2",
+      "scene": "0a1846053c6a7c29"
+    },
+    "noise/mosaic": {
+      "svg": "1110739aefe79321",
+      "pdf": "877f8758643449e2",
+      "scene": "5e1bd9ad3fae2a4e"
+    },
+    "noise/limited": {
+      "svg": "40e200517e666f00",
+      "pdf": "1d38981bc6838892",
+      "scene": "249875a5a11d4607"
+    },
+    "noise/halftone": {
+      "svg": "8884ab934f3d4ec0",
+      "pdf": "1d4e5a0e4b7b187c",
+      "scene": "f1f81cb2e2df74b7"
+    },
+    "gradient/bw": {
+      "svg": "b14b1bd12dcb98dd",
+      "pdf": "a75bbecfa544e4b5",
+      "scene": "3fa6911a6ae4e6b8"
+    },
+    "gradient/color": {
+      "svg": "33f3593507e3fc62",
+      "pdf": "270b7f523ec45ea1",
+      "scene": "423b348c954564be"
+    },
+    "gradient/mosaic": {
+      "svg": "e14905240df020ed",
+      "pdf": "e0799fd1ca665dd0",
+      "scene": "0a10150e34a85a6a"
+    },
+    "gradient/limited": {
+      "svg": "859c19244cdf5175",
+      "pdf": "8fcb4bb277be3b23",
+      "scene": "9233023dd5b9a0e9"
+    },
+    "gradient/halftone": {
+      "svg": "37cd1729385a7654",
+      "pdf": "0e7a8cdd2e43a4b9",
+      "scene": "5fcd87505be7c81b"
+    },
+    "color_gradient/bw": {
+      "svg": "f6b7e5d3fad6a1b6",
+      "pdf": "9a359e8d674dabe9",
+      "scene": "b56a441e0db24229"
+    },
+    "color_gradient/color": {
+      "svg": "d841326733b3a6f9",
+      "pdf": "5e739f94e18d26b8",
+      "scene": "5affb0d0e1cc0af3"
+    },
+    "color_gradient/mosaic": {
+      "svg": "4b85a8d35d5d3f6a",
+      "pdf": "7885a3c0ccdc4906",
+      "scene": "33952fa39e9fa9fb"
+    },
+    "color_gradient/limited": {
+      "svg": "59e4af80c5ef7399",
+      "pdf": "767c1a30e9ce5527",
+      "scene": "81bc26caf58cfcfb"
+    },
+    "color_gradient/halftone": {
+      "svg": "daab6afa1cf0e860",
+      "pdf": "c39d262e31a580e4",
+      "scene": "0af5fd46e7264dca"
+    },
+    "checkerboard/bw": {
+      "svg": "20028b4dcc475752",
+      "pdf": "122a3239b6ad89d5",
+      "scene": "5cd7960f157c8bec"
+    },
+    "checkerboard/color": {
+      "svg": "156f37a01fc6e3c3",
+      "pdf": "c009049699376d00",
+      "scene": "27dfaf82a7e5d66c"
+    },
+    "checkerboard/mosaic": {
+      "svg": "aa6738996d95bb0f",
+      "pdf": "a6036b82716ae5d7",
+      "scene": "715899fa0df822bb"
+    },
+    "checkerboard/limited": {
+      "svg": "5a7c7a1ba9010f95",
+      "pdf": "5778a40d5aae79c8",
+      "scene": "762f02c2f78fac26"
+    },
+    "checkerboard/halftone": {
+      "svg": "e8a78342937046f8",
+      "pdf": "364f34fd8981220e",
+      "scene": "8ccb53f5f77a8886"
+    }
+  },
+  "precisionCases": {
+    "circle/bw-precision": {
+      "svg": "c22ed2fd4647d262",
+      "pdf": "b7d78c4c308dae2f",
+      "scene": "23dcf00cc6b59200"
+    },
+    "circle/color-precision": {
+      "svg": "4900f23664bd639c",
+      "pdf": "18cd3e0d14b8efd1",
+      "scene": "46db090244ba9b99"
+    },
+    "rectangles/bw-precision": {
+      "svg": "f02a008e7c5591b9",
+      "pdf": "1af82b29ffaf5a56",
+      "scene": "616e77abf61df4ed"
+    },
+    "rectangles/color-precision": {
+      "svg": "2cb7fe8ae47a45ff",
+      "pdf": "653909ea4edb744a",
+      "scene": "2d008df7c33b2913"
+    },
+    "sharp_corners/bw-precision": {
+      "svg": "c71abd02476bccae",
+      "pdf": "2c461d5203867ad0",
+      "scene": "0abc849eddc13bb9"
+    },
+    "sharp_corners/color-precision": {
+      "svg": "25b0ec67664cc89b",
+      "pdf": "c2e03eb0755be685",
+      "scene": "474050f3cd38fd14"
+    },
+    "nested_rings/bw-precision": {
+      "svg": "48869ac4b7fda9f9",
+      "pdf": "80890627b4d98ed2",
+      "scene": "4919142abcf4a4bf"
+    },
+    "nested_rings/color-precision": {
+      "svg": "df282dead40cc78a",
+      "pdf": "155b4dbec9c6f456",
+      "scene": "f04a5698c6bb4fe1"
+    },
+    "thin_strokes/bw-precision": {
+      "svg": "2213977ae366c210",
+      "pdf": "8378034c21f2e59c",
+      "scene": "c8a8c4059592de3b"
+    },
+    "thin_strokes/color-precision": {
+      "svg": "2270b23911c90cb2",
+      "pdf": "6b255dee4e447a35",
+      "scene": "a53f535f22692034"
+    },
+    "transparent_ring/bw-precision": {
+      "svg": "053f846ffe3f6162",
+      "pdf": "2d70f26d1a4cdc6f",
+      "scene": "96d853a54513b2d3"
+    },
+    "transparent_ring/color-precision": {
+      "svg": "9a5a00c619cd375e",
+      "pdf": "1afe009641cede5f",
+      "scene": "ed59e28152fda4b1"
+    },
+    "logo_transparent_hole/bw-precision": {
+      "svg": "7f327ebdcb24c54e",
+      "pdf": "f4cc5f164bfad6d3",
+      "scene": "454c1241aacc3f6d"
+    },
+    "logo_transparent_hole/color-precision": {
+      "svg": "8d4c29f93315e866",
+      "pdf": "48275423f5dce21b",
+      "scene": "031ee656bab64f09"
+    },
+    "adjacent_colors/bw-precision": {
+      "svg": "6d2e58da2687ced0",
+      "pdf": "232cba40f7704684",
+      "scene": "9a782453e25d8315"
+    },
+    "adjacent_colors/color-precision": {
+      "svg": "e0bbbfe1f5070ea5",
+      "pdf": "6448b5e69f0f00e9",
+      "scene": "65fa684cae2e3b2e"
+    },
+    "antialiased_discs/bw-precision": {
+      "svg": "f3d7d3528601ab4f",
+      "pdf": "f0ee61c5e2537037",
+      "scene": "84a3ed1da4b474f6"
+    },
+    "antialiased_discs/color-precision": {
+      "svg": "85a84e342d9625b2",
+      "pdf": "a3e3447885499159",
+      "scene": "4d6b4e0029db1506"
+    },
+    "noise/bw-precision": {
+      "svg": "829548b7f35c86ca",
+      "pdf": "47a04157a72243e6",
+      "scene": "165317189eefcf75"
+    },
+    "noise/color-precision": {
+      "svg": "ffc0fc09b686ea37",
+      "pdf": "fe6784ddc350c4ed",
+      "scene": "1b6e272124520a97"
+    },
+    "gradient/bw-precision": {
+      "svg": "ff1540ecea37f387",
+      "pdf": "28bc8d81a301b90c",
+      "scene": "7ba5e3290747d801"
+    },
+    "gradient/color-precision": {
+      "svg": "fa1d130ee659832e",
+      "pdf": "fb70023d1ceddec1",
+      "scene": "69299298c542776b"
+    },
+    "color_gradient/bw-precision": {
+      "svg": "6bb92ade29cc3350",
+      "pdf": "2abfb405d9534ebc",
+      "scene": "a491d9be094398a4"
+    },
+    "color_gradient/color-precision": {
+      "svg": "1f57270a68b3c5a7",
+      "pdf": "4c57add1a374513f",
+      "scene": "c453abd674e79a2f"
+    },
+    "checkerboard/bw-precision": {
+      "svg": "87043bbac5e93f7d",
+      "pdf": "72ba45d307c819f1",
+      "scene": "7314950870ed732b"
+    },
+    "checkerboard/color-precision": {
+      "svg": "c5300167ba0fecfc",
+      "pdf": "05638858a6d5286d",
+      "scene": "a29b7aab6d26c4da"
+    }
+  },
+  "packetBlocks": {
+    "circle/bw": "cbbcf9ddf5fcc59b",
+    "circle/color": "184ea45ab0207662",
+    "circle/mosaic": "1b93fd0b55a5698f",
+    "circle/limited": "dafa89f94119617c",
+    "circle/halftone": "b99a8aa2b8e50a14",
+    "rectangles/bw": "411c7b5f2f409762",
+    "rectangles/color": "7eb48264e45c29db",
+    "rectangles/mosaic": "e1fb9cb30a4c58cc",
+    "rectangles/limited": "b967a19722be632d",
+    "rectangles/halftone": "20d60ada52588e5e",
+    "sharp_corners/bw": "182a61e86995abd6",
+    "sharp_corners/color": "b918a37e8da054f7",
+    "sharp_corners/mosaic": "da5641bfc70ca099",
+    "sharp_corners/limited": "3b586631f39319d0",
+    "sharp_corners/halftone": "ccdfe1c392054e25",
+    "nested_rings/bw": "c43c0e63af4303f7",
+    "nested_rings/color": "56aff35757adf9e7",
+    "nested_rings/mosaic": "e31307b251c7c577",
+    "nested_rings/limited": "e1175a56007dce1d",
+    "nested_rings/halftone": "32101360cf2870d8",
+    "thin_strokes/bw": "5ec8238a217d93d4",
+    "thin_strokes/color": "e47f75aa0f4bf56b",
+    "thin_strokes/mosaic": "905c8b9a01691adf",
+    "thin_strokes/limited": "905c8b9a01691adf",
+    "thin_strokes/halftone": "2da5df3e64272cf1",
+    "transparent_ring/bw": "92cb9030cfa30050",
+    "transparent_ring/color": "92cb9030cfa30050",
+    "transparent_ring/mosaic": "e2d87a5f69af001d",
+    "transparent_ring/limited": "e2d87a5f69af001d",
+    "transparent_ring/halftone": "4593a8eff193a6b0",
+    "logo_transparent_hole/bw": "3eae1d1f6d5f91b3",
+    "logo_transparent_hole/color": "3eae1d1f6d5f91b3",
+    "logo_transparent_hole/mosaic": "2e735732ca6bb826",
+    "logo_transparent_hole/limited": "2e735732ca6bb826",
+    "logo_transparent_hole/halftone": "ab8b1528e74360bb",
+    "adjacent_colors/bw": "2b3efae98d1c9b4c",
+    "adjacent_colors/color": "b1328643aa121251",
+    "adjacent_colors/mosaic": "fa61ea6692d01c9d",
+    "adjacent_colors/limited": "fa61ea6692d01c9d",
+    "adjacent_colors/halftone": "4542f065bcfe29b2",
+    "antialiased_discs/bw": "8ae7c23613b293ba",
+    "antialiased_discs/color": "817beda99b2f5a9e",
+    "antialiased_discs/mosaic": "a12d8c701656ea7d",
+    "antialiased_discs/limited": "0f467588a3c33f20",
+    "antialiased_discs/halftone": "fa776d1193a8dcaa",
+    "noise/bw": "ebbc088f427eed19",
+    "noise/color": "fed3c393de307743",
+    "noise/mosaic": "35d2d8ecc1e9b053",
+    "noise/limited": "35d2d8ecc1e9b053",
+    "noise/halftone": "9682c53b3afe7a6f",
+    "gradient/bw": "1981a33e49e63ffd",
+    "gradient/color": "d92aca34a72f9e90",
+    "gradient/mosaic": "bb436cf7b12df31e",
+    "gradient/limited": "e3d30f2f3177a167",
+    "gradient/halftone": "2e288e7db7493034",
+    "color_gradient/bw": "2e57e2fc73e8d577",
+    "color_gradient/color": "93595fd982e8215a",
+    "color_gradient/mosaic": "de660b8d53664636",
+    "color_gradient/limited": "91ce9f8b2471d145",
+    "color_gradient/halftone": "44e3f3f3f97a8759",
+    "checkerboard/bw": "98f36190ce9e5d78",
+    "checkerboard/color": "567b236e51571a11",
+    "checkerboard/mosaic": "781486f59942e9ba",
+    "checkerboard/limited": "d1c869fae8829343",
+    "checkerboard/halftone": "90d92ae21086c00b"
+  }
+}

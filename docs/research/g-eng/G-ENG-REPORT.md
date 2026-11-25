@@ -163,13 +163,19 @@ The differences are −1.0 % to +1.8 %, with fully overlapping ranges, so they a
 - **Linux amd64:** CI will exercise build, lint and tests once P-CI is on `main`.
 
 ## 8. Final-head checks
-At head `23440c0` (code) plus this documentation commit:
+At engine head `23440c0`; the later commits change only TS and documentation:
 - `regression_corpus` 326/326 identical and `geo_bundle` 72/72 identical (load average ≈ 24–28);
 - `pnpm run build` PASS, with WASM `e4571a64…` at 608,220 B;
 - Playwright 1.65.1, 39/39 PASS in Chromium, Firefox and WebKit:
   - `smoke`, `csp`, `workbench`, `precision` and `privacy` specs, against the production build;
   - Playwright WebKit is not Safari.
 - `cargo fmt --check`, `clippy -D warnings`, `cargo test`, `vp check` and `vp test`: as in §4.
+- **Packet route re-run at the final engine code:** 326/326 identical to `a4cf172.sha256` (`artifacts/packet-route-final.sha256`).
+- **WASM fingerprint with the final WASM `e4571a64…`:**
+  - default-mode digest `68723671…` and precision digest `07fdd00d…`, both unchanged;
+  - packet and draw-list exports equal the direct route, with 0 mismatches;
+  - native vs WASM blocks 62/65, the same 3 cases as TD-PLATFORM-007 (`artifacts/wasm-fingerprint.json`, `artifacts/packet-route-final.txt`; load average 45.9 → 11.4).
+- **TS fix after these runs:** the `decodeBlock` Buffer fix (TS only) was verified by `vp check` and `vp test` (69/69). It does not touch the engine or the WASM.
 
 ## 9. Integration
 The single production validator and codec are in `src/geometry/packet/`. G-DOC's test-only adapter is replaced in the P1-A integration PR, as described in the brief.
