@@ -116,6 +116,8 @@ export class CanvasRenderer {
   #built = 0;
   #buildMs = 0;
   #drag: DragState | null = null;
+  /** The token of the exact frame being drawn progressively (equal to #token while it runs). */
+  #exactToken = -1;
   /** Off-screen target for exact frames drawn while a drag pose is held on screen. */
   #buffer: Canvas | null = null;
 
@@ -191,8 +193,21 @@ export class CanvasRenderer {
       if (!this.#drag.ended) this.#composeDrag();
       return;
     }
-    if (this.#cache && this.#cacheRevision >= 0) {
-      // The cache holds the frame without the selection: re-present it with the new outline.
+    // An exact frame in progress draws the same list: it completes under this revision and draws
+    // the selection last, so it continues. Otherwise the cache (the frame without the selection)
+    // is re-presented with the new outline, but only if it was drawn with the current camera; a
+    // cache from an earlier camera would leave no exact frame for this revision.
+    if (this.#exactToken === this.#token) return;
+    const c0 = this.#cacheCamera;
+    const c1 = this.#camera;
+    if (
+      this.#cache &&
+      this.#cacheRevision >= 0 &&
+      c0 &&
+      c0.scale === c1.scale &&
+      c0.tx === c1.tx &&
+      c0.ty === c1.ty
+    ) {
       this.#cacheRevision = renderRevision;
       this.#blitCache(true);
     } else this.#drawExact();
@@ -659,6 +674,10 @@ export class CanvasRenderer {
     let k = 0;
     let drawn = 0;
     let busy = 0;
+    this.#exactToken = token;
+    // Frames report the current revision: a selection change keeps the draw list (a new
+    // snapshot, camera or size supersedes the frame through the token instead).
+    const revision = () => this.#snapshot?.renderRevision ?? snap.renderRevision;
     const step = () => {
       if (token !== this.#token) return; // superseded by a newer snapshot, camera or size
       const s0 = this.#hooks.now();
@@ -686,7 +705,7 @@ export class CanvasRenderer {
       if (k < items.length) {
         this.#hooks.frame({
           camera: this.#camera,
-          renderRevision: snap.renderRevision,
+          renderRevision: revision(),
           kind: "interaction",
           ms: busy,
           buildMs: this.#buildMs - buildAt,
@@ -702,11 +721,12 @@ export class CanvasRenderer {
         this.#ctx.drawImage(this.#buffer as CanvasImageSource, 0, 0);
         this.#drag = null; // the exact frame replaces the held pose
       }
+      this.#exactToken = -1;
       this.#snapshotCache();
       this.#drawSelection(this.#ctx, D);
       this.#hooks.frame({
         camera: this.#camera,
-        renderRevision: snap.renderRevision,
+        renderRevision: revision(),
         kind: "exact",
         ms: busy,
         buildMs: this.#buildMs - buildAt,

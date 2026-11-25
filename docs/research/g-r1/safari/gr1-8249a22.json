@@ -1,0 +1,151 @@
+{
+  "commit": "8249a226c05312363f26044f98d727b6574ba031",
+  "loadavgStart": [2.33251953125, 2.033203125, 1.8505859375],
+  "scenarios": [
+    {
+      "name": "render: interactive target and halftone through the worker; presentation",
+      "pass": true,
+      "ms": 25427,
+      "detail": {
+        "synthetic-many-250k": {
+          "host": "worker",
+          "loadValidateMs": 1132,
+          "evaluateMs": 62.00000000000182,
+          "snapshotMs": 13.999999999998181,
+          "copyMs": 3,
+          "postMs": 46,
+          "pathBuildMs": 1075.0000000000055,
+          "firstFrameMs": 212,
+          "exactFrameMs": 1055,
+          "exactDrawRendererMs": 248,
+          "previewMs": 1135,
+          "presentation": {
+            "sampler": "displayed canvas",
+            "visibleAfterLoadMs": null,
+            "visibleAfterExactMessageMs": null,
+            "screenshotStableAfterSettleMs": 448,
+            "domControlCaptureMs": null,
+            "wallToSettledMs": 2298
+          },
+          "hitIndex": {
+            "readyMs": null,
+            "slices": 10,
+            "maxSliceMs": 4.999999999998181
+          },
+          "timingsValid": false,
+          "timingsNote": "the Safari automation page is hidden with 0 animation frames in 500 ms (window occluded or on another Space): timing is not measurable"
+        },
+        "architecture-street-halftone": {
+          "host": "worker",
+          "loadValidateMs": 211,
+          "evaluateMs": 0,
+          "snapshotMs": 0,
+          "copyMs": 5.000000000001819,
+          "postMs": 0,
+          "pathBuildMs": 0,
+          "firstFrameMs": 976.0000000000018,
+          "exactFrameMs": 976.0000000000018,
+          "exactDrawRendererMs": 0,
+          "previewMs": 1007.0000000000018,
+          "presentation": {
+            "sampler": "displayed canvas",
+            "visibleAfterLoadMs": null,
+            "visibleAfterExactMessageMs": null,
+            "screenshotStableAfterSettleMs": 579,
+            "domControlCaptureMs": null,
+            "wallToSettledMs": 1248
+          },
+          "hitIndex": {
+            "readyMs": null,
+            "slices": 10,
+            "maxSliceMs": 4.999999999998181
+          },
+          "timingsValid": false,
+          "timingsNote": "the Safari automation page is hidden with 0 animation frames in 500 ms (window occluded or on another Space): timing is not measurable"
+        }
+      }
+    },
+    {
+      "name": "drag: drag frames equal exact frames (RFC §8.4 cases)",
+      "pass": true,
+      "ms": 4144,
+      "detail": [
+        {
+          "case": "middle of paint order",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 2
+        },
+        {
+          "case": "non-contiguous",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "translucent overlap",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "clip owned outside",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "clip owned by the selection",
+          "mode": "layers",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 1
+        },
+        {
+          "case": "scale (vectors redrawn)",
+          "mode": "live",
+          "geometryErrors": 0,
+          "pctOver32": 0,
+          "maxDiff": 2
+        }
+      ]
+    },
+    {
+      "name": "gestures: pan and zoom frame intervals with the display cache; exact settle",
+      "pass": null,
+      "notRun": "the Safari automation page is hidden with 0 animation frames in 500 ms (window occluded or on another Space): timing is not measurable"
+    },
+    {
+      "name": "keyboard: select a single path from the canvas; announcements",
+      "pass": true,
+      "ms": 226,
+      "detail": {
+        "layer": "Trace, layer, 11 paths, 1 of 1",
+        "path": "Path 11, fill #0f766e, 1 of 1",
+        "selected": "Path 11, fill #0f766e selected"
+      }
+    },
+    {
+      "name": "offline: workspace reload, import and both workers recreated from the cache",
+      "pass": true,
+      "ms": 467,
+      "detail": {
+        "recoveryMs": 8,
+        "buildMismatches": 0
+      }
+    }
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2"
+  },
+  "page": {
+    "visibility": "hidden",
+    "rafsIn500ms": 0
+  },
+  "loadavgEnd": [3.12939453125, 2.2392578125, 1.92919921875]
+}

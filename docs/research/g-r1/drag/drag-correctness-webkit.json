@@ -1,0 +1,134 @@
+[
+  {
+    "browser": "webkit",
+    "case": "bottom of paint order",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108752,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "webkit",
+    "case": "middle of paint order",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108172,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "webkit",
+    "case": "top of paint order",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108752,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "webkit",
+    "case": "non-contiguous multi-selection",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 107707,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "webkit",
+    "case": "translucent overlap: the middle disc moves between the others",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108781,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "webkit",
+    "case": "clip owned outside the selection stays fixed",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108563,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "webkit",
+    "case": "clip owned by the selection moves with it",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109134,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "webkit",
+    "case": "nested groups (a group inside a moved group, and a hidden descendant)",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 100817,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "webkit",
+    "case": "layer transforms (multi-layer, a scaled top layer)",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 69012,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "webkit",
+    "case": "fractional device-pixel translation",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108972,
+    "pctOver32": 0.061,
+    "maxDiff": 64
+  },
+  {
+    "browser": "webkit",
+    "case": "scale about a corner (handle pose: vectors redrawn live)",
+    "mode": "live",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109417,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "webkit",
+    "case": "one-axis scale of a non-contiguous selection",
+    "mode": "live",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 106361,
+    "pctOver32": 0,
+    "maxDiff": 2
+  }
+]

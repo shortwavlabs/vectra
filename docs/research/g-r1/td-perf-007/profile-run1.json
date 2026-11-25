@@ -1,0 +1,5220 @@
+{
+  "script": "scripts/bench-td-perf-007.mjs",
+  "argv": [
+    "--reps",
+    "30",
+    "--out",
+    "/Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/agent-a749055759bc1d0c9/docs/research/g-r1/td-perf-007/profile-run1.json"
+  ],
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "cpus": 18,
+  "totalMemGiB": 128,
+  "gcBetweenPhases": true,
+  "reps": 30,
+  "warmup": 2,
+  "loadavgStart": [2.33, 1.9, 1.92],
+  "sizes": [
+    {
+      "paths": 1000,
+      "anchorsPerPath": 6,
+      "pathsPerGroup": 125,
+      "replaceLayerPaths": 100,
+      "setFillManyPaths": 1000,
+      "nodes": 1112,
+      "nodeKinds": {
+        "path": 1100,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 6600,
+      "loadavgStart": [2.33, 1.9, 1.92],
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 0.8,
+            "p95": 0.982,
+            "max": 1.338
+          },
+          "undo": {
+            "p50": 0.004,
+            "p95": 0.008,
+            "max": 0.024
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.009,
+            "max": 0.019
+          },
+          "copy": {
+            "p50": 0.044,
+            "p95": 0.057,
+            "max": 0.068
+          },
+          "publish": {
+            "p50": 0.075,
+            "p95": 0.105,
+            "max": 0.147
+          },
+          "copyPublish": {
+            "p50": 0.118,
+            "p95": 0.172,
+            "max": 0.204
+          },
+          "applyCold": {
+            "p50": 0.196,
+            "p95": 0.219,
+            "max": 0.232
+          },
+          "applyWarm": {
+            "p50": 0.214,
+            "p95": 0.348,
+            "max": 0.402
+          },
+          "commandCold": {
+            "p50": 0.074,
+            "p95": 0.101,
+            "max": 0.11
+          },
+          "commandWarm": {
+            "p50": 0.092,
+            "p95": 0.233,
+            "max": 0.292
+          },
+          "validate": {
+            "p50": 0.601,
+            "p95": 0.699,
+            "max": 0.755
+          },
+          "historyPublishResidual": {
+            "p50": 0.001,
+            "p95": 0.15,
+            "max": 0.451
+          },
+          "incremental": {
+            "p50": 0.048,
+            "p95": 0.097,
+            "max": 0.108
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.03,
+            "p95": 0.064,
+            "max": 0.082
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.015,
+            "p95": 0.031,
+            "max": 0.034
+          },
+          "parentsCold": {
+            "p50": 0.042,
+            "p95": 0.051,
+            "max": 0.054
+          },
+          "documentOrder": {
+            "p50": 0.082,
+            "p95": 0.111,
+            "max": 0.182
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.751,
+          "copyPublishShareP50": 0.147,
+          "commandColdShareP50": 0.092,
+          "historyShareP50": 0.001
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 1.071,
+            "p95": 1.306,
+            "max": 1.457
+          },
+          "undo": {
+            "p50": 0.004,
+            "p95": 0.007,
+            "max": 0.014
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.004,
+            "max": 0.004
+          },
+          "copy": {
+            "p50": 0.044,
+            "p95": 0.119,
+            "max": 0.227
+          },
+          "publish": {
+            "p50": 0.075,
+            "p95": 0.11,
+            "max": 0.117
+          },
+          "copyPublish": {
+            "p50": 0.122,
+            "p95": 0.157,
+            "max": 0.177
+          },
+          "applyCold": {
+            "p50": 0.481,
+            "p95": 0.744,
+            "max": 0.813
+          },
+          "applyWarm": {
+            "p50": 0.508,
+            "p95": 0.612,
+            "max": 0.735
+          },
+          "commandCold": {
+            "p50": 0.353,
+            "p95": 0.595,
+            "max": 0.636
+          },
+          "commandWarm": {
+            "p50": 0.378,
+            "p95": 0.464,
+            "max": 0.609
+          },
+          "validate": {
+            "p50": 0.6,
+            "p95": 0.732,
+            "max": 1.06
+          },
+          "historyPublishResidual": {
+            "p50": -0.012,
+            "p95": 0.092,
+            "max": 0.096
+          },
+          "incremental": {
+            "p50": 0.522,
+            "p95": 0.81,
+            "max": 0.828
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.022,
+            "p95": 0.055,
+            "max": 0.068
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.494,
+            "p95": 0.771,
+            "max": 0.786
+          },
+          "parentsCold": {
+            "p50": 0.036,
+            "p95": 0.039,
+            "max": 0.04
+          },
+          "documentOrder": {
+            "p50": 0.08,
+            "p95": 0.092,
+            "max": 0.092
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.56,
+          "copyPublishShareP50": 0.114,
+          "commandColdShareP50": 0.33,
+          "historyShareP50": -0.011
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 0.679,
+            "p95": 0.813,
+            "max": 0.865
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 0.042,
+            "p95": 0.058,
+            "max": 0.073
+          },
+          "publish": {
+            "p50": 0.073,
+            "p95": 0.082,
+            "max": 0.128
+          },
+          "copyPublish": {
+            "p50": 0.115,
+            "p95": 0.134,
+            "max": 0.186
+          },
+          "applyCold": {
+            "p50": 0.105,
+            "p95": 0.123,
+            "max": 0.127
+          },
+          "applyWarm": {
+            "p50": 0.124,
+            "p95": 0.164,
+            "max": 0.203
+          },
+          "commandCold": {
+            "p50": -0.011,
+            "p95": 0.005,
+            "max": 0.006
+          },
+          "commandWarm": {
+            "p50": 0.006,
+            "p95": 0.051,
+            "max": 0.085
+          },
+          "validate": {
+            "p50": 0.579,
+            "p95": 0.625,
+            "max": 1.017
+          },
+          "historyPublishResidual": {
+            "p50": -0.001,
+            "p95": 0.122,
+            "max": 0.157
+          },
+          "incremental": {
+            "p50": 0.029,
+            "p95": 0.034,
+            "max": 0.043
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.018,
+            "p95": 0.023,
+            "max": 0.03
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.01,
+            "p95": 0.014,
+            "max": 0.015
+          },
+          "parentsCold": {
+            "p50": 0.038,
+            "p95": 0.045,
+            "max": 0.051
+          },
+          "documentOrder": {
+            "p50": 0.081,
+            "p95": 0.091,
+            "max": 0.118
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.853,
+          "copyPublishShareP50": 0.169,
+          "commandColdShareP50": -0.016,
+          "historyShareP50": -0.001
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 0.685,
+            "p95": 0.759,
+            "max": 0.806
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.065
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.028
+          },
+          "copy": {
+            "p50": 0.043,
+            "p95": 0.048,
+            "max": 0.059
+          },
+          "publish": {
+            "p50": 0.076,
+            "p95": 0.105,
+            "max": 0.124
+          },
+          "copyPublish": {
+            "p50": 0.119,
+            "p95": 0.146,
+            "max": 0.168
+          },
+          "applyCold": {
+            "p50": 0.107,
+            "p95": 0.156,
+            "max": 0.179
+          },
+          "applyWarm": {
+            "p50": 0.124,
+            "p95": 0.164,
+            "max": 0.165
+          },
+          "commandCold": {
+            "p50": -0.012,
+            "p95": 0.012,
+            "max": 0.053
+          },
+          "commandWarm": {
+            "p50": 0.006,
+            "p95": 0.024,
+            "max": 0.036
+          },
+          "validate": {
+            "p50": 0.589,
+            "p95": 0.711,
+            "max": 0.713
+          },
+          "historyPublishResidual": {
+            "p50": -0.008,
+            "p95": 0.053,
+            "max": 0.091
+          },
+          "incremental": {
+            "p50": 0.03,
+            "p95": 0.038,
+            "max": 0.082
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.018,
+            "p95": 0.026,
+            "max": 0.068
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.011,
+            "p95": 0.016,
+            "max": 0.017
+          },
+          "parentsCold": {
+            "p50": 0.038,
+            "p95": 0.039,
+            "max": 0.04
+          },
+          "documentOrder": {
+            "p50": 0.084,
+            "p95": 0.092,
+            "max": 0.097
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.86,
+          "copyPublishShareP50": 0.174,
+          "commandColdShareP50": -0.018,
+          "historyShareP50": -0.012
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 0.712,
+            "p95": 0.784,
+            "max": 1.344
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 0.043,
+            "p95": 0.047,
+            "max": 0.118
+          },
+          "publish": {
+            "p50": 0.075,
+            "p95": 0.087,
+            "max": 0.104
+          },
+          "copyPublish": {
+            "p50": 0.119,
+            "p95": 0.13,
+            "max": 0.15
+          },
+          "applyCold": {
+            "p50": 0.144,
+            "p95": 0.166,
+            "max": 0.171
+          },
+          "applyWarm": {
+            "p50": 0.131,
+            "p95": 0.272,
+            "max": 0.281
+          },
+          "commandCold": {
+            "p50": 0.024,
+            "p95": 0.047,
+            "max": 0.049
+          },
+          "commandWarm": {
+            "p50": 0.01,
+            "p95": 0.147,
+            "max": 0.156
+          },
+          "validate": {
+            "p50": 0.566,
+            "p95": 0.705,
+            "max": 0.843
+          },
+          "historyPublishResidual": {
+            "p50": -0.004,
+            "p95": 0.081,
+            "max": 0.351
+          },
+          "incremental": {
+            "p50": 0.063,
+            "p95": 0.071,
+            "max": 0.078
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.018,
+            "p95": 0.02,
+            "max": 0.021
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.044,
+            "p95": 0.051,
+            "max": 0.057
+          },
+          "parentsCold": {
+            "p50": 0.036,
+            "p95": 0.041,
+            "max": 0.061
+          },
+          "documentOrder": {
+            "p50": 0.082,
+            "p95": 0.092,
+            "max": 0.099
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.795,
+          "copyPublishShareP50": 0.167,
+          "commandColdShareP50": 0.034,
+          "historyShareP50": -0.006
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 0.721,
+            "p95": 1.097,
+            "max": 1.209
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.009
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.004
+          },
+          "copy": {
+            "p50": 0.044,
+            "p95": 0.053,
+            "max": 0.061
+          },
+          "publish": {
+            "p50": 0.074,
+            "p95": 0.115,
+            "max": 0.119
+          },
+          "copyPublish": {
+            "p50": 0.119,
+            "p95": 0.162,
+            "max": 0.18
+          },
+          "applyCold": {
+            "p50": 0.105,
+            "p95": 0.133,
+            "max": 0.154
+          },
+          "applyWarm": {
+            "p50": 0.129,
+            "p95": 0.197,
+            "max": 0.244
+          },
+          "commandCold": {
+            "p50": -0.014,
+            "p95": 0.009,
+            "max": 0.021
+          },
+          "commandWarm": {
+            "p50": 0.01,
+            "p95": 0.069,
+            "max": 0.13
+          },
+          "validate": {
+            "p50": 0.583,
+            "p95": 0.783,
+            "max": 0.814
+          },
+          "historyPublishResidual": {
+            "p50": -0.006,
+            "p95": 0.326,
+            "max": 0.387
+          },
+          "incremental": {
+            "p50": 0.079,
+            "p95": 0.125,
+            "max": 0.138
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.018,
+            "p95": 0.028,
+            "max": 0.039
+          },
+          "incParents": {
+            "p50": 0.038,
+            "p95": 0.059,
+            "max": 0.06
+          },
+          "incChecks": {
+            "p50": 0.021,
+            "p95": 0.048,
+            "max": 0.054
+          },
+          "parentsCold": {
+            "p50": 0.037,
+            "p95": 0.049,
+            "max": 0.077
+          },
+          "documentOrder": {
+            "p50": 0.083,
+            "p95": 0.122,
+            "max": 0.15
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.809,
+          "copyPublishShareP50": 0.165,
+          "commandColdShareP50": -0.019,
+          "historyShareP50": -0.008
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 0.69,
+            "p95": 0.784,
+            "max": 0.809
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.004
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.042,
+            "p95": 0.068,
+            "max": 0.183
+          },
+          "publish": {
+            "p50": 0.071,
+            "p95": 0.104,
+            "max": 0.188
+          },
+          "copyPublish": {
+            "p50": 0.115,
+            "p95": 0.145,
+            "max": 0.231
+          },
+          "applyCold": {
+            "p50": 0.103,
+            "p95": 0.125,
+            "max": 0.127
+          },
+          "applyWarm": {
+            "p50": 0.122,
+            "p95": 0.141,
+            "max": 0.145
+          },
+          "commandCold": {
+            "p50": -0.012,
+            "p95": 0.004,
+            "max": 0.006
+          },
+          "commandWarm": {
+            "p50": 0.007,
+            "p95": 0.026,
+            "max": 0.03
+          },
+          "validate": {
+            "p50": 0.601,
+            "p95": 0.665,
+            "max": 0.675
+          },
+          "historyPublishResidual": {
+            "p50": -0.009,
+            "p95": 0.056,
+            "max": 0.066
+          },
+          "incremental": {
+            "p50": 0.246,
+            "p95": 0.381,
+            "max": 0.403
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.018,
+            "p95": 0.023,
+            "max": 0.028
+          },
+          "incParents": {
+            "p50": 0.038,
+            "p95": 0.091,
+            "max": 0.129
+          },
+          "incChecks": {
+            "p50": 0.189,
+            "p95": 0.234,
+            "max": 0.295
+          },
+          "parentsCold": {
+            "p50": 0.037,
+            "p95": 0.038,
+            "max": 0.038
+          },
+          "documentOrder": {
+            "p50": 0.083,
+            "p95": 0.124,
+            "max": 0.13
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.871,
+          "copyPublishShareP50": 0.167,
+          "commandColdShareP50": -0.017,
+          "historyShareP50": -0.013
+        },
+        "group": {
+          "dispatch": {
+            "p50": 0.782,
+            "p95": 0.87,
+            "max": 0.88
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.006
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.044,
+            "p95": 0.073,
+            "max": 0.114
+          },
+          "publish": {
+            "p50": 0.073,
+            "p95": 0.11,
+            "max": 0.112
+          },
+          "copyPublish": {
+            "p50": 0.116,
+            "p95": 0.153,
+            "max": 0.162
+          },
+          "applyCold": {
+            "p50": 0.237,
+            "p95": 0.281,
+            "max": 0.299
+          },
+          "applyWarm": {
+            "p50": 0.226,
+            "p95": 0.295,
+            "max": 0.312
+          },
+          "commandCold": {
+            "p50": 0.12,
+            "p95": 0.146,
+            "max": 0.166
+          },
+          "commandWarm": {
+            "p50": 0.108,
+            "p95": 0.143,
+            "max": 0.198
+          },
+          "validate": {
+            "p50": 0.56,
+            "p95": 0.601,
+            "max": 0.628
+          },
+          "historyPublishResidual": {
+            "p50": -0.014,
+            "p95": 0.037,
+            "max": 0.045
+          },
+          "incremental": {
+            "p50": 0.074,
+            "p95": 0.095,
+            "max": 0.097
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.018,
+            "p95": 0.021,
+            "max": 0.022
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.054,
+            "p95": 0.075,
+            "max": 0.076
+          },
+          "parentsCold": {
+            "p50": 0.035,
+            "p95": 0.044,
+            "max": 0.046
+          },
+          "documentOrder": {
+            "p50": 0.081,
+            "p95": 0.089,
+            "max": 0.091
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.716,
+          "copyPublishShareP50": 0.148,
+          "commandColdShareP50": 0.153,
+          "historyShareP50": -0.018
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 0.734,
+            "p95": 0.831,
+            "max": 0.838
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 0.044,
+            "p95": 0.07,
+            "max": 0.161
+          },
+          "publish": {
+            "p50": 0.076,
+            "p95": 0.09,
+            "max": 0.11
+          },
+          "copyPublish": {
+            "p50": 0.119,
+            "p95": 0.152,
+            "max": 0.156
+          },
+          "applyCold": {
+            "p50": 0.149,
+            "p95": 0.167,
+            "max": 0.184
+          },
+          "applyWarm": {
+            "p50": 0.136,
+            "p95": 0.205,
+            "max": 0.215
+          },
+          "commandCold": {
+            "p50": 0.029,
+            "p95": 0.047,
+            "max": 0.056
+          },
+          "commandWarm": {
+            "p50": 0.016,
+            "p95": 0.084,
+            "max": 0.087
+          },
+          "validate": {
+            "p50": 0.612,
+            "p95": 0.666,
+            "max": 0.686
+          },
+          "historyPublishResidual": {
+            "p50": -0.016,
+            "p95": 0.054,
+            "max": 0.073
+          },
+          "incremental": {
+            "p50": 0.161,
+            "p95": 0.238,
+            "max": 0.244
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.054,
+            "p95": 0.06,
+            "max": 0.13
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incChecks": {
+            "p50": 0.108,
+            "p95": 0.14,
+            "max": 0.184
+          },
+          "parentsCold": {
+            "p50": 0.037,
+            "p95": 0.083,
+            "max": 0.106
+          },
+          "documentOrder": {
+            "p50": 0.092,
+            "p95": 0.101,
+            "max": 0.118
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.834,
+          "copyPublishShareP50": 0.162,
+          "commandColdShareP50": 0.04,
+          "historyShareP50": -0.022
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 0.813,
+            "p95": 1.1,
+            "max": 1.129
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 0.045,
+            "p95": 0.048,
+            "max": 0.074
+          },
+          "publish": {
+            "p50": 0.076,
+            "p95": 0.102,
+            "max": 0.114
+          },
+          "copyPublish": {
+            "p50": 0.12,
+            "p95": 0.147,
+            "max": 0.188
+          },
+          "applyCold": {
+            "p50": 0.231,
+            "p95": 0.274,
+            "max": 0.384
+          },
+          "applyWarm": {
+            "p50": 0.223,
+            "p95": 0.312,
+            "max": 0.314
+          },
+          "commandCold": {
+            "p50": 0.111,
+            "p95": 0.135,
+            "max": 0.196
+          },
+          "commandWarm": {
+            "p50": 0.1,
+            "p95": 0.184,
+            "max": 0.199
+          },
+          "validate": {
+            "p50": 0.577,
+            "p95": 0.753,
+            "max": 2.268
+          },
+          "historyPublishResidual": {
+            "p50": 0.014,
+            "p95": 0.212,
+            "max": 0.289
+          },
+          "incremental": {
+            "p50": 0.084,
+            "p95": 0.12,
+            "max": 0.322
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.036,
+            "p95": 0.042,
+            "max": 0.1
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.046,
+            "p95": 0.082,
+            "max": 0.219
+          },
+          "parentsCold": {
+            "p50": 0.035,
+            "p95": 0.038,
+            "max": 0.039
+          },
+          "documentOrder": {
+            "p50": 0.082,
+            "p95": 0.092,
+            "max": 0.093
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.71,
+          "copyPublishShareP50": 0.148,
+          "commandColdShareP50": 0.137,
+          "historyShareP50": 0.017
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 0.8,
+            "p95": 0.952,
+            "max": 0.966
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.042,
+            "p95": 0.05,
+            "max": 0.054
+          },
+          "publish": {
+            "p50": 0.074,
+            "p95": 0.17,
+            "max": 0.23
+          },
+          "copyPublish": {
+            "p50": 0.117,
+            "p95": 0.211,
+            "max": 0.276
+          },
+          "applyCold": {
+            "p50": 0.231,
+            "p95": 0.344,
+            "max": 0.476
+          },
+          "applyWarm": {
+            "p50": 0.223,
+            "p95": 0.237,
+            "max": 0.247
+          },
+          "commandCold": {
+            "p50": 0.111,
+            "p95": 0.23,
+            "max": 0.265
+          },
+          "commandWarm": {
+            "p50": 0.105,
+            "p95": 0.122,
+            "max": 0.123
+          },
+          "validate": {
+            "p50": 0.593,
+            "p95": 0.658,
+            "max": 0.665
+          },
+          "historyPublishResidual": {
+            "p50": -0.012,
+            "p95": 0.094,
+            "max": 0.096
+          },
+          "incremental": {
+            "p50": 0.072,
+            "p95": 0.08,
+            "max": 0.081
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.019,
+            "p95": 0.021,
+            "max": 0.029
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0.001
+          },
+          "incChecks": {
+            "p50": 0.05,
+            "p95": 0.059,
+            "max": 0.06
+          },
+          "parentsCold": {
+            "p50": 0.035,
+            "p95": 0.037,
+            "max": 0.038
+          },
+          "documentOrder": {
+            "p50": 0.086,
+            "p95": 0.095,
+            "max": 0.129
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.741,
+          "copyPublishShareP50": 0.146,
+          "commandColdShareP50": 0.139,
+          "historyShareP50": -0.015
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 0.998,
+            "p95": 1.143,
+            "max": 1.405
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.006,
+            "max": 0.011
+          },
+          "copy": {
+            "p50": 0.044,
+            "p95": 0.047,
+            "max": 0.199
+          },
+          "publish": {
+            "p50": 0.075,
+            "p95": 0.111,
+            "max": 0.208
+          },
+          "copyPublish": {
+            "p50": 0.118,
+            "p95": 0.156,
+            "max": 0.252
+          },
+          "applyCold": {
+            "p50": 0.279,
+            "p95": 0.318,
+            "max": 0.346
+          },
+          "applyWarm": {
+            "p50": 0.302,
+            "p95": 0.411,
+            "max": 0.492
+          },
+          "commandCold": {
+            "p50": 0.158,
+            "p95": 0.197,
+            "max": 0.199
+          },
+          "commandWarm": {
+            "p50": 0.183,
+            "p95": 0.293,
+            "max": 0.375
+          },
+          "validate": {
+            "p50": 0.604,
+            "p95": 0.7,
+            "max": 0.702
+          },
+          "historyPublishResidual": {
+            "p50": 0.099,
+            "p95": 0.219,
+            "max": 0.481
+          },
+          "incremental": {
+            "p50": 0.265,
+            "p95": 0.332,
+            "max": 0.349
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.041,
+            "p95": 0.045,
+            "max": 0.053
+          },
+          "incParents": {
+            "p50": 0.039,
+            "p95": 0.046,
+            "max": 0.047
+          },
+          "incChecks": {
+            "p50": 0.183,
+            "p95": 0.239,
+            "max": 0.267
+          },
+          "parentsCold": {
+            "p50": 0.039,
+            "p95": 0.053,
+            "max": 0.059
+          },
+          "documentOrder": {
+            "p50": 0.082,
+            "p95": 0.098,
+            "max": 0.102
+          },
+          "storeCommit": {
+            "moveMs": {
+              "p50": 0.018,
+              "p95": 0.025,
+              "max": 0.066
+            },
+            "validateMs": {
+              "p50": 0.072,
+              "p95": 0.082,
+              "max": 0.083
+            },
+            "publishMs": {
+              "p50": 0.008,
+              "p95": 0.02,
+              "max": 0.021
+            }
+          },
+          "validateShareP50": 0.605,
+          "copyPublishShareP50": 0.118,
+          "commandColdShareP50": 0.158,
+          "historyShareP50": 0.099
+        }
+      },
+      "sharing": {
+        "nodes": 1112,
+        "candidates": {
+          "native Map (current)": {
+            "copyOneWriteMs": {
+              "p50": 0.043,
+              "p95": 0.051,
+              "max": 0.051
+            },
+            "get100kMs": {
+              "p50": 1.186,
+              "p95": 1.582,
+              "max": 1.582
+            },
+            "iterateMs": {
+              "p50": 0.01,
+              "p95": 0.033,
+              "max": 0.033
+            },
+            "heapPerOneChangeStateMiB": 0.055
+          },
+          "chunked COW map, 256 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.006,
+              "p95": 0.027,
+              "max": 0.027
+            },
+            "get100kMs": {
+              "p50": 3.721,
+              "p95": 4.27,
+              "max": 4.27
+            },
+            "iterateMs": {
+              "p50": 0.033,
+              "p95": 0.1,
+              "max": 0.1
+            },
+            "heapPerOneChangeStateMiB": 0.003
+          },
+          "chunked COW map, 1024 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.002,
+              "p95": 0.008,
+              "max": 0.008
+            },
+            "get100kMs": {
+              "p50": 3.21,
+              "p95": 3.542,
+              "max": 3.542
+            },
+            "iterateMs": {
+              "p50": 0.037,
+              "p95": 0.062,
+              "max": 0.062
+            },
+            "heapPerOneChangeStateMiB": 0.008
+          },
+          "chunked COW map, 4096 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.002,
+              "p95": 0.006,
+              "max": 0.006
+            },
+            "get100kMs": {
+              "p50": 2.939,
+              "p95": 3.737,
+              "max": 3.737
+            },
+            "iterateMs": {
+              "p50": 0.065,
+              "p95": 0.09,
+              "max": 0.09
+            },
+            "heapPerOneChangeStateMiB": 0.032
+          }
+        }
+      },
+      "loadavgEnd": [2.3, 1.9, 1.92]
+    },
+    {
+      "paths": 16000,
+      "anchorsPerPath": 6,
+      "pathsPerGroup": 2000,
+      "replaceLayerPaths": 1000,
+      "setFillManyPaths": 1000,
+      "nodes": 17012,
+      "nodeKinds": {
+        "path": 17000,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 102000,
+      "loadavgStart": [2.3, 1.9, 1.92],
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 9.845,
+            "p95": 10.529,
+            "max": 11.581
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 0.794,
+            "p95": 1.173,
+            "max": 1.296
+          },
+          "publish": {
+            "p50": 1.044,
+            "p95": 1.296,
+            "max": 1.361
+          },
+          "copyPublish": {
+            "p50": 1.85,
+            "p95": 2.089,
+            "max": 2.184
+          },
+          "applyCold": {
+            "p50": 2.634,
+            "p95": 3.07,
+            "max": 3.647
+          },
+          "applyWarm": {
+            "p50": 3.011,
+            "p95": 3.86,
+            "max": 3.937
+          },
+          "commandCold": {
+            "p50": 0.798,
+            "p95": 1.138,
+            "max": 1.862
+          },
+          "commandWarm": {
+            "p50": 1.171,
+            "p95": 1.927,
+            "max": 2.067
+          },
+          "validate": {
+            "p50": 6.881,
+            "p95": 8.927,
+            "max": 12.302
+          },
+          "historyPublishResidual": {
+            "p50": 0.218,
+            "p95": 0.753,
+            "max": 2.044
+          },
+          "incremental": {
+            "p50": 0.334,
+            "p95": 0.544,
+            "max": 0.582
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.309,
+            "p95": 0.475,
+            "max": 0.505
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.023,
+            "p95": 0.035,
+            "max": 0.105
+          },
+          "parentsCold": {
+            "p50": 0.747,
+            "p95": 1.109,
+            "max": 1.183
+          },
+          "documentOrder": {
+            "p50": 1.43,
+            "p95": 2.243,
+            "max": 3.047
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.699,
+          "copyPublishShareP50": 0.188,
+          "commandColdShareP50": 0.081,
+          "historyShareP50": 0.022
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 10.064,
+            "p95": 11.685,
+            "max": 12.599
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.004
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.005,
+            "max": 0.01
+          },
+          "copy": {
+            "p50": 0.799,
+            "p95": 0.954,
+            "max": 1.281
+          },
+          "publish": {
+            "p50": 1.074,
+            "p95": 1.192,
+            "max": 1.897
+          },
+          "copyPublish": {
+            "p50": 1.879,
+            "p95": 2.011,
+            "max": 2.831
+          },
+          "applyCold": {
+            "p50": 2.957,
+            "p95": 3.414,
+            "max": 3.535
+          },
+          "applyWarm": {
+            "p50": 3.399,
+            "p95": 5.59,
+            "max": 7.759
+          },
+          "commandCold": {
+            "p50": 1.064,
+            "p95": 1.481,
+            "max": 1.5
+          },
+          "commandWarm": {
+            "p50": 1.517,
+            "p95": 3.637,
+            "max": 5.794
+          },
+          "validate": {
+            "p50": 6.827,
+            "p95": 7.63,
+            "max": 7.949
+          },
+          "historyPublishResidual": {
+            "p50": 0.175,
+            "p95": 1.936,
+            "max": 2.213
+          },
+          "incremental": {
+            "p50": 0.877,
+            "p95": 1.105,
+            "max": 1.366
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.324,
+            "p95": 0.443,
+            "max": 0.507
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.555,
+            "p95": 0.67,
+            "max": 0.856
+          },
+          "parentsCold": {
+            "p50": 0.74,
+            "p95": 1.007,
+            "max": 1.03
+          },
+          "documentOrder": {
+            "p50": 1.444,
+            "p95": 1.72,
+            "max": 2.427
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.678,
+          "copyPublishShareP50": 0.187,
+          "commandColdShareP50": 0.106,
+          "historyShareP50": 0.017
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 8.548,
+            "p95": 10.11,
+            "max": 10.268
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 0.817,
+            "p95": 1.029,
+            "max": 1.087
+          },
+          "publish": {
+            "p50": 1.061,
+            "p95": 1.238,
+            "max": 1.445
+          },
+          "copyPublish": {
+            "p50": 1.904,
+            "p95": 2.13,
+            "max": 2.474
+          },
+          "applyCold": {
+            "p50": 1.26,
+            "p95": 1.463,
+            "max": 2.069
+          },
+          "applyWarm": {
+            "p50": 1.602,
+            "p95": 1.95,
+            "max": 2.107
+          },
+          "commandCold": {
+            "p50": -0.621,
+            "p95": -0.481,
+            "max": -0.061
+          },
+          "commandWarm": {
+            "p50": -0.306,
+            "p95": 0.068,
+            "max": 0.151
+          },
+          "validate": {
+            "p50": 7.011,
+            "p95": 8.546,
+            "max": 9.737
+          },
+          "historyPublishResidual": {
+            "p50": 0.145,
+            "p95": 1.563,
+            "max": 1.705
+          },
+          "incremental": {
+            "p50": 0.347,
+            "p95": 0.473,
+            "max": 0.607
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.321,
+            "p95": 0.443,
+            "max": 0.578
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.026,
+            "p95": 0.03,
+            "max": 0.032
+          },
+          "parentsCold": {
+            "p50": 0.769,
+            "p95": 1.026,
+            "max": 1.099
+          },
+          "documentOrder": {
+            "p50": 1.464,
+            "p95": 1.937,
+            "max": 2.433
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.82,
+          "copyPublishShareP50": 0.223,
+          "commandColdShareP50": -0.073,
+          "historyShareP50": 0.017
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 8.178,
+            "p95": 9.399,
+            "max": 10.343
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.007,
+            "max": 0.017
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.004,
+            "max": 0.008
+          },
+          "copy": {
+            "p50": 0.801,
+            "p95": 0.951,
+            "max": 1.063
+          },
+          "publish": {
+            "p50": 1.019,
+            "p95": 1.289,
+            "max": 1.603
+          },
+          "copyPublish": {
+            "p50": 1.826,
+            "p95": 2.177,
+            "max": 2.417
+          },
+          "applyCold": {
+            "p50": 1.237,
+            "p95": 1.501,
+            "max": 1.968
+          },
+          "applyWarm": {
+            "p50": 1.514,
+            "p95": 1.718,
+            "max": 1.958
+          },
+          "commandCold": {
+            "p50": -0.593,
+            "p95": -0.498,
+            "max": -0.083
+          },
+          "commandWarm": {
+            "p50": -0.317,
+            "p95": -0.116,
+            "max": -0.092
+          },
+          "validate": {
+            "p50": 6.745,
+            "p95": 7.748,
+            "max": 8.772
+          },
+          "historyPublishResidual": {
+            "p50": 0.195,
+            "p95": 0.724,
+            "max": 1.098
+          },
+          "incremental": {
+            "p50": 0.329,
+            "p95": 0.435,
+            "max": 0.671
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.306,
+            "p95": 0.409,
+            "max": 0.631
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.021,
+            "p95": 0.034,
+            "max": 0.035
+          },
+          "parentsCold": {
+            "p50": 0.739,
+            "p95": 0.821,
+            "max": 0.822
+          },
+          "documentOrder": {
+            "p50": 1.445,
+            "p95": 1.557,
+            "max": 1.648
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.825,
+          "copyPublishShareP50": 0.223,
+          "commandColdShareP50": -0.073,
+          "historyShareP50": 0.024
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 8.924,
+            "p95": 9.115,
+            "max": 9.361
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.008
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.793,
+            "p95": 0.82,
+            "max": 0.82
+          },
+          "publish": {
+            "p50": 1.012,
+            "p95": 1.126,
+            "max": 1.129
+          },
+          "copyPublish": {
+            "p50": 1.807,
+            "p95": 1.914,
+            "max": 1.926
+          },
+          "applyCold": {
+            "p50": 1.977,
+            "p95": 2.015,
+            "max": 2.031
+          },
+          "applyWarm": {
+            "p50": 1.544,
+            "p95": 1.604,
+            "max": 1.617
+          },
+          "commandCold": {
+            "p50": 0.166,
+            "p95": 0.214,
+            "max": 0.221
+          },
+          "commandWarm": {
+            "p50": -0.25,
+            "p95": -0.186,
+            "max": -0.181
+          },
+          "validate": {
+            "p50": 6.764,
+            "p95": 6.874,
+            "max": 6.925
+          },
+          "historyPublishResidual": {
+            "p50": 0.157,
+            "p95": 0.379,
+            "max": 0.456
+          },
+          "incremental": {
+            "p50": 0.789,
+            "p95": 0.822,
+            "max": 0.825
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.306,
+            "p95": 0.32,
+            "max": 0.323
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.478,
+            "p95": 0.508,
+            "max": 0.511
+          },
+          "parentsCold": {
+            "p50": 0.726,
+            "p95": 0.75,
+            "max": 0.75
+          },
+          "documentOrder": {
+            "p50": 1.412,
+            "p95": 1.477,
+            "max": 1.495
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.758,
+          "copyPublishShareP50": 0.202,
+          "commandColdShareP50": 0.019,
+          "historyShareP50": 0.018
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 8.195,
+            "p95": 8.353,
+            "max": 8.438
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.794,
+            "p95": 0.817,
+            "max": 0.86
+          },
+          "publish": {
+            "p50": 1.026,
+            "p95": 1.123,
+            "max": 1.191
+          },
+          "copyPublish": {
+            "p50": 1.818,
+            "p95": 1.931,
+            "max": 1.987
+          },
+          "applyCold": {
+            "p50": 1.237,
+            "p95": 1.261,
+            "max": 1.269
+          },
+          "applyWarm": {
+            "p50": 1.514,
+            "p95": 1.591,
+            "max": 1.592
+          },
+          "commandCold": {
+            "p50": -0.585,
+            "p95": -0.523,
+            "max": -0.517
+          },
+          "commandWarm": {
+            "p50": -0.325,
+            "p95": -0.227,
+            "max": -0.173
+          },
+          "validate": {
+            "p50": 6.764,
+            "p95": 6.849,
+            "max": 6.874
+          },
+          "historyPublishResidual": {
+            "p50": 0.194,
+            "p95": 0.368,
+            "max": 0.43
+          },
+          "incremental": {
+            "p50": 1.058,
+            "p95": 1.086,
+            "max": 1.092
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.307,
+            "p95": 0.32,
+            "max": 0.329
+          },
+          "incParents": {
+            "p50": 0.724,
+            "p95": 0.742,
+            "max": 0.766
+          },
+          "incChecks": {
+            "p50": 0.025,
+            "p95": 0.029,
+            "max": 0.03
+          },
+          "parentsCold": {
+            "p50": 0.727,
+            "p95": 0.76,
+            "max": 0.768
+          },
+          "documentOrder": {
+            "p50": 1.399,
+            "p95": 1.475,
+            "max": 1.478
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.825,
+          "copyPublishShareP50": 0.222,
+          "commandColdShareP50": -0.071,
+          "historyShareP50": 0.024
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 8.15,
+            "p95": 8.253,
+            "max": 8.299
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.797,
+            "p95": 0.812,
+            "max": 0.828
+          },
+          "publish": {
+            "p50": 1.015,
+            "p95": 1.055,
+            "max": 1.156
+          },
+          "copyPublish": {
+            "p50": 1.813,
+            "p95": 1.86,
+            "max": 1.945
+          },
+          "applyCold": {
+            "p50": 1.224,
+            "p95": 1.274,
+            "max": 1.278
+          },
+          "applyWarm": {
+            "p50": 1.488,
+            "p95": 1.579,
+            "max": 1.679
+          },
+          "commandCold": {
+            "p50": -0.587,
+            "p95": -0.524,
+            "max": -0.484
+          },
+          "commandWarm": {
+            "p50": -0.323,
+            "p95": -0.208,
+            "max": -0.134
+          },
+          "validate": {
+            "p50": 6.74,
+            "p95": 6.833,
+            "max": 6.837
+          },
+          "historyPublishResidual": {
+            "p50": 0.18,
+            "p95": 0.323,
+            "max": 0.345
+          },
+          "incremental": {
+            "p50": 3.828,
+            "p95": 3.889,
+            "max": 3.946
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.306,
+            "p95": 0.323,
+            "max": 0.343
+          },
+          "incParents": {
+            "p50": 0.723,
+            "p95": 0.741,
+            "max": 0.75
+          },
+          "incChecks": {
+            "p50": 2.799,
+            "p95": 2.844,
+            "max": 2.906
+          },
+          "parentsCold": {
+            "p50": 0.722,
+            "p95": 0.76,
+            "max": 0.772
+          },
+          "documentOrder": {
+            "p50": 1.427,
+            "p95": 1.565,
+            "max": 1.571
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.827,
+          "copyPublishShareP50": 0.222,
+          "commandColdShareP50": -0.072,
+          "historyShareP50": 0.022
+        },
+        "group": {
+          "dispatch": {
+            "p50": 10.447,
+            "p95": 11.105,
+            "max": 12.45
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.799,
+            "p95": 0.822,
+            "max": 0.832
+          },
+          "publish": {
+            "p50": 1.025,
+            "p95": 1.152,
+            "max": 1.177
+          },
+          "copyPublish": {
+            "p50": 1.823,
+            "p95": 1.966,
+            "max": 1.97
+          },
+          "applyCold": {
+            "p50": 3.428,
+            "p95": 3.509,
+            "max": 3.537
+          },
+          "applyWarm": {
+            "p50": 3.127,
+            "p95": 3.321,
+            "max": 3.454
+          },
+          "commandCold": {
+            "p50": 1.577,
+            "p95": 1.674,
+            "max": 1.682
+          },
+          "commandWarm": {
+            "p50": 1.316,
+            "p95": 1.529,
+            "max": 1.617
+          },
+          "validate": {
+            "p50": 6.777,
+            "p95": 6.967,
+            "max": 7.175
+          },
+          "historyPublishResidual": {
+            "p50": 0.244,
+            "p95": 0.686,
+            "max": 2.205
+          },
+          "incremental": {
+            "p50": 0.759,
+            "p95": 0.865,
+            "max": 0.878
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.308,
+            "p95": 0.355,
+            "max": 0.386
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incChecks": {
+            "p50": 0.423,
+            "p95": 0.529,
+            "max": 0.55
+          },
+          "parentsCold": {
+            "p50": 0.744,
+            "p95": 0.791,
+            "max": 0.802
+          },
+          "documentOrder": {
+            "p50": 1.418,
+            "p95": 1.492,
+            "max": 1.499
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.649,
+          "copyPublishShareP50": 0.174,
+          "commandColdShareP50": 0.151,
+          "historyShareP50": 0.023
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 8.879,
+            "p95": 9.05,
+            "max": 9.429
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 0.804,
+            "p95": 0.851,
+            "max": 0.885
+          },
+          "publish": {
+            "p50": 1.006,
+            "p95": 1.082,
+            "max": 1.084
+          },
+          "copyPublish": {
+            "p50": 1.819,
+            "p95": 1.873,
+            "max": 1.895
+          },
+          "applyCold": {
+            "p50": 1.953,
+            "p95": 1.989,
+            "max": 2.009
+          },
+          "applyWarm": {
+            "p50": 1.541,
+            "p95": 1.593,
+            "max": 1.615
+          },
+          "commandCold": {
+            "p50": 0.14,
+            "p95": 0.174,
+            "max": 0.228
+          },
+          "commandWarm": {
+            "p50": -0.272,
+            "p95": -0.197,
+            "max": -0.171
+          },
+          "validate": {
+            "p50": 6.759,
+            "p95": 6.944,
+            "max": 7.032
+          },
+          "historyPublishResidual": {
+            "p50": 0.138,
+            "p95": 0.388,
+            "max": 0.63
+          },
+          "incremental": {
+            "p50": 1.514,
+            "p95": 1.554,
+            "max": 1.567
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.607,
+            "p95": 0.623,
+            "max": 0.625
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incChecks": {
+            "p50": 0.906,
+            "p95": 0.943,
+            "max": 0.944
+          },
+          "parentsCold": {
+            "p50": 0.742,
+            "p95": 0.76,
+            "max": 0.762
+          },
+          "documentOrder": {
+            "p50": 1.42,
+            "p95": 1.493,
+            "max": 1.519
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.761,
+          "copyPublishShareP50": 0.205,
+          "commandColdShareP50": 0.016,
+          "historyShareP50": 0.016
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 10.348,
+            "p95": 10.484,
+            "max": 10.513
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 0.804,
+            "p95": 0.819,
+            "max": 0.825
+          },
+          "publish": {
+            "p50": 1.033,
+            "p95": 1.113,
+            "max": 1.118
+          },
+          "copyPublish": {
+            "p50": 1.838,
+            "p95": 1.914,
+            "max": 1.917
+          },
+          "applyCold": {
+            "p50": 3.283,
+            "p95": 3.418,
+            "max": 3.478
+          },
+          "applyWarm": {
+            "p50": 3.002,
+            "p95": 3.187,
+            "max": 3.199
+          },
+          "commandCold": {
+            "p50": 1.457,
+            "p95": 1.585,
+            "max": 1.615
+          },
+          "commandWarm": {
+            "p50": 1.147,
+            "p95": 1.366,
+            "max": 1.367
+          },
+          "validate": {
+            "p50": 6.781,
+            "p95": 6.894,
+            "max": 6.97
+          },
+          "historyPublishResidual": {
+            "p50": 0.235,
+            "p95": 0.492,
+            "max": 0.501
+          },
+          "incremental": {
+            "p50": 0.972,
+            "p95": 1.011,
+            "max": 1.012
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.606,
+            "p95": 0.638,
+            "max": 0.641
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.361,
+            "p95": 0.388,
+            "max": 0.393
+          },
+          "parentsCold": {
+            "p50": 0.744,
+            "p95": 0.766,
+            "max": 0.773
+          },
+          "documentOrder": {
+            "p50": 1.422,
+            "p95": 1.458,
+            "max": 1.467
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.655,
+          "copyPublishShareP50": 0.178,
+          "commandColdShareP50": 0.141,
+          "historyShareP50": 0.023
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 10.404,
+            "p95": 10.516,
+            "max": 10.519
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 0.795,
+            "p95": 0.821,
+            "max": 0.821
+          },
+          "publish": {
+            "p50": 1.038,
+            "p95": 1.105,
+            "max": 1.132
+          },
+          "copyPublish": {
+            "p50": 1.827,
+            "p95": 1.903,
+            "max": 1.929
+          },
+          "applyCold": {
+            "p50": 3.355,
+            "p95": 3.493,
+            "max": 3.502
+          },
+          "applyWarm": {
+            "p50": 3.038,
+            "p95": 3.121,
+            "max": 3.251
+          },
+          "commandCold": {
+            "p50": 1.52,
+            "p95": 1.635,
+            "max": 1.641
+          },
+          "commandWarm": {
+            "p50": 1.213,
+            "p95": 1.301,
+            "max": 1.411
+          },
+          "validate": {
+            "p50": 6.764,
+            "p95": 6.856,
+            "max": 6.865
+          },
+          "historyPublishResidual": {
+            "p50": 0.252,
+            "p95": 0.453,
+            "max": 0.518
+          },
+          "incremental": {
+            "p50": 0.675,
+            "p95": 0.713,
+            "max": 0.717
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.314,
+            "p95": 0.343,
+            "max": 0.346
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incChecks": {
+            "p50": 0.362,
+            "p95": 0.39,
+            "max": 0.395
+          },
+          "parentsCold": {
+            "p50": 0.743,
+            "p95": 0.765,
+            "max": 0.766
+          },
+          "documentOrder": {
+            "p50": 1.396,
+            "p95": 1.476,
+            "max": 1.498
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.65,
+          "copyPublishShareP50": 0.176,
+          "commandColdShareP50": 0.146,
+          "historyShareP50": 0.024
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 9.521,
+            "p95": 9.606,
+            "max": 9.657
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 0.806,
+            "p95": 0.832,
+            "max": 0.85
+          },
+          "publish": {
+            "p50": 1.033,
+            "p95": 1.147,
+            "max": 1.158
+          },
+          "copyPublish": {
+            "p50": 1.844,
+            "p95": 1.956,
+            "max": 1.98
+          },
+          "applyCold": {
+            "p50": 2.308,
+            "p95": 2.407,
+            "max": 2.422
+          },
+          "applyWarm": {
+            "p50": 2.629,
+            "p95": 2.721,
+            "max": 2.723
+          },
+          "commandCold": {
+            "p50": 0.451,
+            "p95": 0.594,
+            "max": 0.608
+          },
+          "commandWarm": {
+            "p50": 0.764,
+            "p95": 0.892,
+            "max": 0.92
+          },
+          "validate": {
+            "p50": 6.788,
+            "p95": 6.985,
+            "max": 7.044
+          },
+          "historyPublishResidual": {
+            "p50": 0.442,
+            "p95": 0.933,
+            "max": 1.006
+          },
+          "incremental": {
+            "p50": 2.408,
+            "p95": 2.547,
+            "max": 2.571
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.674,
+            "p95": 0.744,
+            "max": 0.804
+          },
+          "incParents": {
+            "p50": 0.74,
+            "p95": 0.772,
+            "max": 0.78
+          },
+          "incChecks": {
+            "p50": 0.988,
+            "p95": 1.014,
+            "max": 1.024
+          },
+          "parentsCold": {
+            "p50": 0.735,
+            "p95": 0.768,
+            "max": 0.775
+          },
+          "documentOrder": {
+            "p50": 1.432,
+            "p95": 1.517,
+            "max": 1.527
+          },
+          "storeCommit": {
+            "moveMs": {
+              "p50": 0.022,
+              "p95": 0.032,
+              "max": 0.032
+            },
+            "validateMs": {
+              "p50": 0.613,
+              "p95": 0.656,
+              "max": 0.667
+            },
+            "publishMs": {
+              "p50": 0.01,
+              "p95": 0.012,
+              "max": 0.012
+            }
+          },
+          "validateShareP50": 0.713,
+          "copyPublishShareP50": 0.194,
+          "commandColdShareP50": 0.047,
+          "historyShareP50": 0.046
+        }
+      },
+      "sharing": {
+        "nodes": 17012,
+        "candidates": {
+          "native Map (current)": {
+            "copyOneWriteMs": {
+              "p50": 0.715,
+              "p95": 0.753,
+              "max": 0.753
+            },
+            "get100kMs": {
+              "p50": 1.737,
+              "p95": 2.354,
+              "max": 2.354
+            },
+            "iterateMs": {
+              "p50": 0.092,
+              "p95": 0.159,
+              "max": 0.159
+            },
+            "heapPerOneChangeStateMiB": 0.875
+          },
+          "chunked COW map, 256 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.004,
+              "p95": 0.011,
+              "max": 0.011
+            },
+            "get100kMs": {
+              "p50": 4.92,
+              "p95": 5.452,
+              "max": 5.452
+            },
+            "iterateMs": {
+              "p50": 0.275,
+              "p95": 0.461,
+              "max": 0.461
+            },
+            "heapPerOneChangeStateMiB": 0.006
+          },
+          "chunked COW map, 1024 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.002,
+              "p95": 0.004,
+              "max": 0.004
+            },
+            "get100kMs": {
+              "p50": 5.415,
+              "p95": 5.578,
+              "max": 5.578
+            },
+            "iterateMs": {
+              "p50": 0.289,
+              "p95": 0.307,
+              "max": 0.307
+            },
+            "heapPerOneChangeStateMiB": 0.009
+          },
+          "chunked COW map, 4096 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.002,
+              "p95": 0.003,
+              "max": 0.003
+            },
+            "get100kMs": {
+              "p50": 5.413,
+              "p95": 5.675,
+              "max": 5.675
+            },
+            "iterateMs": {
+              "p50": 0.314,
+              "p95": 0.337,
+              "max": 0.337
+            },
+            "heapPerOneChangeStateMiB": 0.032
+          }
+        }
+      },
+      "loadavgEnd": [3.85, 2.32, 2.07]
+    },
+    {
+      "paths": 43000,
+      "anchorsPerPath": 6,
+      "pathsPerGroup": 5375,
+      "replaceLayerPaths": 1000,
+      "setFillManyPaths": 1000,
+      "nodes": 44012,
+      "nodeKinds": {
+        "path": 44000,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 264000,
+      "loadavgStart": [3.85, 2.32, 2.07],
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 25.86,
+            "p95": 29.698,
+            "max": 29.851
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.048,
+            "p95": 2.287,
+            "max": 2.332
+          },
+          "publish": {
+            "p50": 2.081,
+            "p95": 2.716,
+            "max": 3.223
+          },
+          "copyPublish": {
+            "p50": 4.105,
+            "p95": 4.895,
+            "max": 5.339
+          },
+          "applyCold": {
+            "p50": 6.938,
+            "p95": 7.602,
+            "max": 8.172
+          },
+          "applyWarm": {
+            "p50": 7.437,
+            "p95": 8.603,
+            "max": 8.619
+          },
+          "commandCold": {
+            "p50": 2.834,
+            "p95": 3.009,
+            "max": 3.276
+          },
+          "commandWarm": {
+            "p50": 3.27,
+            "p95": 3.926,
+            "max": 3.996
+          },
+          "validate": {
+            "p50": 18.313,
+            "p95": 20.047,
+            "max": 20.308
+          },
+          "historyPublishResidual": {
+            "p50": 0.78,
+            "p95": 1.911,
+            "max": 1.942
+          },
+          "incremental": {
+            "p50": 0.932,
+            "p95": 1.027,
+            "max": 1.125
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.911,
+            "p95": 1.004,
+            "max": 1.094
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.02,
+            "p95": 0.031,
+            "max": 0.033
+          },
+          "parentsCold": {
+            "p50": 1.871,
+            "p95": 2.016,
+            "max": 2.212
+          },
+          "documentOrder": {
+            "p50": 3.624,
+            "p95": 4.011,
+            "max": 4.119
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.708,
+          "copyPublishShareP50": 0.159,
+          "commandColdShareP50": 0.11,
+          "historyShareP50": 0.03
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 26.195,
+            "p95": 28.718,
+            "max": 31.314
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.048,
+            "p95": 2.149,
+            "max": 2.175
+          },
+          "publish": {
+            "p50": 2.022,
+            "p95": 2.368,
+            "max": 2.671
+          },
+          "copyPublish": {
+            "p50": 4.07,
+            "p95": 4.486,
+            "max": 4.82
+          },
+          "applyCold": {
+            "p50": 7.269,
+            "p95": 8.197,
+            "max": 8.892
+          },
+          "applyWarm": {
+            "p50": 7.735,
+            "p95": 8.25,
+            "max": 8.324
+          },
+          "commandCold": {
+            "p50": 3.242,
+            "p95": 3.391,
+            "max": 4.857
+          },
+          "commandWarm": {
+            "p50": 3.689,
+            "p95": 3.885,
+            "max": 3.939
+          },
+          "validate": {
+            "p50": 18.177,
+            "p95": 19.455,
+            "max": 19.457
+          },
+          "historyPublishResidual": {
+            "p50": 0.72,
+            "p95": 1.615,
+            "max": 5.519
+          },
+          "incremental": {
+            "p50": 1.274,
+            "p95": 1.398,
+            "max": 1.491
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.918,
+            "p95": 0.978,
+            "max": 0.998
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.361,
+            "p95": 0.418,
+            "max": 0.49
+          },
+          "parentsCold": {
+            "p50": 1.871,
+            "p95": 1.962,
+            "max": 1.963
+          },
+          "documentOrder": {
+            "p50": 3.565,
+            "p95": 3.899,
+            "max": 3.969
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.694,
+          "copyPublishShareP50": 0.155,
+          "commandColdShareP50": 0.124,
+          "historyShareP50": 0.027
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 22.111,
+            "p95": 23.163,
+            "max": 23.717
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.043,
+            "p95": 2.124,
+            "max": 2.13
+          },
+          "publish": {
+            "p50": 2.043,
+            "p95": 2.199,
+            "max": 2.576
+          },
+          "copyPublish": {
+            "p50": 4.105,
+            "p95": 4.263,
+            "max": 4.645
+          },
+          "applyCold": {
+            "p50": 3.305,
+            "p95": 3.458,
+            "max": 4.938
+          },
+          "applyWarm": {
+            "p50": 3.64,
+            "p95": 4.49,
+            "max": 4.588
+          },
+          "commandCold": {
+            "p50": -0.775,
+            "p95": -0.645,
+            "max": 0.294
+          },
+          "commandWarm": {
+            "p50": -0.409,
+            "p95": -0.057,
+            "max": 0.231
+          },
+          "validate": {
+            "p50": 18.207,
+            "p95": 18.813,
+            "max": 27.02
+          },
+          "historyPublishResidual": {
+            "p50": 0.616,
+            "p95": 0.89,
+            "max": 1.182
+          },
+          "incremental": {
+            "p50": 0.923,
+            "p95": 1.199,
+            "max": 1.46
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.905,
+            "p95": 1.181,
+            "max": 1.424
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.016,
+            "p95": 0.027,
+            "max": 0.031
+          },
+          "parentsCold": {
+            "p50": 1.878,
+            "p95": 2.116,
+            "max": 2.34
+          },
+          "documentOrder": {
+            "p50": 3.579,
+            "p95": 3.919,
+            "max": 5.736
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.823,
+          "copyPublishShareP50": 0.186,
+          "commandColdShareP50": -0.035,
+          "historyShareP50": 0.028
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 22.244,
+            "p95": 23.717,
+            "max": 26.238
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.058,
+            "p95": 2.135,
+            "max": 2.163
+          },
+          "publish": {
+            "p50": 2.078,
+            "p95": 2.626,
+            "max": 3.363
+          },
+          "copyPublish": {
+            "p50": 4.135,
+            "p95": 4.709,
+            "max": 5.525
+          },
+          "applyCold": {
+            "p50": 3.335,
+            "p95": 3.616,
+            "max": 3.781
+          },
+          "applyWarm": {
+            "p50": 3.735,
+            "p95": 4.05,
+            "max": 5.374
+          },
+          "commandCold": {
+            "p50": -0.777,
+            "p95": -0.602,
+            "max": -0.559
+          },
+          "commandWarm": {
+            "p50": -0.401,
+            "p95": -0.151,
+            "max": -0.021
+          },
+          "validate": {
+            "p50": 18.325,
+            "p95": 20.448,
+            "max": 20.677
+          },
+          "historyPublishResidual": {
+            "p50": 0.583,
+            "p95": 1.76,
+            "max": 2.008
+          },
+          "incremental": {
+            "p50": 0.954,
+            "p95": 1.11,
+            "max": 1.25
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.934,
+            "p95": 1.085,
+            "max": 1.225
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.017,
+            "p95": 0.026,
+            "max": 0.045
+          },
+          "parentsCold": {
+            "p50": 1.888,
+            "p95": 1.978,
+            "max": 2.406
+          },
+          "documentOrder": {
+            "p50": 3.599,
+            "p95": 4.021,
+            "max": 4.271
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.824,
+          "copyPublishShareP50": 0.186,
+          "commandColdShareP50": -0.035,
+          "historyShareP50": 0.026
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 24.722,
+            "p95": 31.85,
+            "max": 34.03
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 2.052,
+            "p95": 2.683,
+            "max": 3.638
+          },
+          "publish": {
+            "p50": 2.144,
+            "p95": 3.213,
+            "max": 3.722
+          },
+          "copyPublish": {
+            "p50": 4.181,
+            "p95": 5.321,
+            "max": 7.36
+          },
+          "applyCold": {
+            "p50": 5.36,
+            "p95": 6.028,
+            "max": 9.162
+          },
+          "applyWarm": {
+            "p50": 3.81,
+            "p95": 4.144,
+            "max": 4.329
+          },
+          "commandCold": {
+            "p50": 1.174,
+            "p95": 1.399,
+            "max": 4.137
+          },
+          "commandWarm": {
+            "p50": -0.358,
+            "p95": -0.094,
+            "max": 0.273
+          },
+          "validate": {
+            "p50": 18.644,
+            "p95": 20.603,
+            "max": 22.903
+          },
+          "historyPublishResidual": {
+            "p50": 0.921,
+            "p95": 6.908,
+            "max": 9.962
+          },
+          "incremental": {
+            "p50": 2.041,
+            "p95": 2.349,
+            "max": 3.187
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.936,
+            "p95": 1.177,
+            "max": 1.929
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 1.112,
+            "p95": 1.256,
+            "max": 1.264
+          },
+          "parentsCold": {
+            "p50": 1.908,
+            "p95": 2.054,
+            "max": 2.133
+          },
+          "documentOrder": {
+            "p50": 3.671,
+            "p95": 4.381,
+            "max": 5.15
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.754,
+          "copyPublishShareP50": 0.169,
+          "commandColdShareP50": 0.047,
+          "historyShareP50": 0.037
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 22.705,
+            "p95": 26.147,
+            "max": 31.675
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 2.049,
+            "p95": 2.802,
+            "max": 2.933
+          },
+          "publish": {
+            "p50": 2.148,
+            "p95": 2.714,
+            "max": 3.027
+          },
+          "copyPublish": {
+            "p50": 4.213,
+            "p95": 5.098,
+            "max": 5.121
+          },
+          "applyCold": {
+            "p50": 3.389,
+            "p95": 3.806,
+            "max": 4.215
+          },
+          "applyWarm": {
+            "p50": 3.745,
+            "p95": 5.312,
+            "max": 5.774
+          },
+          "commandCold": {
+            "p50": -0.836,
+            "p95": -0.551,
+            "max": -0.515
+          },
+          "commandWarm": {
+            "p50": -0.46,
+            "p95": 1.018,
+            "max": 1.127
+          },
+          "validate": {
+            "p50": 18.588,
+            "p95": 21.778,
+            "max": 22.102
+          },
+          "historyPublishResidual": {
+            "p50": 0.354,
+            "p95": 2.28,
+            "max": 9.2
+          },
+          "incremental": {
+            "p50": 2.822,
+            "p95": 3.216,
+            "max": 4.652
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.948,
+            "p95": 1.148,
+            "max": 1.857
+          },
+          "incParents": {
+            "p50": 1.853,
+            "p95": 2.078,
+            "max": 2.756
+          },
+          "incChecks": {
+            "p50": 0.028,
+            "p95": 0.033,
+            "max": 0.036
+          },
+          "parentsCold": {
+            "p50": 1.907,
+            "p95": 2.217,
+            "max": 3.152
+          },
+          "documentOrder": {
+            "p50": 3.667,
+            "p95": 4.554,
+            "max": 6.797
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.819,
+          "copyPublishShareP50": 0.186,
+          "commandColdShareP50": -0.037,
+          "historyShareP50": 0.016
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 22.89,
+            "p95": 25.133,
+            "max": 26.15
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.049,
+            "p95": 2.34,
+            "max": 2.343
+          },
+          "publish": {
+            "p50": 2.106,
+            "p95": 3.084,
+            "max": 4.036
+          },
+          "copyPublish": {
+            "p50": 4.156,
+            "p95": 5.331,
+            "max": 6.334
+          },
+          "applyCold": {
+            "p50": 3.374,
+            "p95": 4.182,
+            "max": 5.383
+          },
+          "applyWarm": {
+            "p50": 3.729,
+            "p95": 7.169,
+            "max": 7.732
+          },
+          "commandCold": {
+            "p50": -0.831,
+            "p95": -0.598,
+            "max": -0.536
+          },
+          "commandWarm": {
+            "p50": -0.448,
+            "p95": 2.771,
+            "max": 3.013
+          },
+          "validate": {
+            "p50": 18.825,
+            "p95": 22.178,
+            "max": 22.776
+          },
+          "historyPublishResidual": {
+            "p50": 0.475,
+            "p95": 1.876,
+            "max": 1.944
+          },
+          "incremental": {
+            "p50": 10.401,
+            "p95": 12.097,
+            "max": 15.103
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.941,
+            "p95": 1.225,
+            "max": 1.355
+          },
+          "incParents": {
+            "p50": 1.841,
+            "p95": 2.166,
+            "max": 2.543
+          },
+          "incChecks": {
+            "p50": 7.506,
+            "p95": 8.349,
+            "max": 11.889
+          },
+          "parentsCold": {
+            "p50": 1.903,
+            "p95": 2.502,
+            "max": 3.088
+          },
+          "documentOrder": {
+            "p50": 3.707,
+            "p95": 4.931,
+            "max": 5.282
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.822,
+          "copyPublishShareP50": 0.182,
+          "commandColdShareP50": -0.036,
+          "historyShareP50": 0.021
+        },
+        "group": {
+          "dispatch": {
+            "p50": 29.864,
+            "p95": 35.478,
+            "max": 37.032
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.079,
+            "p95": 2.278,
+            "max": 2.291
+          },
+          "publish": {
+            "p50": 2.164,
+            "p95": 2.947,
+            "max": 3.179
+          },
+          "copyPublish": {
+            "p50": 4.257,
+            "p95": 5.238,
+            "max": 5.366
+          },
+          "applyCold": {
+            "p50": 9.508,
+            "p95": 10.553,
+            "max": 11.099
+          },
+          "applyWarm": {
+            "p50": 8.561,
+            "p95": 10.17,
+            "max": 11.749
+          },
+          "commandCold": {
+            "p50": 5.163,
+            "p95": 5.861,
+            "max": 6.037
+          },
+          "commandWarm": {
+            "p50": 4.147,
+            "p95": 6.064,
+            "max": 7.084
+          },
+          "validate": {
+            "p50": 19.219,
+            "p95": 20.745,
+            "max": 21.052
+          },
+          "historyPublishResidual": {
+            "p50": 1.082,
+            "p95": 6.634,
+            "max": 7.461
+          },
+          "incremental": {
+            "p50": 2.186,
+            "p95": 2.534,
+            "max": 3.529
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.99,
+            "p95": 1.204,
+            "max": 1.853
+          },
+          "incParents": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.006
+          },
+          "incChecks": {
+            "p50": 1.183,
+            "p95": 1.386,
+            "max": 1.671
+          },
+          "parentsCold": {
+            "p50": 1.978,
+            "p95": 2.796,
+            "max": 2.996
+          },
+          "documentOrder": {
+            "p50": 3.847,
+            "p95": 5.151,
+            "max": 7.157
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.644,
+          "copyPublishShareP50": 0.143,
+          "commandColdShareP50": 0.173,
+          "historyShareP50": 0.036
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 25.534,
+            "p95": 27.608,
+            "max": 28.422
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 2.082,
+            "p95": 2.3,
+            "max": 2.637
+          },
+          "publish": {
+            "p50": 2.246,
+            "p95": 3.112,
+            "max": 3.275
+          },
+          "copyPublish": {
+            "p50": 4.359,
+            "p95": 5.366,
+            "max": 5.413
+          },
+          "applyCold": {
+            "p50": 5.466,
+            "p95": 5.806,
+            "max": 5.914
+          },
+          "applyWarm": {
+            "p50": 3.972,
+            "p95": 4.363,
+            "max": 4.451
+          },
+          "commandCold": {
+            "p50": 1.015,
+            "p95": 1.405,
+            "max": 1.538
+          },
+          "commandWarm": {
+            "p50": -0.435,
+            "p95": -0.091,
+            "max": 0.001
+          },
+          "validate": {
+            "p50": 19.381,
+            "p95": 21.554,
+            "max": 22.525
+          },
+          "historyPublishResidual": {
+            "p50": 0.956,
+            "p95": 2.258,
+            "max": 2.614
+          },
+          "incremental": {
+            "p50": 4.153,
+            "p95": 4.78,
+            "max": 4.91
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 1.835,
+            "p95": 2.246,
+            "max": 2.294
+          },
+          "incParents": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incChecks": {
+            "p50": 2.292,
+            "p95": 2.609,
+            "max": 2.628
+          },
+          "parentsCold": {
+            "p50": 1.93,
+            "p95": 2.065,
+            "max": 2.077
+          },
+          "documentOrder": {
+            "p50": 3.706,
+            "p95": 4.913,
+            "max": 5.115
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.759,
+          "copyPublishShareP50": 0.171,
+          "commandColdShareP50": 0.04,
+          "historyShareP50": 0.037
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 30.559,
+            "p95": 32.72,
+            "max": 32.754
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 2.141,
+            "p95": 2.331,
+            "max": 2.334
+          },
+          "publish": {
+            "p50": 2.435,
+            "p95": 3.049,
+            "max": 3.178
+          },
+          "copyPublish": {
+            "p50": 4.584,
+            "p95": 5.302,
+            "max": 5.38
+          },
+          "applyCold": {
+            "p50": 9.433,
+            "p95": 10.626,
+            "max": 12.108
+          },
+          "applyWarm": {
+            "p50": 8.162,
+            "p95": 9.782,
+            "max": 10.295
+          },
+          "commandCold": {
+            "p50": 4.829,
+            "p95": 5.734,
+            "max": 6.728
+          },
+          "commandWarm": {
+            "p50": 3.645,
+            "p95": 4.993,
+            "max": 5.942
+          },
+          "validate": {
+            "p50": 20.116,
+            "p95": 21.619,
+            "max": 21.754
+          },
+          "historyPublishResidual": {
+            "p50": 0.755,
+            "p95": 3.374,
+            "max": 3.868
+          },
+          "incremental": {
+            "p50": 3.012,
+            "p95": 3.648,
+            "max": 3.752
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 1.898,
+            "p95": 2.436,
+            "max": 2.554
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 1.107,
+            "p95": 1.237,
+            "max": 1.272
+          },
+          "parentsCold": {
+            "p50": 1.972,
+            "p95": 2.171,
+            "max": 2.564
+          },
+          "documentOrder": {
+            "p50": 3.958,
+            "p95": 4.753,
+            "max": 5.294
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.658,
+          "copyPublishShareP50": 0.15,
+          "commandColdShareP50": 0.158,
+          "historyShareP50": 0.025
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 30.08,
+            "p95": 32.855,
+            "max": 36.34
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.004
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 2.12,
+            "p95": 2.368,
+            "max": 2.483
+          },
+          "publish": {
+            "p50": 2.194,
+            "p95": 3.157,
+            "max": 4.709
+          },
+          "copyPublish": {
+            "p50": 4.352,
+            "p95": 5.444,
+            "max": 6.998
+          },
+          "applyCold": {
+            "p50": 9.717,
+            "p95": 10.618,
+            "max": 11.85
+          },
+          "applyWarm": {
+            "p50": 8.151,
+            "p95": 9.592,
+            "max": 9.919
+          },
+          "commandCold": {
+            "p50": 5.222,
+            "p95": 6.296,
+            "max": 6.551
+          },
+          "commandWarm": {
+            "p50": 3.662,
+            "p95": 4.579,
+            "max": 5.304
+          },
+          "validate": {
+            "p50": 19.764,
+            "p95": 28.275,
+            "max": 29.721
+          },
+          "historyPublishResidual": {
+            "p50": 0.009,
+            "p95": 3.124,
+            "max": 3.428
+          },
+          "incremental": {
+            "p50": 2.101,
+            "p95": 2.72,
+            "max": 2.737
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 0.997,
+            "p95": 1.415,
+            "max": 1.524
+          },
+          "incParents": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "incChecks": {
+            "p50": 1.108,
+            "p95": 1.492,
+            "max": 1.514
+          },
+          "parentsCold": {
+            "p50": 1.992,
+            "p95": 2.294,
+            "max": 2.322
+          },
+          "documentOrder": {
+            "p50": 3.765,
+            "p95": 4.197,
+            "max": 5.115
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.657,
+          "copyPublishShareP50": 0.145,
+          "commandColdShareP50": 0.174,
+          "historyShareP50": 0
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 25.305,
+            "p95": 28.776,
+            "max": 32.062
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.004,
+            "max": 0.008
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.005
+          },
+          "copy": {
+            "p50": 2.095,
+            "p95": 2.493,
+            "max": 2.512
+          },
+          "publish": {
+            "p50": 2.245,
+            "p95": 3.764,
+            "max": 7.162
+          },
+          "copyPublish": {
+            "p50": 4.366,
+            "p95": 6.241,
+            "max": 9.674
+          },
+          "applyCold": {
+            "p50": 4.586,
+            "p95": 5.882,
+            "max": 6.314
+          },
+          "applyWarm": {
+            "p50": 5.196,
+            "p95": 5.882,
+            "max": 7.979
+          },
+          "commandCold": {
+            "p50": 0.255,
+            "p95": 0.582,
+            "max": 1.472
+          },
+          "commandWarm": {
+            "p50": 0.733,
+            "p95": 1.598,
+            "max": 3.601
+          },
+          "validate": {
+            "p50": 19.83,
+            "p95": 23.965,
+            "max": 24.04
+          },
+          "historyPublishResidual": {
+            "p50": 0.683,
+            "p95": 4.766,
+            "max": 6.35
+          },
+          "incremental": {
+            "p50": 5.098,
+            "p95": 5.639,
+            "max": 6.336
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 2.007,
+            "p95": 2.272,
+            "max": 2.845
+          },
+          "incParents": {
+            "p50": 1.941,
+            "p95": 2.422,
+            "max": 2.448
+          },
+          "incChecks": {
+            "p50": 1.131,
+            "p95": 1.235,
+            "max": 1.386
+          },
+          "parentsCold": {
+            "p50": 1.952,
+            "p95": 2.345,
+            "max": 2.617
+          },
+          "documentOrder": {
+            "p50": 3.794,
+            "p95": 4.463,
+            "max": 6.225
+          },
+          "storeCommit": {
+            "moveMs": {
+              "p50": 0.032,
+              "p95": 0.039,
+              "max": 0.063
+            },
+            "validateMs": {
+              "p50": 0.675,
+              "p95": 0.738,
+              "max": 0.77
+            },
+            "publishMs": {
+              "p50": 0.015,
+              "p95": 0.021,
+              "max": 0.027
+            }
+          },
+          "validateShareP50": 0.784,
+          "copyPublishShareP50": 0.173,
+          "commandColdShareP50": 0.01,
+          "historyShareP50": 0.027
+        }
+      },
+      "sharing": {
+        "nodes": 44012,
+        "candidates": {
+          "native Map (current)": {
+            "copyOneWriteMs": {
+              "p50": 1.838,
+              "p95": 2.359,
+              "max": 2.359
+            },
+            "get100kMs": {
+              "p50": 2.55,
+              "p95": 6.533,
+              "max": 6.533
+            },
+            "iterateMs": {
+              "p50": 0.233,
+              "p95": 0.479,
+              "max": 0.479
+            },
+            "heapPerOneChangeStateMiB": 1.75
+          },
+          "chunked COW map, 256 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.012,
+              "p95": 0.023,
+              "max": 0.023
+            },
+            "get100kMs": {
+              "p50": 6.944,
+              "p95": 8.967,
+              "max": 8.967
+            },
+            "iterateMs": {
+              "p50": 0.72,
+              "p95": 1.198,
+              "max": 1.198
+            },
+            "heapPerOneChangeStateMiB": 0.009
+          },
+          "chunked COW map, 1024 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.005,
+              "p95": 0.015,
+              "max": 0.015
+            },
+            "get100kMs": {
+              "p50": 7.588,
+              "p95": 12.593,
+              "max": 12.593
+            },
+            "iterateMs": {
+              "p50": 0.737,
+              "p95": 1.055,
+              "max": 1.055
+            },
+            "heapPerOneChangeStateMiB": 0.01
+          },
+          "chunked COW map, 4096 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.008,
+              "p95": 0.011,
+              "max": 0.011
+            },
+            "get100kMs": {
+              "p50": 8.775,
+              "p95": 14.291,
+              "max": 14.291
+            },
+            "iterateMs": {
+              "p50": 0.793,
+              "p95": 1.065,
+              "max": 1.065
+            },
+            "heapPerOneChangeStateMiB": 0.032
+          }
+        }
+      },
+      "loadavgEnd": [3.95, 2.54, 2.16]
+    },
+    {
+      "paths": 250000,
+      "anchorsPerPath": 3,
+      "pathsPerGroup": 31250,
+      "replaceLayerPaths": 1000,
+      "setFillManyPaths": 1000,
+      "nodes": 251012,
+      "nodeKinds": {
+        "path": 251000,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 756000,
+      "loadavgStart": [3.95, 2.54, 2.16],
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 171.07,
+            "p95": 209.647,
+            "max": 219.904
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 14.375,
+            "p95": 17.906,
+            "max": 23.718
+          },
+          "publish": {
+            "p50": 10.956,
+            "p95": 25.684,
+            "max": 46.493
+          },
+          "copyPublish": {
+            "p50": 25.398,
+            "p95": 41.85,
+            "max": 63.672
+          },
+          "applyCold": {
+            "p50": 51.353,
+            "p95": 65.009,
+            "max": 69.358
+          },
+          "applyWarm": {
+            "p50": 57.139,
+            "p95": 75.31,
+            "max": 81.315
+          },
+          "commandCold": {
+            "p50": 25.709,
+            "p95": 32.801,
+            "max": 42.009
+          },
+          "commandWarm": {
+            "p50": 31.487,
+            "p95": 45.839,
+            "max": 47.961
+          },
+          "validate": {
+            "p50": 114.339,
+            "p95": 146.985,
+            "max": 148.103
+          },
+          "historyPublishResidual": {
+            "p50": 5.359,
+            "p95": 36.112,
+            "max": 47.225
+          },
+          "incremental": {
+            "p50": 9.172,
+            "p95": 10.107,
+            "max": 10.131
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 9.141,
+            "p95": 10.074,
+            "max": 10.096
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.029,
+            "p95": 0.039,
+            "max": 0.045
+          },
+          "parentsCold": {
+            "p50": 12.488,
+            "p95": 15.633,
+            "max": 18.242
+          },
+          "documentOrder": {
+            "p50": 29.654,
+            "p95": 38.492,
+            "max": 41.916
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.668,
+          "copyPublishShareP50": 0.148,
+          "commandColdShareP50": 0.15,
+          "historyShareP50": 0.031
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 171.282,
+            "p95": 198.034,
+            "max": 215.501
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 13.863,
+            "p95": 17.365,
+            "max": 23.113
+          },
+          "publish": {
+            "p50": 11.318,
+            "p95": 12.667,
+            "max": 14.062
+          },
+          "copyPublish": {
+            "p50": 25.18,
+            "p95": 29.789,
+            "max": 32.258
+          },
+          "applyCold": {
+            "p50": 51.835,
+            "p95": 81.048,
+            "max": 84.135
+          },
+          "applyWarm": {
+            "p50": 58.063,
+            "p95": 72.442,
+            "max": 78.977
+          },
+          "commandCold": {
+            "p50": 26.261,
+            "p95": 51.258,
+            "max": 51.877
+          },
+          "commandWarm": {
+            "p50": 32.882,
+            "p95": 46.349,
+            "max": 53.537
+          },
+          "validate": {
+            "p50": 112.563,
+            "p95": 144.484,
+            "max": 148.935
+          },
+          "historyPublishResidual": {
+            "p50": 6.092,
+            "p95": 13.329,
+            "max": 47.54
+          },
+          "incremental": {
+            "p50": 10.256,
+            "p95": 10.862,
+            "max": 12.693
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 9.655,
+            "p95": 10.281,
+            "max": 12.064
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.57,
+            "p95": 0.64,
+            "max": 0.711
+          },
+          "parentsCold": {
+            "p50": 12.301,
+            "p95": 14.155,
+            "max": 14.272
+          },
+          "documentOrder": {
+            "p50": 29.599,
+            "p95": 35.109,
+            "max": 41.737
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.657,
+          "copyPublishShareP50": 0.147,
+          "commandColdShareP50": 0.153,
+          "historyShareP50": 0.036
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 142.247,
+            "p95": 167.988,
+            "max": 174.232
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 14.322,
+            "p95": 21.205,
+            "max": 23.264
+          },
+          "publish": {
+            "p50": 11.116,
+            "p95": 16.585,
+            "max": 22.69
+          },
+          "copyPublish": {
+            "p50": 25.277,
+            "p95": 31.962,
+            "max": 36.683
+          },
+          "applyCold": {
+            "p50": 22.772,
+            "p95": 28.499,
+            "max": 64.199
+          },
+          "applyWarm": {
+            "p50": 25.405,
+            "p95": 31.632,
+            "max": 38.389
+          },
+          "commandCold": {
+            "p50": -3.102,
+            "p95": 0.858,
+            "max": 36.433
+          },
+          "commandWarm": {
+            "p50": -0.998,
+            "p95": 6.502,
+            "max": 10.623
+          },
+          "validate": {
+            "p50": 117.16,
+            "p95": 151.991,
+            "max": 195.872
+          },
+          "historyPublishResidual": {
+            "p50": 2.968,
+            "p95": 20.364,
+            "max": 33.262
+          },
+          "incremental": {
+            "p50": 9.912,
+            "p95": 10.879,
+            "max": 11.951
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 9.879,
+            "p95": 10.849,
+            "max": 11.927
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.026,
+            "p95": 0.03,
+            "max": 0.033
+          },
+          "parentsCold": {
+            "p50": 12.226,
+            "p95": 16.942,
+            "max": 17.792
+          },
+          "documentOrder": {
+            "p50": 29.528,
+            "p95": 44.276,
+            "max": 48.194
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.824,
+          "copyPublishShareP50": 0.178,
+          "commandColdShareP50": -0.022,
+          "historyShareP50": 0.021
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 146.395,
+            "p95": 174.434,
+            "max": 181.179
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 14.547,
+            "p95": 22.815,
+            "max": 27.558
+          },
+          "publish": {
+            "p50": 10.958,
+            "p95": 16.054,
+            "max": 16.686
+          },
+          "copyPublish": {
+            "p50": 25.564,
+            "p95": 31.391,
+            "max": 33.186
+          },
+          "applyCold": {
+            "p50": 23.273,
+            "p95": 36.876,
+            "max": 40.493
+          },
+          "applyWarm": {
+            "p50": 25.88,
+            "p95": 41.227,
+            "max": 42.248
+          },
+          "commandCold": {
+            "p50": -2.254,
+            "p95": 7.307,
+            "max": 7.876
+          },
+          "commandWarm": {
+            "p50": 0.284,
+            "p95": 12.347,
+            "max": 15.287
+          },
+          "validate": {
+            "p50": 120.141,
+            "p95": 144.649,
+            "max": 146.968
+          },
+          "historyPublishResidual": {
+            "p50": 2.842,
+            "p95": 29.414,
+            "max": 37.641
+          },
+          "incremental": {
+            "p50": 9.685,
+            "p95": 11.301,
+            "max": 11.32
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 9.657,
+            "p95": 11.276,
+            "max": 11.295
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 0.025,
+            "p95": 0.03,
+            "max": 0.031
+          },
+          "parentsCold": {
+            "p50": 12.083,
+            "p95": 15.099,
+            "max": 16.239
+          },
+          "documentOrder": {
+            "p50": 31.864,
+            "p95": 43.088,
+            "max": 57.594
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.821,
+          "copyPublishShareP50": 0.175,
+          "commandColdShareP50": -0.015,
+          "historyShareP50": 0.019
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 164.776,
+            "p95": 193.812,
+            "max": 194.115
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 15.183,
+            "p95": 24.03,
+            "max": 26.204
+          },
+          "publish": {
+            "p50": 10.909,
+            "p95": 14.62,
+            "max": 15.699
+          },
+          "copyPublish": {
+            "p50": 26.763,
+            "p95": 33.587,
+            "max": 34.196
+          },
+          "applyCold": {
+            "p50": 37.762,
+            "p95": 46.519,
+            "max": 52.206
+          },
+          "applyWarm": {
+            "p50": 26.895,
+            "p95": 35.93,
+            "max": 44.924
+          },
+          "commandCold": {
+            "p50": 10.704,
+            "p95": 18.01,
+            "max": 22.021
+          },
+          "commandWarm": {
+            "p50": 0.717,
+            "p95": 9.415,
+            "max": 17.415
+          },
+          "validate": {
+            "p50": 121.11,
+            "p95": 150.179,
+            "max": 165.645
+          },
+          "historyPublishResidual": {
+            "p50": 7.004,
+            "p95": 25.194,
+            "max": 30.308
+          },
+          "incremental": {
+            "p50": 17.952,
+            "p95": 24.177,
+            "max": 26.586
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 10.043,
+            "p95": 14.34,
+            "max": 15.518
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 8.05,
+            "p95": 10.535,
+            "max": 12.242
+          },
+          "parentsCold": {
+            "p50": 12.639,
+            "p95": 16.425,
+            "max": 20.389
+          },
+          "documentOrder": {
+            "p50": 31.002,
+            "p95": 57.979,
+            "max": 69.342
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.735,
+          "copyPublishShareP50": 0.162,
+          "commandColdShareP50": 0.065,
+          "historyShareP50": 0.043
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 155.553,
+            "p95": 186.731,
+            "max": 203.85
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.018
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "copy": {
+            "p50": 15.606,
+            "p95": 22.75,
+            "max": 25.683
+          },
+          "publish": {
+            "p50": 11.704,
+            "p95": 17.387,
+            "max": 19.015
+          },
+          "copyPublish": {
+            "p50": 27.428,
+            "p95": 34.053,
+            "max": 36.544
+          },
+          "applyCold": {
+            "p50": 24.688,
+            "p95": 37.964,
+            "max": 40.519
+          },
+          "applyWarm": {
+            "p50": 27.532,
+            "p95": 33.455,
+            "max": 33.917
+          },
+          "commandCold": {
+            "p50": -2.658,
+            "p95": 3.523,
+            "max": 12.064
+          },
+          "commandWarm": {
+            "p50": -0.15,
+            "p95": 5.876,
+            "max": 6.671
+          },
+          "validate": {
+            "p50": 126.326,
+            "p95": 149.525,
+            "max": 152.759
+          },
+          "historyPublishResidual": {
+            "p50": 7.229,
+            "p95": 22.421,
+            "max": 23.237
+          },
+          "incremental": {
+            "p50": 23.77,
+            "p95": 28.115,
+            "max": 29.973
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 10.195,
+            "p95": 11.885,
+            "max": 12.261
+          },
+          "incParents": {
+            "p50": 13.669,
+            "p95": 17.462,
+            "max": 19.118
+          },
+          "incChecks": {
+            "p50": 0.04,
+            "p95": 0.046,
+            "max": 0.051
+          },
+          "parentsCold": {
+            "p50": 12.864,
+            "p95": 15.84,
+            "max": 18.512
+          },
+          "documentOrder": {
+            "p50": 32.791,
+            "p95": 48.934,
+            "max": 54.737
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.812,
+          "copyPublishShareP50": 0.176,
+          "commandColdShareP50": -0.017,
+          "historyShareP50": 0.046
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 148.706,
+            "p95": 173.671,
+            "max": 176.925
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 15.031,
+            "p95": 19.431,
+            "max": 20.379
+          },
+          "publish": {
+            "p50": 11.701,
+            "p95": 17.136,
+            "max": 17.76
+          },
+          "copyPublish": {
+            "p50": 26.912,
+            "p95": 33.745,
+            "max": 36.167
+          },
+          "applyCold": {
+            "p50": 23.482,
+            "p95": 31.732,
+            "max": 32.663
+          },
+          "applyWarm": {
+            "p50": 28.155,
+            "p95": 33.422,
+            "max": 39.243
+          },
+          "commandCold": {
+            "p50": -3.174,
+            "p95": 2.093,
+            "max": 2.183
+          },
+          "commandWarm": {
+            "p50": -0.019,
+            "p95": 5.385,
+            "max": 6.533
+          },
+          "validate": {
+            "p50": 121.699,
+            "p95": 146.692,
+            "max": 147.134
+          },
+          "historyPublishResidual": {
+            "p50": -0.101,
+            "p95": 20.486,
+            "max": 33.408
+          },
+          "incremental": {
+            "p50": 74.745,
+            "p95": 93.205,
+            "max": 93.744
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 9.997,
+            "p95": 11.878,
+            "max": 13.427
+          },
+          "incParents": {
+            "p50": 13.497,
+            "p95": 14.909,
+            "max": 15.752
+          },
+          "incChecks": {
+            "p50": 52.422,
+            "p95": 67.767,
+            "max": 68.316
+          },
+          "parentsCold": {
+            "p50": 12.894,
+            "p95": 15.2,
+            "max": 15.672
+          },
+          "documentOrder": {
+            "p50": 31.62,
+            "p95": 45.988,
+            "max": 46.77
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.818,
+          "copyPublishShareP50": 0.181,
+          "commandColdShareP50": -0.021,
+          "historyShareP50": -0.001
+        },
+        "group": {
+          "dispatch": {
+            "p50": 208.77,
+            "p95": 226.729,
+            "max": 227.836
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.008
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 15.814,
+            "p95": 22.975,
+            "max": 26.368
+          },
+          "publish": {
+            "p50": 11.591,
+            "p95": 15.999,
+            "max": 18.881
+          },
+          "copyPublish": {
+            "p50": 27.616,
+            "p95": 35.25,
+            "max": 36.407
+          },
+          "applyCold": {
+            "p50": 74.18,
+            "p95": 96.255,
+            "max": 96.46
+          },
+          "applyWarm": {
+            "p50": 68.221,
+            "p95": 86.346,
+            "max": 104.52
+          },
+          "commandCold": {
+            "p50": 45.364,
+            "p95": 62.97,
+            "max": 66.83
+          },
+          "commandWarm": {
+            "p50": 40.901,
+            "p95": 56.557,
+            "max": 72.759
+          },
+          "validate": {
+            "p50": 130.81,
+            "p95": 142.142,
+            "max": 146.787
+          },
+          "historyPublishResidual": {
+            "p50": 1.348,
+            "p95": 19.414,
+            "max": 26.923
+          },
+          "incremental": {
+            "p50": 19.389,
+            "p95": 21.558,
+            "max": 21.863
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 10.305,
+            "p95": 11.253,
+            "max": 11.35
+          },
+          "incParents": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incChecks": {
+            "p50": 9.403,
+            "p95": 10.929,
+            "max": 11.217
+          },
+          "parentsCold": {
+            "p50": 13.375,
+            "p95": 16.56,
+            "max": 16.583
+          },
+          "documentOrder": {
+            "p50": 35.177,
+            "p95": 47.492,
+            "max": 49.542
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.627,
+          "copyPublishShareP50": 0.132,
+          "commandColdShareP50": 0.217,
+          "historyShareP50": 0.006
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 165.39,
+            "p95": 187.565,
+            "max": 190.917
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 16.274,
+            "p95": 20.207,
+            "max": 20.502
+          },
+          "publish": {
+            "p50": 12.212,
+            "p95": 16.904,
+            "max": 17.982
+          },
+          "copyPublish": {
+            "p50": 28.142,
+            "p95": 35.878,
+            "max": 36.421
+          },
+          "applyCold": {
+            "p50": 38.671,
+            "p95": 47.042,
+            "max": 48.953
+          },
+          "applyWarm": {
+            "p50": 28.437,
+            "p95": 35.674,
+            "max": 36.667
+          },
+          "commandCold": {
+            "p50": 10.621,
+            "p95": 13.914,
+            "max": 19.673
+          },
+          "commandWarm": {
+            "p50": 0.577,
+            "p95": 7.657,
+            "max": 7.962
+          },
+          "validate": {
+            "p50": 125.333,
+            "p95": 151.148,
+            "max": 170.641
+          },
+          "historyPublishResidual": {
+            "p50": 2.008,
+            "p95": 20.926,
+            "max": 23.7
+          },
+          "incremental": {
+            "p50": 37.041,
+            "p95": 41.896,
+            "max": 43.002
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 20.434,
+            "p95": 23.94,
+            "max": 24.625
+          },
+          "incParents": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incChecks": {
+            "p50": 16.74,
+            "p95": 19.29,
+            "max": 19.928
+          },
+          "parentsCold": {
+            "p50": 13.74,
+            "p95": 16.542,
+            "max": 16.643
+          },
+          "documentOrder": {
+            "p50": 33.455,
+            "p95": 49.571,
+            "max": 50.24
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.758,
+          "copyPublishShareP50": 0.17,
+          "commandColdShareP50": 0.064,
+          "historyShareP50": 0.012
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 207.29,
+            "p95": 229.143,
+            "max": 235.466
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 15.534,
+            "p95": 22.138,
+            "max": 25.65
+          },
+          "publish": {
+            "p50": 12.846,
+            "p95": 18.095,
+            "max": 27.933
+          },
+          "copyPublish": {
+            "p50": 27.801,
+            "p95": 38.832,
+            "max": 47.575
+          },
+          "applyCold": {
+            "p50": 75.985,
+            "p95": 95.787,
+            "max": 121.389
+          },
+          "applyWarm": {
+            "p50": 66.037,
+            "p95": 84.394,
+            "max": 86.744
+          },
+          "commandCold": {
+            "p50": 47.537,
+            "p95": 66.629,
+            "max": 88.797
+          },
+          "commandWarm": {
+            "p50": 35.81,
+            "p95": 55.942,
+            "max": 59.312
+          },
+          "validate": {
+            "p50": 131.242,
+            "p95": 143.398,
+            "max": 143.927
+          },
+          "historyPublishResidual": {
+            "p50": -1.808,
+            "p95": 28.793,
+            "max": 32.602
+          },
+          "incremental": {
+            "p50": 27.659,
+            "p95": 36.54,
+            "max": 38.105
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 20.274,
+            "p95": 26.313,
+            "max": 29.079
+          },
+          "incParents": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incChecks": {
+            "p50": 7.172,
+            "p95": 10.224,
+            "max": 11.025
+          },
+          "parentsCold": {
+            "p50": 14.402,
+            "p95": 22.479,
+            "max": 22.699
+          },
+          "documentOrder": {
+            "p50": 38.552,
+            "p95": 50.126,
+            "max": 53.499
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.633,
+          "copyPublishShareP50": 0.134,
+          "commandColdShareP50": 0.229,
+          "historyShareP50": -0.009
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 211.662,
+            "p95": 240.621,
+            "max": 249.157
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "copy": {
+            "p50": 16.239,
+            "p95": 22.077,
+            "max": 22.184
+          },
+          "publish": {
+            "p50": 12.754,
+            "p95": 24.531,
+            "max": 25.807
+          },
+          "copyPublish": {
+            "p50": 28.315,
+            "p95": 42.046,
+            "max": 43.835
+          },
+          "applyCold": {
+            "p50": 78.097,
+            "p95": 96.922,
+            "max": 107.834
+          },
+          "applyWarm": {
+            "p50": 65.906,
+            "p95": 91.492,
+            "max": 94.556
+          },
+          "commandCold": {
+            "p50": 48.318,
+            "p95": 65.068,
+            "max": 65.788
+          },
+          "commandWarm": {
+            "p50": 35.819,
+            "p95": 55.946,
+            "max": 60.628
+          },
+          "validate": {
+            "p50": 130.404,
+            "p95": 156.828,
+            "max": 157.733
+          },
+          "historyPublishResidual": {
+            "p50": 2.812,
+            "p95": 38.193,
+            "max": 50.715
+          },
+          "incremental": {
+            "p50": 17.027,
+            "p95": 23.449,
+            "max": 25.888
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 9.473,
+            "p95": 14.144,
+            "max": 17.651
+          },
+          "incParents": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incChecks": {
+            "p50": 7.434,
+            "p95": 9.3,
+            "max": 9.567
+          },
+          "parentsCold": {
+            "p50": 15.299,
+            "p95": 17.35,
+            "max": 17.744
+          },
+          "documentOrder": {
+            "p50": 34.85,
+            "p95": 54.446,
+            "max": 56.308
+          },
+          "storeCommit": null,
+          "validateShareP50": 0.616,
+          "copyPublishShareP50": 0.134,
+          "commandColdShareP50": 0.228,
+          "historyShareP50": 0.013
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 157.303,
+            "p95": 183.485,
+            "max": 190.557
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "copy": {
+            "p50": 15.178,
+            "p95": 22.408,
+            "max": 24.918
+          },
+          "publish": {
+            "p50": 12.097,
+            "p95": 20.833,
+            "max": 23.889
+          },
+          "copyPublish": {
+            "p50": 27.537,
+            "p95": 39.345,
+            "max": 42.031
+          },
+          "applyCold": {
+            "p50": 25.932,
+            "p95": 36.238,
+            "max": 37.223
+          },
+          "applyWarm": {
+            "p50": 28.198,
+            "p95": 40.008,
+            "max": 49.983
+          },
+          "commandCold": {
+            "p50": -1.795,
+            "p95": 1.995,
+            "max": 9.833
+          },
+          "commandWarm": {
+            "p50": 0.997,
+            "p95": 11.278,
+            "max": 22.593
+          },
+          "validate": {
+            "p50": 128.886,
+            "p95": 151.925,
+            "max": 162.773
+          },
+          "historyPublishResidual": {
+            "p50": 0.763,
+            "p95": 24.998,
+            "max": 31.065
+          },
+          "incremental": {
+            "p50": 35.19,
+            "p95": 38.763,
+            "max": 43.991
+          },
+          "incrementalDecided": 1,
+          "incrementalReason": [null],
+          "incDiff": {
+            "p50": 20.515,
+            "p95": 22.599,
+            "max": 24.497
+          },
+          "incParents": {
+            "p50": 12.894,
+            "p95": 15.278,
+            "max": 18.026
+          },
+          "incChecks": {
+            "p50": 1.348,
+            "p95": 1.55,
+            "max": 1.556
+          },
+          "parentsCold": {
+            "p50": 12.841,
+            "p95": 17.887,
+            "max": 22.489
+          },
+          "documentOrder": {
+            "p50": 32.907,
+            "p95": 56.993,
+            "max": 62.119
+          },
+          "storeCommit": {
+            "moveMs": {
+              "p50": 0.033,
+              "p95": 0.038,
+              "max": 0.04
+            },
+            "validateMs": {
+              "p50": 0.693,
+              "p95": 0.886,
+              "max": 0.957
+            },
+            "publishMs": {
+              "p50": 0.015,
+              "p95": 0.022,
+              "max": 0.027
+            }
+          },
+          "validateShareP50": 0.819,
+          "copyPublishShareP50": 0.175,
+          "commandColdShareP50": -0.011,
+          "historyShareP50": 0.005
+        }
+      },
+      "sharing": {
+        "nodes": 251012,
+        "candidates": {
+          "native Map (current)": {
+            "copyOneWriteMs": {
+              "p50": 13.118,
+              "p95": 15.133,
+              "max": 15.133
+            },
+            "get100kMs": {
+              "p50": 6.201,
+              "p95": 7.063,
+              "max": 7.063
+            },
+            "iterateMs": {
+              "p50": 1.433,
+              "p95": 1.923,
+              "max": 1.923
+            },
+            "heapPerOneChangeStateMiB": 7
+          },
+          "chunked COW map, 256 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.07,
+              "p95": 0.103,
+              "max": 0.103
+            },
+            "get100kMs": {
+              "p50": 15.642,
+              "p95": 24.014,
+              "max": 24.014
+            },
+            "iterateMs": {
+              "p50": 4.096,
+              "p95": 5.847,
+              "max": 5.847
+            },
+            "heapPerOneChangeStateMiB": 0.03
+          },
+          "chunked COW map, 1024 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.025,
+              "p95": 0.035,
+              "max": 0.035
+            },
+            "get100kMs": {
+              "p50": 18.759,
+              "p95": 23.276,
+              "max": 23.276
+            },
+            "iterateMs": {
+              "p50": 4.572,
+              "p95": 5.57,
+              "max": 5.57
+            },
+            "heapPerOneChangeStateMiB": 0.015
+          },
+          "chunked COW map, 4096 buckets": {
+            "copyOneWriteMs": {
+              "p50": 0.013,
+              "p95": 0.019,
+              "max": 0.019
+            },
+            "get100kMs": {
+              "p50": 18.265,
+              "p95": 22.415,
+              "max": 22.415
+            },
+            "iterateMs": {
+              "p50": 4.257,
+              "p95": 5.169,
+              "max": 5.169
+            },
+            "heapPerOneChangeStateMiB": 0.033
+          }
+        }
+      },
+      "loadavgEnd": [4.29, 3.63, 2.78]
+    }
+  ],
+  "loadavgEnd": [4.29, 3.63, 2.78]
+}

@@ -1,0 +1,134 @@
+[
+  {
+    "browser": "chromium",
+    "case": "bottom of paint order",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108633,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "middle of paint order",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108050,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "top of paint order",
+    "mode": "layers",
+    "dragMs": 0.09999999403953552,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108633,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "non-contiguous multi-selection",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 107575,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "translucent overlap: the middle disc moves between the others",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108667,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "clip owned outside the selection stays fixed",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108446,
+    "pctOver32": 0.001,
+    "maxDiff": 53
+  },
+  {
+    "browser": "chromium",
+    "case": "clip owned by the selection moves with it",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109015,
+    "pctOver32": 0,
+    "maxDiff": 13
+  },
+  {
+    "browser": "chromium",
+    "case": "nested groups (a group inside a moved group, and a hidden descendant)",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 100707,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "layer transforms (multi-layer, a scaled top layer)",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 68708,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "chromium",
+    "case": "fractional device-pixel translation",
+    "mode": "layers",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108811,
+    "pctOver32": 0.068,
+    "maxDiff": 72
+  },
+  {
+    "browser": "chromium",
+    "case": "scale about a corner (handle pose: vectors redrawn live)",
+    "mode": "live",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109284,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "chromium",
+    "case": "one-axis scale of a non-contiguous selection",
+    "mode": "live",
+    "dragMs": 0,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 106250,
+    "pctOver32": 0,
+    "maxDiff": 2
+  }
+]

@@ -72,6 +72,7 @@ interface Pending {
   readonly documentRevision: number;
   readonly sentAt: number;
   firstFrameMs: number | null;
+  buildMs: number;
 }
 
 export class DocumentRenderHost {
@@ -85,6 +86,13 @@ export class DocumentRenderHost {
     releases: 0,
     /** Last snapshot: document evaluation + snapshot build, render copy, post (main thread). */
     lastPrepareMs: 0,
+    /** …of which: the document evaluation, and the snapshot construction. */
+    lastEvaluateMs: 0,
+    lastSnapshotMs: 0,
+    /** Path2D construction summed over the frames of the last revision (renderer side). */
+    lastPathBuildMs: null as number | null,
+    /** performance.now() when the last revision's exact frame was complete (main thread). */
+    lastExactAt: null as number | null,
     lastCopyMs: 0,
     lastPostMs: 0,
     /** Last document revision: snapshot sent → first (progressive) frame, → first exact frame. */
@@ -404,7 +412,7 @@ export class DocumentRenderHost {
     const hit = this.#hit;
     if (!hit || hit.ready) return;
     const t0 = performance.now();
-    hit.slice(HIT_SLICE_MS, 2048);
+    hit.slice(HIT_SLICE_MS, 512);
     const ms = performance.now() - t0;
     this.diag.hitTestSlices++;
     this.diag.hitTestMaxSliceMs = Math.max(this.diag.hitTestMaxSliceMs, ms);
@@ -556,8 +564,10 @@ export class DocumentRenderHost {
     const session = this.#session;
     if (!state || !session) return;
     const t0 = performance.now();
+    let tEval = t0;
     if (!this.#ev || full === false) {
       this.#ev = evaluate(state);
+      tEval = performance.now();
       this.#itemsUnder = null;
       this.#startHitIndex();
     }
@@ -625,6 +635,8 @@ export class DocumentRenderHost {
     this.diag.bytesCopied += bytes;
     this.diag.releases += release.length;
     this.diag.lastPrepareMs = t1 - t0;
+    this.diag.lastEvaluateMs = tEval - t0;
+    this.diag.lastSnapshotMs = t1 - tEval;
     this.diag.lastCopyMs = t2 - t1;
     this.diag.lastPostMs = t3 - t2;
     this.#pending = {
@@ -632,6 +644,7 @@ export class DocumentRenderHost {
       documentRevision,
       sentAt: t0,
       firstFrameMs: null,
+      buildMs: 0,
     };
     this.#emit({ kind: "rendering", documentRevision });
   }
@@ -651,10 +664,13 @@ export class DocumentRenderHost {
     if (p && f.renderRevision >= p.renderRevision) {
       const ms = performance.now() - p.sentAt;
       p.firstFrameMs ??= ms;
+      p.buildMs += f.buildMs;
       if (f.kind === "exact" && f.complete) {
         this.diag.lastFirstFrameMs = p.firstFrameMs;
         this.diag.lastExactFrameMs = ms;
         this.diag.lastExactDrawMs = f.ms;
+        this.diag.lastPathBuildMs = p.buildMs;
+        this.diag.lastExactAt = performance.now();
         this.#pending = null;
         this.#emit({ kind: "ready", documentRevision: p.documentRevision, host: f.host });
       }
