@@ -85,7 +85,7 @@ The system font stack, no web fonts. A fixed role scale: 11 px meta, units and s
 
 ## Layout
 
-Docked panels separated by `border` hairlines, no floating cards or outer gutter. Top bar 44 px (wordmark, document title, history, Import, Export), a 48 px left tool rail, the central canvas, a right column of 296 px below 1440 px of viewport width and 320 px above (288–336 px when resized) holding the inspector over Layers, and a 28 px status bar (activity and message; document size, complexity, zoom; renderer disclosure; offline state). Layers start at 30 % of the column, collapse only on request (their header's disclosure, or a drag of the split) and never by viewport height.
+Docked panels separated by `border` hairlines, no floating cards or outer gutter. Top bar 44 px (wordmark, document title, history, Import, Export), a 48 px left tool rail, the central canvas, a right column of 296 px below 1440 px of viewport width and 320 px above (288–336 px when resized) holding the inspector over Layers, and a 28 px status bar (activity and message; document size, complexity, zoom; renderer disclosure; offline state). Layers start at 30 % of the column, keep their pixel height when the window resizes, and collapse only on request (their header's disclosure, or a drag of the split), never by viewport height.
 
 ## Shapes
 
