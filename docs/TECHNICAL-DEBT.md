@@ -386,6 +386,7 @@ Counts:
 - **Acceptance criteria:** on the reference machine and on the lower-end target (TD-PLATFORM-003), no frame gap > 50 ms while displaying, panning or zooming scenes up to 250 k anchors; scenes up to 1 M anchors displayable.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) finding 4, [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md).
 - **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R02: Canvas 2D + cache + worker host) / IMPLEMENTATION PENDING**; gate G-R0 (architecture), G-R1 (closure candidate); closure: RFC §17 budgets on the reference machine **and** lower-end devices; real Safari or a documented restriction; owner action: Yes: lower-end hardware access; Safari authorisation. Renderer decided (D04).
+- **G-R0 disposition (2026-11-25), first part:** retained Canvas 2D in an OffscreenCanvas worker with the display cache. At 270k anchors / 16k paths the exact frame takes 96 / 181 / 103 ms (Chromium / Firefox / Playwright WebKit) and 116 ms in real Safari: the ≤ 100 ms preview target is met only in Chromium. Gestures p95 18–19 ms everywhere, main thread ≤ 21 ms during gestures. Closure stays with G-R1 and lower-end hardware. [G-R0 report](research/g-r0/G-R0-REPORT.md).
 
 <a id="td-perf-002"></a>
 ### TD-PERF-002 — Late geometry budget enforcement
@@ -614,6 +615,7 @@ Counts:
 - **Real Safari, G-UI scope (2026-11-25):** Safari 26.6.2 on the G-UI workspace (`tests/safari/gui.mjs`): 14/14 scenarios covering strict CSP with negative and positive controls, the design-system components (tool rail, dialogs, slider, numeric field, colour picker, resizable panels, layers with keyboard reorder), tokens and focus ring, and import through the file input. Keyboard navigation under stock Safari settings is not shown, because automation sessions enable full keyboard access; VoiceOver, reduced-motion emulation and export download bytes were not run in Safari. [G-UI report §7](research/g-ui/G-UI-REPORT.md).
 - **G-JOB disposition (2026-11-25):** real Safari was NOT RUN for G-JOB (no `safaridriver` authorisation). The G-JOB owner part is open: a Safari run, or a documented Safari restriction until it runs. Every G-JOB browser result is Chromium 159, Firefox 159 or Playwright WebKit 27.2. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 - **Real Safari, G-JOB scope (2026-11-25):** run with `safaridriver` (maintainer-enabled) in **Safari 26.6.2 (21624.5.1.11.3)**, macOS 26.6.2: 10/10 G-JOB scenarios pass (worker start-up and handshake, start-up churn online and offline, cancellation, offline reload and recreation, single-build sessions across a deploy, template-only update, interrupted install, cache-eviction recovery, frozen exports, document integrity after termination, build-mismatch refusal). "Offline" was an unreachable origin (WebDriver has no network emulation). Still NOT RUN: G-R0 and G-UI in Safari (pending their gates), iOS/iPadOS Safari, Android Chrome, Safari performance. Status: **PARTIALLY RUN**; not closed. [G-JOB report §18](research/g-job/G-JOB-REPORT.md).
+- **Real Safari, G-R0 and persistence (2026-11-25):** Safari 26.6.2: G-R0 7/7 (OffscreenCanvas worker host, 0 geometry-error pixels on 10 fixtures for worker and fallback, first-frame presentation, recovery online and offline, pan/zoom p95 18–19 ms, fallback disclosed) and `.vectra` interchange 23/23 (Safari ↔ Node ↔ 3 Playwright engines, both codecs; typed atomic failures). G-UI in Safari pending its gate. Status unchanged: **PARTIALLY RUN**. [G-R0 report](research/g-r0/G-R0-REPORT.md).
 
 <a id="td-platform-003"></a>
 ### TD-PLATFORM-003 — Lower-end desktop hardware
@@ -708,6 +710,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Evidence:** `docs/research/rfc-002-review/artifacts/renderer/path2d-scaling.json`.
 - **Disposition:** stage **ARCHITECTURE ACCEPTED** (A7) / IMPLEMENTATION PENDING; gate **G-R0**.
 - **Closure criteria:** linear construction in the production renderer, plus a scaling regression benchmark in 3 engines.
+- **G-R0 disposition (2026-11-25):** the production renderer builds every Path2D in one pass from SVG path data (`src/renderer/path-data.ts`, unit-tested for linear construction). Scaling for one path of 25k / 125k / 250k anchors: Chromium 0.3 / 2 / 4 ms, Firefox 1 / 4 / 8 ms, Playwright WebKit 1 / 3 / 6 ms (`tests/browser/renderer-perf.spec.ts`). Closure criteria **met; proposed for closure, maintainer to confirm**. [G-R0 report](research/g-r0/G-R0-REPORT.md).
 - **Dependencies:** none.
 - **Owner action:** no.
 
@@ -721,6 +724,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Evidence:** `artifacts/renderer/offscreen-visibility.json`, `offscreen.json`, `offscreen-cache.json`.
 - **Disposition:** stage **PROTOTYPE DEMONSTRATED** (worker plus cache: gestures 17–23 ms, main thread 17–19 ms) / IMPLEMENTATION PENDING; gates **G-R0** (measure) and **G-R1** (real Safari).
 - **Closure criteria:** first-meaningful-frame latency qualified on real Safari; when it fails, the disclosed main-thread fallback is used and measured.
+- **G-R0 disposition (2026-11-25):** worker host and disclosed main-thread fallback implemented. Playwright WebKit worker canvases can be presented after their exact frame (the tests wait until the screen matches the resvg reference). **Real Safari 26.6.2:** first-frame presentation ≤ 47–58 ms after the exact frame (screenshot-bounded), worker host correct (0 geometry-error pixels on 10 fixtures), fallback correct and disclosed. Firefox worker raster: exact frame 117 ms (worker draw) at 270k anchors and 376 ms at 812k, off the main thread. Closure criteria **met; proposed for closure, maintainer to confirm**. [G-R0 report](research/g-r0/G-R0-REPORT.md).
 - **Dependencies:** TD-PLATFORM-002.
 - **Owner action:** Safari authorisation.
 
@@ -743,6 +747,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Evidence:** `artifacts/renderer/index-bench.json`.
 - **Disposition:** stage **PROTOTYPE DEMONSTRATED** (subpath and band index) / IMPLEMENTATION PENDING; gate **G-R0** (index); the split command is later.
 - **Closure criteria:** warm hit-test p95 ≤ 8 ms on the stress halftone in production; cold queries addressed by idle pre-flattening.
+- **G-R0 disposition (2026-11-25):** subpath index (paths with more than 8 subpaths) and band index (subpaths above 2,048 points) implemented in `src/hit-test`. Warm p95 ≤ 0.05 ms on the 270k and 812k workloads in 3 engines. Not closed: the 977k-anchor halftone stress case was not measured, and the index is built lazily on the first query, so a cold first click blocks the main thread 30–93 ms (above 50 ms at 812k anchors); idle pre-flattening remains to do (G-R1). [G-R0 report](research/g-r0/G-R0-REPORT.md).
 - **Dependencies:** C2.
 - **Owner action:** no.
 
