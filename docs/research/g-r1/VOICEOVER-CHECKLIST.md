@@ -23,6 +23,7 @@ In Safari's default settings, "Press Tab to highlight each item on a webpage" is
 | A2 | Press Option-Tab repeatedly | Every control gets focus, including the tool rail, Import and Export, the **canvas**, and the inspector |
 | A3 | With the canvas focused, use the arrow keys and Enter (section C) | Works the same as with full keyboard access |
 | A4 | Open and close the shortcuts dialog (`?`, then Escape) | Focus returns to the trigger |
+| A5 | Option-Tab to the canvas, then click it with the mouse | Keyboard focus shows a 2 px lime ring with a dark inner ring around the whole canvas, drawn over the artwork. Clicking with the mouse shows no ring |
 
 ## B. Import and processing announcements
 | # | Step | Expected (spoken) |
@@ -41,13 +42,14 @@ In Safari's default settings, "Press Tab to highlight each item on a webpage" is
 | C5 | Enter | "Path 1, fill #000000 selected". The inspector shows "Path 1" |
 | C6 | Up Arrow, then Shift+Enter | "… selected" announced for the second path; the inspector shows "2 objects" |
 | C7 | Left Arrow | Back to the layer: "nested_rings, layer, 3 paths, 1 of 1, …" |
-| C8 | Look at the screen during C2–C7 | A dashed lime box marks the keyboard cursor's object; a lime ring marks canvas focus |
+| C8 | Look at the screen during C2–C7 | A dashed lime box marks the keyboard cursor's object. The lime ring around the canvas edge marks canvas focus, and stays visible over the artwork |
 
 ## D. Layers and groups
 | # | Step | Expected |
 |---|---|---|
 | D1 | Navigate to the Layers list | The heading's button is announced as "Layers, expanded" (collapse control). The list name and row names are announced. Hide/Show, Lock/Unlock and More actions are named buttons |
 | D2 | Hide the layer, then show it again | The button state changes are announced ("Show nested_rings" / "Hide nested_rings") |
+| D2b | Import `tests/fixtures/procedural/adjacent_colors.png` with the Limited Palette preset (a layer that holds groups). In Layers, expand the layer and lock one group. Select the layer, then press Delete (or More actions > Delete) | An alert is announced: Error: Not deleted: "adjacent_colors" contains 1 locked object. Unlock it to delete. Nothing is deleted. After unlocking the group, Delete removes the layer and ⌘Z restores it |
 | D3 | Reorder with the drag handle: Space, Down Arrow, Space | The live region announces "… dropped at position 2 of 2" |
 | D4 | Activate the "Layers" button, then activate it again | "collapsed", then "expanded" is announced; while collapsed, Tab skips the layer rows |
 

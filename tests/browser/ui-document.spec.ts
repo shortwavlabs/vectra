@@ -164,6 +164,37 @@ test("selection: canvas click, Escape, layer row; Delete is undoable and skips l
   await expect(page.getByTestId("layer-row")).toHaveCount(1);
 });
 
+test("locks: deleting a layer that holds a locked group is refused until it is unlocked", async ({
+  page,
+}) => {
+  // The owner checklist's D2b, through the real controls only (no debug API).
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png", "Limited Palette");
+  const layerRow = rowNamed(page, "adjacent_colors");
+  await page.getByRole("button", { name: "Expand adjacent_colors" }).click();
+  const rows = page.getByTestId("layer-row");
+  await expect(rows).not.toHaveCount(1); // the layer's groups are listed
+  const lockGroup = rows.nth(1).getByRole("button", { name: /^Lock / });
+  const groupName = ((await lockGroup.getAttribute("aria-label")) ?? "").replace(/^Lock /, "");
+  await lockGroup.click();
+  await layerRow.locator("button[aria-pressed]").click();
+  await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
+  const count = await rows.count();
+  await page.keyboard.press("Delete");
+  const status = page.getByTestId("status");
+  await expect(status).toHaveText(
+    /Not deleted: "adjacent_colors" contains 1 locked object\. Unlock it to delete\.$/,
+  );
+  await expect(status).toHaveAttribute("role", "alert");
+  await expect(rows).toHaveCount(count);
+  await page.getByRole("button", { name: `Unlock ${groupName}` }).click();
+  await layerRow.locator("button[aria-pressed]").click();
+  await page.keyboard.press("Delete");
+  await expect(page.getByText("adjacent_colors", { exact: true })).toHaveCount(0);
+  await page.keyboard.press("ControlOrMeta+z");
+  await expect(layerRow).toHaveCount(1);
+});
+
 const scale = (page: Page) => page.getByRole("slider", { name: "Scale" });
 const scaleValue = async (page: Page) => Number(await scale(page).getAttribute("aria-valuenow"));
 

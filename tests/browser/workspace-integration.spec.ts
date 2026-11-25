@@ -20,7 +20,13 @@ test.beforeAll(() => {
 });
 
 type Box = { x: number; y: number; width: number; height: number };
-type Tree = { id: string; kind: string; name: string | null; children?: Tree[] };
+type Tree = {
+  id: string;
+  kind: string;
+  name: string | null;
+  locked?: boolean;
+  children?: Tree[];
+};
 type Api = {
   canvas: {
     hitDocument(x: number, y: number): string | null;
@@ -42,6 +48,7 @@ type Api = {
     associated(): boolean;
     jobsSubmitted(): number;
     documentId(): string | null;
+    revision(): number | null;
   };
 };
 // Explicit evaluations only: the production CSP forbids evaluating strings in the page.
@@ -99,6 +106,8 @@ const api = (page: Page) => {
       ),
     documentId: () =>
       page.evaluate(() => (window as unknown as { __vectra: Api }).__vectra.workspace.documentId()),
+    revision: () =>
+      page.evaluate(() => (window as unknown as { __vectra: Api }).__vectra.workspace.revision()),
   };
 };
 
@@ -217,6 +226,107 @@ test("selection: containers resolve to their drawn paths; hidden, locked, holes,
   const dom = (await page.getByTestId("selection-bounds").boundingBox())!;
   expect(Math.abs(dom.x - (host.x + c.tx + box.x * c.scale - 1))).toBeLessThan(1.01);
   expect(Math.abs(dom.width - (box.width * c.scale + 2))).toBeLessThan(1.01);
+});
+
+test("locks (maintainer review): never moved or deleted, fills skip them, palette edits are disclosed; undo/redo", async ({
+  page,
+}) => {
+  await open(page);
+  await load(page, "synthetic-correctness");
+  const a = api(page);
+  const t0 = await a.tree();
+  const layer = t0.find((n) => n.kind === "layer")!;
+  const paths = flat(t0)
+    .find((n) => n.name === "shapes")!
+    .children!.filter((n) => n.kind === "path");
+  const [locked, free] = [paths[3]!.id, paths[4]!.id];
+  const status = page.getByTestId("status");
+  const fill = page.getByRole("button", { name: /^Fill colour: / });
+  // Clear first, so the Fill control must disappear and come back for this path (an unchanged
+  // "Path N" name would not show that the inspector has re-rendered).
+  const hexOf = async (id: string) => {
+    await a.select([]);
+    await expect(fill).toHaveCount(0);
+    await a.select([id]);
+    await expect(fill).toHaveCount(1);
+    return /#[0-9a-f]{6}/.exec((await fill.getAttribute("aria-label"))!)![0];
+  };
+  const blur = () => page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  // The status bar prefixes alerts with "Error: ".
+  const refusal = /Not deleted: ".+" contains 1 locked object\. Unlock it to delete\.$/;
+  const lockedHex = await hexOf(locked); // read while unlocked: a locked path has no Fill control
+  await a.dispatch({ type: "setLocked", ids: [locked], locked: true });
+  await settled(page);
+  await a.select([locked]);
+  await expect(page.getByText("No unlocked paths in this selection")).toBeVisible();
+
+  // Inspector and pointer: a selection holding a locked object is frozen; a drag pans instead.
+  await a.select([layer.id]);
+  await expect(page.getByRole("note")).toContainText("Contains locked objects");
+  await expect(page.getByRole("textbox", { name: "X (px)" })).toBeDisabled();
+  await expect(page.getByTestId("handle-se")).toHaveCount(0);
+  const rev0 = await a.revision();
+  const box = (await page.getByTestId("selection-bounds").boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2 + 20, { steps: 4 });
+  await page.mouse.up();
+  expect(await a.revision()).toBe(rev0);
+
+  // Keyboard Delete on the layer: refused, explained as an alert; nothing changes.
+  await blur();
+  await page.keyboard.press("Delete");
+  await expect(status).toHaveText(refusal);
+  await expect(status).toHaveAttribute("role", "alert");
+  expect(await a.revision()).toBe(rev0);
+  // The Layers menu's Delete: the same policy.
+  await page
+    .getByTestId("layer-row")
+    .first()
+    .getByRole("button", { name: /^More actions for / })
+    .click();
+  await page.getByRole("menuitem", { name: "Delete" }).click();
+  await expect(status).toHaveText(refusal);
+  expect(await a.revision()).toBe(rev0);
+  expect((await a.tree()).some((n) => n.id === layer.id)).toBe(true);
+
+  // Inspector fill on the layer: applied to its unlocked paths, never the locked one.
+  await a.select([layer.id]);
+  await fill.click();
+  const hex = page.getByRole("textbox", { name: "Hex" });
+  await hex.fill("#2050a0");
+  await hex.press("Enter");
+  await page.getByRole("button", { name: "Apply" }).click();
+  await settled(page);
+  expect(await hexOf(free)).toBe("#2050a0");
+  // Palette edits do reach locked paths (document semantics, unit-tested); the Recolor panel says so.
+  await blur();
+  await page.keyboard.press("r");
+  await expect(page.getByText(/including locked paths/)).toBeVisible();
+  await page.keyboard.press("v");
+
+  // Undo/redo: unlock, delete, then undo both; the lock returns and protects again.
+  await a.dispatch({ type: "setLocked", ids: [locked], locked: false });
+  expect(await hexOf(locked)).toBe(lockedHex); // the layer fill skipped it while it was locked
+  await a.select([layer.id]);
+  await blur();
+  await page.keyboard.press("Delete");
+  await expect.poll(async () => (await a.tree()).some((n) => n.id === layer.id)).toBe(false);
+  await page.keyboard.press("ControlOrMeta+z"); // the deletion
+  await expect.poll(async () => (await a.tree()).some((n) => n.id === layer.id)).toBe(true);
+  await page.keyboard.press("ControlOrMeta+z"); // the unlock
+  await expect
+    .poll(async () => flat(await a.tree()).find((n) => n.id === locked)!.locked)
+    .toBe(true);
+  await a.select([layer.id]);
+  await blur();
+  const rev1 = await a.revision();
+  await page.keyboard.press("Delete");
+  await expect(status).toHaveText(refusal);
+  expect(await a.revision()).toBe(rev1);
+  await page.keyboard.press("ControlOrMeta+Shift+z"); // redo the unlock
+  await page.keyboard.press("ControlOrMeta+Shift+z"); // redo the deletion
+  await expect.poll(async () => (await a.tree()).some((n) => n.id === layer.id)).toBe(false);
 });
 
 test("selection: canvas clicks pick paths; shift adds; undo/redo keep it; replacement clears it", async ({

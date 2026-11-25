@@ -61,6 +61,7 @@ import {
   isVisible,
   pathCount,
   pathFill,
+  planDeletion,
   topLevel,
   transformable as canTransform,
   worldTransformCommands,
@@ -419,11 +420,25 @@ export function Workspace() {
   }, []);
   const undo = useCallback(() => session?.undo(), [session]);
   const redo = useCallback(() => session?.redo(), [session]);
-  const deleteSelection = useCallback(() => {
-    if (!state) return;
-    const ids = topLevel(state, selection).filter((id) => !isLocked(state, id));
-    if (ids.length) run({ type: "delete", ids });
-  }, [state, selection, run]);
+  /** Every delete in the shell (Delete key, Layers menu) goes through the lock policy. */
+  const deleteNodes = useCallback(
+    (ids: readonly NodeId[]) => {
+      if (!state) return;
+      const plan = planDeletion(state, ids);
+      if ("refused" in plan) return setStatus({ text: plan.refused, error: true });
+      if (plan.ids.length) run({ type: "delete", ids: plan.ids });
+      if (plan.kept) {
+        const what = plan.kept === 1 ? "1 locked object" : `${plan.kept} locked objects`;
+        setStatus(
+          plan.ids.length
+            ? { text: `Deleted ${plan.ids.length}; kept ${what}. Unlock to delete.` }
+            : { text: `Not deleted: ${what}. Unlock to delete.`, error: true },
+        );
+      }
+    },
+    [state, run],
+  );
+  const deleteSelection = useCallback(() => deleteNodes(selection), [deleteNodes, selection]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -641,7 +656,7 @@ export function Workspace() {
             <ResizablePanel id="canvas" minSize={360}>
               <section
                 aria-label="Canvas"
-                className="vx-canvas-frame relative h-full min-w-0 overflow-hidden bg-canvas-surround"
+                className="relative h-full min-w-0 overflow-hidden bg-canvas-surround"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -768,6 +783,7 @@ export function Workspace() {
                         if (p?.isCollapsed()) p.expand();
                         else p?.collapse();
                       }}
+                      onDelete={deleteNodes}
                     />
                   </div>
                 </ResizablePanel>

@@ -6,6 +6,7 @@
 // (VoiceOver is the owner checklist, docs/research/g-r1/VOICEOVER-CHECKLIST.md).
 import { join, resolve } from "node:path";
 import { expect, type Page, test } from "@playwright/test";
+import { decodePng } from "./renderer/compare.ts";
 
 const FIXTURES = resolve(import.meta.dirname, "../fixtures/procedural");
 
@@ -18,6 +19,43 @@ async function importFixture(page: Page, file: string) {
 }
 const announcer = (page: Page) => page.getByTestId("canvas-announcer");
 const canvas = (page: Page) => page.getByTestId("canvas-host");
+
+type Rgb3 = [number, number, number];
+const hex = (c: string): Rgb3 => {
+  const m = /^rgba?\((\d+), (\d+), (\d+)/.exec(c);
+  if (!m) throw new Error(`colour ${c}`);
+  return [+m[1]!, +m[2]!, +m[3]!];
+};
+const near = (a: Rgb3, b: Rgb3, tol = 12) => a.every((v, i) => Math.abs(v - b[i]!) <= tol);
+/** The rendered pixels of the canvas host's edge bands, from a screenshot of the host (not its
+ *  computed style): at depth 1 CSS px (the ring's outer 2 px band) and 3 CSS px (its inner
+ *  band), at 16 points along each of the four edges, away from the corners. */
+async function edgeBands(page: Page) {
+  const img = decodePng(await canvas(page).screenshot());
+  // Screenshots are in device pixels (WebKit's Desktop Safari profile renders at 2×).
+  const dpr = img.w / (await canvas(page).boundingBox())!.width;
+  const at = (x: number, y: number): Rgb3 => {
+    const i = 3 * (y * img.w + x);
+    return [img.px[i]!, img.px[i + 1]!, img.px[i + 2]!];
+  };
+  const outer: Rgb3[] = [];
+  const inner: Rgb3[] = [];
+  const where: string[] = [];
+  for (let k = 1; k <= 16; k++) {
+    const x = Math.round((img.w * (k + 1)) / 18);
+    const y = Math.round((img.h * (k + 1)) / 18);
+    for (const [band, css] of [
+      [outer, 1],
+      [inner, 3],
+    ] as const) {
+      const d = Math.round(css * dpr);
+      band.push(at(x, d), at(x, img.h - 1 - d), at(d, y), at(img.w - 1 - d, y));
+      if (band === inner)
+        where.push(`${x},${d}`, `${x},${img.h - 1 - d}`, `${d},${y}`, `${img.w - 1 - d},${y}`);
+    }
+  }
+  return { outer, inner, where, size: `${img.w}×${img.h}` };
+}
 
 test("keyboard: reach the canvas, walk the tree, select single paths, announce", async ({
   page,
@@ -35,12 +73,8 @@ test("keyboard: reach the canvas, walk the tree, select single paths, announce",
   expect(reached).toBe(true);
   await expect(canvas(page)).toHaveAttribute("role", "application");
   await expect(canvas(page)).toHaveAttribute("aria-roledescription", "canvas");
-  // The focus ring is visible on the canvas (keyboard focus).
-  const ring = await canvas(page).evaluate((el) => {
-    const cs = getComputedStyle(el);
-    return `${cs.outlineStyle} ${cs.outlineWidth}`;
-  });
-  expect(ring).toBe("solid 2px");
+  // The focus ring is drawn (keyboard focus): rendered pixels, see the focus-ring test below.
+  await expect(page.getByTestId("canvas-focus-ring")).toBeVisible();
   await expect(announcer(page)).toHaveAttribute("aria-live", "polite");
 
   // First arrow: the top-most layer; Right: into it, to its top-most object; down to a path.
@@ -69,6 +103,107 @@ test("keyboard: reach the canvas, walk the tree, select single paths, announce",
   await expect(announcer(page)).toContainText(/\d+ of \d+/);
   // No DOM element per object: the canvas holds a fixed, small number of nodes.
   expect(await canvas(page).evaluate((el) => el.querySelectorAll("*").length)).toBeLessThan(40);
+});
+
+test("canvas focus ring: rendered above every layer on keyboard focus, not on a pointer click", async ({
+  page,
+}) => {
+  type Dbg = {
+    __vectra: {
+      canvas: {
+        setView(s: number, x: number, y: number): void;
+        hitDocument(x: number, y: number): string | null;
+      };
+    };
+  };
+  await page.goto("/workspace.html?debug=1");
+  await importFixture(page, "nested_rings.png"); // 256 × 256 artboard; the layer is selected
+  // Zoom so the artboard spans 4× the canvas, centred: artwork, paper and the selection overlay
+  // lie under every edge, so the ring is checked over the canvas layers, not the bare surround.
+  const box = (await canvas(page).boundingBox())!;
+  const scale = (4 * Math.max(box.width, box.height)) / 256;
+  const view = { scale, tx: box.width / 2 - 128 * scale, ty: box.height / 2 - 128 * scale };
+  await page.evaluate(
+    (v) => (window as unknown as Dbg).__vectra.canvas.setView(v.scale, v.tx, v.ty),
+    view,
+  );
+  await expect(page.getByTestId("canvas-state")).toHaveAttribute("data-state", "ready", {
+    timeout: 30_000,
+  });
+  await expect(page.getByTestId("selection-bounds")).toHaveCount(1);
+  // A visible point on a path, from the exact hit test (document coordinates → canvas pixels).
+  const target = await page.evaluate(
+    (v) => {
+      const c = (window as unknown as Dbg).__vectra.canvas;
+      for (let j = 1; j < 16; j++)
+        for (let i = 1; i < 16; i++) {
+          const cx = (v.w * i) / 16;
+          const cy = (v.h * j) / 16;
+          if (c.hitDocument((cx - v.tx) / v.scale, (cy - v.ty) / v.scale)) return [cx, cy];
+        }
+      return null;
+    },
+    { ...view, w: box.width, h: box.height },
+  );
+  expect(target).not.toBeNull();
+  const [px, py] = [box.x + target![0]!, box.y + target![1]!];
+  const ringEl = page.getByTestId("canvas-focus-ring");
+  const colours = await ringEl.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    const d = document.createElement("div");
+    d.style.color = cs.getPropertyValue("--vx-focus-halo").trim();
+    document.body.append(d);
+    const halo = getComputedStyle(d).color;
+    d.remove();
+    return { ring: cs.outlineColor, halo };
+  });
+  const lime = hex(colours.ring);
+  const halo = hex(colours.halo);
+  // Unfocused: no ring.
+  const select = page.getByRole("button", { name: "Select", exact: true });
+  await select.focus();
+  await expect(ringEl).toBeHidden();
+  const before = await edgeBands(page);
+  expect(before.outer.filter((c) => near(c, lime)).length).toBeLessThan(before.outer.length / 4);
+  // Keyboard focus (Tab): the ring is drawn on every edge, above the canvases and the overlay.
+  let reached = false;
+  for (let i = 0; i < 20 && !reached; i++) {
+    await page.keyboard.press("Tab");
+    reached = await canvas(page).evaluate((el) => el === document.activeElement);
+  }
+  expect(reached).toBe(true);
+  expect(await canvas(page).evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+  await expect(ringEl).toBeVisible();
+  const focused = await edgeBands(page);
+  const off = (band: Rgb3[], want: Rgb3) =>
+    band.flatMap((c, i) => (near(c, want) ? [] : [`${focused.where[i]}=${c.join(",")}`]));
+  expect(off(focused.outer, lime), focused.size).toEqual([]);
+  expect(off(focused.inner, halo), focused.size).toEqual([]);
+  // The ring takes no pointer input: at the ring, the topmost element is a canvas layer, and a
+  // click on a path still selects it through the hit test.
+  const atRing = await page.evaluate(
+    ([x, y]) => document.elementFromPoint(x!, y!)?.getAttribute("data-testid") ?? "other",
+    [box.x + 1, box.y + box.height / 2],
+  );
+  expect(atRing).not.toBe("canvas-focus-ring");
+  await page.mouse.click(px, py);
+  await expect(page.getByTestId("selection-name")).toHaveText(/^Path \d+$/);
+  // A pointer click from elsewhere focuses the canvas without the ring (focus-visible), and
+  // selects as before.
+  await page.evaluate(() =>
+    (
+      window as unknown as { __vectra: { workspace: { select(ids: string[]): void } } }
+    ).__vectra.workspace.select([]),
+  );
+  await expect(page.getByTestId("selection-bounds")).toHaveCount(0);
+  await select.click();
+  await page.mouse.click(px, py);
+  expect(await canvas(page).evaluate((el) => el === document.activeElement)).toBe(true);
+  expect(await canvas(page).evaluate((el) => el.matches(":focus-visible"))).toBe(false);
+  await expect(ringEl).toBeHidden();
+  await expect(page.getByTestId("selection-name")).toHaveText(/^Path \d+$/);
+  const clicked = await edgeBands(page);
+  expect(clicked.outer.filter((c) => near(c, lime)).length).toBeLessThan(clicked.outer.length / 4);
 });
 
 test("keyboard: from a selected path, Tab reaches the inspector's transform fields", async ({

@@ -135,7 +135,7 @@ Left: an activity icon (spinner while importing, alert on error), the message (t
 ### 3.11 Also
 - Top bar: wordmark, Studio, a hairline, the document title; the centred view switch; history; Import (outline) and Export (lime). A disabled Export is grey, not 50 % lime.
 - Tool rail: 48 px, flat icons, groups separated by dividers (selection and tracing · path refinement · colour). Order unchanged.
-- **Canvas focus made visible**: the canvas frame draws the dual ring above the canvas layers while the canvas has keyboard focus (BEFORE it was invisible in Chromium, see §2.4).
+- **Canvas focus made visible**: the canvas frame draws the dual ring above the canvas layers while the canvas has keyboard focus (BEFORE it was invisible in Chromium, see §2.4). *Superseded: the canvas host now draws its own ring above its layers (#19, `d9b5208`), and this shell workaround was removed when #19's corrected head was merged (§15).*.
 - Scroll thumbs use `control-border`; panels fade at their lower edge while more content is below; text selection and caret in lime.
 
 ## 4. Files
@@ -224,7 +224,7 @@ The maintainer's review changed some of these: unavailable controls are now hidd
 
 ## 11. Requests (not done here: engineering or lead-owned)
 **`src/canvas-host`:**
-1. **Focus ring painted under the canvas layers.** In Chromium the canvas's `outline-offset: -2px` ring is covered by its own absolutely positioned layers, so keyboard focus on the canvas was not visible. G-UI-R draws the ring on the shell's frame (`.vx-canvas-frame:has(> .vectra-canvas:focus-visible)::after`); a canvas-host fix (paint the ring in the overlay, or give the layers a stacking order below it) would make the shell rule unnecessary.
+1. **Focus ring painted under the canvas layers.** In Chromium the canvas's `outline-offset: -2px` ring is covered by its own absolutely positioned layers, so keyboard focus on the canvas was not visible. G-UI-R draws the ring on the shell's frame (`.vx-canvas-frame:has(> .vectra-canvas:focus-visible)::after`); a canvas-host fix (paint the ring in the overlay, or give the layers a stacking order below it) would make the shell rule unnecessary. *Done in #19 (`d9b5208`): fixed at the canvas-host level and verified from rendered pixels; the shell rule is removed (§15).*
 2. **Empty canvas paints black.** With no document, the canvas fills black instead of the `canvas-surround` colour it is given. The shell's empty state now covers it with the surround; a canvas-host fix would remove the dependency.
 3. **Transient colour preview.** The picker cannot preview the draft on the artwork. A canvas-side transient fill override (dropped on Cancel/Escape, no history entry) would let colour be judged in context (Assessment A P1).
 

@@ -9,6 +9,7 @@
 // - drag: RFC §8.4 drag frames against exact frames (element screenshots, 0 geometry errors).
 // - gestures: pan and zoom frame intervals (gesture start/end, display cache) and exact settle.
 // - keyboard: path selection on the canvas with its announcements.
+// - focus: the canvas keyboard focus ring, from screenshot pixels (Option-Tab; a click shows none).
 // - offline: workspace offline reload, import and worker recovery from the cache.
 // Results: tests/output/safari/gr1.json.
 import { execFileSync } from "node:child_process";
@@ -398,6 +399,173 @@ try {
       assert(/selected$/.test(selected), `selection announced: ${selected}`);
       return { layer, path, selected };
     });
+
+  if (want("focus"))
+    await scenario(
+      "focus ring: drawn above every canvas layer on keyboard focus, not on a click",
+      async () => {
+        await open();
+        await loadB64("synthetic-correctness");
+        // Zoom on the artboard's centre (4× the canvas): canvas layers under every edge.
+        const box = await s.exec(() => {
+          const host = document.querySelector("[data-testid=canvas-host]").getBoundingClientRect();
+          const art = document.querySelector("[data-testid=artboard]").getBoundingClientRect();
+          const c = window.__vectra.canvas.diag().camera;
+          const w = art.width / c.scale;
+          const h = art.height / c.scale;
+          const scale = (4 * Math.max(host.width, host.height)) / Math.max(w, h);
+          window.__vectra.canvas.setView(
+            scale,
+            host.width / 2 - (w / 2) * scale,
+            host.height / 2 - (h / 2) * scale,
+          );
+          return { x: host.x, y: host.y, width: host.width, height: host.height };
+        });
+        await settled();
+        const colours = await s.exec(() => {
+          const cs = getComputedStyle(document.querySelector("[data-testid=canvas-focus-ring]"));
+          const d = document.createElement("div");
+          d.style.color = cs.getPropertyValue("--vx-focus-halo").trim();
+          document.body.append(d);
+          const halo = getComputedStyle(d).color;
+          d.remove();
+          return { ring: cs.outlineColor, halo };
+        });
+        const rgb = (c) => c.match(/\d+/g).slice(0, 3).map(Number);
+        const lime = rgb(colours.ring);
+        const halo = rgb(colours.halo);
+        const near = (a, b, tol = 24) => a.every((v, i) => Math.abs(v - b[i]) <= tol);
+        // Safari's element capture returned the whole viewport here, so capture the viewport and
+        // address the host's rectangle in device pixels.
+        const bands = async () => {
+          const img = decodePng(await s.screenshot());
+          const dpr = img.w / (await s.exec(() => window.innerWidth));
+          const x0 = Math.round(box.x * dpr);
+          const y0 = Math.round(box.y * dpr);
+          const w = Math.round(box.width * dpr);
+          const h = Math.round(box.height * dpr);
+          const at = (x, y) => {
+            const i = 3 * ((y0 + y) * img.w + x0 + x);
+            return [img.px[i], img.px[i + 1], img.px[i + 2]];
+          };
+          const outer = [];
+          const inner = [];
+          for (let k = 1; k <= 16; k++) {
+            const x = Math.round((w * (k + 1)) / 18);
+            const y = Math.round((h * (k + 1)) / 18);
+            for (const [band, css] of [
+              [outer, 1],
+              [inner, 3],
+            ]) {
+              const d = Math.round(css * dpr);
+              band.push(at(x, d), at(x, h - 1 - d), at(d, y), at(w - 1 - d, y));
+            }
+          }
+          const mid = Math.round(h / 2);
+          const profile = Array.from({ length: 10 }, (_, d) => at(d, mid).join(",")).join(" | ");
+          return { outer, inner, dpr, profile, size: `${w}x${h} of ${img.w}x${img.h}` };
+        };
+        const state = () =>
+          s.exec(() => {
+            const host = document.querySelector("[data-testid=canvas-host]");
+            const ring = document.querySelector("[data-testid=canvas-focus-ring]");
+            return {
+              active: document.activeElement === host,
+              focusVisible: host.matches(":focus-visible"),
+              ringShown: getComputedStyle(ring).display !== "none",
+            };
+          });
+        // Keyboard focus: Option-Tab from the tool rail (Safari's default Tab skips buttons).
+        await s.exec(() =>
+          [...document.querySelectorAll("button")]
+            .find((b) => (b.getAttribute("aria-label") ?? b.textContent.trim()) === "Select")
+            .focus(),
+        );
+        const tab = () =>
+          s.cmd("POST", "/actions", {
+            actions: [
+              {
+                type: "key",
+                id: "kbd",
+                actions: [
+                  { type: "keyDown", value: "" },
+                  { type: "keyDown", value: "" },
+                  { type: "keyUp", value: "" },
+                  { type: "keyUp", value: "" },
+                ],
+              },
+            ],
+          });
+        let presses = 0;
+        while (presses < 25 && !(await state()).active) {
+          await tab();
+          presses++;
+        }
+        await sleep(100);
+        const keyboard = await state();
+        assert(keyboard.active, `Option-Tab reached the canvas (${presses} presses)`);
+        assert(
+          keyboard.focusVisible && keyboard.ringShown,
+          `ring shown: ${JSON.stringify(keyboard)}`,
+        );
+        const focused = await bands();
+        const outerOff = focused.outer.filter((c) => !near(c, lime));
+        const innerOff = focused.inner.filter((c) => !near(c, halo));
+        assert(
+          outerOff.length === 0,
+          `outer band lime: ${JSON.stringify(outerOff.slice(0, 4))}; ${focused.size} dpr ${focused.dpr}; left edge ${focused.profile}`,
+        );
+        assert(innerOff.length === 0, `inner band dark: ${JSON.stringify(innerOff.slice(0, 4))}`);
+        const atRing = await s.exec(
+          (x, y) => document.elementFromPoint(x, y)?.getAttribute("data-testid") ?? "other",
+          box.x + 1,
+          box.y + box.height / 2,
+        );
+        assert(atRing !== "canvas-focus-ring", "the ring takes no pointer input");
+        await s.cmd("DELETE", "/actions");
+        // A pointer click: focus without the ring.
+        await s.exec(() => document.activeElement?.blur());
+        await s.cmd("POST", "/actions", {
+          actions: [
+            {
+              type: "pointer",
+              id: "mouse",
+              parameters: { pointerType: "mouse" },
+              actions: [
+                {
+                  type: "pointerMove",
+                  origin: "viewport",
+                  x: Math.round(box.x + box.width / 2),
+                  y: Math.round(box.y + box.height / 2),
+                },
+                { type: "pointerDown", button: 0 },
+                { type: "pointerUp", button: 0 },
+              ],
+            },
+          ],
+        });
+        await s.cmd("DELETE", "/actions");
+        await sleep(100);
+        const pointer = await state();
+        assert(pointer.active, "a click focuses the canvas");
+        assert(!pointer.focusVisible && !pointer.ringShown, `no ring: ${JSON.stringify(pointer)}`);
+        const clicked = await bands();
+        const limeAfterClick = clicked.outer.filter((c) => near(c, lime)).length;
+        assert(
+          limeAfterClick < clicked.outer.length / 4,
+          `no lime band after a click (${limeAfterClick})`,
+        );
+        return {
+          presses,
+          dpr: focused.dpr,
+          expected: { ring: lime, halo },
+          sample: { outer: focused.outer[0], inner: focused.inner[0] },
+          keyboard,
+          pointer,
+          limeAfterClick,
+        };
+      },
+    );
 
   if (want("offline"))
     await scenario(

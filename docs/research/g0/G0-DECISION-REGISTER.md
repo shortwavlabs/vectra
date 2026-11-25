@@ -257,3 +257,58 @@ Record of execution:
 - The 17 G-UI screenshots (2.8 MB) are a one-time visual-baseline exception. From now on, only representative milestone screenshots go in Git.
 - Amending unpublished local commits is acceptable.
 - Git or worktree safety guards are never circumvented with alternative commands or plumbing.
+
+## 10. G-R1 and G-UI-R maintainer review (maintainer, 2026-11-25)
+**Disposition.**
+- The integrated workspace and the refined visual direction are accepted in principle.
+- All historical PARTIAL dispositions stay unchanged.
+- The G-UI-R direction is preserved: the docked workspace, the compact property inspector, the expanded canvas, the typography and the charcoal/lime/ivory identity. G-UI-R's binding design decisions are recorded in its report (§14) and DESIGN-SYSTEM §13.
+
+**G-R1 architecture: accepted.**
+- The additive canvas-host contract amendment: `transformable` and `onTransform`.
+- The pointer model:
+  - click selects;
+  - dragging selected objects moves them;
+  - Space-drag and the middle button pan;
+  - corner handles scale uniformly, edge handles along one axis;
+  - Alt scales about the centre;
+  - Escape cancels;
+  - one completed gesture is one undo transaction.
+- The compositing-preserving layered drag-cache architecture.
+
+**Locks.**
+- A transform never moves a locked object.
+- The protection extends to destructive operations. Deleting a container must not silently delete its locked descendants: the deletion is refused, with an actionable explanation, until those descendants are unlocked.
+- Global palette edits may keep affecting locked objects that reference the edited entry, provided this is clearly communicated.
+- Lock semantics are tested across pointer interaction, keyboard commands, inspector operations and undo/redo.
+- Implementation (#19):
+  - Locks stay a shell policy (`planDeletion` in `src/shell/document.ts`). Document commands do not enforce locks, so the frozen document architecture is unchanged.
+  - Directly locked items in a deletion are kept and reported.
+
+**Canvas focus indicator (#19).**
+- Fixed at the canvas-host level, not through a shell workaround. A visible ring is drawn above every canvas layer and follows `:focus-visible`.
+- It is verified from rendered pixels in Chromium, Firefox, Playwright WebKit and real Safari.
+- The G-UI-R shell workaround is removed after #20 takes the corrected #19 head.
+
+**Test races.** The two race fixes found on the G-UI-R branch, including the bounded diagnostic read, are brought into #19 as cherry-picks.
+
+**Performance disposition.**
+- G-R1's complete-preview miss at the interactive target is accepted temporarily for downstream engineering. TD-PERF-001 and every numerical target are retained.
+- Grading distinguishes interactive and stress workloads (RFC-002 §8.8):
+  - ≤ 250k anchors and ~40k paths: the interactive target, which carries the preview ≤ 100 ms target;
+  - 500k–1M anchors: stress workloads for qualification.
+- The 977k-anchor halftone stays measured. No identical 100 ms threshold is invented for stress workloads where the RFC specifies the interactive target.
+- The quiet-machine and lower-end-hardware qualifications are retained.
+
+**G-DOC-R authorised (TD-PERF-007, TD-PERF-011).** The investigation's options B, C and D are authorised, in that order, as a dedicated follow-up gate, separate from visual refinement. Scope and requirements: [G-DOC-R-SCOPE.md](../g-doc-r/G-DOC-R-SCOPE.md).
+
+**Accessibility and owner acceptance.**
+- VoiceOver remains mandatory.
+- The exact build and the updated owner checklist are provided for manual testing. The stock-Safari keyboard check is kept.
+- Neither is marked PASS until executed.
+
+**Workflow.**
+- #19 is updated first. Its corrected head is then merged forward into #20.
+- Both CI checks are verified, and the applicable browser suites, stress tests, real-Safari harnesses and bundle measurements are re-run.
+- The three PRs (#18, #19, #20) stay independently reviewable. None is merged automatically.
+- Not started: production CMYK, Precision v2, new creative tools, deployment. R-COLOR (#18) receives a separate research review.

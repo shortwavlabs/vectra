@@ -7,6 +7,8 @@ import {
   isLocked,
   moveCommand,
   paletteLabel,
+  pathFill,
+  planDeletion,
   quarterTurnAbout,
   scalingAbout,
   selectionBounds,
@@ -163,5 +165,67 @@ describe("palette names on screen (display only)", () => {
     for (const [name, label] of shown)
       expect(label).toBe(`Colour ${name === "ink" ? 1 : Number(/\d+$/.exec(name!)![0]) + 1}`);
     expect(JSON.stringify([...s.state.paletteById.values()])).toBe(before);
+  });
+});
+
+describe("deletion and locks (maintainer review)", () => {
+  const groupOf = (s: DocumentSession, layer = 0) =>
+    (s.state.nodesById.get(roots(s)[layer]!)! as { orderedChildIds: readonly string[] })
+      .orderedChildIds[0]!;
+
+  test("a container holding a locked descendant: the whole deletion is refused, explained", () => {
+    const s = twoLayers();
+    const [a, b] = roots(s);
+    s.dispatch({ type: "setLocked", ids: [firstPath(s, 0)], locked: true });
+    const one = planDeletion(s.state, [a!]);
+    expect(one).toEqual({
+      refused: expect.stringMatching(
+        /^Not deleted: ".+" contains 1 locked object\. Unlock it to delete\.$/,
+      ),
+    });
+    // With an unlocked layer beside it: nothing is deleted (no partial deletion).
+    expect("refused" in planDeletion(s.state, [a!, b!])).toBe(true);
+    // A locked group and a locked path inside the same layer: both counted.
+    s.dispatch({ type: "setLocked", ids: [groupOf(s, 0)], locked: true });
+    expect(planDeletion(s.state, [a!])).toEqual({
+      refused: expect.stringContaining("contains 2 locked objects. Unlock them"),
+    });
+  });
+
+  test("directly locked items are kept; the rest is deleted; a locked ancestor protects", () => {
+    const s = twoLayers();
+    const [a, b] = roots(s);
+    s.dispatch({ type: "setLocked", ids: [b!], locked: true });
+    expect(planDeletion(s.state, [a!, b!])).toEqual({ ids: [a], kept: 1 });
+    expect(planDeletion(s.state, [b!])).toEqual({ ids: [], kept: 1 });
+    // A path under a locked layer is effectively locked: kept, not deleted.
+    expect(planDeletion(s.state, [firstPath(s, 1)])).toEqual({ ids: [], kept: 1 });
+  });
+
+  test("after unlocking, the container deletes normally", () => {
+    const s = twoLayers();
+    const [a] = roots(s);
+    const p = firstPath(s, 0);
+    s.dispatch({ type: "setLocked", ids: [p], locked: true });
+    expect("refused" in planDeletion(s.state, [a!])).toBe(true);
+    s.dispatch({ type: "setLocked", ids: [p], locked: false });
+    expect(planDeletion(s.state, [a!])).toEqual({ ids: [a], kept: 0 });
+    expect(isLocked(s.state, p)).toBe(false);
+  });
+});
+
+describe("palette edits and locks (maintainer review)", () => {
+  test("a palette edit recolours a locked path that uses the entry; a direct fill skips it", () => {
+    const s = twoLayers();
+    const p = firstPath(s, 0);
+    const ref = s.state.stylesById.get(
+      (s.state.nodesById.get(p)! as { styleRef: string }).styleRef,
+    )!.paletteRef!;
+    expect(ref).not.toBeNull();
+    s.dispatch({ type: "setLocked", ids: [p], locked: true });
+    s.dispatch({ type: "setPaletteColor", paletteRef: ref, color: 0x2050a0ff });
+    expect(pathFill(s.state, p).color).toBe(0x2050a0ff);
+    // A direct fill on its layer reaches its unlocked siblings, never the locked path.
+    expect(fillTargets(s.state, [roots(s)[0]!])).not.toContain(p);
   });
 });

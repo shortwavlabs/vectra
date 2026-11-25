@@ -198,22 +198,4 @@ input {
   }
 }
 
-/* The canvas is a focusable widget inside a clipping panel: its lime ring is drawn just inside
-   its edge, over the dark canvas surround (an inset shadow would sit under the canvas layers). */
-.vectra-canvas:focus-visible {
-  outline-offset: -2px;
-  box-shadow: none;
-}
-/* G-UI-R: in Chromium the canvas's own layers paint over that inset outline, so the frame
-   around it draws the dual ring (lime outer, dark inner) above them while the canvas has
-   keyboard focus. Pointer events pass through. */
-.vx-canvas-frame:has(> .vectra-canvas:focus-visible)::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  box-shadow:
-    inset 0 0 0 2px var(--primary),
-    inset 0 0 0 4px var(--background);
-}
+/* The canvas host draws its own keyboard focus ring above its layers (src/canvas-host). */

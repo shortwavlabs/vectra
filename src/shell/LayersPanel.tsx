@@ -45,11 +45,21 @@ export interface LayersPanelProps {
   /** Whether the panel is expanded (it collapses to its header only on request). */
   open: boolean;
   onToggle: () => void;
+  /** Deletes through the shell's lock policy (refused while a locked descendant remains). */
+  onDelete: (ids: readonly NodeId[]) => void;
 }
 
 const HEADER = "flex h-9 shrink-0 items-center gap-1.5 border-b border-border pr-1.5 pl-3";
 
-export function LayersPanel({ state, selection, onSelect, run, open, onToggle }: LayersPanelProps) {
+export function LayersPanel({
+  state,
+  selection,
+  onSelect,
+  run,
+  open,
+  onToggle,
+  onDelete,
+}: LayersPanelProps) {
   const [expanded, setExpanded] = useState<ReadonlySet<NodeId>>(new Set());
   const [renaming, setRenaming] = useState<NodeId | null>(null);
   // The disclosure: the panel title is the collapse/expand control (a constant name; the state
@@ -274,7 +284,7 @@ export function LayersPanel({ state, selection, onSelect, run, open, onToggle }:
             <DropdownMenuItem
               disabled={locked}
               variant="destructive"
-              onClick={() => run({ type: "delete", ids: [id] })}
+              onClick={() => onDelete([id])}
             >
               Delete
             </DropdownMenuItem>
