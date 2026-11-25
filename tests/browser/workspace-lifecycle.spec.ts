@@ -152,6 +152,31 @@ test("renderer lifecycle in the production workspace: remounts, switch, crash, r
   await context.close();
 });
 
+// More than three crashes in 30 s: the client falls back to the main-thread renderer and asks
+// the host to replay its snapshot. The host must settle ready on that renderer's exact frame.
+test("crash fallback: the main-thread renderer settles the host ready", async ({ page }) => {
+  await page.goto("/workspace.html?debug=1");
+  await expect.poll(() => page.evaluate(() => "__vectra" in window)).toBe(true);
+  await load(page, "synthetic-correctness");
+  const crash = async () => {
+    const before = (await diag(page))!.client.crashes;
+    await page.evaluate(() => (window as unknown as { __vectra: Api }).__vectra.canvas.crash());
+    await expect.poll(async () => (await diag(page))!.client.crashes).toBeGreaterThan(before);
+  };
+  for (let i = 0; i < 3; i++) {
+    await crash();
+    await settled(page); // each replacement worker presents before the next crash
+  }
+  await crash();
+  await expect
+    .poll(async () => (await diag(page))!.client.fallbackReason)
+    .toMatch(/^the render worker crashed repeatedly/);
+  await expect(page.getByTestId("canvas-state")).toHaveAttribute("data-state", "ready", {
+    timeout: 30_000,
+  });
+  await settled(page);
+});
+
 test.describe("React development StrictMode (dev server)", () => {
   // One dev server per browser project (projects may run in parallel worker processes).
   const PORTS: Record<string, number> = { chromium: 4295, firefox: 4296, webkit: 4297 };
