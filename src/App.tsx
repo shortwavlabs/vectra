@@ -41,6 +41,11 @@ export function App() {
               ? "Offline-ready."
               : "Offline support not active (development build or first load)."}
           </span>{" "}
+          {wb.updateWaiting && (
+            <span data-testid="update-waiting">
+              A new version is ready; it is used once every Vectra tab has been closed.{" "}
+            </span>
+          )}
           <a href="./THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">
             Third-party licenses
           </a>

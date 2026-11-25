@@ -1,20 +1,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { downloadBlob } from "../export/download.ts";
-import { DEFAULT_SETTINGS, makeRequest } from "../presets/defaults.ts";
+import { GeometryStore } from "../document/geometry-store.ts";
+import { createDocument } from "../document/model.ts";
 import {
-  CancelledError,
-  JobError,
-  type TraceOutcome,
-  VectorizerClient,
-  type WorkerLike,
-} from "../vectorization/client.ts";
+  hexToRgba,
+  type SceneMetaJson,
+  traceProvenanceFromSceneMeta,
+} from "../document/provenance.ts";
+import { DocumentSession, sha256Hex } from "../document/session.ts";
+import { downloadBlob } from "../export/download.ts";
+import { BUILD_IDENTITY } from "../jobs/build-info.ts";
+import { JobController, type TraceSource } from "../jobs/controller.ts";
+import type { TraceResult } from "../jobs/protocol.ts";
+import { JobScheduler, type WorkerLike } from "../jobs/scheduler.ts";
+import { DEFAULT_SETTINGS, makeRequest } from "../presets/defaults.ts";
 import {
   DEFAULT_MAX_PIXELS,
   type DecodedImage,
   decodeImage,
   IntakeError,
 } from "../vectorization/intake.ts";
-import type { PdfOptions, Settings, TraceRequest } from "../vectorization/types.ts";
+import type {
+  EngineMetrics,
+  EngineWarning,
+  PdfOptions,
+  Settings,
+  TraceRequest,
+} from "../vectorization/types.ts";
+import { installQualificationApi } from "./qualification.ts";
 import { type ResponsivenessSample, startProbe } from "./responsiveness.ts";
 
 export interface Source extends DecodedImage {
@@ -22,13 +34,36 @@ export interface Source extends DecodedImage {
   name: string;
   bytes: number;
   url: string;
+  /** SHA-256 of the file bytes (C10 source identity; never the file name). */
+  digest: string;
+  trace: TraceSource;
 }
 
-export interface Result extends TraceOutcome {
+export interface Result {
+  jobId: number;
+  revision: number;
+  svg: string;
+  metrics: EngineMetrics;
+  warnings: EngineWarning[];
+  timings: {
+    /** Worker time inside the staged engine calls (segment + estimate + fit). */
+    wasmCallMs: number;
+    segmentMs: number;
+    estimateMs: number;
+    fitMs: number;
+    /** Worker time of the SVG serialisation job (export draw list → SVG). */
+    svgMs: number;
+    parseMs: number;
+  };
+  memoryBytes: number;
+  /** Trace submitted → SVG delivered (both jobs, including any worker start-up). */
+  roundTripMs: number;
   svgUrl: string;
   svgBytes: number;
   responsiveness: ResponsivenessSample;
   request: TraceRequest;
+  /** The validated preview, held outside the document (a preview is never committed). */
+  preview: DocumentSession;
 }
 
 export type Status =
@@ -47,28 +82,80 @@ export interface PdfInfo {
 
 declare global {
   interface Window {
-    /** Engineering instrumentation for P0 browser tests. Contains metrics only, never artwork. */
+    /** Engineering instrumentation for browser tests. Contains metrics only, never artwork. */
     __vectra?: Record<string, unknown>;
   }
 }
 
 const createWorker = () =>
-  new Worker(new URL("../workers/vectorize.worker.ts", import.meta.url), {
+  new Worker(new URL("../jobs/compute.worker.ts", import.meta.url), {
     type: "module",
   }) as unknown as WorkerLike;
 
+/** A preview held in its own session: the store's commit validates it (C2 trust boundary), and
+ *  its unedited single trace exports in original form, byte-identical to the engine route. */
+function previewSession(src: Source, request: TraceRequest, out: TraceResult) {
+  const { packet } = out;
+  const sceneMeta = JSON.parse(out.sceneMetaJson) as SceneMetaJson;
+  const session = new DocumentSession(new GeometryStore(), {
+    state: createDocument({
+      documentId: "preview",
+      width: packet.manifest.width,
+      height: packet.manifest.height,
+      background: sceneMeta.background === null ? null : hexToRgba(sceneMeta.background),
+    }),
+  });
+  const settings = request.settings as { fit?: { mode?: string } };
+  session.dispatch({
+    type: "commitTrace",
+    packet: out.packet,
+    provenance: traceProvenanceFromSceneMeta({
+      sceneMeta,
+      width: packet.manifest.width,
+      height: packet.manifest.height,
+      traceRequest: {
+        ...request,
+        settings: request.settings as unknown as Record<string, unknown>,
+      },
+      source: { digest: src.digest, width: src.width, height: src.height },
+      decodePolicy: "browser-canvas-v1",
+      precisionFitVersion: settings.fit?.mode === "precision" ? 1 : null,
+    }),
+  });
+  return session;
+}
+
+const emptyDocument = (width = 1, height = 1) =>
+  new DocumentSession(new GeometryStore(), {
+    state: createDocument({ documentId: "workbench", width, height }),
+  });
+
 export function useWorkbench() {
-  // Engineering options for tests: ?debug=1 exposes fault injection; ?recycleMiB=N lowers the
-  // WASM memory threshold at which the worker is recycled. Neither touches artwork.
+  // Engineering options for tests: ?debug=1 exposes fault injection and the qualification API;
+  // ?recycleMiB=N lowers the recycle threshold; ?startupTimeoutMs=N (debug only) shortens the
+  // start-up timeout. None of them touches artwork.
   const [params] = useState(() => new URLSearchParams(window.location.search));
-  const [client] = useState(() => {
+  const debugMode = params.get("debug") === "1";
+  const [buildMismatch, setBuildMismatch] = useState<string | null>(null);
+  const [jobs] = useState(() => {
     const recycleMiB = Number(params.get("recycleMiB"));
-    return new VectorizerClient({
+    const startupTimeoutMs = Number(params.get("startupTimeoutMs"));
+    const scheduler = new JobScheduler({
       createWorker,
-      recycleAboveBytes: recycleMiB > 0 ? recycleMiB * 1024 * 1024 : undefined,
+      identity: BUILD_IDENTITY,
+      ...(recycleMiB > 0 ? { recycleAboveBytes: recycleMiB * 1024 * 1024 } : {}),
+      ...(debugMode && startupTimeoutMs > 0 ? { startupTimeoutMs } : {}),
+      onBuildMismatch: (detail) => setBuildMismatch(detail),
+    });
+    return new JobController({
+      scheduler,
+      session: emptyDocument(),
+      engineVersion: BUILD_IDENTITY.engineVersion,
     });
   });
+  const scheduler = jobs.scheduler;
   const [offlineReady, setOfflineReady] = useState(false);
+  const [updateWaiting, setUpdateWaiting] = useState(false);
   const [source, setSource] = useState<Source | null>(null);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS.bw);
   const [maxPixels, setMaxPixels] = useState(DEFAULT_MAX_PIXELS);
@@ -76,35 +163,58 @@ export function useWorkbench() {
   const [result, setResult] = useState<Result | null>(null);
   const [pdf, setPdf] = useState<PdfInfo | null>(null);
   const revision = useRef(0);
-  // Timing anchors for the P0-R performance baseline (metrics only).
+  /** The preview jobs in flight (trace, then its SVG); cancel and new files stop them. */
+  const previewJobs = useRef(new Set<number>());
+  // Timing anchors for the performance baseline (metrics only).
   const importAt = useRef(0);
   const resultAt = useRef(0);
   const previewProbe = useRef<(() => ResponsivenessSample) | null>(null);
-  const debug = useRef<Record<string, unknown>>({ stats: client.stats, results: 0 });
+  const debug = useRef<Record<string, unknown>>({ stats: scheduler.diag, results: 0 });
+  const sourceRef = useRef<Source | null>(null);
+  useEffect(() => {
+    sourceRef.current = source;
+  }, [source]);
 
   useEffect(() => {
     window.__vectra = debug.current;
-    if (params.get("debug") === "1") debug.current.crashWorker = () => client.injectCrash();
-    client.warmup().then(
-      (ready) => (debug.current.ready = ready),
-      () => {},
-    );
+    if (debugMode) {
+      debug.current.crashWorker = () => scheduler.inject("crash-now");
+      debug.current.jobs = installQualificationApi(jobs, () => sourceRef.current);
+    }
+    void scheduler.warmup().then((ready) => {
+      if (ready) debug.current.ready = scheduler.lastReady;
+    });
     // Offline recovery needs the service worker to control this page (production builds).
-    void navigator.serviceWorker?.ready.then(() => {
+    void navigator.serviceWorker?.ready.then((reg) => {
       const update = () => {
         const controlled = navigator.serviceWorker.controller !== null;
         debug.current.offlineReady = controlled;
         setOfflineReady(controlled);
+        const waiting = reg.waiting !== null;
+        debug.current.updateWaiting = waiting;
+        setUpdateWaiting(waiting);
       };
       update();
       navigator.serviceWorker.addEventListener("controllerchange", update);
+      reg.addEventListener("updatefound", () => {
+        const w = reg.installing;
+        w?.addEventListener("statechange", update);
+      });
     });
-    return () => client.dispose();
-  }, [client, params]);
+    return () => jobs.dispose();
+  }, [jobs, scheduler, debugMode]);
+
+  const cancelPreviews = useCallback(() => {
+    let cancelled = false;
+    for (const id of previewJobs.current) cancelled = jobs.cancel(id) || cancelled;
+    previewJobs.current.clear();
+    return cancelled;
+  }, [jobs]);
 
   const loadFile = useCallback(
     async (file: File) => {
-      client.cancel();
+      // Previews of the old image stop; accepted explicit jobs are never cancelled implicitly.
+      cancelPreviews();
       importAt.current = performance.now();
       const rev = ++revision.current;
       setStatus({ kind: "decoding" });
@@ -114,8 +224,30 @@ export function useWorkbench() {
       });
       setPdf(null);
       try {
-        const decoded = await decodeImage(file, maxPixels);
+        const [decoded, bytes] = await Promise.all([
+          decodeImage(file, maxPixels),
+          file.arrayBuffer().then((b) => new Uint8Array(b)),
+        ]);
+        const digest = await sha256Hex(bytes);
         if (rev !== revision.current) return; // a newer file was chosen meanwhile
+        // A new image opens a new workbench document holding it as a (linked) source.
+        const doc = emptyDocument(decoded.width, decoded.height);
+        await doc.attachSource(bytes, { embedded: false, name: file.name });
+        if (rev !== revision.current) return;
+        jobs.replaceSession(doc);
+        const assetId = [...doc.state.sourceAssetsById.keys()][0] ?? null;
+        const trace: TraceSource = {
+          assetId,
+          digest,
+          width: decoded.width,
+          height: decoded.height,
+          rgba: new Uint8Array(
+            decoded.rgba.buffer,
+            decoded.rgba.byteOffset,
+            decoded.rgba.byteLength,
+          ),
+          decodePolicy: "browser-canvas-v1",
+        };
         setSource((prev) => {
           if (prev) URL.revokeObjectURL(prev.url);
           return {
@@ -124,6 +256,8 @@ export function useWorkbench() {
             name: file.name,
             bytes: file.size,
             url: URL.createObjectURL(file),
+            digest,
+            trace,
           };
         });
         debug.current.decodeMs = decoded.decodeMs;
@@ -133,64 +267,109 @@ export function useWorkbench() {
         setStatus({ kind: "error", code, message: e instanceof Error ? e.message : String(e) });
       }
     },
-    [client, maxPixels],
+    [jobs, maxPixels, cancelPreviews],
   );
+
+  const fail = useCallback((code: string, message: string) => {
+    setStatus({ kind: "error", code, message });
+  }, []);
 
   const trace = useCallback(
     (src: Source, s: Settings) => {
       const stop = startProbe();
       setStatus({ kind: "processing", since: performance.now(), revision: src.revision });
       const request = makeRequest(s, maxPixels);
-      // Copy: the buffer is transferred (detached) and the source stays available for re-tracing.
-      const rgba = src.rgba.slice().buffer;
-      client
-        .trace({ rgba, width: src.width, height: src.height, revision: src.revision }, request)
-        .then(
-          (out) => {
-            const responsiveness = stop();
-            if (out.revision !== revision.current) return;
-            resultAt.current = performance.now();
-            previewProbe.current?.(); // a previous preview never painted: stop its probe
-            previewProbe.current = startProbe();
-            const blob = new Blob([out.svg], { type: "image/svg+xml" });
-            const next: Result = {
-              ...out,
-              svgUrl: URL.createObjectURL(blob),
-              svgBytes: blob.size,
-              responsiveness,
-              request,
-            };
-            setResult((prev) => {
-              if (prev) URL.revokeObjectURL(prev.svgUrl);
-              return next;
-            });
-            setPdf(null);
-            setStatus({ kind: "done" });
-            debug.current.results = (debug.current.results as number) + 1;
-            debug.current.lastRequest = request;
-            debug.current.last = {
-              jobId: out.jobId,
-              metrics: out.metrics,
-              timings: out.timings,
-              roundTripMs: out.roundTripMs,
-              memoryBytes: out.memoryBytes,
-              svgBytes: blob.size,
-              responsiveness,
-              ready: client.lastReady,
-            };
-          },
-          (e: unknown) => {
-            stop();
-            if (e instanceof CancelledError) return;
-            setStatus({
-              kind: "error",
-              code: e instanceof JobError ? e.code : "error",
-              message: e instanceof Error ? e.message : String(e),
-            });
-          },
-        );
+      const sub = jobs.tracePreview(src.trace, request, "workbench");
+      if (!sub.accepted) {
+        stop();
+        return fail(sub.code, sub.message);
+      }
+      previewJobs.current.add(sub.jobId);
+      void sub.done.then((out) => {
+        previewJobs.current.delete(sub.jobId);
+        if (out.status === "cancelled") return void stop();
+        if (out.status === "failed") {
+          stop();
+          if (src.revision === revision.current) fail(out.code, out.message);
+          return;
+        }
+        if (src.revision !== revision.current) return void stop();
+        let preview: DocumentSession;
+        try {
+          preview = previewSession(src, request, out.result);
+        } catch (e) {
+          stop();
+          const code = (e as { code?: unknown }).code;
+          return fail(typeof code === "string" ? code : "invalid_result", String(e));
+        }
+        const display = jobs.export("svg", null, {
+          session: preview,
+          kind: "preview",
+          scope: "display",
+        });
+        if (!display.accepted) {
+          stop();
+          return fail(display.code, display.message);
+        }
+        previewJobs.current.add(display.jobId);
+        void display.done.then((svgOut) => {
+          previewJobs.current.delete(display.jobId);
+          const responsiveness = stop();
+          if (svgOut.status === "cancelled") return;
+          if (svgOut.status === "failed") return fail(svgOut.code, svgOut.message);
+          if (src.revision !== revision.current) return;
+          const r = out.result;
+          resultAt.current = performance.now();
+          previewProbe.current?.(); // a previous preview never painted: stop its probe
+          previewProbe.current = startProbe();
+          const svg = new TextDecoder().decode(svgOut.bytes);
+          const blob = new Blob([svgOut.bytes as Uint8Array<ArrayBuffer>], {
+            type: "image/svg+xml",
+          });
+          const wasmCallMs = r.timings.segmentMs + r.timings.estimateMs + r.timings.fitMs;
+          const next: Result = {
+            jobId: out.jobId,
+            revision: src.revision,
+            svg,
+            metrics: r.metrics,
+            warnings: r.warnings,
+            timings: { ...r.timings, wasmCallMs, svgMs: svgOut.timings.exportMs },
+            memoryBytes: out.memoryBytes,
+            // Trace submitted → SVG delivered: both jobs, including any worker start-up.
+            roundTripMs:
+              out.timings.queuedMs +
+              out.timings.workerMs +
+              svgOut.timings.queuedMs +
+              svgOut.timings.workerMs,
+            svgUrl: URL.createObjectURL(blob),
+            svgBytes: blob.size,
+            responsiveness,
+            request,
+            preview,
+          };
+          setResult((prev) => {
+            if (prev) URL.revokeObjectURL(prev.svgUrl);
+            return next;
+          });
+          setPdf(null);
+          setStatus({ kind: "done" });
+          debug.current.results = (debug.current.results as number) + 1;
+          debug.current.lastRequest = request;
+          debug.current.last = {
+            jobId: out.jobId,
+            metrics: r.metrics,
+            estimate: r.estimate,
+            timings: next.timings,
+            roundTripMs: next.roundTripMs,
+            memoryBytes: out.memoryBytes,
+            svgBytes: blob.size,
+            responsiveness,
+            ready: scheduler.lastReady,
+          };
+        });
+      });
     },
-    [client, maxPixels],
+    [jobs, scheduler, maxPixels, fail],
   );
 
   // Re-trace (debounced) whenever the source or settings change.
@@ -202,12 +381,12 @@ export function useWorkbench() {
 
   const cancel = useCallback(() => {
     const t = performance.now();
-    if (client.cancel()) {
+    if (cancelPreviews()) {
       const ackMs = performance.now() - t;
       debug.current.cancelAckMs = ackMs;
       setStatus({ kind: "cancelled", ackMs });
     }
-  }, [client]);
+  }, [cancelPreviews]);
 
   const downloadSvg = useCallback(() => {
     if (result)
@@ -220,23 +399,20 @@ export function useWorkbench() {
   const downloadPdf = useCallback(
     async (options: PdfOptions) => {
       if (!result) return;
-      try {
-        const out = await client.exportPdf(result.sceneJson, options);
-        downloadBlob(
-          new Blob([out.bytes], { type: "application/pdf" }),
-          `vectra-${result.metrics.mode}.pdf`,
-        );
-        setPdf({ bytes: out.bytes.byteLength, ms: out.ms, options });
-        debug.current.lastPdf = { bytes: out.bytes.byteLength, ms: out.ms };
-      } catch (e) {
-        setStatus({
-          kind: "error",
-          code: e instanceof JobError ? e.code : "error",
-          message: e instanceof Error ? e.message : String(e),
-        });
-      }
+      // An explicit export of the displayed preview, frozen now.
+      const sub = jobs.export("pdf", options, { session: result.preview });
+      if (!sub.accepted) return fail(sub.code, sub.message);
+      const out = await sub.done;
+      if (out.status === "cancelled") return;
+      if (out.status === "failed") return fail(out.code, out.message);
+      downloadBlob(
+        new Blob([out.bytes as Uint8Array<ArrayBuffer>], { type: "application/pdf" }),
+        `vectra-${result.metrics.mode}.pdf`,
+      );
+      setPdf({ bytes: out.bytes.byteLength, ms: out.timings.exportMs, options });
+      debug.current.lastPdf = { bytes: out.bytes.byteLength, ms: out.timings.exportMs };
     },
-    [client, result],
+    [jobs, result, fail],
   );
 
   /** Called when the result <img> has loaded: measures decode + first paint of the SVG preview. */
@@ -258,15 +434,25 @@ export function useWorkbench() {
     );
   }, []);
 
+  // Build skew is fatal for this tab: it is shown until the user reloads (RFC §15.3).
+  const shownStatus: Status = buildMismatch
+    ? {
+        kind: "error",
+        code: "build_mismatch",
+        message: `This tab and its processing engine come from different versions of Vectra. Save your work, then reload the page. (${buildMismatch})`,
+      }
+    : status;
+
   return {
     onPreviewLoaded,
     offlineReady,
+    updateWaiting,
     source,
     settings,
     setSettings,
     maxPixels,
     setMaxPixels,
-    status,
+    status: shownStatus,
     result,
     pdf,
     loadFile,

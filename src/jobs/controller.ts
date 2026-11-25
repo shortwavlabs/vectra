@@ -21,6 +21,7 @@ import {
 } from "../document/provenance.ts";
 import type { PdfOptions, TraceRequest } from "../vectorization/types.ts";
 import {
+  type Stage,
   EXPORT_OPERATION_VERSION,
   type ExportResult,
   packetBuffers,
@@ -168,78 +169,90 @@ export class JobController {
     src: TraceSource,
     request: TraceRequest,
     scope = "trace",
+    onProgress?: (stage: Stage) => void,
   ): Accepted<PreviewOutcome> | Rejection {
-    return this.#trace(src, request, "preview", scope, (_jobId, o) => o);
+    return this.#trace(src, request, "preview", scope, onProgress, (_jobId, o) => o);
   }
 
   /** A final trace, committed as a new layer (or replacing `replaceLayerId`) when it succeeds. */
   traceFinal(
     src: TraceSource,
     request: TraceRequest,
-    o: { replaceLayerId?: NodeId; name?: string } = {},
+    o: { replaceLayerId?: NodeId; name?: string; onProgress?: (stage: Stage) => void } = {},
   ): Accepted<CommitOutcome> | Rejection {
     const session = this.#session;
     const target =
       o.replaceLayerId === undefined ? null : this.#layerChunks(session, o.replaceLayerId);
-    return this.#trace(src, request, "final", "final", (jobId, out): CommitOutcome => {
-      if (out.status !== "succeeded") return out;
-      if (this.#session !== session) return { status: "stale", jobId, reason: "document_replaced" };
-      const asset =
-        src.assetId === null ? undefined : session.state.sourceAssetsById.get(src.assetId);
-      if (src.assetId !== null && asset?.digest !== src.digest)
-        return { status: "stale", jobId, reason: "source_changed" };
-      if (o.replaceLayerId !== undefined && this.#layerChunks(session, o.replaceLayerId) !== target)
-        return { status: "stale", jobId, reason: "target_changed" };
-      const { packet, ...rest } = out.result;
-      const sceneMeta = JSON.parse(rest.sceneMetaJson) as SceneMetaJson;
-      const settings = request.settings as { fit?: { mode?: string } };
-      try {
-        const provenance = traceProvenanceFromSceneMeta({
-          sceneMeta,
-          width: packet.manifest.width,
-          height: packet.manifest.height,
-          traceRequest: {
-            presetVersion: request.presetVersion,
-            seed: request.seed,
-            maxPixels: request.maxPixels,
-            maxAnchors: request.maxAnchors,
-            settings: request.settings as unknown as Record<string, unknown>,
-          },
-          source: { digest: src.digest, width: src.width, height: src.height },
-          decodePolicy: src.decodePolicy,
-          precisionFitVersion: settings.fit?.mode === "precision" ? 1 : null,
-        });
-        const before = new Set(session.state.orderedRootIds);
-        const revision = session.dispatch({
-          type: "commitTrace",
-          packet,
-          provenance,
-          ...(o.replaceLayerId === undefined ? {} : { replaceLayerId: o.replaceLayerId }),
-          ...(o.name === undefined ? {} : { name: o.name }),
-        });
-        const layerId =
-          o.replaceLayerId ?? session.state.orderedRootIds.find((id) => !before.has(id))!;
-        const layer = session.state.nodesById.get(layerId) as LayerNode;
-        return {
-          status: "committed",
-          jobId,
-          revision,
-          layerId,
-          chunkId: layer.traceProvenance!.chunkId,
-          result: rest,
-          timings: out.timings,
-        };
-      } catch (e) {
-        // Commit validation (packet, document invariants, history budget) failed: nothing changed.
-        const code = (e as { code?: unknown }).code;
-        return {
-          status: "failed",
-          jobId,
-          code: typeof code === "string" ? code : "commit_failed",
-          message: e instanceof Error ? e.message : String(e),
-        };
-      }
-    });
+    return this.#trace(
+      src,
+      request,
+      "final",
+      "final",
+      o.onProgress,
+      (jobId, out): CommitOutcome => {
+        if (out.status !== "succeeded") return out;
+        if (this.#session !== session)
+          return { status: "stale", jobId, reason: "document_replaced" };
+        const asset =
+          src.assetId === null ? undefined : session.state.sourceAssetsById.get(src.assetId);
+        if (src.assetId !== null && asset?.digest !== src.digest)
+          return { status: "stale", jobId, reason: "source_changed" };
+        if (
+          o.replaceLayerId !== undefined &&
+          this.#layerChunks(session, o.replaceLayerId) !== target
+        )
+          return { status: "stale", jobId, reason: "target_changed" };
+        const { packet, ...rest } = out.result;
+        const sceneMeta = JSON.parse(rest.sceneMetaJson) as SceneMetaJson;
+        const settings = request.settings as { fit?: { mode?: string } };
+        try {
+          const provenance = traceProvenanceFromSceneMeta({
+            sceneMeta,
+            width: packet.manifest.width,
+            height: packet.manifest.height,
+            traceRequest: {
+              presetVersion: request.presetVersion,
+              seed: request.seed,
+              maxPixels: request.maxPixels,
+              maxAnchors: request.maxAnchors,
+              settings: request.settings as unknown as Record<string, unknown>,
+            },
+            source: { digest: src.digest, width: src.width, height: src.height },
+            decodePolicy: src.decodePolicy,
+            precisionFitVersion: settings.fit?.mode === "precision" ? 1 : null,
+          });
+          const before = new Set(session.state.orderedRootIds);
+          const revision = session.dispatch({
+            type: "commitTrace",
+            packet,
+            provenance,
+            ...(o.replaceLayerId === undefined ? {} : { replaceLayerId: o.replaceLayerId }),
+            ...(o.name === undefined ? {} : { name: o.name }),
+          });
+          const layerId =
+            o.replaceLayerId ?? session.state.orderedRootIds.find((id) => !before.has(id))!;
+          const layer = session.state.nodesById.get(layerId) as LayerNode;
+          return {
+            status: "committed",
+            jobId,
+            revision,
+            layerId,
+            chunkId: layer.traceProvenance!.chunkId,
+            result: rest,
+            timings: out.timings,
+          };
+        } catch (e) {
+          // Commit validation (packet, document invariants, history budget) failed: nothing changed.
+          const code = (e as { code?: unknown }).code;
+          return {
+            status: "failed",
+            jobId,
+            code: typeof code === "string" ? code : "commit_failed",
+            message: e instanceof Error ? e.message : String(e),
+          };
+        }
+      },
+    );
   }
 
   #layerChunks(session: DocumentSession, layerId: NodeId): string | null {
@@ -260,6 +273,7 @@ export class JobController {
     request: TraceRequest,
     kind: "preview" | "final",
     scope: string,
+    onProgress: ((stage: Stage) => void) | undefined,
     finish: (jobId: number, o: PreviewOutcome) => T,
   ): Accepted<T> | Rejection {
     const bytes = src.width * src.height * 4;
@@ -279,6 +293,7 @@ export class JobController {
       documentRevision: this.#session.getSnapshot().revision,
       operationVersion: request.presetVersion,
       sourceDigest: src.digest,
+      ...(onProgress ? { onProgress } : {}),
       build: (h) => {
         const rgba = src.rgba.slice().buffer; // the job copy, allocated only when posted
         return [
@@ -319,13 +334,24 @@ export class JobController {
   }
 
   // --- export ---------------------------------------------------------------------------------
-  /** Exports the current document. The snapshot is frozen now; later edits do not affect it. */
+  /**
+   * Exports a document (the controller's by default). The snapshot is frozen now; later edits
+   * do not affect it. `kind: "preview"` makes it a supersedable display job (the workbench's SVG
+   * preview); exports are explicit otherwise.
+   */
   export(
     format: "svg" | "pdf",
     options: PdfOptions | null = null,
+    o: {
+      session?: DocumentSession;
+      kind?: "export" | "preview";
+      scope?: string;
+      onProgress?: (stage: Stage) => void;
+    } = {},
   ): Accepted<ExportOutcome> | Rejection {
-    if (!this.scheduler.canAccept("export")) return this.#refuse("export");
-    const session = this.#session;
+    const kind = o.kind ?? "export";
+    if (!this.scheduler.canAccept(kind)) return this.#refuse(kind);
+    const session = o.session ?? this.#session;
     const store = session.store;
     const job = deepFreeze(buildExport(session.state, store, this.#engineVersion));
     const owner: OwnerRef = { kind: "snapshot" };
@@ -338,10 +364,11 @@ export class JobController {
       store.settle();
     };
     const sub = this.scheduler.submit({
-      kind: "export",
-      scope: "export",
+      kind,
+      scope: o.scope ?? "export",
       documentRevision: session.getSnapshot().revision,
       operationVersion: EXPORT_OPERATION_VERSION,
+      ...(o.onProgress ? { onProgress: o.onProgress } : {}),
       build: (h) => {
         const { packets } = store.jobCopy([...job.chunks]);
         return [
