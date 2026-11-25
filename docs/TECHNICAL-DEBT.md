@@ -66,6 +66,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PERF-004](#td-perf-004) | Interactive preview responsiveness | Enhancement (with one measured defect) | Medium | OPEN | P1-B | G-JOB/G-TRACE |
 | [TD-PERF-005](#td-perf-005) | Halftone pitch at native resolution | Enhancement | Low | DEFERRED | P2 | P2-C |
 | [TD-PERF-006](#td-perf-006) | Precision mode cost on photographs | Limitation | Low | ACCEPTED FOR P0 | Later | Later |
+| [TD-PERF-007](#td-perf-007) | Structural transactions cost O(nodes) | Limitation (measured) | **High** | OPEN | G-EDIT | G-EDIT |
 | [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
 | [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
 | [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
@@ -96,6 +97,7 @@ Counts:
 - **12 High** (7 original + 5 added).
 - **No item is resolved by G-0.** Choosing an architecture moves an item to ARCHITECTURE ACCEPTED at most.
 - **RFC-002 inputs:** TD-GEO-001, TD-GEO-007, TD-GEO-009, TD-PERF-001, TD-PERF-003, TD-ARCH-001, TD-ARCH-002, TD-ARCH-003.
+- **G-DOC (2026-11-25):** one item added, TD-PERF-007 (High, gate G-EDIT): 38 open items and 13 High on this branch; 39 open and 13 High once G-ENG's TD-PLATFORM-007 (Medium) is also merged. None is closed by G-DOC.
 
 ---
 
@@ -431,6 +433,7 @@ Counts:
 - **Acceptance criteria:** documented per-device budgets; ≤ 512 MiB WASM on the lower-end target for its supported image sizes; recoverable errors, never silent degradation.
 - **References:** [PERFORMANCE-BASELINE](research/p0-r/PERFORMANCE-BASELINE.md) finding 5.
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (resource ledger, profiles) / IMPLEMENTATION PENDING**; gate G-DOC (ledger), G-R1 (lower-end budget); closure: Documented per-profile budgets measured on lower-end hardware; reserve-before-allocate; recoverable errors; owner action: Yes: lower-end hardware access. Constrained profile is provisional: ≤ 8 MP colour, ≤ 512 MiB recycle, 64 MiB history, ~2 GiB envelope. The 8 MP WASM figure is extrapolated, not measured.
+- **G-DOC disposition (2026-11-25):** ledger skeleton implemented on review branch `gate/g-doc-document-store` (`src/document/ledger.ts`): GeometryStore bytes by owner kind with the exact C3.2 chunk cost, history-only bytes, source bytes (document vs history) and registration hooks for worker, renderer and cache reporters (interfaces only). Covered by Node 24.22.1 unit tests. Per-profile budgets, reserve-before-allocate and lower-end measurements are not part of G-DOC; stage stays **IMPLEMENTATION PENDING** (G-JOB, G-R1). Not closed.
 
 <a id="td-perf-004"></a>
 ### TD-PERF-004 — Interactive preview responsiveness
@@ -530,6 +533,7 @@ Counts:
 - **Acceptance criteria:** RFC-002 defines geometry ownership, the recovery path and cache invalidation, and every editor state survives a worker termination test.
 - **References:** [P0-G2](research/p0/P0-G2-WORKER-ARCHITECTURE.md), [OFFLINE-WORKER-RECOVERY](research/p0-r/OFFLINE-WORKER-RECOVERY.md), [P1-ARCHITECTURAL-INPUTS](research/p0-r/P1-ARCHITECTURAL-INPUTS.md).
 - **G-0 disposition (2026-11-25):** stage **PROTOTYPE DEMONSTRATED (R03: 16/16 in 3 engines, online and offline) / IMPLEMENTATION PENDING**; gate G-DOC, G-JOB; closure: Every editor state survives worker termination in production-build tests (3 engines, online, offline, service-worker update); owner action: Safari authorisation (owner part of G-JOB). Design answered (D01/D05); not closed.
+- **G-DOC disposition (2026-11-25), document side:** the document of record, history and GeometryStore now live on the main thread outside any worker (`src/document`); workers can only receive fresh `jobCopy`/`renderCopy` buffers, and undo/redo restore immutable states by reference. Node 24.22.1 unit tests show committed state unaffected by simulated job transfers and terminations. The closure criterion (every editor state survives real worker termination in production-build tests, 3 engines, online, offline, service-worker update) is G-JOB's and was NOT RUN here; item stage unchanged: **PROTOTYPE DEMONSTRATED / IMPLEMENTATION PENDING**. Not closed.
 
 <a id="td-arch-003"></a>
 ### TD-ARCH-003 — Scene v1 expressiveness and JSON transport
@@ -556,6 +560,8 @@ Counts:
   - Lossless Scene ↔ Packet over the regression corpus (106 scenes; the 8 over-budget cases fail identically in both routes).
   - Packet-route scene, SVG and PDF byte-identical to `a4cf172.sha256` (326/326).
   - The document half is G-DOC's; integration is pending. [G-ENG-REPORT](research/g-eng/G-ENG-REPORT.md).
+- **G-DOC disposition (2026-11-25), document half:** separate editable Document v1 (C1 IDs, transforms, styles, rect clips) with packet-only geometry storage and `.vectra` container v1 implemented on `gate/g-doc-document-store`, against the packet port with the **test-only** C3 adapter (`src/document/testing`). It is not PRODUCTION VERIFIED: that needs G-ENG's production validator and codec wired in at the P1-A integration step and the shared conformance test passing. Stage: **IMPLEMENTATION PENDING** (document half implemented, integration pending). Not closed.
+- **P1-A integration (2026-11-25), both halves on one path:** **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING** on `p1a/integration`. G-DOC uses G-ENG's validator and codec as its only path (the test adapter is deleted). P0 scene → packet → document commit → `.vectra` (both codecs) → strict load → export draw list → Rust bake reproduces `a4cf172.sha256` for 636/636 corpus files. Closure needs PRs #13, #10, #11 and the integration PR merged. [P1A-INTEGRATION-REPORT](research/p1a-integration/P1A-INTEGRATION-REPORT.md).
 
 <a id="td-arch-004"></a>
 ### TD-ARCH-004 — Engineering-only engine entry points
@@ -651,6 +657,7 @@ Counts:
 - **Acceptance criteria:** documented decision; if adopted, a required check on `main`.
 - **G-0 disposition (2026-11-25):** stage **ARCHITECTURE ACCEPTED (policy decided at G-0) / IMPLEMENTATION PENDING**; gate P-CI (before P1-A PRs merge); closure: One required lightweight Linux job per the P-CI specification, fail-closed; owner action: No (decided); configuring it is engineering work after G-0 approval. Specification only at G-0; no workflow created.
 - **P-CI (2026-11-25):** stage **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**. `.github/workflows/ci.yml` (one `ci` job, fail-closed path filter) ran green on PR #8 (run 45535732214). Merging and making `ci` a required check are maintainer actions; branch protection is **not** configured. Not closed. [P-CI-REPORT](research/p-ci/P-CI-REPORT.md).
+- **P1-A (2026-11-25):** PR #8 merged with a merge commit (`d6c1cbf`) after the hardened classifier passed. `main` had no protection and no rulesets; it now requires the `ci` status check (GitHub Actions), with `strict: false` and `enforce_admins: false` and no other rule. Stage **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING**: the owner confirms or tightens these settings.
 
 
 ## Added at G-0 (from the independent review and reconciliation)
@@ -666,6 +673,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** no API exposes committed buffers; tests assert no committed buffer is detached after any sequence of jobs and terminations.
 - **Dependencies:** C2, C3.
 - **Owner action:** no.
+- **G-DOC disposition (2026-11-25):** stage **PRODUCTION VERIFIED** for both closure criteria, in Node 24.22.1 unit tests only (`src/document/geometry-store.test.ts`, `property.test.ts`): (1) no API exposes committed buffers — frozen `ChunkView` and `DerivedView` close over private arrays, and a runtime walk of every own and inherited property of views, derived views, method results and the store finds no `ArrayBuffer`, typed array or `DataView`; (2) no committed buffer is detached after 25 job/render copies transferred through `structuredClone` and `MessageChannel` with simulated terminations, nor across 30 seeded random command/undo/redo sequences. Browser runs NOT RUN. Next stage: **OWNER ACCEPTANCE PENDING**. Not closed.
 
 <a id="td-arch-006"></a>
 ### TD-ARCH-006 — WebKit offline worker start-up under termination churn
@@ -789,6 +797,35 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Closure criteria:** update-lifecycle tests (old tabs, worker recreation after deploy, interrupted install, offline after update, mixed-version refusal) pass on the production build in 3 engines and real Safari.
 - **Dependencies:** C5 handshake (`buildId`).
 - **Owner action:** Safari authorisation.
+
+## Added at G-DOC
+
+<a id="td-perf-007"></a>
+### TD-PERF-007 — Structural transactions cost O(nodes)
+- **Source:** G-DOC benchmarks; P1-A corrective review (production validator path).
+- **Category / severity / status:** Limitation (measured) · **High** · OPEN TECHNICAL DEBT.
+- **Description.** Every dispatched transaction copies the node map (`Draft`, `SealedMap`) and then runs the whole-state invariant pass (`validateState`). Both are linear in the node count, so a one-node edit costs as much as revalidating the document. Undo and redo stay below 0.03 ms because they reuse validated states.
+- **Evidence** (Apple M5 Max, Node 24.22.1, production validator, medians of 30). Primary run with no `ngspice` (load average 9–12; not quiet: another project's CPU-bound jobs were running):
+
+  | Workload | Nodes | Dispatch (median / p95, ms) | `validateState` | Node-map copy | Rest |
+  |---|---|---|---|---|---|
+  | Interactive target (§8.8): 41,666 paths × 6 anchors, 5 structural commands | 41,675 | 25.2–28.9 / 26.9–32.1 | — | — | — |
+  | same, phase profile (`setTransform` on the layer) | 41,675 | 20.8 | 16.6 (80 %) | 2.2 | 2.1 |
+  | 250,000 paths × 4 anchors, phase profile | 250,009 | 156 | 122 (79 %) | 17 | 16 |
+  | 50,000 paths × 20 anchors, 5 structural commands | 50,009 | 33.9–41.1 / 34.9–44.1 | — | — | — |
+
+  Under heavy `ngspice` load (load average 20–40), the same measurements were 1.1–2.7 times slower: 27–31 ms at the interactive target, and 418 ms in the 250k phase profile. Undo and redo stay ≤ 0.02 ms. Commands: `node docs/research/g-doc/bench/bench.mjs --reps 30` and `node docs/research/g-doc/bench/dispatch-profile.mjs [paths] [anchorsPerPath]` (P1-A integration branch; results in `docs/research/p1a-integration/bench/`). **Budgets.** RFC-002 §17 sets no dispatch target. The applicable budgets are attributable main-thread blocking ≤ 50 ms and interaction frame time p95 ≤ 33 ms (16.7 ms aspirational). Against them: at the interactive target a dispatch stays within the 50 ms blocking budget, but it uses most of a 33 ms gesture frame if an edit has to be applied within a frame. At 250,000 paths and 1M anchors (B, 172–253 ms), it exceeds the 50 ms blocking budget.
+- **Disposition:** stage **ARCHITECTURE ACCEPTED** (immutable snapshots, validated transactions) / IMPLEMENTATION PENDING; gate **G-EDIT**. No store rewrite or new dependency is made in P1-A.
+- **Upgrade path.**
+  1. Incremental invariants: validate only the nodes a transaction touched, their parents and the derived indices they change, against invariants stated per node.
+  2. Structural sharing for the node, style and palette maps (persistent maps, or copy-on-write chunks), so a draft no longer copies the whole map.
+  3. The whole-state pass stays authoritative for load, import and recovery, and as a test oracle: a property test compares incremental and full validation on random command sequences.
+- **Closure criteria** (the numeric thresholds are **proposed**, for maintainer decision at G-EDIT; they derive from RFC-002 §17):
+  - a structural command (transform, rename, hide, recolour, delete group) dispatches in ≤ 16.7 ms median and ≤ 33 ms p95 at the interactive target (≈ 250k anchors, ≈ 40k paths), and in ≤ 50 ms at the 1M-anchor stress workloads, on the reference machine, quiet run, production build.
+  - Incremental and full validation agree on every state of a randomized command-sequence suite (at least 10,000 transactions, including rejected ones).
+  - Load still runs the full pass; no invariant is weakened.
+- **Dependencies:** G-DOC store and invariants (C8 r2); TD-ARCH-005.
+- **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT.
 
 ---
 

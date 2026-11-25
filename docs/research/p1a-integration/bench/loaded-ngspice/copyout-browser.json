@@ -1,0 +1,117 @@
+{
+  "loadavgStart": [23.55224609375, 11.9384765625, 12.259765625],
+  "results": {
+    "chromium": {
+      "version": "159.0.8154.6",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
+      "reps": 30,
+      "workload": {
+        "side": 2318,
+        "pitch": 5.2,
+        "anchors": 995405,
+        "packetBytes": 42603358
+      },
+      "ms": {
+        "compute": {
+          "median": 123,
+          "p95": 124.6,
+          "min": 120.1,
+          "max": 125.1
+        },
+        "copyOut": {
+          "median": 3.4,
+          "p95": 3.5,
+          "min": 3.2,
+          "max": 3.6
+        },
+        "transport": {
+          "median": 0,
+          "p95": 0.1,
+          "min": -0.1,
+          "max": 0.1
+        },
+        "validate": {
+          "median": 12.4,
+          "p95": 26.8,
+          "min": 11,
+          "max": 99.4
+        }
+      }
+    },
+    "firefox": {
+      "version": "159.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
+      "reps": 30,
+      "workload": {
+        "side": 2318,
+        "pitch": 5.2,
+        "anchors": 995405,
+        "packetBytes": 42603358
+      },
+      "ms": {
+        "compute": {
+          "median": 188,
+          "p95": 200,
+          "min": 160,
+          "max": 201
+        },
+        "copyOut": {
+          "median": 4,
+          "p95": 15,
+          "min": 2,
+          "max": 21
+        },
+        "transport": {
+          "median": 0,
+          "p95": 1,
+          "min": -1,
+          "max": 2
+        },
+        "validate": {
+          "median": 16,
+          "p95": 19,
+          "min": 14,
+          "max": 21
+        }
+      }
+    },
+    "webkit": {
+      "version": "27.2",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+      "reps": 30,
+      "workload": {
+        "side": 2318,
+        "pitch": 5.2,
+        "anchors": 995405,
+        "packetBytes": 42603358
+      },
+      "ms": {
+        "compute": {
+          "median": 134,
+          "p95": 136,
+          "min": 133,
+          "max": 136
+        },
+        "copyOut": {
+          "median": 1,
+          "p95": 4,
+          "min": 1,
+          "max": 4
+        },
+        "transport": {
+          "median": 1,
+          "p95": 1,
+          "min": 0,
+          "max": 2
+        },
+        "validate": {
+          "median": 9,
+          "p95": 26,
+          "min": 7,
+          "max": 37
+        }
+      }
+    }
+  },
+  "loadavgEnd": [26.19921875, 13.08544921875, 12.662109375]
+}

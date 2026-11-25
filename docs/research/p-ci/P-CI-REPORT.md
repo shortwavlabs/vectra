@@ -1,6 +1,6 @@
 # P-CI — Minimal required check
 
-**Status:** IMPLEMENTED AND VERIFIED ON ITS PR. Merging and branch protection need the maintainer (see §5).
+**Status:** MERGED (PR #8, merge commit `d6c1cbf`, P1-A corrective review). `main` requires the `ci` check (`strict: false`, `enforce_admins: false`); see the P1-A integration report §1. §5 keeps the original maintainer steps for reference.
 
 | | |
 |---|---|
