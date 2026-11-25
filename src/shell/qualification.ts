@@ -17,6 +17,11 @@ export interface WorkspaceProbe {
   selection(): readonly NodeId[];
   select(ids: readonly NodeId[]): void;
   remountCanvas(): void;
+  /** The workspace's handler for a completed canvas transform (dispatches one command). */
+  transform(
+    ids: readonly NodeId[],
+    m: readonly [number, number, number, number, number, number],
+  ): void;
 }
 
 interface TreeNode {
@@ -50,6 +55,10 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
       setView: (scale: number, tx: number, ty: number) => o.host()?.setView({ scale, tx, ty }),
       crash: () => o.host()?.client.crashWorker() ?? false,
       remount: () => o.remountCanvas(),
+      /** A transform gesture driven exactly (the pointer path rounds to CSS pixels). */
+      beginDrag: (ids: NodeId[]) => o.host()?.beginTransform(ids) ?? false,
+      dragTo: (m: [number, number, number, number, number, number]) => o.host()?.updateTransform(m),
+      endDrag: (commit: boolean) => o.host()?.endTransform(commit, (ids, m) => o.transform(ids, m)),
       /** Distinct geometry chunks the visible document draws (what the renderer must hold). */
       documentChunks: () => {
         const s = o.session()?.getSnapshot().state;

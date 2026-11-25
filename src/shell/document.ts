@@ -49,6 +49,20 @@ export function isLocked(s: DocState, id: NodeId): boolean {
   return false;
 }
 
+/** Whether a node's subtree (itself or any descendant) is locked. */
+export function containsLocked(s: DocState, id: NodeId): boolean {
+  const n = s.nodesById.get(id);
+  if (!n) return false;
+  if (n.locked) return true;
+  return isContainer(n) && n.orderedChildIds.some((c) => containsLocked(s, c));
+}
+
+/** Whether the selection may be moved or scaled: no locked node above, at or below it. */
+export function transformable(s: DocState, ids: readonly NodeId[]): boolean {
+  const top = topLevel(s, ids);
+  return top.length > 0 && top.every((id) => !isLocked(s, id) && !containsLocked(s, id));
+}
+
 export function isVisible(s: DocState, id: NodeId): boolean {
   const par = parents(s);
   for (let n: NodeId | null = id; n !== null; n = par.get(n) ?? null)

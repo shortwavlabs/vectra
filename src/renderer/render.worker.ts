@@ -55,6 +55,14 @@ scope.onmessage = (event) => {
       case "resize":
         renderer.resize(m.surface);
         return;
+      case "drag":
+        if (m.phase === "start") {
+          renderer.dragStart(m.renderRevision, m.items, m.clips);
+          post({ type: "stats", generation, ...renderer.stats });
+        } else if (m.phase === "move") renderer.dragMove(m.matrix);
+        else if (m.phase === "end") renderer.dragEnd();
+        else renderer.dragCancel();
+        return;
       case "debug-crash":
         setTimeout(() => {
           throw new Error("injected render-worker crash (debug)");

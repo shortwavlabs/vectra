@@ -33,7 +33,7 @@ import { VectorCanvas } from "../canvas-host/CanvasHost.tsx";
 import type { DocumentRenderHost } from "../canvas-host/render-host.ts";
 import type { CanvasHostHandle, CanvasHostState, CanvasView } from "../canvas-host/types.ts";
 import type { Command } from "../document/commands.ts";
-import type { NodeId } from "../document/model.ts";
+import type { Matrix, NodeId } from "../document/model.ts";
 import type { DispatchOptions, DocumentSession, SessionSnapshot } from "../document/session.ts";
 import { downloadBlob } from "../export/download.ts";
 import { type OfflineStatus, watchOfflineStatus } from "../jobs/offline-status.ts";
@@ -52,7 +52,13 @@ import { Input } from "../ui/registry/input";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/registry/resizable";
 import { ScrollArea } from "../ui/registry/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/registry/tooltip";
-import { isLocked, pathCount, topLevel } from "./document.ts";
+import {
+  isLocked,
+  pathCount,
+  topLevel,
+  transformable as canTransform,
+  worldTransformCommands,
+} from "./document.ts";
 import { DocumentInspector, RecolorInspector, Section, SelectionInspector } from "./Inspector.tsx";
 import {
   associate,
@@ -64,8 +70,6 @@ import {
 } from "./jobs.ts";
 import { LayersPanel } from "./LayersPanel.tsx";
 import { installWorkspaceQualification } from "./qualification.ts";
-import { ArtboardFrame, SelectionBounds } from "./SelectionBounds.tsx";
-import { createViewStore } from "./view-store.ts";
 
 type ToolId = "select" | "trace" | "smooth" | "simplify" | "cleanup" | "recolor";
 interface Tool {
@@ -251,17 +255,9 @@ export function Workspace() {
   // Qualification only: a new key remounts the canvas (lifecycle tests).
   const [canvasKey, setCanvasKey] = useState(0);
   const [host, setHost] = useState<DocumentRenderHost | null>(null);
-  // The camera goes to a store read by the overlay; the workspace keeps only the zoom label,
-  // so a pan does not re-render the whole workspace every frame.
-  const [views] = useState(createViewStore);
+  // Only the zoom label: a pan does not re-render the whole workspace every frame.
   const [zoom, setZoom] = useState<number | null>(null);
-  const onView = useCallback(
-    (v: CanvasView) => {
-      views.set(v);
-      setZoom(Math.round(v.scale * 100));
-    },
-    [views],
-  );
+  const onView = useCallback((v: CanvasView) => setZoom(Math.round(v.scale * 100)), []);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [offline, setOffline] = useState<OfflineStatus | null>(null);
   const canvas = useRef<CanvasHostHandle>(null);
@@ -331,24 +327,6 @@ export function Workspace() {
     }
   };
 
-  // Read live by the qualification API, which is installed once.
-  const live = useRef({ host, selection });
-  useEffect(() => {
-    live.current = { host, selection };
-  });
-  useEffect(() => {
-    if (!debugMode) return;
-    return installWorkspaceQualification({
-      jobs,
-      host: () => live.current.host,
-      session: () => sessionRef.current,
-      adopt,
-      selection: () => live.current.selection,
-      select: (ids) => setRawSelection(ids),
-      remountCanvas: () => setCanvasKey((k) => k + 1),
-    });
-  }, [jobs, adopt]);
-
   const run = useCallback(
     (c: Command | Command[], o?: DispatchOptions) => {
       if (!session) return;
@@ -372,6 +350,35 @@ export function Workspace() {
       ),
     [],
   );
+  const transformable = useMemo(
+    () => state !== null && canTransform(state, selection),
+    [state, selection],
+  );
+  // A completed canvas gesture: one transaction (one undo step) for the whole selection.
+  const onTransform = useCallback(
+    (ids: readonly NodeId[], m: readonly [number, number, number, number, number, number]) => {
+      if (state) run(worldTransformCommands(state, ids, [...m] as Matrix));
+    },
+    [state, run],
+  );
+  // Read live by the qualification API, which is installed once.
+  const live = useRef({ host, selection, onTransform });
+  useEffect(() => {
+    live.current = { host, selection, onTransform };
+  });
+  useEffect(() => {
+    if (!debugMode) return;
+    return installWorkspaceQualification({
+      jobs,
+      host: () => live.current.host,
+      session: () => sessionRef.current,
+      adopt,
+      selection: () => live.current.selection,
+      select: (ids) => setRawSelection(ids),
+      remountCanvas: () => setCanvasKey((k) => k + 1),
+      transform: (ids, m) => live.current.onTransform(ids, m),
+    });
+  }, [jobs, adopt]);
   const undo = useCallback(() => session?.undo(), [session]);
   const redo = useCallback(() => session?.redo(), [session]);
   const deleteSelection = useCallback(() => {
@@ -624,12 +631,13 @@ export function Workspace() {
                     workspace={colors.surround}
                     selectionColor={colors.selection}
                     haloColor={colors.halo}
+                    transformable={transformable}
+                    onTransform={onTransform}
                     forceMainThread={forceMainThread}
                     label="Artwork canvas"
                     className="absolute inset-0"
                   />
-                  <ArtboardFrame artboard={state?.artboard ?? null} views={views} />
-                  <SelectionBounds host={host} state={state} ids={selection} views={views} />
+
                   {!session && (
                     <div className="pointer-events-none absolute inset-0 grid place-items-center p-6">
                       <div className="pointer-events-auto grid max-w-sm justify-items-center gap-3 rounded-lg border border-dashed border-control-border bg-background/40 px-8 py-10 text-center">

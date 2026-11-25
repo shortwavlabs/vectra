@@ -21,8 +21,8 @@ import {
 import type { DocumentSession } from "../document/session.ts";
 import { HitTester } from "../hit-test/index.ts";
 import { type ClientState, type HostMode, RenderClient } from "../renderer/client.ts";
-import type { FrameInfo, Surface } from "../renderer/protocol.ts";
-import type { Camera, RenderPacket, RenderSnapshot } from "../renderer/snapshot.ts";
+import type { ClipRect, DragClip, FrameInfo, Surface } from "../renderer/protocol.ts";
+import type { Affine, Camera, RenderPacket, RenderSnapshot } from "../renderer/snapshot.ts";
 import type { CanvasHostState, CanvasView } from "./types.ts";
 
 export interface RenderHostOptions {
@@ -98,6 +98,10 @@ export class DocumentRenderHost {
     hitTestReadyMs: null as number | null,
     hitTestWaitMs: null as number | null,
     hitTestStaleAnswers: 0,
+    /** Drag frames presented, and how the last one was drawn. */
+    dragFrames: 0,
+    lastDragMode: null as "layers" | "live" | null,
+    lastDragMs: null as number | null,
     exactFrames: 0,
     interactionFrames: 0,
     /** Increments whenever a different document session is shown. */
@@ -128,6 +132,8 @@ export class DocumentRenderHost {
   /** The session whose chunks the renderer holds: chunk IDs are unique only within one store. */
   #copiedFrom: DocumentSession | null = null;
   #lastState: CanvasHostState = { kind: "starting" };
+  /** A transform gesture in progress: the top-level nodes moved, and the preview matrix. */
+  #transform: { ids: NodeId[]; matrix: Affine } | null = null;
 
   constructor(o: RenderHostOptions) {
     this.#o = o;
@@ -244,6 +250,91 @@ export class DocumentRenderHost {
 
   gesture(phase: "start" | "end"): void {
     this.client.gesture(phase);
+  }
+
+  // --- transform gestures (G-R1) -----------------------------------------------------------
+  /** Selected IDs without a selected ancestor: a transform applies once per subtree. */
+  topLevel(ids: readonly NodeId[]): NodeId[] {
+    if (!this.#state) return [];
+    const set = new Set(ids.filter((id) => this.#state!.nodesById.has(id)));
+    const par = parents(this.#state);
+    return [...set].filter((id) => {
+      for (let p = par.get(id) ?? null; p !== null; p = par.get(p) ?? null)
+        if (set.has(p)) return false;
+      return true;
+    });
+  }
+
+  get transforming(): boolean {
+    return this.#transform !== null;
+  }
+  get transformMatrix(): Affine | null {
+    return this.#transform?.matrix ?? null;
+  }
+
+  /** Starts a display-only preview of moving `ids` (their top-level subtrees). */
+  beginTransform(ids: readonly NodeId[]): boolean {
+    const top = this.topLevel(ids);
+    if (!this.#ev || top.length === 0) return false;
+    this.#transform = { ids: top, matrix: [1, 0, 0, 1, 0, 0] };
+    this.#sendDragStart();
+    return true;
+  }
+
+  updateTransform(matrix: Affine): void {
+    if (!this.#transform) return;
+    this.#transform.matrix = matrix;
+    this.client.dragMove(matrix);
+  }
+
+  /**
+   * Ends the gesture. Committed (and not an identity), the caller's `commit` dispatches one
+   * command and the pose stays on screen until that revision's exact frame is complete; if the
+   * command is rejected (the revision does not change), the preview is cancelled.
+   */
+  endTransform(commit: boolean, onCommit?: (ids: readonly NodeId[], matrix: Affine) => void): void {
+    const t = this.#transform;
+    this.#transform = null;
+    if (!t) return;
+    const m = t.matrix;
+    const identity =
+      m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0;
+    if (!commit || identity || !onCommit) return this.client.dragEnd(true);
+    this.client.dragEnd(false);
+    const rev = this.documentRevision;
+    onCommit(t.ids, m);
+    if (this.documentRevision === rev) this.client.dragEnd(true);
+  }
+
+  /** The draw items of the moving subtrees, with their fixed and moving clips. */
+  #sendDragStart(): void {
+    const t = this.#transform;
+    if (!t || !this.#ev || !this.#state) return;
+    const worlds = new Map<NodeId, Matrix>();
+    const par = parents(this.#state);
+    const items: number[] = [];
+    const clips: DragClip[] = [];
+    const rect = (r: Rect | null): ClipRect | null =>
+      r && { x: r.x, y: r.y, w: r.width, h: r.height };
+    for (const owner of t.ids) {
+      // Clips above the moved node stay fixed; clips at or below it move with it.
+      let fixed: Rect | null = null;
+      for (let n = par.get(owner) ?? null; n !== null; n = par.get(n) ?? null) {
+        const node = this.#state.nodesById.get(n);
+        if (node && "clipRef" in node && node.clipRef)
+          fixed = intersectRects(fixed, mapRect(this.#worldOf(n, worlds), node.clipRef));
+      }
+      for (const k of this.itemsOf(owner)) {
+        const it = this.#ev.drawList[k]!;
+        const inner = this.#innerClip(it.nodeId, owner, worlds);
+        items.push(k);
+        clips.push({ fixed: rect(fixed), moving: rect(inner) });
+      }
+    }
+    this.client.dragStart(this.#renderRevision, items, clips);
+    const m = t.matrix;
+    if (!(m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0))
+      this.client.dragMove(m);
   }
 
   // --- hit testing ----------------------------------------------------------------------------
@@ -526,6 +617,8 @@ export class DocumentRenderHost {
       0,
     );
     this.client.send(snapshot, render, release);
+    // A document change during a transform gesture: the preview restarts on the new snapshot.
+    if (this.#transform) this.#sendDragStart();
     const t3 = performance.now();
     this.diag.snapshots++;
     this.diag.chunksCopied += copy.length;
@@ -544,6 +637,11 @@ export class DocumentRenderHost {
   }
 
   #onFrame(f: FrameInfo & { host: HostMode }): void {
+    if (f.drag) {
+      this.diag.dragFrames++;
+      this.diag.lastDragMode = f.drag;
+      this.diag.lastDragMs = f.ms;
+    }
     if (f.kind === "exact") {
       this.diag.exactFrames++;
       if (f.complete)

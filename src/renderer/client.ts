@@ -7,13 +7,14 @@
 import { RENDER_IDENTITY } from "./build-info.ts";
 import { CanvasRenderer } from "./core.ts";
 import type {
+  DragClip,
   FrameInfo,
   RenderIdentity,
   RenderRequest,
   RenderResponse,
   Surface,
 } from "./protocol.ts";
-import type { Camera, RenderPacket, RenderSnapshot } from "./snapshot.ts";
+import type { Affine, Camera, RenderPacket, RenderSnapshot } from "./snapshot.ts";
 
 export type HostMode = "worker" | "main-thread";
 
@@ -58,6 +59,9 @@ export class RenderClient {
     lastRecoveryMs: null as number | null,
     /** What the render worker reports holding after its last snapshot. */
     workerHeld: null as { chunks: number; paths: number; bytes: number } | null,
+    /** Drag layer caches held by the renderer (display-only memory, capped). */
+    dragLayers: 0,
+    dragLayerBytes: 0,
   };
   readonly #o: RenderClientOptions;
   #surface: Surface;
@@ -130,6 +134,33 @@ export class RenderClient {
   gesture(phase: "start" | "end"): void {
     if (this.#main) return this.#main.gesture(phase);
     this.#post({ type: "gesture", generation: this.#generation, phase });
+  }
+
+  /** A transform drag (display only): forwarded to the renderer in either host. */
+  dragStart(renderRevision: number, items: number[], clips: DragClip[]): void {
+    if (this.#main) {
+      this.#main.dragStart(renderRevision, items, clips);
+      const st = this.#main.stats;
+      this.diag.dragLayers = st.dragLayers;
+      this.diag.dragLayerBytes = st.dragLayerBytes;
+      return;
+    }
+    this.#post({
+      type: "drag",
+      generation: this.#generation,
+      phase: "start",
+      renderRevision,
+      items,
+      clips,
+    });
+  }
+  dragMove(matrix: Affine): void {
+    if (this.#main) return this.#main.dragMove(matrix);
+    this.#post({ type: "drag", generation: this.#generation, phase: "move", matrix });
+  }
+  dragEnd(cancel: boolean): void {
+    if (this.#main) return cancel ? this.#main.dragCancel() : this.#main.dragEnd();
+    this.#post({ type: "drag", generation: this.#generation, phase: cancel ? "cancel" : "end" });
   }
 
   resize(surface: Surface): void {
@@ -245,6 +276,8 @@ export class RenderClient {
         this.#o.onFrame({ ...m, host: "worker" });
       } else if (m.type === "stats") {
         this.diag.workerHeld = { chunks: m.chunks, paths: m.paths, bytes: m.bytes };
+        this.diag.dragLayers = m.dragLayers ?? 0;
+        this.diag.dragLayerBytes = m.dragLayerBytes ?? 0;
       } else if (m.type === "error") {
         if (m.code === "no_2d_context")
           this.#fallback("the render worker has no 2D canvas context");

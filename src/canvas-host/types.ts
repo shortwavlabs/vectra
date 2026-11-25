@@ -4,7 +4,11 @@
 // branches; change it only by agreement recorded in both gate reports.
 //
 // Boundary: the canvas only reads the document (snapshots of it). It never commits, edits or
-// exports; selection is reported to the caller, which owns it.
+// exports; selection and completed transform gestures are reported to the caller, which owns the
+// selection and dispatches any command.
+//
+// G-R1 amendment (additive, 2026-11-25; recorded in the G-R1 report): `transformable` and
+// `onTransform` for transform handles and object drags. Existing members are unchanged.
 import type { NodeId } from "../document/model.ts";
 import type { DocumentSession } from "../document/session.ts";
 
@@ -37,6 +41,17 @@ export interface CanvasHostProps {
   onSelect(ids: readonly NodeId[], mode: "replace" | "toggle"): void;
   onStateChange?(state: CanvasHostState): void;
   onViewChange?(view: CanvasView): void;
+  /** Whether the selection may be moved or scaled on the canvas (handles and drags). */
+  readonly transformable?: boolean;
+  /**
+   * A completed transform gesture (move, or scale through a handle): the document-space affine
+   * `[a, b, c, d, e, f]` to apply to the selection `ids` as one command. The preview during the
+   * gesture is display only; a cancelled gesture (Escape) reports nothing.
+   */
+  onTransform?(
+    ids: readonly NodeId[],
+    matrix: readonly [number, number, number, number, number, number],
+  ): void;
   /** Accessible name of the canvas region. */
   readonly label?: string;
   readonly className?: string;
