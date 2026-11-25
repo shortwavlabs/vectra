@@ -41,6 +41,12 @@ export function App() {
               ? "Offline-ready."
               : "Offline support not active (development build or first load)."}
           </span>{" "}
+          {wb.offlineMismatch && (
+            <span data-testid="offline-mismatch">
+              Offline support is unavailable in this tab: a different version of Vectra is
+              installed. This tab keeps working while online; reload it when convenient.{" "}
+            </span>
+          )}
           {wb.updateWaiting && (
             <span data-testid="update-waiting">
               A new version is ready; it is used once every Vectra tab has been closed.{" "}

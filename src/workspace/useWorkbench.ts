@@ -130,6 +130,23 @@ function previewSession(src: Source, request: TraceRequest, out: TraceResult) {
   return session;
 }
 
+/** The controlling service worker's version and build ID, or null when uncontrolled. */
+function controllerBuild(): Promise<{ version: string; buildId: string | null } | null> {
+  const controller = navigator.serviceWorker?.controller;
+  if (!controller) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve({ version: "unknown", buildId: null }), 5000);
+    const onMessage = (e: MessageEvent) => {
+      if (e.data?.type !== "vectra-sw-version") return;
+      clearTimeout(timer);
+      navigator.serviceWorker.removeEventListener("message", onMessage);
+      resolve({ version: String(e.data.version), buildId: e.data.buildId ?? null });
+    };
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    controller.postMessage("vectra-sw-version");
+  });
+}
+
 const emptyDocument = (width = 1, height = 1) =>
   new DocumentSession(new GeometryStore(), {
     state: createDocument({ documentId: "workbench", width, height }),
@@ -161,6 +178,7 @@ export function useWorkbench() {
   const scheduler = jobs.scheduler;
   const [offlineReady, setOfflineReady] = useState(false);
   const [updateWaiting, setUpdateWaiting] = useState(false);
+  const [offlineMismatch, setOfflineMismatch] = useState(false);
   const [source, setSource] = useState<Source | null>(null);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS.bw);
   const [maxPixels, setMaxPixels] = useState(DEFAULT_MAX_PIXELS);
@@ -192,19 +210,24 @@ export function useWorkbench() {
     });
     // Offline recovery needs the service worker to control this page (production builds).
     void navigator.serviceWorker?.ready.then((reg) => {
-      const update = () => {
-        const controlled = navigator.serviceWorker.controller !== null;
-        debug.current.offlineReady = controlled;
-        setOfflineReady(controlled);
+      const update = async () => {
         const waiting = reg.waiting !== null;
         debug.current.updateWaiting = waiting;
         setUpdateWaiting(waiting);
+        // Offline-ready only if the controlling worker caches *this* build (a worker of another
+        // build can claim a page on first install after a deploy raced the page load).
+        const info = await controllerBuild();
+        const ready = info !== null && info.buildId === BUILD_IDENTITY.buildId;
+        debug.current.offlineReady = ready;
+        debug.current.controllerBuild = info;
+        setOfflineReady(ready);
+        setOfflineMismatch(info !== null && !ready);
       };
-      update();
-      navigator.serviceWorker.addEventListener("controllerchange", update);
+      void update();
+      navigator.serviceWorker.addEventListener("controllerchange", () => void update());
       reg.addEventListener("updatefound", () => {
         const w = reg.installing;
-        w?.addEventListener("statechange", update);
+        w?.addEventListener("statechange", () => void update());
       });
     });
     const mounts = live; // a counter, not a DOM ref: the same object in setup and cleanup
@@ -511,6 +534,7 @@ export function useWorkbench() {
   return {
     onPreviewLoaded,
     offlineReady,
+    offlineMismatch,
     updateWaiting,
     source,
     settings,
