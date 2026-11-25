@@ -1,201 +1,201 @@
 {
- "node": "v24.22.1",
- "cases": 27,
- "failures": 0,
- "results": [
-  {
-   "case": "valid packet",
-   "expected": "accept",
-   "got": "accept",
-   "ok": true,
-   "message": ""
-  },
-  {
-   "case": "verb offsets decreasing",
-   "expected": "offsets",
-   "got": "offsets",
-   "ok": true,
-   "message": "path 2: offsets not increasing"
-  },
-  {
-   "case": "verb offset beyond array",
-   "expected": "offsets",
-   "got": "offsets",
-   "ok": true,
-   "message": "path 1: offset beyond array"
-  },
-  {
-   "case": "bad sentinel",
-   "expected": "offsets",
-   "got": "offsets",
-   "ok": true,
-   "message": "sentinel"
-  },
-  {
-   "case": "coordinate offsets inconsistent (surplus)",
-   "expected": "arity",
-   "got": "arity",
-   "ok": true,
-   "message": "path 0: 2 surplus coordinates"
-  },
-  {
-   "case": "too few coordinates for verbs",
-   "expected": "arity",
-   "got": "arity",
-   "ok": true,
-   "message": "path 0: too few coordinates"
-  },
-  {
-   "case": "coord array shorter than manifest",
-   "expected": "length",
-   "got": "length",
-   "ok": true,
-   "message": "array length != manifest"
-  },
-  {
-   "case": "NaN coordinate",
-   "expected": "coord",
-   "got": "coord",
-   "ok": true,
-   "message": "path 0: non-finite or out-of-range"
-  },
-  {
-   "case": "+Infinity coordinate",
-   "expected": "coord",
-   "got": "coord",
-   "ok": true,
-   "message": "path 0: non-finite or out-of-range"
-  },
-  {
-   "case": "coordinate beyond ±1e6",
-   "expected": "coord",
-   "got": "coord",
-   "ok": true,
-   "message": "path 0: non-finite or out-of-range"
-  },
-  {
-   "case": "unknown opcode",
-   "expected": "opcode",
-   "got": "opcode",
-   "ok": true,
-   "message": "path 0: opcode 7"
-  },
-  {
-   "case": "segment before moveTo",
-   "expected": "grammar",
-   "got": "grammar",
-   "ok": true,
-   "message": "path 0: segment without open subpath"
-  },
-  {
-   "case": "segment after close without moveTo",
-   "expected": "grammar",
-   "got": "grammar",
-   "ok": true,
-   "message": "path 1: segment without open subpath"
-  },
-  {
-   "case": "style index out of range",
-   "expected": "ref",
-   "got": "ref",
-   "ok": true,
-   "message": "path 0: style/group ref"
-  },
-  {
-   "case": "group index out of range",
-   "expected": "ref",
-   "got": "ref",
-   "ok": true,
-   "message": "path 0: style/group ref"
-  },
-  {
-   "case": "groups not contiguous in paint order",
-   "expected": "ref",
-   "got": "ref",
-   "ok": true,
-   "message": "path 31: group order not contiguous"
-  },
-  {
-   "case": "wrong array type (Float32 coords)",
-   "expected": "type",
-   "got": "type",
-   "ok": true,
-   "message": "coords is not Float64Array"
-  },
-  {
-   "case": "wrong array type (plain array offsets)",
-   "expected": "type",
-   "got": "type",
-   "ok": true,
-   "message": "verbOffsets is not Uint32Array"
-  },
-  {
-   "case": "detached buffer (transferred away)",
-   "expected": "length",
-   "got": "length",
-   "ok": true,
-   "message": "array length != manifest"
-  },
-  {
-   "case": "unsupported version",
-   "expected": "version",
-   "got": "version",
-   "ok": true,
-   "message": "unsupported packet version 2"
-  },
-  {
-   "case": "negative count",
-   "expected": "manifest",
-   "got": "manifest",
-   "ok": true,
-   "message": "pathCount invalid"
-  },
-  {
-   "case": "non-integer count",
-   "expected": "manifest",
-   "got": "manifest",
-   "ok": true,
-   "message": "verbCount invalid"
-  },
-  {
-   "case": "artboard out of range",
-   "expected": "manifest",
-   "got": "manifest",
-   "ok": true,
-   "message": "artboard size"
-  },
-  {
-   "case": "anchor budget exceeded",
-   "expected": "budget",
-   "got": "budget",
-   "ok": true,
-   "message": "anchors > 50"
-  },
-  {
-   "case": "declared 2^32 coords",
-   "expected": "budget (no allocation)",
-   "got": "budget",
-   "allocatedBytes": 0,
-   "ok": true
-  },
-  {
-   "case": "declared 10M paths",
-   "expected": "budget (no allocation)",
-   "got": "budget",
-   "allocatedBytes": 0,
-   "ok": true
-  },
-  {
-   "case": "declared 1 GiB total",
-   "expected": "budget (no allocation)",
-   "got": "budget",
-   "allocatedBytes": 0,
-   "ok": true
+  "node": "v24.22.1",
+  "cases": 27,
+  "failures": 0,
+  "results": [
+    {
+      "case": "valid packet",
+      "expected": "accept",
+      "got": "accept",
+      "ok": true,
+      "message": ""
+    },
+    {
+      "case": "verb offsets decreasing",
+      "expected": "offsets",
+      "got": "offsets",
+      "ok": true,
+      "message": "path 2: offsets not increasing"
+    },
+    {
+      "case": "verb offset beyond array",
+      "expected": "offsets",
+      "got": "offsets",
+      "ok": true,
+      "message": "path 1: offset beyond array"
+    },
+    {
+      "case": "bad sentinel",
+      "expected": "offsets",
+      "got": "offsets",
+      "ok": true,
+      "message": "sentinel"
+    },
+    {
+      "case": "coordinate offsets inconsistent (surplus)",
+      "expected": "arity",
+      "got": "arity",
+      "ok": true,
+      "message": "path 0: 2 surplus coordinates"
+    },
+    {
+      "case": "too few coordinates for verbs",
+      "expected": "arity",
+      "got": "arity",
+      "ok": true,
+      "message": "path 0: too few coordinates"
+    },
+    {
+      "case": "coord array shorter than manifest",
+      "expected": "length",
+      "got": "length",
+      "ok": true,
+      "message": "array length != manifest"
+    },
+    {
+      "case": "NaN coordinate",
+      "expected": "coord",
+      "got": "coord",
+      "ok": true,
+      "message": "path 0: non-finite or out-of-range"
+    },
+    {
+      "case": "+Infinity coordinate",
+      "expected": "coord",
+      "got": "coord",
+      "ok": true,
+      "message": "path 0: non-finite or out-of-range"
+    },
+    {
+      "case": "coordinate beyond ±1e6",
+      "expected": "coord",
+      "got": "coord",
+      "ok": true,
+      "message": "path 0: non-finite or out-of-range"
+    },
+    {
+      "case": "unknown opcode",
+      "expected": "opcode",
+      "got": "opcode",
+      "ok": true,
+      "message": "path 0: opcode 7"
+    },
+    {
+      "case": "segment before moveTo",
+      "expected": "grammar",
+      "got": "grammar",
+      "ok": true,
+      "message": "path 0: segment without open subpath"
+    },
+    {
+      "case": "segment after close without moveTo",
+      "expected": "grammar",
+      "got": "grammar",
+      "ok": true,
+      "message": "path 1: segment without open subpath"
+    },
+    {
+      "case": "style index out of range",
+      "expected": "ref",
+      "got": "ref",
+      "ok": true,
+      "message": "path 0: style/group ref"
+    },
+    {
+      "case": "group index out of range",
+      "expected": "ref",
+      "got": "ref",
+      "ok": true,
+      "message": "path 0: style/group ref"
+    },
+    {
+      "case": "groups not contiguous in paint order",
+      "expected": "ref",
+      "got": "ref",
+      "ok": true,
+      "message": "path 31: group order not contiguous"
+    },
+    {
+      "case": "wrong array type (Float32 coords)",
+      "expected": "type",
+      "got": "type",
+      "ok": true,
+      "message": "coords is not Float64Array"
+    },
+    {
+      "case": "wrong array type (plain array offsets)",
+      "expected": "type",
+      "got": "type",
+      "ok": true,
+      "message": "verbOffsets is not Uint32Array"
+    },
+    {
+      "case": "detached buffer (transferred away)",
+      "expected": "length",
+      "got": "length",
+      "ok": true,
+      "message": "array length != manifest"
+    },
+    {
+      "case": "unsupported version",
+      "expected": "version",
+      "got": "version",
+      "ok": true,
+      "message": "unsupported packet version 2"
+    },
+    {
+      "case": "negative count",
+      "expected": "manifest",
+      "got": "manifest",
+      "ok": true,
+      "message": "pathCount invalid"
+    },
+    {
+      "case": "non-integer count",
+      "expected": "manifest",
+      "got": "manifest",
+      "ok": true,
+      "message": "verbCount invalid"
+    },
+    {
+      "case": "artboard out of range",
+      "expected": "manifest",
+      "got": "manifest",
+      "ok": true,
+      "message": "artboard size"
+    },
+    {
+      "case": "anchor budget exceeded",
+      "expected": "budget",
+      "got": "budget",
+      "ok": true,
+      "message": "anchors > 50"
+    },
+    {
+      "case": "declared 2^32 coords",
+      "expected": "budget (no allocation)",
+      "got": "budget",
+      "allocatedBytes": 0,
+      "ok": true
+    },
+    {
+      "case": "declared 10M paths",
+      "expected": "budget (no allocation)",
+      "got": "budget",
+      "allocatedBytes": 0,
+      "ok": true
+    },
+    {
+      "case": "declared 1 GiB total",
+      "expected": "budget (no allocation)",
+      "got": "budget",
+      "allocatedBytes": 0,
+      "ok": true
+    }
+  ],
+  "hazard": {
+    "jobCopyTransferred_committedIntact": true,
+    "jobCopyDetachedAfterTransfer": true,
+    "committedTransferredByMistake_byteLength": 0
   }
- ],
- "hazard": {
-  "jobCopyTransferred_committedIntact": true,
-  "jobCopyDetachedAfterTransfer": true,
-  "committedTransferredByMistake_byteLength": 0
- }
 }

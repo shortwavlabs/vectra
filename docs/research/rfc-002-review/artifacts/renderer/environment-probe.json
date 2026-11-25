@@ -5,14 +5,8 @@
     "version": "159.0.8154.6",
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36",
     "dpr": 1,
-    "viewport": [
-      1280,
-      800
-    ],
-    "screen": [
-      1280,
-      800
-    ],
+    "viewport": [1280, 800],
+    "screen": [1280, 800],
     "hardwareConcurrency": 18,
     "deviceMemory": 32,
     "webgl": "webgl2",
@@ -30,14 +24,8 @@
     "version": "159.0.8154.6",
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.0.0 Safari/537.36",
     "dpr": 1,
-    "viewport": [
-      1280,
-      800
-    ],
-    "screen": [
-      1280,
-      800
-    ],
+    "viewport": [1280, 800],
+    "screen": [1280, 800],
     "hardwareConcurrency": 18,
     "deviceMemory": 32,
     "webgl": "webgl2",
@@ -55,14 +43,8 @@
     "version": "159.0",
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
     "dpr": 1,
-    "viewport": [
-      1280,
-      800
-    ],
-    "screen": [
-      1366,
-      768
-    ],
+    "viewport": [1280, 800],
+    "screen": [1366, 768],
     "hardwareConcurrency": 18,
     "deviceMemory": null,
     "webgl": "webgl2",
@@ -80,14 +62,8 @@
     "version": "159.0",
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0",
     "dpr": 1,
-    "viewport": [
-      1280,
-      800
-    ],
-    "screen": [
-      3008,
-      1692
-    ],
+    "viewport": [1280, 800],
+    "screen": [3008, 1692],
     "hardwareConcurrency": 18,
     "deviceMemory": null,
     "webgl": "webgl2",
@@ -105,14 +81,8 @@
     "version": "27.2",
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
     "dpr": 1,
-    "viewport": [
-      1280,
-      800
-    ],
-    "screen": [
-      1280,
-      800
-    ],
+    "viewport": [1280, 800],
+    "screen": [1280, 800],
     "hardwareConcurrency": 8,
     "deviceMemory": null,
     "webgl": "webgl2",
@@ -130,14 +100,8 @@
     "version": "27.2",
     "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
     "dpr": 1,
-    "viewport": [
-      1280,
-      800
-    ],
-    "screen": [
-      1280,
-      800
-    ],
+    "viewport": [1280, 800],
+    "screen": [1280, 800],
     "hardwareConcurrency": 8,
     "deviceMemory": null,
     "webgl": "webgl2",

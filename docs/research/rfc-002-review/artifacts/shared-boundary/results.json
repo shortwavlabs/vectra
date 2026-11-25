@@ -2,286 +2,87 @@
   "extra": {
     "04-color-discs": {
       "engineLayers": 4,
-      "maskPixelsChangedPerLayer": [
-        0,
-        44,
-        28,
-        22
-      ],
+      "maskPixelsChangedPerLayer": [0, 44, 28, 22],
       "nesting": [
-        [
-          true,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          true,
-          false,
-          true
-        ],
-        [
-          false,
-          false,
-          true,
-          false
-        ],
-        [
-          false,
-          false,
-          false,
-          true
-        ]
+        [true, true, true, true],
+        [false, true, false, true],
+        [false, false, true, false],
+        [false, false, false, true]
       ],
       "pixelsRelabelledByOracle": 62,
       "trueJunctions": [
-        [
-          68.02810492690139,
-          163.08081655381312
-        ],
-        [
-          127.9974878141959,
-          59.24410602126701
-        ],
-        [
-          187.9718950730986,
-          163.08081655381312
-        ],
-        [
-          100.03007940232399,
-          111.89963773084091
-        ]
+        [68.02810492690139, 163.08081655381312],
+        [127.9974878141959, 59.24410602126701],
+        [187.9718950730986, 163.08081655381312],
+        [100.03007940232399, 111.89963773084091]
       ],
-      "truthToLayer": [
-        0,
-        3,
-        2,
-        1
-      ]
+      "truthToLayer": [0, 3, 2, 1]
     },
     "adjacent-overlap": {
       "engineLayers": 4,
-      "maskPixelsChangedPerLayer": [
-        0,
-        56,
-        9,
-        52
-      ],
+      "maskPixelsChangedPerLayer": [0, 56, 9, 52],
       "nesting": [
-        [
-          true,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          false,
-          true,
-          false
-        ],
-        [
-          false,
-          false,
-          false,
-          true
-        ]
+        [true, true, true, true],
+        [false, true, true, true],
+        [false, false, true, false],
+        [false, false, false, true]
       ],
       "pixelsRelabelledByOracle": 74,
       "trueJunctions": [
-        [
-          145.0,
-          85.2
-        ],
-        [
-          95.9,
-          150.0
-        ],
-        [
-          154.84337002316073,
-          85.21367171621421
-        ],
-        [
-          188.4285817356049,
-          100.65226682780909
-        ]
+        [145.0, 85.2],
+        [95.9, 150.0],
+        [154.84337002316073, 85.21367171621421],
+        [188.4285817356049, 100.65226682780909]
       ],
-      "truthToLayer": [
-        0,
-        2,
-        1,
-        3
-      ]
+      "truthToLayer": [0, 2, 1, 3]
     },
     "concentric": {
       "engineLayers": 5,
-      "maskPixelsChangedPerLayer": [
-        0,
-        56,
-        88,
-        64,
-        12
-      ],
+      "maskPixelsChangedPerLayer": [0, 56, 88, 64, 12],
       "nesting": [
-        [
-          true,
-          true,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          true,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          false,
-          true,
-          false,
-          false
-        ],
-        [
-          false,
-          false,
-          false,
-          true,
-          false
-        ],
-        [
-          false,
-          false,
-          false,
-          false,
-          true
-        ]
+        [true, true, true, true, true],
+        [false, true, true, true, true],
+        [false, false, true, false, false],
+        [false, false, false, true, false],
+        [false, false, false, false, true]
       ],
       "pixelsRelabelledByOracle": 132,
       "trueJunctions": [],
-      "truthToLayer": [
-        0,
-        2,
-        3,
-        1,
-        4
-      ]
+      "truthToLayer": [0, 2, 3, 1, 4]
     },
-    "cropColumns": [
-      "P0",
-      "A2",
-      "B stacked",
-      "B mosaic"
-    ],
+    "cropColumns": ["P0", "A2", "B stacked", "B mosaic"],
     "discs-two-deep": {
       "engineLayers": 3,
-      "maskPixelsChangedPerLayer": [
-        0,
-        41,
-        29
-      ],
+      "maskPixelsChangedPerLayer": [0, 41, 29],
       "nesting": [
-        [
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          true,
-          true
-        ],
-        [
-          false,
-          false,
-          true
-        ]
+        [true, true, true],
+        [false, true, true],
+        [false, false, true]
       ],
       "pixelsRelabelledByOracle": 51,
       "trueJunctions": [
-        [
-          127.96507864798993,
-          175.70792828303777
-        ],
-        [
-          127.96507864798991,
-          80.29207171696221
-        ]
+        [127.96507864798993, 175.70792828303777],
+        [127.96507864798991, 80.29207171696221]
       ],
-      "truthToLayer": [
-        0,
-        2,
-        1
-      ]
+      "truthToLayer": [0, 2, 1]
     },
     "discs-x2": {
       "engineLayers": 4,
-      "maskPixelsChangedPerLayer": [
-        0,
-        86,
-        54,
-        39
-      ],
+      "maskPixelsChangedPerLayer": [0, 86, 54, 39],
       "nesting": [
-        [
-          true,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          true,
-          false,
-          true
-        ],
-        [
-          false,
-          false,
-          true,
-          false
-        ],
-        [
-          false,
-          false,
-          false,
-          true
-        ]
+        [true, true, true, true],
+        [false, true, false, true],
+        [false, false, true, false],
+        [false, false, false, true]
       ],
       "pixelsRelabelledByOracle": 119,
       "trueJunctions": [
-        [
-          136.05620985380278,
-          326.16163310762624
-        ],
-        [
-          255.9949756283918,
-          118.48821204253402
-        ],
-        [
-          375.9437901461972,
-          326.16163310762624
-        ],
-        [
-          200.06015880464798,
-          223.79927546168182
-        ]
+        [136.05620985380278, 326.16163310762624],
+        [255.9949756283918, 118.48821204253402],
+        [375.9437901461972, 326.16163310762624],
+        [200.06015880464798, 223.79927546168182]
       ],
-      "truthToLayer": [
-        0,
-        3,
-        2,
-        1
-      ]
+      "truthToLayer": [0, 3, 2, 1]
     },
     "editorDemo04": {
       "afterMove": {
@@ -310,70 +111,25 @@
         }
       },
       "otherPathsByteIdentical": true,
-      "translateRedFaceBy": [
-        2.0,
-        0.0
-      ]
+      "translateRedFaceBy": [2.0, 0.0]
     },
     "h-discs-three": {
       "engineLayers": 4,
-      "maskPixelsChangedPerLayer": [
-        0,
-        43,
-        33,
-        19
-      ],
+      "maskPixelsChangedPerLayer": [0, 43, 33, 19],
       "nesting": [
-        [
-          true,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          true,
-          true,
-          true
-        ],
-        [
-          false,
-          false,
-          true,
-          false
-        ],
-        [
-          false,
-          false,
-          false,
-          true
-        ]
+        [true, true, true, true],
+        [false, true, true, true],
+        [false, false, true, false],
+        [false, false, false, true]
       ],
       "pixelsRelabelledByOracle": 57,
       "trueJunctions": [
-        [
-          112.33639396438713,
-          164.93930643927624
-        ],
-        [
-          129.65177008564882,
-          79.51780721723688
-        ],
-        [
-          185.31779493073128,
-          155.96609763134092
-        ],
-        [
-          133.167454993834,
-          135.88750845094336
-        ]
+        [112.33639396438713, 164.93930643927624],
+        [129.65177008564882, 79.51780721723688],
+        [185.31779493073128, 155.96609763134092],
+        [133.167454993834, 135.88750845094336]
       ],
-      "truthToLayer": [
-        0,
-        3,
-        2,
-        1
-      ]
+      "truthToLayer": [0, 3, 2, 1]
     }
   },
   "rows": [
@@ -410,9 +166,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "corner 4.00 px"
-      ],
+      "tierAMisses": ["corner 4.00 px"],
       "valid": true,
       "validateError": null,
       "variant": "T analytic truth shapes (negative control)"
@@ -569,10 +323,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=60 curvature RMS 0.239",
-        "circle r=60 curvature max 9.431"
-      ],
+      "tierAMisses": ["circle r=60 curvature RMS 0.239", "circle r=60 curvature max 9.431"],
       "valid": true,
       "validateError": null,
       "variant": "A1 oracle labels"
@@ -665,10 +416,7 @@
         "junctionErrVsTruthMax": 0.12601415928239082,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            126.80458083273805,
-            58.36638123162736
-          ],
+          "at": [126.80458083273805, 58.36638123162736],
           "d": 0.12683677477569277
         },
         "msAssembleMosaicAndStacked": 2.68275,
@@ -788,10 +536,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            99.51264282301482,
-            112.17640187255421
-          ],
+          "at": [99.51264282301482, 112.17640187255421],
           "d": 0.028742263072343073
         },
         "msAssembleMosaicAndStacked": 2.716333,
@@ -813,9 +558,7 @@
       "radiusErrWorst": 0.004261352686654618,
       "specksAA4x": 1,
       "specksAA4xMaxPx2": 0.25,
-      "specksAAList": [
-        "#fabe1e 0.25 px² bbox (99.25,50.00)–(100.25,50.25)"
-      ],
+      "specksAAList": ["#fabe1e 0.25 px² bbox (99.25,50.00)–(100.25,50.25)"],
       "specksGeo4x": 0,
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
@@ -914,10 +657,7 @@
         "junctionErrVsTruthMax": 0.12601415928239082,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            126.80458083273805,
-            58.36638123162736
-          ],
+          "at": [126.80458083273805, 58.36638123162736],
           "d": 0.12683677477569277
         },
         "msAssembleMosaicAndStacked": 2.775459,
@@ -1037,10 +777,7 @@
         "junctionErrVsTruthMax": 0.12601415928239082,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            126.80458083273805,
-            58.36639578413762
-          ],
+          "at": [126.80458083273805, 58.36639578413762],
           "d": 0.12682307955382105
         },
         "msAssembleMosaicAndStacked": 2.800125,
@@ -1159,10 +896,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            110.67114502362628,
-            107.5400651914661
-          ],
+          "at": [110.67114502362628, 107.5400651914661],
           "d": 0.029608732698920157
         },
         "msAssembleMosaicAndStacked": 2.732875,
@@ -1285,9 +1019,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "corner 4.00 px"
-      ],
+      "tierAMisses": ["corner 4.00 px"],
       "valid": true,
       "validateError": null,
       "variant": "calibration: white frame, yellow = exact copy of red, red"
@@ -1553,10 +1285,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 0,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            94.58401016373926,
-            44.3369064846326
-          ],
+          "at": [94.58401016373926, 44.3369064846326],
           "d": 0.09286952970787142
         },
         "msAssembleMosaicAndStacked": 3.164959,
@@ -1682,10 +1411,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 0,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            94.58401016373926,
-            44.3369064846326
-          ],
+          "at": [94.58401016373926, 44.3369064846326],
           "d": 0.09286952970787142
         },
         "msAssembleMosaicAndStacked": 3.479,
@@ -1811,10 +1537,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 0,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            94.58401016373926,
-            44.3369064846326
-          ],
+          "at": [94.58401016373926, 44.3369064846326],
           "d": 0.09286952970787142
         },
         "msAssembleMosaicAndStacked": 3.154667,
@@ -1940,10 +1663,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 0,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            46.709597168257055,
-            166.68379027259738
-          ],
+          "at": [46.709597168257055, 166.68379027259738],
           "d": 0.03542274779331875
         },
         "msAssembleMosaicAndStacked": 3.8285839999999998,
@@ -2068,10 +1788,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 0,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            107.23366935195071,
-            215.5946248137081
-          ],
+          "at": [107.23366935195071, 215.5946248137081],
           "d": 0.03344158692329179
         },
         "msAssembleMosaicAndStacked": 3.510708,
@@ -2191,9 +1908,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "corner 4.00 px"
-      ],
+      "tierAMisses": ["corner 4.00 px"],
       "valid": true,
       "validateError": null,
       "variant": "T analytic truth shapes (negative control)"
@@ -2372,10 +2087,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=50 curvature RMS 0.250",
-        "circle r=50 curvature max 4.355"
-      ],
+      "tierAMisses": ["circle r=50 curvature RMS 0.250", "circle r=50 curvature max 4.355"],
       "valid": true,
       "validateError": null,
       "variant": "A1 oracle labels"
@@ -2413,10 +2125,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=50 curvature RMS 0.275",
-        "circle r=50 curvature max 5.630"
-      ],
+      "tierAMisses": ["circle r=50 curvature RMS 0.275", "circle r=50 curvature max 5.630"],
       "valid": true,
       "validateError": null,
       "variant": "A2 oracle labels + analytic crossings"
@@ -2459,10 +2168,7 @@
         "junctionErrVsTruthMax": 1.4777106688334993,
         "junctions": 2,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            126.18637607681758,
-            175.66248449931416
-          ],
+          "at": [126.18637607681758, 175.66248449931416],
           "d": 0.5412501217941456
         },
         "msAssembleMosaicAndStacked": 2.344875,
@@ -2586,10 +2292,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 2,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            117.64993629285276,
-            84.87633223105139
-          ],
+          "at": [117.64993629285276, 84.87633223105139],
           "d": 0.03368062878161221
         },
         "msAssembleMosaicAndStacked": 2.152417,
@@ -2705,10 +2408,7 @@
         "junctionErrVsTruthMax": 0.22277158411324974,
         "junctions": 2,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            126.14492535979157,
-            176.34982827516407
-          ],
+          "at": [126.14492535979157, 176.34982827516407],
           "d": 0.10766351013060425
         },
         "msAssembleMosaicAndStacked": 2.388125,
@@ -2824,10 +2524,7 @@
         "junctionErrVsTruthMax": 0.0909092706159052,
         "junctions": 2,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            125.70553567196214,
-            176.4468087032106
-          ],
+          "at": [125.70553567196214, 176.4468087032106],
           "d": 0.08856141583225875
         },
         "msAssembleMosaicAndStacked": 2.3240000000000003,
@@ -2943,10 +2640,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 2,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            135.59993291277888,
-            78.52613969960684
-          ],
+          "at": [135.59993291277888, 78.52613969960684],
           "d": 0.03459737137079811
         },
         "msAssembleMosaicAndStacked": 2.158667,
@@ -3062,9 +2756,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "corner 4.00 px"
-      ],
+      "tierAMisses": ["corner 4.00 px"],
       "valid": true,
       "validateError": null,
       "variant": "T analytic truth shapes (negative control)"
@@ -3256,10 +2948,7 @@
         "#fabe1e 0.25 px² bbox (179.25,100.50)–(180.25,100.75)"
       ],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=120 curvature RMS 0.423",
-        "circle r=120 curvature max 20.580"
-      ],
+      "tierAMisses": ["circle r=120 curvature RMS 0.423", "circle r=120 curvature max 20.580"],
       "valid": true,
       "validateError": null,
       "variant": "A1 oracle labels"
@@ -3354,10 +3043,7 @@
         "junctionErrVsTruthMax": 0.06403536168670078,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            199.99126165597463,
-            223.52681553874717
-          ],
+          "at": [199.99126165597463, 223.52681553874717],
           "d": 0.06527353169761353
         },
         "msAssembleMosaicAndStacked": 11.282957999999999,
@@ -3484,10 +3170,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            195.0411182273861,
-            226.59930816370132
-          ],
+          "at": [195.0411182273861, 226.59930816370132],
           "d": 0.04043566732167427
         },
         "msAssembleMosaicAndStacked": 11.550583,
@@ -3614,10 +3297,7 @@
         "junctionErrVsTruthMax": 0.06403536168670078,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            199.99126165597463,
-            223.52681553874717
-          ],
+          "at": [199.99126165597463, 223.52681553874717],
           "d": 0.06527353169761353
         },
         "msAssembleMosaicAndStacked": 10.750166,
@@ -3744,10 +3424,7 @@
         "junctionErrVsTruthMax": 0.06403536168670078,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            199.991124305086,
-            223.52681538081205
-          ],
+          "at": [199.991124305086, 223.52681538081205],
           "d": 0.06540247205409422
         },
         "msAssembleMosaicAndStacked": 10.673959,
@@ -3874,10 +3551,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            195.041061392977,
-            226.59930816370132
-          ],
+          "at": [195.041061392977, 226.59930816370132],
           "d": 0.04048841689196812
         },
         "msAssembleMosaicAndStacked": 10.568624999999999,
@@ -3999,9 +3673,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "corner 4.00 px"
-      ],
+      "tierAMisses": ["corner 4.00 px"],
       "valid": true,
       "validateError": null,
       "variant": "T analytic truth shapes (negative control)"
@@ -4041,9 +3713,7 @@
       "specksGeoList": [],
       "svgByteIdenticalToBundleV2": true,
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=55 curvature max 1.000"
-      ],
+      "tierAMisses": ["circle r=55 curvature max 1.000"],
       "valid": true,
       "validateError": null,
       "variant": "P0 production precision"
@@ -4082,9 +3752,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=55 curvature max 1.000"
-      ],
+      "tierAMisses": ["circle r=55 curvature max 1.000"],
       "valid": true,
       "validateError": null,
       "variant": "A0 replica, engine labels"
@@ -4122,9 +3790,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=55 curvature max 1.000"
-      ],
+      "tierAMisses": ["circle r=55 curvature max 1.000"],
       "valid": true,
       "validateError": null,
       "variant": "A1 oracle labels"
@@ -4162,9 +3828,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "circle r=55 curvature max 1.000"
-      ],
+      "tierAMisses": ["circle r=55 curvature max 1.000"],
       "valid": true,
       "validateError": null,
       "variant": "A2 oracle labels + analytic crossings"
@@ -4207,10 +3871,7 @@
         "junctionErrVsTruthMax": 0.6020250575777716,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            153.95894736842106,
-            90.86315789473684
-          ],
+          "at": [153.95894736842106, 90.86315789473684],
           "d": 0.5197938007485193
         },
         "msAssembleMosaicAndStacked": 2.6318330000000003,
@@ -4237,9 +3898,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.1620"
-      ],
+      "tierAMisses": ["line curvature 0.1620"],
       "valid": true,
       "validateError": null,
       "variant": "B engine labels, est. junctions → mosaic"
@@ -4285,9 +3944,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.1620"
-      ],
+      "tierAMisses": ["line curvature 0.1620"],
       "valid": true,
       "validateError": null,
       "variant": "B engine labels, est. junctions → stacked"
@@ -4330,10 +3987,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            153.95894736842106,
-            90.86315789473684
-          ],
+          "at": [153.95894736842106, 90.86315789473684],
           "d": 0.5197938007485193
         },
         "msAssembleMosaicAndStacked": 2.953959,
@@ -4360,9 +4014,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.1620"
-      ],
+      "tierAMisses": ["line curvature 0.1620"],
       "valid": true,
       "validateError": null,
       "variant": "B engine labels, analytic junctions → mosaic"
@@ -4408,9 +4060,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.1620"
-      ],
+      "tierAMisses": ["line curvature 0.1620"],
       "valid": true,
       "validateError": null,
       "variant": "B engine labels, analytic junctions → stacked"
@@ -4453,10 +4103,7 @@
         "junctionErrVsTruthMax": 0.6020250575777716,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            153.95894736842106,
-            90.86315789473684
-          ],
+          "at": [153.95894736842106, 90.86315789473684],
           "d": 0.5197938007485193
         },
         "msAssembleMosaicAndStacked": 2.9373329999999997,
@@ -4483,9 +4130,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.1620"
-      ],
+      "tierAMisses": ["line curvature 0.1620"],
       "valid": true,
       "validateError": null,
       "variant": "B junction-local (3 px) oracle labels, est. junctions → mosaic"
@@ -4531,9 +4176,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.1620"
-      ],
+      "tierAMisses": ["line curvature 0.1620"],
       "valid": true,
       "validateError": null,
       "variant": "B junction-local (3 px) oracle labels, est. junctions → stacked"
@@ -4576,10 +4219,7 @@
         "junctionErrVsTruthMax": 0.6020250575777716,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            153.75200359716754,
-            90.92001320638435
-          ],
+          "at": [153.75200359716754, 90.92001320638435],
           "d": 0.4017766312810417
         },
         "msAssembleMosaicAndStacked": 2.972125,
@@ -4606,9 +4246,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.0508"
-      ],
+      "tierAMisses": ["line curvature 0.0508"],
       "valid": true,
       "validateError": null,
       "variant": "B oracle labels, est. junctions → mosaic"
@@ -4654,9 +4292,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.0508"
-      ],
+      "tierAMisses": ["line curvature 0.0508"],
       "valid": true,
       "validateError": null,
       "variant": "B oracle labels, est. junctions → stacked"
@@ -4699,10 +4335,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            153.54044271676926,
-            90.988835978836
-          ],
+          "at": [153.54044271676926, 90.988835978836],
           "d": 0.21531887079407322
         },
         "msAssembleMosaicAndStacked": 3.01375,
@@ -4729,9 +4362,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.0276"
-      ],
+      "tierAMisses": ["line curvature 0.0276"],
       "valid": true,
       "validateError": null,
       "variant": "B oracle labels + analytic crossings + junctions → mosaic"
@@ -4777,9 +4408,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "line curvature 0.0276"
-      ],
+      "tierAMisses": ["line curvature 0.0276"],
       "valid": true,
       "validateError": null,
       "variant": "B oracle labels + analytic crossings + junctions → stacked"
@@ -4817,9 +4446,7 @@
       "specksGeo4xMaxPx2": 0.0,
       "specksGeoList": [],
       "tangentBreaks": 0,
-      "tierAMisses": [
-        "corner 4.00 px"
-      ],
+      "tierAMisses": ["corner 4.00 px"],
       "valid": true,
       "validateError": null,
       "variant": "T analytic truth shapes (negative control)"
@@ -4856,9 +4483,7 @@
       "specksAAList": [],
       "specksGeo4x": 1,
       "specksGeo4xMaxPx2": 0.38,
-      "specksGeoList": [
-        "#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"
-      ],
+      "specksGeoList": ["#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"],
       "svgByteIdenticalToBundleV2": true,
       "tangentBreaks": 0,
       "tierAMisses": [],
@@ -4898,9 +4523,7 @@
       "specksAAList": [],
       "specksGeo4x": 1,
       "specksGeo4xMaxPx2": 0.38,
-      "specksGeoList": [
-        "#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"
-      ],
+      "specksGeoList": ["#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"],
       "tangentBreaks": 0,
       "tierAMisses": [],
       "valid": true,
@@ -4938,9 +4561,7 @@
       "specksAAList": [],
       "specksGeo4x": 1,
       "specksGeo4xMaxPx2": 0.38,
-      "specksGeoList": [
-        "#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"
-      ],
+      "specksGeoList": ["#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"],
       "tangentBreaks": 0,
       "tierAMisses": [],
       "valid": true,
@@ -4978,9 +4599,7 @@
       "specksAAList": [],
       "specksGeo4x": 1,
       "specksGeo4xMaxPx2": 0.38,
-      "specksGeoList": [
-        "#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"
-      ],
+      "specksGeoList": ["#f08c14 0.38 px² bbox (171.25,53.00)–(172.75,53.25)"],
       "tangentBreaks": 0,
       "tierAMisses": [],
       "valid": true,
@@ -5025,10 +4644,7 @@
         "junctionErrVsTruthMax": 0.21085074815517554,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            186.55803955681762,
-            155.8966243270205
-          ],
+          "at": [186.55803955681762, 155.8966243270205],
           "d": 0.19409412623320926
         },
         "msAssembleMosaicAndStacked": 3.429625,
@@ -5144,10 +4760,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            133.43538091172462,
-            135.76040848361725
-          ],
+          "at": [133.43538091172462, 135.76040848361725],
           "d": 0.04365522715468269
         },
         "msAssembleMosaicAndStacked": 3.48525,
@@ -5263,10 +4876,7 @@
         "junctionErrVsTruthMax": 0.11396716219532982,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            190.21600647691952,
-            154.827362428813
-          ],
+          "at": [190.21600647691952, 154.827362428813],
           "d": 0.10189067238867432
         },
         "msAssembleMosaicAndStacked": 3.0669579999999996,
@@ -5382,10 +4992,7 @@
         "junctionErrVsTruthMax": 0.11396716219532982,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            186.3407442891666,
-            155.84889743205215
-          ],
+          "at": [186.3407442891666, 155.84889743205215],
           "d": 0.10111661131617089
         },
         "msAssembleMosaicAndStacked": 3.074917,
@@ -5501,10 +5108,7 @@
         "junctionErrVsTruthMax": 0.0,
         "junctions": 4,
         "mosaicWorstBoundaryDeviation": {
-          "at": [
-            133.43538348366698,
-            135.76040848361725
-          ],
+          "at": [133.43538348366698, 135.76040848361725],
           "d": 0.043655613795857036
         },
         "msAssembleMosaicAndStacked": 3.466167,
