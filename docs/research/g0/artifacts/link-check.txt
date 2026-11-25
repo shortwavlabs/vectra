@@ -1,1 +1,1 @@
-checked 259 relative links in 26 files; problems: 0
+checked 260 relative links in 26 files; problems: 0

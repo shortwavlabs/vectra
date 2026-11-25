@@ -143,8 +143,8 @@ No contradiction is left without an explicit disposition.
 | 8 | `vp check` | PASS (93 files formatted; no lint or type errors) |
 | 9 | `vp test` | PASS (14/14) |
 | 10 | Rust checks | `cargo fmt --all --check` PASS; `cargo clippy --workspace --all-targets --locked -- -D warnings` exit 0; `cargo test --workspace --locked` all test binaries ok, 0 failed |
-| 11 | Documentation links | 259 relative links and anchors in the 26 touched or new files resolve, 0 problems (`artifacts/link-check.txt`) |
-| 12 | Diff review | Documentation-only. 20 tracked files changed, plus 8 new G-0 documents and verification artefacts. No code, configuration or lockfile |
+| 11 | Documentation links | 260 relative links and anchors in the 26 touched or new files resolve, 0 problems (`artifacts/link-check.txt`) |
+| 12 | Diff review | `91552aa..HEAD`: 18 files modified and 11 added (8 G-0 documents plus 3 verification artefacts), 0 deleted, **all** under `docs/`, `README.md` and `CONTRIBUTING.md`. The reconciled RFC-002 was read in full after the self-review; the other modified files were reviewed as diffs. No code, configuration or lockfile changed |
 
 **Not run at G-0:**
 - Playwright browser suites (no runtime change);
