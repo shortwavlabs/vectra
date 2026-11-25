@@ -1,0 +1,162 @@
+# P-CI: the single minimal required check (G-0 plan, "P-CI — minimal required CI").
+# One lightweight Linux job. Browser suites, geometry corpus qualification, benchmarks,
+# real Safari and Docker Linux verification stay local by design.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CARGO_TERM_COLOR: never
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Fail-closed path filter. Only an explicitly recognised documentation-only diff skips
+      # the heavy steps: Markdown anywhere, LICENSE, and text/image/PDF/hash files under docs/.
+      # Every other path (including unknown ones, JSON/JS under docs/, deletions and renames,
+      # which --no-renames reports as delete + add) runs everything, as does any git error,
+      # an empty diff or an unknown range. The job itself always runs and reports.
+      - name: Classify changed paths
+        id: paths
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          code=true
+          if [ "$EVENT" = pull_request ]; then range="$PR_BASE...$PR_HEAD"; else range="$BEFORE..$SHA"; fi
+          if files=$(git diff --no-renames --name-only "$range" 2>/dev/null) && [ -n "$files" ]; then
+            printf '%s\n' "$files"
+            if ! printf '%s\n' "$files" | grep -Evq '(\.md$|^LICENSE$|^docs/.*\.(txt|png|jpe?g|svg|pdf|sha256)$)'; then
+              code=false
+            fi
+          else
+            echo "changed paths unknown ($range); running all checks"
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "full checks required: $code"
+
+      - name: Docs-only change (no-op)
+        if: steps.paths.outputs.code != 'true'
+        run: echo "No code paths changed; the required check passes without running the suites."
+
+      # Repository-derived versions are validated as plain x.y.z before use and reach later
+      # steps only as environment variables (never interpolated into shell source).
+      - name: Read and validate pinned versions
+        if: steps.paths.outputs.code == 'true'
+        run: |
+          rust=$(sed -n 's/^channel = "\(.*\)"/\1/p' rust-toolchain.toml)
+          wasm_bindgen=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
+          pnpm=$(node -p "require('./package.json').devEngines.packageManager.version")
+          for v in "$rust" "$wasm_bindgen" "$pnpm"; do
+            if ! printf '%s' "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::unexpected version string '$v'"; exit 1
+            fi
+          done
+          { echo "RUST_VERSION=$rust"; echo "WASM_BINDGEN_VERSION=$wasm_bindgen"; echo "PNPM_VERSION=$pnpm"; } >> "$GITHUB_ENV"
+          echo "rust $rust, wasm-bindgen $wasm_bindgen, pnpm $pnpm"
+
+      - name: Install Rust toolchain (rust-toolchain.toml)
+        if: steps.paths.outputs.code == 'true'
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal \
+            --component rustfmt --component clippy --target wasm32-unknown-unknown
+          rustc --version && cargo --version
+
+      - name: Cache Cargo registry and target
+        if: steps.paths.outputs.code == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: cargo-${{ runner.os }}-${{ env.RUST_VERSION }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-${{ env.RUST_VERSION }}-
+
+      - name: Cache wasm-bindgen CLI
+        if: steps.paths.outputs.code == 'true'
+        id: wbg
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cargo/bin/wasm-bindgen
+          key: wasm-bindgen-cli-${{ runner.os }}-${{ env.WASM_BINDGEN_VERSION }}-${{ env.RUST_VERSION }}
+
+      - name: Install wasm-bindgen CLI (Cargo.lock version)
+        if: steps.paths.outputs.code == 'true' && steps.wbg.outputs.cache-hit != 'true'
+        run: cargo install wasm-bindgen-cli --version "$WASM_BINDGEN_VERSION" --locked
+
+      - name: cargo fmt
+        if: steps.paths.outputs.code == 'true'
+        run: cargo fmt --all --check
+      - name: cargo clippy
+        if: steps.paths.outputs.code == 'true'
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      # --all-targets unifies the self dev-dependency's `diagnostics` feature into the library,
+      # so the shipped configuration (libraries without dev-dependencies) is linted separately.
+      - name: cargo clippy (production libraries, no diagnostics)
+        if: steps.paths.outputs.code == 'true'
+        run: |
+          cargo clippy -p vector-engine -p vector-engine-wasm --lib --locked -- -D warnings
+          cargo clippy -p vector-engine-wasm --lib --target wasm32-unknown-unknown --locked -- -D warnings
+      - name: cargo test
+        if: steps.paths.outputs.code == 'true'
+        run: cargo test --workspace --locked
+
+      - name: Set up Node (.node-version)
+        if: steps.paths.outputs.code == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Install pnpm (devEngines version)
+        if: steps.paths.outputs.code == 'true'
+        id: pnpm
+        run: |
+          npm install -g "pnpm@$PNPM_VERSION"
+          pnpm --version
+          echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        if: steps.paths.outputs.code == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.pnpm.outputs.store }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+      - name: pnpm install
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm install --frozen-lockfile
+
+      # vp check type-checks against the generated WASM bindings, so build them first.
+      - name: Build WASM package
+        if: steps.paths.outputs.code == 'true'
+        run: node scripts/build-wasm.mjs
+      - name: vp check
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm exec vp check
+      - name: vp test
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm exec vp test
+      - name: Production build
+        if: steps.paths.outputs.code == 'true'
+        run: pnpm run build
