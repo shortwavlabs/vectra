@@ -87,6 +87,14 @@ const uri = (p) => {
   return `data:${type};base64,${readFileSync(join(root, p)).toString("base64")}`;
 };
 const img = (p, w, extra = "") => `<img src="${uri(p)}" width="${w}" ${extra}>`;
+/** A social banner shown `shown` px wide, with rectangles [x0, y0, x1, y1, style?] in its pixels. */
+const overlay = (file, shown, W, H, rects) =>
+  `<div class="ov">${img(`branding/social/${file}`, shown)}${rects
+    .map(
+      ([x0, y0, x1, y1, style = "dashed"]) =>
+        `<i style="border-style:${style};left:${(x0 / W) * 100}%;top:${(y0 / H) * 100}%;width:${((x1 - x0) / W) * 100}%;height:${((y1 - y0) / H) * 100}%"></i>`,
+    )
+    .join("")}</div>`;
 const cell = (label, body, bg = "#fff", fg = "#191a1c") =>
   `<figure style="background:${bg};color:${fg}"><div class="art">${body}</div><figcaption>${label}</figcaption></figure>`;
 const masters = [
@@ -116,7 +124,7 @@ const sections = [
       .join(""),
   ],
   [
-    "Social kit (scaled to fit; dashed: YouTube 1546×423 safe area, X avatar zone)",
+    "Social kit: profile pictures; banners with their safe-area overlays (the generator's checks)",
     [
       cell("profile-1024 (shown 256)", img("branding/social/profile-1024.png", 256)),
       cell(
@@ -125,16 +133,22 @@ const sections = [
       ),
       cell("profile-512", img("branding/social/profile-512.png", 256)),
       cell(
-        "x-banner-1500x500 (shown 600; bottom-left: avatar overlap)",
-        `<div class="ov">${img("branding/social/x-banner-1500x500.png", 600)}<i style="left:4%;bottom:-20%;width:21%;height:60%;border-radius:50%"></i></div>`,
+        "x-banner-1500x500 (shown 750): red, avatar zone; dotted, 40 px margin",
+        overlay("x-banner-1500x500.png", 750, 1500, 500, [
+          [0, 300, 405, 500],
+          [40, 40, 1460, 460, "dotted"],
+        ]),
       ),
       cell(
-        "github-social-1280x640 (shown 512)",
-        img("branding/social/github-social-1280x640.png", 512),
+        "github-social-1280x640 (shown 640): red, 1.91:1 crop; dotted, safe area with 40 px margin",
+        overlay("github-social-1280x640.png", 640, 1280, 640, [
+          [28.8, 0, 1251.2, 640],
+          [69, 40, 1211, 600, "dotted"],
+        ]),
       ),
       cell(
-        "youtube-banner-2560x1440 (shown 640)",
-        `<div class="ov">${img("branding/social/youtube-banner-2560x1440.png", 640)}<i style="left:${(507 / 2560) * 100}%;top:${(508.5 / 1440) * 100}%;width:${(1546 / 2560) * 100}%;height:${(423 / 1440) * 100}%"></i></div>`,
+        "youtube-banner-2560x1440 (shown 853): red, the 1546×423 area visible on every device",
+        overlay("youtube-banner-2560x1440.png", 853, 2560, 1440, [[507, 508.5, 2053, 931.5]]),
       ),
     ].join(""),
   ],
