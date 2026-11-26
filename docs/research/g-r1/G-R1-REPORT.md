@@ -240,6 +240,7 @@ These decisions are recorded in [decision register §10](../g0/G0-DECISION-REGIS
 | 3 | **Locks extend to deletion.** Deleting a container that holds locked descendants is refused with an actionable alert ("Not deleted: "…" contains N locked objects. Unlock them to delete."), with no partial deletion. Directly locked items are kept and reported. `planDeletion` is the one policy for the Delete key and the Layers menu. Commands do not enforce locks, so the document architecture is unchanged. Palette edits still reach locked paths, and the Recolor panel discloses this | `7783458`, `02d22bd` | Unit tests (a mutation removing the refusal fails 2). Browser tests cover pointer (a drag pans; no handles), keyboard Delete, the Layers menu, the inspector (frozen transform; a layer fill skips the locked path) and undo/redo (the lock returns and protects again). A UI-only test reproduces checklist D2b |
 | 4 | Documentation: decision register §10, G-DOC-R scope, TECHNICAL-DEBT, this report, VoiceOver checklist (A5, C8, D2b) | `02d22bd` | — |
 | 5 | **Crash-fallback host state** (found by the G-UI-R review agent). After more than three render-worker crashes, the host stayed "rendering" even though the main-thread renderer had drawn the replayed revision. Cause: that renderer can draw a small document's complete exact frame synchronously inside `client.send()`, before `#push` had registered the pending revision. `#push` now registers it and emits "rendering" before sending | `17a3ac0` | `workspace-lifecycle` 'crash fallback': it fails before the fix in Chromium, Firefox and WebKit, and passes after. Full suite on `17a3ac0`: **336 passed, 0 failed, 0 flaky** (27 opt-in skips), 7.4 min; `vp test` 386 |
+| 6 | **Text selection during handle drags** (found by the G-UI-R closure, in Firefox). A transform-handle drag left a text-selection range over the canvas overlay, and the next handle drag that started inside it became a native drag (`pointercancel`), losing the transform. The canvas host now opts out of text selection (`user-select: none` on `.vx-canvas-host`). #20's shell workaround is removed | `01a3dab` | `drag-correctness` 'consecutive handle drags': fails in Firefox 3/3 before the fix, and passes 9/9 after (3 engines × 3 repeats). Full suite on `01a3dab`: **339 passed, 0 failed, 0 flaky**; `vp test` 386 |
 
 **Verification on `02d22bd`.** Environment: Apple M5 Max, macOS 26.6.2, Node 24.22.1, Playwright 1.65.1 (Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2). The machine is shared and was not quiet.
 
@@ -258,6 +259,19 @@ These decisions are recorded in [decision register §10](../g0/G0-DECISION-REGIS
 
 
 ## 13. Final real-Safari qualification (maintainer final-closure brief, 2026-11-25)
+**Final head `01a3dab`** (build `ef746fd730378bea`; the text-selection fix, correction 6). Every run has its own directory under `tests/output/safari-runs/`.
+
+| Harness | Result | Visibility and conditions |
+|---|---|---|
+| G-R0 | **7/7** | Visible before and after; load average 1.9–2.1 |
+| G-JOB | **10/10** | Visible |
+| G-UI | **14/14**, findings 0 | Visible |
+| G-R1 (first run) | 5/7: **invalid** | The macOS screen **locked during the run**: unlocked at its start, locked at its end. The gesture-timing and focus-ring scenarios failed under the lock (an animation-frame wait timed out; `:focus-visible` false). They do not count as functional failures |
+| G-R1 (re-run after unlock) | **7/7, 0 NOT RUN** | Visible before and after (32 rAF in 500 ms); load average 1.86 → 1.54. Preview 178 ms (interactive target); pan and zoom p95 18 / 18 ms; focus ring sampled (185, 225, 124) and (24, 25, 26); crash fallback ready on the main thread |
+| Persistence | **23/23** | Ran while the screen was locked. It does not depend on page visibility (no rendering, focus or animation frames) |
+
+The earlier run on `bed736d`, below, was the first full qualification. The only app change after it is correction 6.
+
 **Conditions.**
 - Commit `bed736d` (the final G-R1 head; `gr1.mjs` gains a `fallback` scenario). Build ID `4768c4044f602a23`.
 - Safari 26.6.2 on macOS 26.6.2, Apple M5 Max. The screen was unlocked (`CGSSessionScreenIsLocked` absent).

@@ -745,7 +745,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Dependencies:** TD-PLATFORM-002.
 - **Owner action:** Safari authorisation.
 - **G-R1 disposition (2026-11-25):** end-to-end presentation is measured in the integrated workspace by sampling the displayed canvas every frame. Where the sampler works, the visible frame follows the renderer's exact-frame message within one animation frame (Chromium, Firefox, Playwright WebKit). **Real Safari presentation: NOT RUN**: the automation window was hidden (0 animation frames), so the Safari timings are flagged invalid. Still **OPEN** for Safari presentation latency. [G-R1 report](research/g-r1/G-R1-REPORT.md).
-- **Final closure (2026-11-25, `bed736d`):** **real Safari presentation measured** with the page visible (32 rAF in 500 ms). Interactive target: visible 189 ms after load (exact frame 157 ms, preview 178 ms). Gestures p95 17 / 18 ms. The worker host was qualified, including the crash fallback to the main thread. Closure needs lower-end hardware and a quiet-machine run; **OPEN**. [G-R1 report §13](research/g-r1/G-R1-REPORT.md).
+- **Final closure (2026-11-25, `bed736d`; confirmed on the final head `01a3dab`):** **real Safari presentation measured** with the page visible (32 rAF in 500 ms). Interactive target: visible 189 ms after load (exact frame 157 ms, preview 178 ms). Gestures p95 17 / 18 ms. The worker host was qualified, including the crash fallback to the main thread. Closure needs lower-end hardware and a quiet-machine run; **OPEN**. [G-R1 report §13](research/g-r1/G-R1-REPORT.md).
 
 <a id="td-ren-003"></a>
 ### TD-REN-003 — Layered drag-cache correctness and cost
