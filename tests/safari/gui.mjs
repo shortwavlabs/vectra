@@ -474,31 +474,130 @@ try {
     ok("v selects Select", (await attr("button", "Select", "aria-pressed")) === "true");
   });
 
-  await scenario("resizable panels: keyboard and pointer, inspector 288–336 px", async (ok) => {
-    await open();
-    const side = () => x(() => __box(__one("complementary", "Inspector")));
-    const w0 = (await side()).w;
-    await focus("separator", "Resize inspector");
-    for (let i = 0; i < 4; i++) await keys(K.Right);
-    const wk = (await side()).w;
-    ok("keyboard narrows within bounds", wk < w0 && wk >= 287.5, { w0, wk });
-    const hb = await x(() => __box(__one("separator", "Resize inspector")));
-    const cx = hb.x + hb.w / 2;
-    const cy = hb.y + hb.h / 2;
-    await mouse([
-      move(cx, cy),
-      DOWN,
-      ...Array.from({ length: 8 }, (_, i) => move(cx - (i + 1) * 10, cy + 40, 16)),
-      UP,
-    ]);
-    const wp = (await side()).w;
-    ok("pointer widens within bounds", wp > wk && wp <= 336.5, { wk, wp });
-    const h0 = (await side()).h;
-    await focus("separator", "Resize layers");
-    for (let i = 0; i < 4; i++) await keys(K.Down);
-    ok("layers separator resizes", (await side()).h > h0);
-    report.inspectorWidths = { initial: w0, keyboard: wk, pointer: wp };
-  });
+  // Final closure: each splitter is a 24 px resize strip of its own, outside the canvas and clear
+  // of every control; both resize by keyboard and pointer; the Layers collapse control works on
+  // its own; a pointer-down just inside the canvas edge reaches the canvas.
+  await scenario(
+    "resizable panels: both splitters by keyboard and pointer, Layers collapse, canvas edges",
+    async (ok) => {
+      await open();
+      await importFixture("nested_rings.png");
+      const side = () => x(() => __box(__one("complementary", "Inspector")));
+      const geometry = await x(() => {
+        const r = (e) => e.getBoundingClientRect();
+        const meet = (a, b) =>
+          a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        const canvas = r(document.querySelector('[data-testid="canvas-host"]'));
+        const controls = [
+          ...document.querySelectorAll("button, input, [role=slider], [role=application]"),
+        ].filter((e) => r(e).width > 0);
+        return [...document.querySelectorAll('[role="separator"]')].map((sep) => {
+          const b = r(sep);
+          const after = getComputedStyle(sep, "::after");
+          return {
+            name: sep.getAttribute("aria-label"),
+            across: Math.min(b.width, b.height),
+            overlay: after.display !== "none" && after.content !== "none",
+            overCanvas: meet(b, canvas),
+            overControls: controls.filter((c) => meet(b, r(c))).length,
+          };
+        });
+      });
+      report.splitters = geometry;
+      for (const g of geometry) {
+        ok(`${g.name}: a strip at least 24 px across`, g.across >= 24, g);
+        ok(
+          `${g.name}: no overlay; clear of the canvas and every control`,
+          !g.overlay && !g.overCanvas && g.overControls === 0,
+          g,
+        );
+      }
+      // The inspector splitter: keyboard, then pointer.
+      const w0 = (await side()).w;
+      await focus("separator", "Resize inspector");
+      for (let i = 0; i < 4; i++) await keys(K.Right);
+      const wk = (await side()).w;
+      ok("inspector splitter: keyboard narrows within bounds", wk < w0 && wk >= 287.5, { w0, wk });
+      const hb = await x(() => __box(__one("separator", "Resize inspector")));
+      const cx = hb.x + hb.w / 2;
+      const cy = hb.y + hb.h / 2;
+      await mouse([
+        move(cx, cy),
+        DOWN,
+        ...Array.from({ length: 8 }, (_, i) => move(cx - (i + 1) * 10, cy + 40, 16)),
+        UP,
+      ]);
+      const wp = (await side()).w;
+      ok("inspector splitter: pointer widens within bounds", wp > wk && wp <= 336.5, { wk, wp });
+      // The Layers splitter: keyboard, then pointer.
+      const h0 = (await side()).h;
+      await focus("separator", "Resize layers");
+      for (let i = 0; i < 4; i++) await keys(K.Down);
+      const hk = (await side()).h;
+      ok("layers splitter: keyboard resizes", hk > h0, { h0, hk });
+      const lb = await x(() => __box(__one("separator", "Resize layers")));
+      const lx = lb.x + lb.w / 2;
+      const ly = lb.y + lb.h / 2;
+      await mouse([
+        move(lx, ly),
+        DOWN,
+        ...Array.from({ length: 6 }, (_, i) => move(lx, ly - (i + 1) * 10, 16)),
+        UP,
+      ]);
+      const hp = (await side()).h;
+      ok("layers splitter: pointer resizes", hp < hk, { hk, hp });
+      // The Layers collapse control, on its own: keyboard collapses, pointer expands.
+      ok("layers expanded", (await attr("button", "Layers", "aria-expanded")) === "true");
+      await focus("button", "Layers");
+      await keys(K.Enter);
+      await until(
+        () => __one("button", "Layers").getAttribute("aria-expanded") === "false",
+        "layers collapsed",
+      );
+      ok(
+        "collapsed: the rows leave the page",
+        await x(() => document.getElementById("layers-body")?.hidden === true),
+      );
+      await click("button", "Layers");
+      await until(
+        () => __one("button", "Layers").getAttribute("aria-expanded") === "true",
+        "layers expanded again",
+      );
+      // Just inside every canvas edge, the hit test is the canvas; a real pointer-down 4 px
+      // inside the right edge (next to the inspector splitter) reaches the canvas.
+      const edges = await x(() => {
+        const r = document.querySelector('[data-testid="canvas-host"]').getBoundingClientRect();
+        const at = (px, py) =>
+          !!document.elementFromPoint(px, py)?.closest('[data-testid="canvas-host"]');
+        return {
+          left: at(r.left + 4, r.top + r.height / 2),
+          right: at(r.right - 4, r.top + r.height / 2),
+          top: at(r.left + r.width / 2, r.top + 4),
+          bottom: at(r.left + r.width / 2, r.bottom - 4),
+        };
+      });
+      ok(
+        "hit test inside every canvas edge is the canvas",
+        Object.values(edges).every(Boolean),
+        edges,
+      );
+      await x(() => {
+        window.__edgeDown = null;
+        document
+          .querySelector('[data-testid="canvas-host"]')
+          .addEventListener("pointerdown", (e) => (window.__edgeDown = [e.clientX, e.clientY]), {
+            once: true,
+            capture: true,
+          });
+      });
+      const host = await x(() => __box(document.querySelector('[data-testid="canvas-host"]')));
+      await mouse([move(host.x + host.w - 4, host.y + host.h / 2), DOWN, UP]);
+      const down = await x(() => window.__edgeDown);
+      ok("a pointer-down 4 px inside the right edge reaches the canvas", down !== null, down);
+      report.inspectorWidths = { initial: w0, keyboard: wk, pointer: wp };
+      report.inspectorHeights = { initial: h0, keyboard: hk, pointer: hp };
+    },
+  );
 
   await scenario("tokens: contrast from the running build; dual focus ring", async (ok) => {
     await open();
