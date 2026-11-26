@@ -543,3 +543,33 @@ The failures were deterministic and test-side only: the lock test expected the R
 - **Splitter strips** cost 23 px of canvas width (998 px at 1366×768) and a little inspector and Layers height (§16).
 - `.impeccable/design-full.md` is now tracked: the full DESIGN.md text, moved there by Impeccable's compaction.
 - Lower-end hardware and a quiet-machine run remain outstanding.
+
+## 18. Final palette-name correction (maintainer final acceptance, 2026-11-25)
+**Strict provenance** (`d5b7b2a`).
+- An unused palette entry, one with no path under a traced layer using it, has no identifiable trace owner, so it **keeps its stored name**. Its origin is never inferred from unrelated traces. A raw engine name (`p2`) is preferred over relabelling a name that may be user-defined.
+- **Accepted limitation:** a custom name equal to an id of the entry's own trace is indistinguishable from a generated one. It is recorded as **TD-UI-005**, for resolution before user-facing palette renaming.
+- Unchanged: no schema change, no stored palette mutation, no change to IDs, order, colours or exports. Generated-label collision handling ("Colour 1 (2)") is kept.
+
+**A defect found by the requested measurement, now fixed.** The previous `paletteLabels()` copied each trace's palette-id list into a set per palette entry. That is quadratic in a Full Colour trace's palette: bark-1224 has 13,662 entries and bark-2350 has 30,595. Both **exhausted a 4 GB heap**, so the Fill note and Recolor would have hung on real Full Colour documents. The small fixtures never showed it. The function is now one walk of each traced layer's subtree, with each layer's ids collected once, plus one palette pass with a per-label suffix counter.
+
+`scripts/bench-palette-labels.mjs`, 30 repetitions (15 for the baseline), each on a fresh state identity, as after an edit. Apple M5 Max, Node 24.22.1, load average about 1.0–1.5.
+
+| Document | Paths / entries | Before (`3a96a8b`) | After (`d5b7b2a`), median / p95 |
+|---|---|---|---|
+| bark-1224 | 16,056 / 13,662 | heap exhausted (4 GB) | 6.1 / 8.1 ms |
+| bark-2350 | 43,621 / 30,595 | heap exhausted (4 GB) | 16.5 / 21.9 ms |
+| synthetic-many-250k | 41,853 / 8 | 6.2 ms | 1.5 / 1.6 ms |
+| architecture-street-halftone | 1 / 1 | ~0 ms | ~0 ms |
+
+The remaining whole-document walk is recorded for G-DOC-R ([scope](../g-doc-r/G-DOC-R-SCOPE.md)). The Recolor panel and the picker render one control per entry, a UI cost noted there, not measured.
+
+**Tests.** `vp test` 394, including:
+- the strict rule (unused entries keep their stored names, even names another trace generated);
+- undo restoring the labels;
+- a 20,000-entry linear-cost guard (well under 1 s, and cached per state).
+
+**Export equivalence**, on the build of `d5b7b2a`:
+- the frozen document-export regression: **636/636** hashes identical to `a4cf172.sha256`;
+- bundle v1 through the workbench: **14/14** files identical to `docs/research/p0-r/owner-acceptance-bundle/`.
+
+No export path imports the display labels.

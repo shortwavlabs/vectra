@@ -34,6 +34,15 @@ G-DOC-R is a dedicated follow-up gate, kept separate from visual refinement. It 
 - Undo/redo.
 - Immutable ownership.
 
+## Document-wide traversal costs recorded for G-DOC-R
+- **`paletteLabels()`** (`src/shell/document.ts`; G-UI-R report §18) walks every path under every traced layer once per new document state. It runs when the inspector shows a Fill note or Recolor (the result is cached per state). Measured with `scripts/bench-palette-labels.mjs` (Apple M5 Max, Node 24.22.1, not quiet), median per new state:
+  - bark-1224 (16,056 paths, 13,662 entries): 6.1 ms;
+  - bark-2350 (43,621 paths, 30,595 entries): 16.5 ms;
+  - synthetic-many-250k (41,853 paths): 1.5 ms.
+
+  That is linear but still whole-document. Per-subtree summaries or the persistent indexes of option D could make it incremental.
+- Not measured here: the Recolor panel and the picker render one control per palette entry (13,662 or 30,595 for Full Colour traces). This is a UI rendering cost (virtualisation), not a document traversal. It is noted for the gate that next touches those panels.
+
 ## Measurement
 - Measure the integrated implementation; do not extrapolate the prototype microbenchmarks.
 - Record the machine, the load and the exact versions.
