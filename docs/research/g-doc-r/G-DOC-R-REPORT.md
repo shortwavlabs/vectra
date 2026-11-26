@@ -1,6 +1,6 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: STAGES B AND C QUALIFIED; STAGE D STOPPED.**
+**Status: STAGES B AND C ACCEPTED AS CHECKPOINTS (maintainer, 2026-11-26); AM-2 APPROVED; STAGE D IN PROGRESS.** The gate as a whole remains open and unqualified. §§1–4 are the stage B/C record as accepted; stage D follows from §5.
 - Stage B (§1) and stage C (§2) are implemented and qualified, in Node and in the production build in 3 browser engines (§3).
 - An independent review of stage B found one correctness defect, which is fixed and re-qualified (§1.6).
 - Following brief §6 and change control, stage D is **not started**. Its history accounting needs amendment AM-2 ([draft](AM-2-DRAFT.md)), and the defect is reported here first.
@@ -351,7 +351,9 @@ The three extra skips, compared with G-BRAND's 36, are opt-in or serial dependan
 
 **Bundle v1 through the workbench** (`OWNER_BUNDLE=1 … owner-bundle.spec.ts`, Chromium): **15/15 files byte-identical** to `docs/research/p0-r/owner-acceptance-bundle/`.
 
-**Real Safari: NOT RUN.** The screen was locked at the time (`CGSSessionScreenIsLocked` true), and runs under a locked screen are invalid (G-R1 report §13). The harnesses (`tests/safari/*.mjs`) are to be run on this head once the screen is unlocked.
+**Real Safari on `758a689`: NOT RUN.** The screen was locked (`CGSSessionScreenIsLocked` true), and runs under a locked screen are invalid (G-R1 report §13).
+
+**Reconciled.** The harnesses were later run on the final stage C head: commit `9ae294f`, built as `VERSION` `4b829e176927371e`, `BUILD_ID` `e8cfaf88be26066f` (production code identical to `7799e6e`). All five pass (§3.1). `758a689` itself was never run in Safari.
 
 **Engine and document regressions on the stage C head**, recounted with **every** `concert-*` input excluded. An earlier session script treated all `concert-*` photographs as private, so `concert-stage-light` is now excluded too:
 - engine corpus **294/294** (326 minus 32 concert files);

@@ -312,3 +312,33 @@ Record of execution:
 - Both CI checks are verified, and the applicable browser suites, stress tests, real-Safari harnesses and bundle measurements are re-run.
 - The three PRs (#18, #19, #20) stay independently reviewable. None is merged automatically.
 - Not started: production CMYK, Precision v2, new creative tools, deployment. R-COLOR (#18) receives a separate research review.
+
+## 11. G-DOC-R stage B/C acceptance and AM-2 authorisation (maintainer, 2026-11-26)
+**Dispositions.**
+- G-BRAND integration is accepted (#21, merged as `0e95737`).
+- G-DOC-R stages B and C are accepted as **implementation checkpoints** at `9ae294f`, including the validator correction in `fd06b5a`.
+- The G-DOC-R gate as a whole remains open and unqualified.
+- The interactive dispatch improvement is accepted. The 756k-anchor borderline result and the 996k-anchor stress misses stay recorded.
+- No qualification threshold is relaxed.
+
+**AM-2 is approved** (recorded in [G0-ARCHITECTURE-CONTRACTS §AM-2](G0-ARCHITECTURE-CONTRACTS.md)):
+- **AM-2.1.** C3 r2 → r3: document-structure accounting covers every materially retained structural allocation. It uses deterministic, checked integer costs, reported as accounted bytes distinct from measured heap, with no double counting of geometry or source bytes.
+- **AM-2.2.** RFC-002 §7 is amended. The limits are kept (100 transactions; 128 / 64 MiB). Earlier oldest-first eviction is authorised, the visible truncation is kept, and serialized versions are unchanged.
+- **Shared allocations:** the highest-precedence ownership rule. Ownership transitions are to be verified for:
+  - an edit;
+  - a state entering history;
+  - undo and redo;
+  - discarded redo;
+  - eviction;
+  - a replaced or closed document.
+- **Map ordering:** deterministic bucket iteration, with no insertion-order index. Persistence, export, rendering, layer order and user-visible behaviour stay unchanged. A different first error for a document with several defects is acceptable; single-defect rejections must be equivalent.
+
+**Stage D is authorised** under these requirements:
+- calibration of the cost model against the integrated implementation, with separate validation workloads;
+- an expanded adversarial corpus;
+- a reference accounting oracle;
+- an independent adversarial review;
+- palette and renderer measurements against the verified G-BRAND `main` baseline;
+- final qualification at all three workloads.
+
+No new dependency, serialized-format change, unrelated UI change, vectorization change or colour-management work is authorised. R-COLOR is left untouched. Do not merge without maintainer acceptance.

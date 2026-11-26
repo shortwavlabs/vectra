@@ -1,6 +1,6 @@
 # AM-2 (draft) — History accounting of document structure
 
-**Status: DRAFT. Not approved.** This amendment is raised under change control ([G0-ARCHITECTURE-CONTRACTS](../g0/G0-ARCHITECTURE-CONTRACTS.md), "Change control"). Stage D of G-DOC-R stops until the maintainer decides. No stage D code has been written.
+**Status: APPROVED by the maintainer on 2026-11-26, with requirements.** The approved text is in [G0-ARCHITECTURE-CONTRACTS §AM-2](../g0/G0-ARCHITECTURE-CONTRACTS.md), [RFC-002 §7](../../RFC-002.md) and [decision register §11](../g0/G0-DECISION-REGISTER.md); where it differs from this draft, the approved text governs. This draft is kept as raised.
 
 ## 1. Why an amendment is needed
 - **TD-PERF-011.** Each history state retains its own full node-map table: about 7 MiB per state at 251k nodes, measured by the [TD-PERF-007 investigation](../g-r1/TD-PERF-007-INVESTIGATION.md). One hundred entries would hold about 700 MiB. None of it is counted.

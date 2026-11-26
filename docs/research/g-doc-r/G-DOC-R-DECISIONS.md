@@ -30,9 +30,15 @@ This register separates the decisions taken within the authorised scope (impleme
 ## 3. Decisions requested from the maintainer
 | # | Decision | Options | Recommendation |
 |---|---|---|---|
-| M-1 | Accept stage B (with the F-1 fix) and stage C | Accept / request changes | Accept. Every requirement in brief §2 B and C is met, except ≤ 50 ms at the stress workloads: 6–7 of 12 types miss it at 996k anchors, and `ungroup` is borderline at 756k. Stage D addresses this |
+| M-1 | Accept stage B (with the F-1 fix) and stage C (**decided 2026-11-26: accepted as checkpoints at `9ae294f`**; decision register §11) | Accept / request changes | Accept. Every requirement in brief §2 B and C is met, except ≤ 50 ms at the stress workloads: 6–7 of 12 types miss it at 996k anchors, and `ungroup` is borderline at 756k. Stage D addresses this |
 | M-2 | AM-2: the cost model for document-structure bytes | A deterministic formula calibrated against measured heap / another approach | The calibrated, conservative formula |
 | M-3 | AM-2: attribution of shared allocations | Count once at the highest-precedence owner (the chunk rule) / another rule | The chunk rule |
 | M-4 | AM-2: earlier history eviction under the unchanged 128 MiB | Approve / adjust the limits through RFC §7 | Approve; eviction stays oldest-first and visible |
 | M-5 | Node-map iteration order under stage D | Bucket order / insertion order (an extra index) | Bucket order. Deterministic, persistence unaffected; only the first error named for a multi-defect load may differ |
 | M-6 | Owner checks still open from earlier gates | VoiceOver, the stock-Safari keyboard check, lower-end hardware, a quiet-machine run | Unchanged by this gate |
+
+**Decided 2026-11-26** ([decision register §11](../g0/G0-DECISION-REGISTER.md)):
+- M-2 to M-5 are decided as recommended: AM-2 is approved, with calibration, attribution, eviction and ordering requirements;
+- M-6 is unchanged.
+
+**Safari status reconciled.** Real Safari was NOT RUN on `758a689` (screen locked). It was run on `9ae294f` (`VERSION` `4b829e176927371e`, `BUILD_ID` `e8cfaf88be26066f`): all five harnesses pass (report §3.1).
