@@ -4,7 +4,15 @@
 
 import type { DecodePolicy } from "./provenance.ts";
 import { sniffImage } from "../vectorization/intake.ts";
-import { applyCommand, type Command, type CommandContext, DraftLog } from "./commands.ts";
+import {
+  applyCommand,
+  type Command,
+  type CommandContext,
+  DraftLog,
+  parentIndexMatches,
+  parents,
+} from "./commands.ts";
+import { changedKeys } from "./node-map.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
 import { checkIncremental } from "./incremental-validate.ts";
 import {
@@ -146,6 +154,7 @@ export class DocumentSession {
           throw e;
         }));
     this.#derived.set(o.state, d);
+    parents(o.state); // seeds the persistent parent index (stage D), O(n) once at load
     this.#state = o.state;
     this.#saved = o.state;
     this.#own(o.state, "document", 1);
@@ -305,6 +314,14 @@ export class DocumentSession {
           }
           if (!sameDerived(full, inc.derived))
             throw new ValidationDisagreement("incremental and full derived data differ");
+          // Stage C/D invariants checked on every decided transaction in compare mode: the
+          // write log covers every changed node key, and the parent index equals the tree.
+          if (writes)
+            for (const k of changedKeys(prev.nodesById, next.nodesById))
+              if (!writes.has(k))
+                throw new ValidationDisagreement(`the write log misses changed node ${k}`);
+          if (!parentIndexMatches(next))
+            throw new ValidationDisagreement("the parent index disagrees with the tree");
         }
         this.#validations.incremental++;
         return inc.derived;

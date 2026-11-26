@@ -9,8 +9,8 @@ import {
   IdAllocator,
   isContainer,
   type NodeId,
-  SealedMap,
 } from "./model.ts";
+import { NodeMap } from "./node-map.ts";
 import { loadContainer, saveContainer } from "../persistence/container.ts";
 import type { DocumentSession } from "./session.ts";
 import { fixturePacket } from "./testing/fixtures.ts";
@@ -122,8 +122,8 @@ describe("G-DOC-R stage C: Draft write log", () => {
     s.dispatch(COMMANDS.commitTrace!());
     s.dispatch(COMMANDS.duplicate!());
     for (const st of [s.state, ...s.historyStates().past]) {
-      expect(Object.getPrototypeOf(st.nodesById)).toBe(SealedMap.prototype);
-      expect(Object.keys(st.nodesById)).toEqual([]);
+      expect(st.nodesById).toBeInstanceOf(NodeMap); // stage D: published as a NodeMap
+      expect(Object.keys(st.nodesById)).toEqual([]); // no own state: nothing of the Draft
     }
   });
 
@@ -245,7 +245,9 @@ describe("G-DOC-R stage C: Draft write log", () => {
     const run = (cmd: Command) => {
       const s = session();
       s.dispatch(cmd);
-      return JSON.stringify(s.state, (_, v) => (v instanceof Map ? [...v] : v));
+      return JSON.stringify(s.state, (_, v) =>
+        v instanceof Map || v instanceof NodeMap ? [...v] : v,
+      );
     };
     const ids = ["pth_16", "pth_13", "pth_15"];
     const rev = [...ids].reverse();

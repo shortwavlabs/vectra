@@ -16,6 +16,7 @@ import { fixturePacket } from "./testing/fixtures.ts";
 import { fixtureProvenance, fixtureSession, TEST_PROVENANCE } from "./testing/helpers.ts";
 import { syntheticPacket } from "./testing/synthetic.ts";
 import { saveContainer } from "../persistence/container.ts";
+import { NodeMap } from "./node-map.ts";
 import { sha256Hex } from "./session.ts";
 
 const MODES: readonly ValidationMode[] = ["incremental", "compare", "full"];
@@ -152,7 +153,9 @@ describe("G-DOC-R stage B: validation modes in dispatch", () => {
     expect(codes).toEqual(script().flatMap((step) => ("reject" in step ? [step.code] : [])));
     // Same documents, node by node, and same history.
     const strip = (s: DocumentSession) => ({
-      state: JSON.stringify(s.state, (_, v) => (v instanceof Map ? [...v] : v)),
+      state: JSON.stringify(s.state, (_, v) =>
+        v instanceof Map || v instanceof NodeMap ? [...v] : v,
+      ),
       past: s.historyStates().past.length,
       future: s.historyStates().future.length,
       nextId: s.nextId,

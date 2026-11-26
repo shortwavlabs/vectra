@@ -9,8 +9,26 @@ import { fixtureProvenance, fixtureSession } from "./testing/helpers.ts";
 const ENGINE = "9.9.9";
 const firstLayer = (s: ReturnType<typeof fixtureSession>) =>
   s.state.nodesById.get(s.state.orderedRootIds[0]!) as LayerNode;
-const firstPath = (s: ReturnType<typeof fixtureSession>) =>
-  [...s.state.nodesById.values()].find((n): n is PathNode => n.kind === "path")!;
+/** The first path in paint (document) order; the node map's iteration order is not paint
+ *  order (stage D: deterministic bucket order). */
+const firstPath = (s: ReturnType<typeof fixtureSession>): PathNode => {
+  const st = s.state;
+  const walk = (id: string): PathNode | undefined => {
+    const n = st.nodesById.get(id)!;
+    if (n.kind === "path") return n;
+    if (n.kind === "layer" || n.kind === "group")
+      for (const c of n.orderedChildIds) {
+        const p = walk(c);
+        if (p) return p;
+      }
+    return undefined;
+  };
+  for (const r of st.orderedRootIds) {
+    const p = walk(r);
+    if (p) return p;
+  }
+  throw new Error("no path");
+};
 
 describe("export metadata semantics (C10)", () => {
   for (const name of FIXTURE_SCENES.keys()) {

@@ -22,6 +22,7 @@ import {
   type SourceMime,
   type Style,
 } from "../document/model.ts";
+import { NodeMap } from "../document/node-map.ts";
 
 export class SchemaError extends Error {
   override name = "SchemaError";
@@ -153,6 +154,11 @@ export interface ParsedDocument {
   nextChunkId: number;
 }
 
+/** Freezes every entry; the node map then becomes a NodeMap (G-DOC-R stage D). */
+const sealFrozenEntries = <K, V extends object>(m: ReadonlyMap<K, V>) => {
+  for (const v of m.values()) freezeEntry(v);
+  return m;
+};
 const sealFrozen = <K, V extends object>(m: ReadonlyMap<K, V>) => {
   for (const v of m.values()) freezeEntry(v);
   return sealMap(m);
@@ -237,7 +243,7 @@ export function parseDocumentJson(v: unknown): ParsedDocument {
       documentId: str(o.documentId, "documentId"),
       artboard: freezeEntry({ ...artboard }),
       orderedRootIds: Object.freeze(strArray(o.orderedRootIds, "orderedRootIds")),
-      nodesById: sealFrozen(nodesById),
+      nodesById: NodeMap.from(sealFrozenEntries(nodesById)),
       stylesById: sealFrozen(stylesById),
       paletteById: sealFrozen(paletteById),
       sourceAssetsById: sealFrozen(sourceAssetsById),

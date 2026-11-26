@@ -24,13 +24,13 @@ import {
   type Rect,
   rotate90Matrix,
   isSealedMap,
-  SealedMap,
   sealMap,
   freezeEntry,
   type SourceAsset,
   type Style,
   type StyleId,
 } from "./model.ts";
+import { DELETED, NodeMap, NodeMapDraft } from "./node-map.ts";
 import type { IncomingPacket } from "./packet-port.ts";
 import {
   checkTraceProvenance,
@@ -124,12 +124,56 @@ const U32_MAX = 2 ** 32 - 1;
 const isU32 = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= U32_MAX;
 
 // --- tree helpers -------------------------------------------------------------------------------
-const parentCache = new WeakMap<DocState, ReadonlyMap<NodeId, NodeId | null>>();
-/** Parent of every node (null = root), cached per immutable state. */
-export function parents(s: DocState): ReadonlyMap<NodeId, NodeId | null> {
-  let p = parentCache.get(s);
-  if (!p) parentCache.set(s, (p = parentMap(s)));
+/**
+ * Persistent parent index (G-DOC-R stage D): the parent of every node (null = root) as a
+ * NodeMap per immutable state. Draft.finish derives a published state's index from its base's
+ * index in O(changed child lists), sharing untouched buckets. A state without one (loaded, or
+ * built by hand) gets one from a full traversal, once. The index references no state, so the
+ * WeakMap retains no ancestry.
+ */
+const parentIndex = new WeakMap<DocState, NodeMap<NodeId | null>>();
+export function parents(s: DocState): NodeMap<NodeId | null> {
+  let p = parentIndex.get(s);
+  if (!p) parentIndex.set(s, (p = NodeMap.from(parentMap(s))));
   return p;
+}
+/** True when the state's parent index equals a full tree traversal (verification). */
+export function parentIndexMatches(s: DocState): boolean {
+  const index = parents(s);
+  const full = parentMap(s);
+  if (index.size !== full.size) return false;
+  for (const [k, p] of full) if (index.get(k) !== p || !index.has(k)) return false;
+  return true;
+}
+/** The index of `next`, derived from `base`'s through the Draft's written keys. */
+function deriveParents(
+  base: DocState,
+  next: DocState,
+  written: readonly NodeId[],
+): NodeMap<NodeId | null> {
+  const upd = new Map<NodeId, NodeId | null | typeof DELETED>();
+  const lost: NodeId[] = [];
+  for (const k of written) {
+    const o = base.nodesById.get(k);
+    const n = next.nodesById.get(k);
+    const oc = isContainer(o) ? o.orderedChildIds : null;
+    const nc = isContainer(n) ? n.orderedChildIds : null;
+    if (oc !== nc) {
+      if (oc) for (const c of oc) lost.push(c);
+      if (nc) for (const c of nc) upd.set(c, k);
+    }
+    if (!next.nodesById.has(k)) lost.push(k);
+  }
+  const br = base.orderedRootIds;
+  const nr = next.orderedRootIds;
+  if (br !== nr && (br.length !== nr.length || br.some((id, i) => nr[i] !== id))) {
+    for (const r of br) lost.push(r);
+    for (const r of nr) upd.set(r, null);
+  }
+  // A node that lost its parent and is listed nowhere new was deleted or orphaned (the
+  // validator rejects an orphan). `with` skips writes that change nothing.
+  for (const c of lost) if (!upd.has(c)) upd.set(c, DELETED);
+  return parents(base).with(upd);
 }
 function parentMap(s: DocState): Map<NodeId, NodeId | null> {
   const m = new Map<NodeId, NodeId | null>();
@@ -151,7 +195,7 @@ const getNode = (s: DocState, id: NodeId): DocNode =>
  */
 export function inDocumentOrder(s: DocState, ids: readonly NodeId[]): NodeId[] {
   if (ids.length < 2) return [...ids];
-  const par = parentCache.get(s) ?? parentMap(s);
+  const par = parents(s);
   const positions = new Map<NodeId | null, Map<NodeId, number>>();
   const position = (parent: NodeId | null, id: NodeId): number => {
     let m = positions.get(parent);
@@ -197,43 +241,15 @@ function topLevel(s: DocState, ids: readonly NodeId[]): NodeId[] {
   );
 }
 
-/** The Draft's node map: records every key it writes (SealedMap is the only write path). */
-class DraftNodes extends SealedMap<NodeId, DocNode> {
-  // Assigned after super(): the copy made by the Map constructor is not a write. Draft.finish
-  // takes the set and turns this object into a plain SealedMap (see `publish`), so a published
-  // map retains nothing of the Draft and has the same shape as a loaded state's map.
-  written?: Set<NodeId> = new Set<NodeId>();
-  /** Returns the written keys and becomes a plain, unsealed SealedMap (sealed by the caller). */
-  publish(): Set<NodeId> {
-    const written = this.written!;
-    delete this.written;
-    Object.setPrototypeOf(this, SealedMap.prototype);
-    return written;
-  }
-  override set(k: NodeId, v: DocNode): this {
-    super.set(k, v);
-    this.written?.add(k);
-    return this;
-  }
-  override delete(k: NodeId): boolean {
-    const had = super.delete(k);
-    this.written?.add(k);
-    return had;
-  }
-  override clear(): void {
-    throw new TypeError("a Draft's node map is never cleared");
-  }
-}
-
-/** Copy-on-write draft of the node map and root list. */
+/** Copy-on-write draft of the node map (an overlay over the base's NodeMap) and root list. */
 class Draft {
   readonly base: DocState;
-  readonly nodes: DraftNodes;
+  readonly nodes: NodeMapDraft<DocNode>;
   readonly #log: DraftLog | undefined;
   roots: NodeId[];
   constructor(base: DocState, ctx: Pick<CommandContext, "log">) {
     this.base = base;
-    this.nodes = new DraftNodes(base.nodesById);
+    this.nodes = new NodeMapDraft(base.nodesById);
     this.roots = [...base.orderedRootIds];
     this.#log = ctx.log;
   }
@@ -269,11 +285,13 @@ class Draft {
     this.nodes.delete(id);
   }
   /** Freezes new or changed entries (not the whole state) and seals the maps (G-DOC review 3).
-   *  Node entries: only the written keys can differ from the base. An unchanged sealed map is
-   *  shared with the base. The written keys go to the transaction's log. */
+   *  Node entries: only the written keys can differ from the base; the node map is published
+   *  as a NodeMap sharing untouched buckets, and its parent index is derived (stage D). An
+   *  unchanged sealed map is shared with the base. The written keys go to the transaction's
+   *  log and are not retained with the state. */
   finish(extra: Partial<DocState> = {}): DocState {
     const base = this.base;
-    const written = this.nodes.publish(); // sealed below: no further writes
+    const written = [...this.nodes.written];
     for (const k of written) {
       const v = this.nodes.get(k);
       if (v !== undefined && base.nodesById.get(k) !== v) freezeEntry(v);
@@ -287,7 +305,7 @@ class Draft {
       ...base,
       ...extra,
       orderedRootIds: Object.freeze([...this.roots]),
-      nodesById: sealMap(this.nodes),
+      nodesById: this.nodes.publish(),
     };
     const state: DocState = Object.freeze({
       ...out,
@@ -296,6 +314,7 @@ class Draft {
       paletteById: freezeChanged(out.paletteById, base.paletteById),
       sourceAssetsById: freezeChanged(out.sourceAssetsById, base.sourceAssetsById),
     });
+    parentIndex.set(state, deriveParents(base, state, written));
     this.#log?.record(base, state, written);
     return state;
   }

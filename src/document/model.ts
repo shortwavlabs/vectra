@@ -2,6 +2,7 @@
 // One DocState per committed transaction; undo/redo restore states by reference (C7 dirty
 // tracking). High-water marks (nextId, nextChunkId) and the revision live outside DocState.
 
+import { NodeMap } from "./node-map.ts";
 import type { PacketErrorCode } from "./packet-port.ts";
 
 import type { DecodePolicy, SourceProvenance, TraceProvenance } from "./provenance.ts";
@@ -191,7 +192,7 @@ export function createDocument(o: {
     documentId: o.documentId ?? crypto.randomUUID(),
     artboard: Object.freeze({ width: o.width, height: o.height, background: o.background ?? null }),
     orderedRootIds: Object.freeze([]) as readonly NodeId[],
-    nodesById: sealMap(new Map()),
+    nodesById: NodeMap.empty<DocNode>(),
     stylesById: sealMap(new Map()),
     paletteById: sealMap(new Map()),
     sourceAssetsById: sealMap(new Map()),
