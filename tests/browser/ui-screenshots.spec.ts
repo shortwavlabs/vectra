@@ -48,9 +48,9 @@ for (const size of SIZES) {
     await page.mouse.click(10, 10); // dismiss tooltips
     await shot(page, guard, "02-imported");
 
-    // A path selected on the canvas (interim box hit test).
+    // A path selected on the canvas (exact hit test).
     const hit = await selectOnCanvas(page);
-    await expect(page.getByTestId("selection-outline")).toHaveCount(1);
+    await expect(page.getByTestId("selection-bounds")).toHaveCount(1);
     await shot(page, guard, "03-selected-object");
     if (record) await aria(page, "03-selected-path");
 

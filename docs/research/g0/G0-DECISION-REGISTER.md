@@ -192,3 +192,123 @@ These resolve implementation-level ambiguities named by the maintainer. **None d
 **General.** No performance threshold is lowered. Quiet-machine measurements remain required, never obtained by terminating unrelated processes. Performance debt is not closed merely because an implementation merged.
 
 **Real Safari.** The maintainer enabled `safaridriver` on the reference Mac (2026-11-25); real Safari qualification is authorised for G-JOB, G-R0 and G-UI.
+
+## 9. G-R0/G-UI acceptance and G-R1 integration (maintainer, 2026-11-25)
+**Disposition.**
+- The G-R0 renderer foundation and the G-UI visual direction are accepted in principle.
+- Historical dispositions are preserved: **G-ENG PARTIAL, G-DOC PARTIAL, G-JOB PARTIAL, G-R0 PARTIAL, G-UI PARTIAL**.
+- The real Safari qualification results are accepted within their documented scope.
+
+**Temporary exceptions; no target lowered.** G-R0's outstanding preview (≤ 100 ms complete preview at the interactive target) and cold hit-index (≤ 50 ms blocking) requirements are accepted as temporary exceptions for downstream integration. No numerical target is lowered.
+
+**G-UI.**
+- The visual direction is approved: charcoal workspace, lime accent, ivory artboard, professional creative-software density.
+- Still outstanding: final visual polish, keyboard path selection and VoiceOver qualification.
+- Accessibility requirements are not waived.
+
+**Merge.** PR #16 and PR #17 were authorised to merge with merge commits only, after verification of the combined tree. That verification covered:
+- the build, `vp check` and `vp test`;
+- the shared canvas-host contract;
+- third-party notices;
+- the browser regression suites;
+- service-worker precache and build identity for both entry points;
+- duplicate dependencies.
+
+Record of execution:
+
+| Step | Result |
+|---|---|
+| Integration branch | `integration/g-r0-g-ui` (`3755bcd`, tree `36cb205`) |
+| Static checks | Frozen install; `pnpm dedupe --check` clean (one React 19.3.1); `vp check` clean on tracked files; `vp test` 372/372; build passes; notices verified (55 components), and regenerating them gives no diff; `types.ts` identical (`c9a30060…`) |
+| Build identity | One build ID (`77059d538db122e8`) across both entries, both workers and `sw.js`. Every asset either page references is among the 11 precached files |
+| Browser suites | 225 passed, 0 failed, 0 flaky (24 opt-in skips), Chromium, Firefox and Playwright WebKit |
+| Real Safari 26.6.2 | G-JOB 10/10, G-R0 7/7, G-UI 14/14, persistence 23/23 |
+| #16 | Merged as `d975855` |
+| #17 | Updated from `main` by a merge (`34b6a9f`, tree `36cb205`); `ci` run 45672878965 passed; merged as `7f57dd7` |
+
+**Resulting baseline: `main` = `7f57dd716bdbec0a6160da3585b445852f464859`.** Its tree is `36cb205`, the tree verified above.
+
+**Debt.**
+- TD-REN-001 is closed.
+- TD-REN-002: real Safari worker-canvas feasibility is demonstrated; end-to-end presentation-latency qualification stays in G-R1.
+- TD-REN-003, TD-REN-004, TD-PERF-001, TD-PERF-007 and TD-PERF-010 remain open.
+- The strict-CSP (TD-UI-001) and third-party-notice (TD-UI-004) solutions are approved, subject to regression verification on the combined application. That verification passed (above).
+- Accessibility debt stays open while VoiceOver and keyboard path selection are unqualified.
+- Mobile and the remaining platform qualifications are preserved.
+
+**G-R1 scope.**
+- Integrate the actual G-R0 `VectorCanvas` into the workspace and remove the temporary SVG preview.
+- Targeted reviews:
+  - build-aware offline status;
+  - selection semantics;
+  - import concurrency;
+  - renderer lifecycle, including StrictMode.
+- Transform handles and compositing-preserving layered drag caches; the RFC §8.4 matrix is mandatory.
+- Bounded hit-index construction, qualified on the 977k-anchor halftone.
+- The TD-PERF-007 investigation: the full validator stays the independent oracle, and at least 10,000 randomized comparisons are required before an incremental validator is accepted.
+- Performance qualification with stages separated, including Safari presentation.
+- Keyboard path selection and a real VoiceOver smoke test, or an owner checklist.
+
+**G-UI-R** follows the renderer integration, as a separate PR using the installed Impeccable skill.
+
+**R-COLOR** (issue #5) is an independent research track; no production colour-management implementation is authorised.
+
+**Git policy.**
+- The 17 G-UI screenshots (2.8 MB) are a one-time visual-baseline exception. From now on, only representative milestone screenshots go in Git.
+- Amending unpublished local commits is acceptable.
+- Git or worktree safety guards are never circumvented with alternative commands or plumbing.
+
+## 10. G-R1 and G-UI-R maintainer review (maintainer, 2026-11-25)
+**Disposition.**
+- The integrated workspace and the refined visual direction are accepted in principle.
+- All historical PARTIAL dispositions stay unchanged.
+- The G-UI-R direction is preserved: the docked workspace, the compact property inspector, the expanded canvas, the typography and the charcoal/lime/ivory identity. G-UI-R's binding design decisions are recorded in its report (§14) and DESIGN-SYSTEM §13.
+
+**G-R1 architecture: accepted.**
+- The additive canvas-host contract amendment: `transformable` and `onTransform`.
+- The pointer model:
+  - click selects;
+  - dragging selected objects moves them;
+  - Space-drag and the middle button pan;
+  - corner handles scale uniformly, edge handles along one axis;
+  - Alt scales about the centre;
+  - Escape cancels;
+  - one completed gesture is one undo transaction.
+- The compositing-preserving layered drag-cache architecture.
+
+**Locks.**
+- A transform never moves a locked object.
+- The protection extends to destructive operations. Deleting a container must not silently delete its locked descendants: the deletion is refused, with an actionable explanation, until those descendants are unlocked.
+- Global palette edits may keep affecting locked objects that reference the edited entry, provided this is clearly communicated.
+- Lock semantics are tested across pointer interaction, keyboard commands, inspector operations and undo/redo.
+- Implementation (#19):
+  - Locks stay a shell policy (`planDeletion` in `src/shell/document.ts`). Document commands do not enforce locks, so the frozen document architecture is unchanged.
+  - Directly locked items in a deletion are kept and reported.
+
+**Canvas focus indicator (#19).**
+- Fixed at the canvas-host level, not through a shell workaround. A visible ring is drawn above every canvas layer and follows `:focus-visible`.
+- It is verified from rendered pixels in Chromium, Firefox, Playwright WebKit and real Safari.
+- The G-UI-R shell workaround is removed after #20 takes the corrected #19 head.
+
+**Test races.** The two race fixes found on the G-UI-R branch, including the bounded diagnostic read, are brought into #19 as cherry-picks.
+
+**Performance disposition.**
+- G-R1's complete-preview miss at the interactive target is accepted temporarily for downstream engineering. TD-PERF-001 and every numerical target are retained.
+- Grading distinguishes interactive and stress workloads (RFC-002 §8.8):
+  - ≤ 250k anchors and ~40k paths: the interactive target, which carries the preview ≤ 100 ms target;
+  - 500k–1M anchors: stress workloads for qualification.
+- The 977k-anchor halftone stays measured. No identical 100 ms threshold is invented for stress workloads where the RFC specifies the interactive target.
+- The quiet-machine and lower-end-hardware qualifications are retained.
+
+**G-DOC-R authorised (TD-PERF-007, TD-PERF-011).** The investigation's options B, C and D are authorised, in that order, as a dedicated follow-up gate, separate from visual refinement. Scope and requirements: [G-DOC-R-SCOPE.md](../g-doc-r/G-DOC-R-SCOPE.md).
+
+**Accessibility and owner acceptance.**
+- VoiceOver remains mandatory.
+- The exact build and the updated owner checklist are provided for manual testing. The stock-Safari keyboard check is kept.
+- Neither is marked PASS until executed.
+
+**Workflow.**
+- #19 is updated first. Its corrected head is then merged forward into #20.
+- Both CI checks are verified, and the applicable browser suites, stress tests, real-Safari harnesses and bundle measurements are re-run.
+- The three PRs (#18, #19, #20) stay independently reviewable. None is merged automatically.
+- Not started: production CMYK, Precision v2, new creative tools, deployment. R-COLOR (#18) receives a separate research review.

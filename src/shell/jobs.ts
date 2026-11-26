@@ -1,6 +1,7 @@
 // Shell binding to the G-JOB job system: final traces committed through JobController (the C2
-// trust boundary), engine exports, and the interim canvas's preview-class SVG. No result is
-// mocked: every outcome (rejected, stale, failed, cancelled) reaches the caller.
+// trust boundary) and engine exports. The canvas renders the document directly (G-R0/G-R1);
+// no export job is involved in displaying it. No result is mocked: every outcome (rejected,
+// stale, failed, cancelled) reaches the caller.
 import { GeometryStore } from "../document/geometry-store.ts";
 import { createDocument } from "../document/model.ts";
 import { DocumentSession, sha256Hex } from "../document/session.ts";
@@ -33,12 +34,31 @@ export function createJobs(onBuildMismatch: (detail: string) => void): JobContro
   const placeholder = new DocumentSession(new GeometryStore(), {
     state: createDocument({ documentId: "none", width: 1, height: 1 }),
   });
-  return new JobController({
+  const jobs = new JobController({
     scheduler,
     session: placeholder,
     engineVersion: BUILD_IDENTITY.engineVersion,
   });
+  placeholders.set(jobs, placeholder);
+  return jobs;
 }
+
+const placeholders = new WeakMap<JobController, DocumentSession>();
+
+/** Points the controller at the workspace's document (or the placeholder when there is none). */
+export function associate(jobs: JobController, session: DocumentSession | null): void {
+  const target = session ?? placeholders.get(jobs)!;
+  if (jobs.session !== target) jobs.replaceSession(target);
+}
+
+/**
+ * Qualification only (`?debug=1`): when set, an import waits for this promise after decoding,
+ * so tests can act during the preparation interval deterministically instead of by timing.
+ */
+export const preparationGate: { current: Promise<void> | null; release: (() => void) | null } = {
+  current: null,
+  release: null,
+};
 
 export class JobError extends Error {
   readonly code: string;
@@ -48,33 +68,12 @@ export class JobError extends Error {
   }
 }
 
-const latestPreview = new WeakMap<JobController, number>();
-/**
- * Preview-class SVG of a session for display. Only the latest request is ever resubmitted
- * after a preemption (by a higher-priority job): a newer request preempts an older one in the
- * same scope, and resubmitting the older one would in turn preempt the newer (live-lock).
- */
-export async function renderPreviewSvg(
-  jobs: JobController,
-  session: DocumentSession,
-): Promise<Uint8Array> {
-  const token = (latestPreview.get(jobs) ?? 0) + 1;
-  latestPreview.set(jobs, token);
-  for (;;) {
-    const sub = jobs.export("svg", null, { session, kind: "preview", scope: "canvas" });
-    if (!sub.accepted) throw new JobError(sub.code, sub.message);
-    const out = await sub.done;
-    if (out.status === "delivered") return out.bytes;
-    if (out.status === "failed") throw new JobError(out.code, out.message);
-    if (out.reason !== "preempted" || latestPreview.get(jobs) !== token)
-      throw new JobError("superseded", "preview superseded by a newer request");
-  }
-}
-
 export interface TraceStart {
   jobId: number;
   /** The session the trace commits into (a new one when there was no document). */
   session: DocumentSession;
+  /** Whether `session` was created for this import (adopted only if the trace commits). */
+  created: boolean;
   done: Promise<CommitOutcome>;
 }
 
@@ -83,25 +82,45 @@ export interface TraceStart {
  * document, a new document sized to the image is created; the caller adopts it only if the
  * trace commits, so a failed or cancelled import leaves no document (RFC-002 §7). The source
  * image is not attached: the trace carries its digest in provenance (C10).
+ *
+ * The target document is the one current when the import began (`current()`). If the import is
+ * cancelled, or the workspace's document changes while the file is being prepared, no job is
+ * submitted (`cancelled`, `document_replaced`), so the workspace and the job controller can
+ * never be left pointing at different documents.
  */
 export async function startTrace(
   jobs: JobController,
   file: File,
   preset: PresetId,
-  current: DocumentSession | null,
+  current: () => DocumentSession | null,
+  signal: AbortSignal,
   onProgress: (stage: Stage) => void,
 ): Promise<TraceStart> {
+  const before = current();
+  const check = () => {
+    if (signal.aborted)
+      throw new JobError("cancelled", "Import cancelled; the document is unchanged");
+    if (current() !== before)
+      throw new JobError(
+        "document_replaced",
+        "The document changed while the image was being prepared; the import was discarded",
+      );
+  };
   const [decoded, bytes] = await Promise.all([
     decodeImage(file, DEFAULT_MAX_PIXELS),
     file.arrayBuffer().then((b) => new Uint8Array(b)),
   ]);
+  if (preparationGate.current) await preparationGate.current;
+  check();
   const digest = await sha256Hex(bytes);
+  check();
+  const created = before === null;
   const session =
-    current ??
+    before ??
     new DocumentSession(new GeometryStore(), {
       state: createDocument({ width: decoded.width, height: decoded.height }),
     });
-  if (jobs.session !== session) jobs.replaceSession(session);
+  associate(jobs, session);
   const sub = jobs.traceFinal(
     {
       assetId: null,
@@ -114,8 +133,11 @@ export async function startTrace(
     makeRequest(DEFAULT_SETTINGS[preset], DEFAULT_MAX_PIXELS),
     { name: file.name.replace(/\.[^.]+$/, "") || "Trace", onProgress },
   );
-  if (!sub.accepted) throw new JobError(sub.code, sub.message);
-  return { jobId: sub.jobId, session, done: sub.done };
+  if (!sub.accepted) {
+    associate(jobs, before);
+    throw new JobError(sub.code, sub.message);
+  }
+  return { jobId: sub.jobId, session, created, done: sub.done };
 }
 
 /** An explicit engine export of the current document (frozen at request time). */

@@ -241,3 +241,133 @@ test("property: 2,000 random points agree with the brute-force reference (bounda
   }
   expect(checked).toBeGreaterThan(1900);
 });
+
+describe("bounded incremental build (G-R1)", () => {
+  // A mixed scene: the correctness shapes plus a 300-subpath compound path and a 5,000-point
+  // subpath, so the build crosses the subpath and band thresholds inside single paths.
+  function mixed(): DocumentSession {
+    const verbs: string[] = [];
+    const coords: number[] = [];
+    for (let i = 0; i < 300; i++) {
+      const x = 2 + (i % 30) * 6;
+      const y = 2 + Math.floor(i / 30) * 6;
+      verbs.push("MLLLZ");
+      coords.push(x, y, x + 3, y, x + 3, y + 3, x, y + 3);
+    }
+    const ring: number[] = [];
+    for (let i = 0; i < 5000; i++) {
+      const a = (i / 5000) * 2 * Math.PI;
+      const r = 60 + 8 * Math.sin(13 * a);
+      ring.push(100 + r * Math.cos(a), 80 + r * Math.sin(a));
+    }
+    const scene: SceneV1 = {
+      ...CORRECTNESS_SCENE,
+      groups: [
+        ...CORRECTNESS_SCENE.groups,
+        {
+          id: "dots",
+          clip: null,
+          paths: [
+            {
+              fill: { color: "#203040" },
+              stroke: null,
+              fillRule: "nonzero",
+              verbs: verbs.join(""),
+              coords,
+            },
+            {
+              fill: { color: "#ff000080" },
+              stroke: null,
+              fillRule: "evenodd",
+              verbs: `M${"L".repeat(4999)}Z`,
+              coords: ring,
+            },
+          ],
+        },
+      ],
+    };
+    return session(scene);
+  }
+
+  test.each([1, 7, 64, 4096])(
+    "stepped by %i units: never answers before it is complete, then agrees with the reference",
+    (units) => {
+      const s = mixed();
+      const ev = evaluate(s.state);
+      const reference = new HitTester(ev, s.store);
+      const h = new HitTester(ev, s.store, { deferred: true });
+      expect(h.ready).toBe(false);
+      let steps = 0;
+      while (!h.step(units)) {
+        steps++;
+        expect(() => h.hit(100, 80)).toThrow(/not ready/); // a partial index never answers
+      }
+      expect(h.size).toBe(reference.size);
+      let seed = 11;
+      const r = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 2 ** 32;
+      for (const c of HIT_CHECKS) expect(h.hit(c.x, c.y)).toBe(reference.hit(c.x, c.y));
+      for (let k = 0; k < 2000; k++) {
+        const x = r() * CORRECTNESS_SCENE.width;
+        const y = r() * CORRECTNESS_SCENE.height;
+        expect(h.hit(x, y), `(${x}, ${y})`).toBe(reference.hit(x, y));
+      }
+      // With single units the build pauses inside paths: far more steps than draw items.
+      if (units === 1) expect(steps).toBeGreaterThan(ev.drawList.length * 10);
+    },
+  );
+
+  test("time slices are bounded and complete the build", () => {
+    const s = mixed();
+    const h = new HitTester(evaluate(s.state), s.store, { deferred: true });
+    let slices = 0;
+    while (!h.slice(0.5, 256)) slices++;
+    expect(h.ready).toBe(true);
+    expect(slices).toBeGreaterThanOrEqual(0);
+    expect(h.steps).toBeGreaterThan(1);
+  });
+});
+
+test("one compound path's 5,000 subpath entries are added in bounded steps, not at once", () => {
+  const verbs: string[] = [];
+  const coords: number[] = [];
+  for (let i = 0; i < 5000; i++) {
+    const x = (i % 100) * 2;
+    const y = Math.floor(i / 100) * 2;
+    verbs.push("MLLLZ");
+    coords.push(x, y, x + 1, y, x + 1, y + 1, x, y + 1);
+  }
+  const scene: SceneV1 = {
+    ...CORRECTNESS_SCENE,
+    width: 200,
+    height: 100,
+    groups: [
+      {
+        id: "g",
+        clip: null,
+        paths: [
+          {
+            fill: { color: "#000000" },
+            stroke: null,
+            fillRule: "nonzero",
+            verbs: verbs.join(""),
+            coords,
+          },
+        ],
+      },
+    ],
+  };
+  const s = session(scene);
+  const ev = evaluate(s.state);
+  const h = new HitTester(ev, s.store, { deferred: true });
+  // No step adds more entries than its unit budget (the old build added all 5,000 at once).
+  let maxGrowth = 0;
+  let before = h.size;
+  while (!h.step(64)) {
+    maxGrowth = Math.max(maxGrowth, h.size - before);
+    before = h.size;
+  }
+  maxGrowth = Math.max(maxGrowth, h.size - before);
+  expect(maxGrowth).toBeLessThanOrEqual(64);
+  expect(h.size).toBe(5000);
+  expect(h.hit(0.5, 0.5)).toBe(new HitTester(ev, s.store).hit(0.5, 0.5));
+});

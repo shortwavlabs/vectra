@@ -109,7 +109,7 @@ export async function openWorkspace(page: Page, query = "") {
   return res!;
 }
 
-/** Imports a fixture through the real file input and waits for the committed trace's preview. */
+/** Imports a fixture through the real file input and waits for the renderer's settled frame. */
 export async function importFixture(page: Page, file: string, preset?: string) {
   if (preset) {
     await page.keyboard.press("t");
@@ -118,23 +118,49 @@ export async function importFixture(page: Page, file: string, preset?: string) {
   }
   await page.getByTestId("import-input").setInputFiles(resolve(FIXTURES, file));
   await expect(page.getByTestId("status")).toContainText("Traced", { timeout: 90_000 });
-  await expect(page.getByTestId("canvas-image")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId("canvas-state")).toContainText("(ready)");
+  await expect(page.getByTestId("canvas-host")).toBeVisible();
+  await canvasSettled(page);
 }
 
-/** Waits until the interim canvas shows the current document revision. */
+/** Waits until the renderer has completed the exact frame of the current document revision. */
 export async function canvasSettled(page: Page) {
-  await expect(page.getByTestId("canvas-state")).toContainText("(ready)", { timeout: 30_000 });
+  await expect(page.getByTestId("canvas-state")).toHaveAttribute("data-state", "ready", {
+    timeout: 30_000,
+  });
 }
 
-/** Clicks artboard points (fractions) until the interim box hit test selects a path. */
+/** Clicks artboard points (fractions) until the exact hit test selects a single path. The hit
+ * is asynchronous (it waits for the current revision's hit index, rebuilt in slices after an
+ * edit), so each probe waits for its own answer (bounded) instead of reading the name at once:
+ * under load every immediate read ran ahead of the answers. */
 export async function selectOnCanvas(page: Page, points: [number, number][] = DEFAULT_POINTS) {
   const art = (await page.getByTestId("artboard").boundingBox())!;
+  const seen: (string | null)[] = [];
   for (const [fx, fy] of points) {
     await page.mouse.click(art.x + art.width * fx, art.y + art.height * fy);
-    if ((await page.getByTestId("selection-outline").count()) > 0) return [fx, fy] as const;
+    const hit = await expect(page.getByTestId("selection-name"))
+      .toHaveText(/^Path \d+$/, { timeout: 3000 })
+      .then(() => true)
+      .catch(() => false);
+    if (hit) return [fx, fy] as const;
+    // Absent when the probe selected nothing: a bounded read, never a wait for the element.
+    seen.push(
+      await page
+        .getByTestId("selection-name")
+        .textContent({ timeout: 500 })
+        .catch(() => null),
+    );
   }
-  throw new Error("no path under any probe point");
+  // Diagnosable if it recurs: what each probe left selected, and the hit counters (debug pages).
+  const diag = await page.evaluate(() => {
+    const d = (
+      window as unknown as { __vectra?: { canvas: { diag(): Record<string, unknown> | null } } }
+    ).__vectra?.canvas.diag();
+    return d
+      ? { waitMs: d.hitTestWaitMs, stale: d.hitTestStaleAnswers, readyMs: d.hitTestReadyMs }
+      : null;
+  });
+  throw new Error(`no path under any probe point: ${JSON.stringify({ seen, diag })}`);
 }
 const DEFAULT_POINTS: [number, number][] = [
   [0.7, 0.62],

@@ -1,0 +1,40 @@
+# G-DOC-R — Document-store performance (scope and authorisation)
+
+**Status:** authorised by the maintainer on 2026-11-25 ([decision register §10](../g0/G0-DECISION-REGISTER.md)). **Not started.**
+
+G-DOC-R is a dedicated follow-up gate, kept separate from visual refinement. It addresses TD-PERF-007 (structural transactions cost O(nodes)) and TD-PERF-011 (each history entry retains a full node-map table). It builds on the G-R1 investigation: [TD-PERF-007-INVESTIGATION.md](../g-r1/TD-PERF-007-INVESTIGATION.md).
+
+## Authorised work, in order
+1. **B.** Integrate the incremental validator, with a full-pass fallback and a comparison mode.
+2. **C.** Implement Draft-recorded write keys and the qualified command optimisations.
+3. **D.** Implement the proposed chunked copy-on-write node map and a persistent parent index.
+
+## Constraints
+- No new dependency is authorised.
+- Changes to the authoritative document architecture use the frozen-contract amendment process.
+- Canonical serialisation and every document and export semantic are preserved.
+- Deterministic persisted ordering must not depend on the map's internal iteration order.
+- History resource accounting covers retained node maps, node objects, indexes, geometry and source assets.
+  - Shared allocations are counted appropriately, not double-counted per reference.
+- Investigate per-subtree summaries for expensive container-transform checks. The investigation measured about 56 ms for the whole-layer recheck at 250k.
+
+## Targets retained
+- Median structural dispatch ≤ 16.7 ms at the interactive target.
+- p95 ≤ 33 ms at the interactive target.
+- ≤ 50 ms at the designated stress workloads.
+- At least 10,000 randomized differential transactions against the full validator, which stays the oracle.
+- Full invariant validation for untrusted loaded documents.
+- The approved history resource limits.
+
+## Test coverage required
+- Invalid transactions.
+- Resource limits.
+- History eviction.
+- Reference accounting.
+- Undo/redo.
+- Immutable ownership.
+
+## Measurement
+- Measure the integrated implementation; do not extrapolate the prototype microbenchmarks.
+- Record the machine, the load and the exact versions.
+- Run on a quiet machine only if it is genuinely quiet. Lower-end hardware is required for qualification.

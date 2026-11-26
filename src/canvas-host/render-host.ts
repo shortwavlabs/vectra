@@ -8,12 +8,21 @@
 // - keeps per-stage timings so document preparation, geometry transfer and drawing are reported
 //   separately (C9).
 import { type Evaluation, evaluate } from "../document/evaluate.ts";
-import type { DocState, NodeId } from "../document/model.ts";
+import {
+  type DocState,
+  intersectRects,
+  isContainer,
+  mapRect,
+  type Matrix,
+  multiply,
+  type NodeId,
+  type Rect,
+} from "../document/model.ts";
 import type { DocumentSession } from "../document/session.ts";
 import { HitTester } from "../hit-test/index.ts";
 import { type ClientState, type HostMode, RenderClient } from "../renderer/client.ts";
-import type { FrameInfo, Surface } from "../renderer/protocol.ts";
-import type { Camera, RenderPacket, RenderSnapshot } from "../renderer/snapshot.ts";
+import type { ClipRect, DragClip, FrameInfo, Surface } from "../renderer/protocol.ts";
+import type { Affine, Camera, RenderPacket, RenderSnapshot } from "../renderer/snapshot.ts";
 import type { CanvasHostState, CanvasView } from "./types.ts";
 
 export interface RenderHostOptions {
@@ -22,9 +31,40 @@ export interface RenderHostOptions {
   forceMainThread?: boolean;
   paper?: string;
   workspace?: string;
+  /** Selection outline and halo colours (defaults: the renderer's). */
+  selection?: string;
+  halo?: string;
   onState(state: CanvasHostState): void;
   onView?(view: CanvasView): void;
   onFrame?(frame: FrameInfo & { host: HostMode }): void;
+}
+
+/** Parent of every node, per immutable state (read-only; the canvas host imports no commands). */
+const parentMaps = new WeakMap<DocState, Map<NodeId, NodeId | null>>();
+function parents(s: DocState): Map<NodeId, NodeId | null> {
+  let m = parentMaps.get(s);
+  if (!m) {
+    m = new Map();
+    for (const id of s.orderedRootIds) m.set(id, null);
+    for (const n of s.nodesById.values())
+      if (isContainer(n)) for (const c of n.orderedChildIds) m.set(c, n.id);
+    parentMaps.set(s, m);
+  }
+  return m;
+}
+
+/** Hit-index preparation slice (ms): short enough never to be an attributable long task. */
+export const HIT_SLICE_MS = 4;
+
+/** Selected paths outlined by the renderer, at most (beyond it: the bounds overlay only). A
+ *  selected container is never outlined path by path: its bounds are drawn by the caller. */
+export const OUTLINE_LIMIT = 2000;
+
+export interface Bounds {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 interface Pending {
@@ -32,6 +72,7 @@ interface Pending {
   readonly documentRevision: number;
   readonly sentAt: number;
   firstFrameMs: number | null;
+  buildMs: number;
 }
 
 export class DocumentRenderHost {
@@ -45,13 +86,30 @@ export class DocumentRenderHost {
     releases: 0,
     /** Last snapshot: document evaluation + snapshot build, render copy, post (main thread). */
     lastPrepareMs: 0,
+    /** …of which: the document evaluation, and the snapshot construction. */
+    lastEvaluateMs: 0,
+    lastSnapshotMs: 0,
+    /** Path2D construction summed over the frames of the last revision (renderer side). */
+    lastPathBuildMs: null as number | null,
+    /** performance.now() when the last revision's exact frame was complete (main thread). */
+    lastExactAt: null as number | null,
     lastCopyMs: 0,
     lastPostMs: 0,
     /** Last document revision: snapshot sent → first (progressive) frame, → first exact frame. */
     lastFirstFrameMs: null as number | null,
     lastExactFrameMs: null as number | null,
     lastExactDrawMs: null as number | null,
+    /** Hit index: total build time, slices, longest slice, evaluation → ready, click waits. */
     hitTestBuildMs: null as number | null,
+    hitTestSlices: 0,
+    hitTestMaxSliceMs: 0,
+    hitTestReadyMs: null as number | null,
+    hitTestWaitMs: null as number | null,
+    hitTestStaleAnswers: 0,
+    /** Drag frames presented, and how the last one was drawn. */
+    dragFrames: 0,
+    lastDragMode: null as "layers" | "live" | null,
+    lastDragMs: null as number | null,
     exactFrames: 0,
     interactionFrames: 0,
     /** Increments whenever a different document session is shown. */
@@ -67,14 +125,23 @@ export class DocumentRenderHost {
   #state: DocState | null = null;
   #ev: Evaluation | null = null;
   #hit: HitTester | null = null;
+  #hitStarted = 0;
+  #hitScheduled = false;
+  #hitWaiters: (() => void)[] = [];
+  readonly #hitChannel = new MessageChannel();
   #renderRevision = 0;
   #selection: readonly NodeId[] = [];
+  /** Draw-list indices per PathObject (a path can draw more than once only if duplicated). */
   #itemsOf = new Map<NodeId, number[]>();
+  /** Draw-list indices per container (its visible descendants), built on the first query. */
+  #itemsUnder: Map<NodeId, number[]> | null = null;
   #fitOnNext = true;
   #pending: Pending | null = null;
   /** The session whose chunks the renderer holds: chunk IDs are unique only within one store. */
   #copiedFrom: DocumentSession | null = null;
   #lastState: CanvasHostState = { kind: "starting" };
+  /** A transform gesture in progress: the top-level nodes moved, and the preview matrix. */
+  #transform: { ids: NodeId[]; matrix: Affine } | null = null;
 
   constructor(o: RenderHostOptions) {
     this.#o = o;
@@ -84,6 +151,8 @@ export class DocumentRenderHost {
       dpr: 1,
       workspace: o.workspace ?? "#2b2b2b",
       paper: o.paper ?? "#ffffff",
+      ...(o.selection ? { selection: o.selection } : {}),
+      ...(o.halo ? { halo: o.halo } : {}),
     };
     this.client = new RenderClient({
       container: o.container,
@@ -112,6 +181,10 @@ export class DocumentRenderHost {
 
   dispose(): void {
     this.#unsubscribe?.();
+    this.#hit = null;
+    this.#flushHitWaiters();
+    this.#hitChannel.port1.onmessage = null;
+    this.#hitChannel.port1.close();
     this.client.dispose();
   }
 
@@ -187,20 +260,175 @@ export class DocumentRenderHost {
     this.client.gesture(phase);
   }
 
-  // --- hit testing ----------------------------------------------------------------------------
-  /** The topmost selectable node under a CSS point of the canvas, or null. */
-  hitAt(cssX: number, cssY: number): NodeId | null {
-    const c = this.#camera;
-    return this.hitDocument((cssX - c.tx) / c.scale, (cssY - c.ty) / c.scale);
+  // --- transform gestures (G-R1) -----------------------------------------------------------
+  /** Selected IDs without a selected ancestor: a transform applies once per subtree. */
+  topLevel(ids: readonly NodeId[]): NodeId[] {
+    if (!this.#state) return [];
+    const set = new Set(ids.filter((id) => this.#state!.nodesById.has(id)));
+    const par = parents(this.#state);
+    return [...set].filter((id) => {
+      for (let p = par.get(id) ?? null; p !== null; p = par.get(p) ?? null)
+        if (set.has(p)) return false;
+      return true;
+    });
   }
 
+  get transforming(): boolean {
+    return this.#transform !== null;
+  }
+  get transformMatrix(): Affine | null {
+    return this.#transform?.matrix ?? null;
+  }
+
+  /** Starts a display-only preview of moving `ids` (their top-level subtrees). */
+  beginTransform(ids: readonly NodeId[]): boolean {
+    const top = this.topLevel(ids);
+    if (!this.#ev || top.length === 0) return false;
+    this.#transform = { ids: top, matrix: [1, 0, 0, 1, 0, 0] };
+    this.#sendDragStart();
+    return true;
+  }
+
+  updateTransform(matrix: Affine): void {
+    if (!this.#transform) return;
+    this.#transform.matrix = matrix;
+    this.client.dragMove(matrix);
+  }
+
+  /**
+   * Ends the gesture. Committed (and not an identity), the caller's `commit` dispatches one
+   * command and the pose stays on screen until that revision's exact frame is complete; if the
+   * command is rejected (the revision does not change), the preview is cancelled.
+   */
+  endTransform(commit: boolean, onCommit?: (ids: readonly NodeId[], matrix: Affine) => void): void {
+    const t = this.#transform;
+    this.#transform = null;
+    if (!t) return;
+    const m = t.matrix;
+    const identity =
+      m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0;
+    if (!commit || identity || !onCommit) return this.client.dragEnd(true);
+    this.client.dragEnd(false);
+    const rev = this.documentRevision;
+    onCommit(t.ids, m);
+    if (this.documentRevision === rev) this.client.dragEnd(true);
+  }
+
+  /** The draw items of the moving subtrees, with their fixed and moving clips. */
+  #sendDragStart(): void {
+    const t = this.#transform;
+    if (!t || !this.#ev || !this.#state) return;
+    const worlds = new Map<NodeId, Matrix>();
+    const par = parents(this.#state);
+    const items: number[] = [];
+    const clips: DragClip[] = [];
+    const rect = (r: Rect | null): ClipRect | null =>
+      r && { x: r.x, y: r.y, w: r.width, h: r.height };
+    for (const owner of t.ids) {
+      // Clips above the moved node stay fixed; clips at or below it move with it.
+      let fixed: Rect | null = null;
+      for (let n = par.get(owner) ?? null; n !== null; n = par.get(n) ?? null) {
+        const node = this.#state.nodesById.get(n);
+        if (node && "clipRef" in node && node.clipRef)
+          fixed = intersectRects(fixed, mapRect(this.#worldOf(n, worlds), node.clipRef));
+      }
+      for (const k of this.itemsOf(owner)) {
+        const it = this.#ev.drawList[k]!;
+        const inner = this.#innerClip(it.nodeId, owner, worlds);
+        items.push(k);
+        clips.push({ fixed: rect(fixed), moving: rect(inner) });
+      }
+    }
+    this.client.dragStart(this.#renderRevision, items, clips);
+    const m = t.matrix;
+    if (!(m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0))
+      this.client.dragMove(m);
+  }
+
+  // --- hit testing ----------------------------------------------------------------------------
+  /**
+   * The topmost selectable node under a CSS point of the canvas, or null; `undefined` when the
+   * document changed before the answer was ready (the caller ignores it). The index is prepared
+   * in bounded slices after each evaluation; a click that arrives first waits for completion,
+   * still in slices, and is never answered by a partial index.
+   */
+  hitAt(cssX: number, cssY: number): Promise<NodeId | null | undefined> {
+    const c = this.#camera;
+    const x = (cssX - c.tx) / c.scale;
+    const y = (cssY - c.ty) / c.scale;
+    const ev = this.#ev;
+    const hit = this.#hit;
+    if (!ev || !hit) return Promise.resolve(null);
+    if (hit.ready) return Promise.resolve(hit.hit(x, y));
+    const t0 = performance.now();
+    return new Promise((resolve) => {
+      this.#hitWaiters.push(() => {
+        this.diag.hitTestWaitMs = performance.now() - t0;
+        if (this.#ev === ev && this.#hit === hit && hit.ready) resolve(hit.hit(x, y));
+        else {
+          this.diag.hitTestStaleAnswers++;
+          resolve(undefined);
+        }
+      });
+      this.#scheduleHitSlice();
+    });
+  }
+
+  /** Qualification only: completes the index synchronously and queries it. */
   hitDocument(x: number, y: number): NodeId | null {
-    if (!this.#ev || !this.#session) return null;
-    if (!this.#hit) {
-      this.#hit = new HitTester(this.#ev, this.#session.store);
-      this.diag.hitTestBuildMs = this.#hit.buildMs;
+    if (!this.#hit) return null;
+    if (!this.#hit.ready) {
+      this.#hit.step(Infinity);
+      this.#hitDone();
     }
     return this.#hit.hit(x, y);
+  }
+
+  /** Starts preparing the index of the current evaluation (any older index is dropped). */
+  #startHitIndex(): void {
+    this.#hit =
+      this.#ev && this.#session
+        ? new HitTester(this.#ev, this.#session.store, { deferred: true })
+        : null;
+    this.#hitStarted = performance.now();
+    this.diag.hitTestBuildMs = null;
+    this.diag.hitTestReadyMs = null;
+    this.#flushHitWaiters(); // answers for an older evaluation are stale
+    if (this.#hit) this.#scheduleHitSlice();
+  }
+
+  #scheduleHitSlice(): void {
+    if (this.#hitScheduled || !this.#hit || this.#hit.ready) return;
+    this.#hitScheduled = true;
+    if (this.#hitWaiters.length) {
+      // A click is waiting: run the next slice as soon as the event loop allows.
+      this.#hitChannel.port1.onmessage = () => this.#runHitSlice();
+      this.#hitChannel.port2.postMessage(0);
+    } else setTimeout(() => this.#runHitSlice(), 0);
+  }
+
+  #runHitSlice(): void {
+    this.#hitScheduled = false;
+    const hit = this.#hit;
+    if (!hit || hit.ready) return;
+    const t0 = performance.now();
+    hit.slice(HIT_SLICE_MS, 512);
+    const ms = performance.now() - t0;
+    this.diag.hitTestSlices++;
+    this.diag.hitTestMaxSliceMs = Math.max(this.diag.hitTestMaxSliceMs, ms);
+    if (hit.ready) this.#hitDone();
+    else this.#scheduleHitSlice();
+  }
+
+  #hitDone(): void {
+    if (!this.#hit) return;
+    this.diag.hitTestBuildMs = this.#hit.buildMs;
+    this.diag.hitTestReadyMs = performance.now() - this.#hitStarted;
+    this.#flushHitWaiters();
+  }
+
+  #flushHitWaiters(): void {
+    for (const w of this.#hitWaiters.splice(0)) w();
   }
 
   // --- internals ------------------------------------------------------------------------------
@@ -208,9 +436,10 @@ export class DocumentRenderHost {
     const state = this.#session?.getSnapshot().state ?? null;
     if (state === this.#state) return;
     this.#state = state;
-    this.#hit = null;
     if (!state) {
       this.#ev = null;
+      this.#itemsUnder = null;
+      this.#startHitIndex();
       this.#itemsOf.clear();
       this.#emit({ kind: "empty" });
       return;
@@ -219,10 +448,114 @@ export class DocumentRenderHost {
     if (this.#fitOnNext) this.fitToView();
   }
 
+  /** Outlined items: those of selected PathObjects only (containers are shown by bounds). */
   #selectionIndices(): number[] {
     const out: number[] = [];
     for (const id of this.#selection) for (const k of this.#itemsOf.get(id) ?? []) out.push(k);
-    return out;
+    return out.length > OUTLINE_LIMIT ? [] : out;
+  }
+
+  /** Draw-list indices of everything a node draws: itself (a path) or its visible descendants. */
+  itemsOf(id: NodeId): readonly number[] {
+    const own = this.#itemsOf.get(id);
+    if (own) return own;
+    if (!this.#ev || !this.#state) return [];
+    if (!this.#itemsUnder) {
+      const under = new Map<NodeId, number[]>();
+      const par = parents(this.#state);
+      this.#ev.drawList.forEach((it, k) => {
+        for (let n = par.get(it.nodeId) ?? null; n !== null; n = par.get(n) ?? null) {
+          const l = under.get(n);
+          if (l) l.push(k);
+          else under.set(n, [k]);
+        }
+      });
+      this.#itemsUnder = under;
+    }
+    return this.#itemsUnder.get(id) ?? [];
+  }
+
+  /** Composed (document-space) matrix of a container, cached per evaluated state. */
+  #worldOf(id: NodeId, cache: Map<NodeId, Matrix>): Matrix {
+    const hit = cache.get(id);
+    if (hit) return hit;
+    const state = this.#state!;
+    const p = parents(state).get(id) ?? null;
+    const local = state.nodesById.get(id)!.localTransform;
+    const m = p === null ? local : multiply(this.#worldOf(p, cache), local);
+    cache.set(id, m);
+    return m;
+  }
+
+  /** The clip a node's own subtree applies to path `pathId` (its clips, not its ancestors'). */
+  #innerClip(pathId: NodeId, owner: NodeId, cache: Map<NodeId, Matrix>): Rect | null {
+    if (pathId === owner) return null;
+    const state = this.#state!;
+    const par = parents(state);
+    let clip: Rect | null = null;
+    for (let n = par.get(pathId) ?? null; n !== null; n = par.get(n) ?? null) {
+      const node = state.nodesById.get(n);
+      if (node && "clipRef" in node && node.clipRef)
+        clip = intersectRects(clip, mapRect(this.#worldOf(n, cache), node.clipRef));
+      if (n === owner) break;
+    }
+    return clip;
+  }
+
+  /**
+   * Document-space bounds of what the nodes draw: each visible item's control-point box under
+   * its composed transform. Hidden descendants are excluded. Clips owned inside a selected
+   * subtree bound it; a clip owned by an ancestor of the selection does not (it stays fixed when
+   * the selection moves). This box is the one the overlay, the handles and the inspector use.
+   */
+  boundsOf(ids: readonly NodeId[]): Bounds | null {
+    const ev = this.#ev;
+    const session = this.#session;
+    if (!ev || !session) return null;
+    const worlds = new Map<NodeId, Matrix>();
+    let x0 = Infinity;
+    let y0 = Infinity;
+    let x1 = -Infinity;
+    let y1 = -Infinity;
+    const seen = new Set<number>();
+    for (const owner of ids)
+      for (const k of this.itemsOf(owner)) {
+        if (seen.has(k)) continue;
+        seen.add(k);
+        const it = ev.drawList[k]!;
+        const [bx0, by0, bx1, by1] = session.store.derived(it.chunkId).bounds(it.pathIndex);
+        const m = it.transform;
+        let ix0 = Infinity;
+        let iy0 = Infinity;
+        let ix1 = -Infinity;
+        let iy1 = -Infinity;
+        for (const [px, py] of [
+          [bx0, by0],
+          [bx1, by0],
+          [bx0, by1],
+          [bx1, by1],
+        ] as const) {
+          const X = m[0] * px + m[2] * py + m[4];
+          const Y = m[1] * px + m[3] * py + m[5];
+          ix0 = Math.min(ix0, X);
+          iy0 = Math.min(iy0, Y);
+          ix1 = Math.max(ix1, X);
+          iy1 = Math.max(iy1, Y);
+        }
+        const clip = this.#innerClip(it.nodeId, owner, worlds);
+        if (clip) {
+          ix0 = Math.max(ix0, clip.x);
+          iy0 = Math.max(iy0, clip.y);
+          ix1 = Math.min(ix1, clip.x + clip.width);
+          iy1 = Math.min(iy1, clip.y + clip.height);
+          if (ix1 < ix0 || iy1 < iy0) continue;
+        }
+        x0 = Math.min(x0, ix0);
+        y0 = Math.min(y0, iy0);
+        x1 = Math.max(x1, ix1);
+        y1 = Math.max(y1, iy1);
+      }
+    return x0 <= x1 ? { x: x0, y: y0, width: x1 - x0, height: y1 - y0 } : null;
   }
 
   /** Sends the current document as a snapshot; `full` re-sends every chunk (after a restart). */
@@ -231,7 +564,13 @@ export class DocumentRenderHost {
     const session = this.#session;
     if (!state || !session) return;
     const t0 = performance.now();
-    if (!this.#ev || full === false) this.#ev = evaluate(state);
+    let tEval = t0;
+    if (!this.#ev || full === false) {
+      this.#ev = evaluate(state);
+      tEval = performance.now();
+      this.#itemsUnder = null;
+      this.#startHitIndex();
+    }
     const ev = this.#ev;
     this.#itemsOf = new Map();
     ev.drawList.forEach((it, k) => {
@@ -287,25 +626,39 @@ export class DocumentRenderHost {
         p.coordOffsets.byteLength,
       0,
     );
+    // Waiting for this revision's frame before sending: the main-thread renderer (?renderer=main,
+    // or the crash fallback's replay) can draw a small document's complete exact frame
+    // synchronously inside `send`. Registered afterwards, that frame was missed and the host
+    // stayed "rendering" (found by the G-UI-R review's fallback test).
+    this.#pending = {
+      renderRevision: snapshot.renderRevision,
+      documentRevision,
+      sentAt: t0,
+      firstFrameMs: null,
+      buildMs: 0,
+    };
+    this.#emit({ kind: "rendering", documentRevision });
     this.client.send(snapshot, render, release);
+    // A document change during a transform gesture: the preview restarts on the new snapshot.
+    if (this.#transform) this.#sendDragStart();
     const t3 = performance.now();
     this.diag.snapshots++;
     this.diag.chunksCopied += copy.length;
     this.diag.bytesCopied += bytes;
     this.diag.releases += release.length;
     this.diag.lastPrepareMs = t1 - t0;
+    this.diag.lastEvaluateMs = tEval - t0;
+    this.diag.lastSnapshotMs = t1 - tEval;
     this.diag.lastCopyMs = t2 - t1;
     this.diag.lastPostMs = t3 - t2;
-    this.#pending = {
-      renderRevision: snapshot.renderRevision,
-      documentRevision,
-      sentAt: t0,
-      firstFrameMs: null,
-    };
-    this.#emit({ kind: "rendering", documentRevision });
   }
 
   #onFrame(f: FrameInfo & { host: HostMode }): void {
+    if (f.drag) {
+      this.diag.dragFrames++;
+      this.diag.lastDragMode = f.drag;
+      this.diag.lastDragMs = f.ms;
+    }
     if (f.kind === "exact") {
       this.diag.exactFrames++;
       if (f.complete)
@@ -315,10 +668,13 @@ export class DocumentRenderHost {
     if (p && f.renderRevision >= p.renderRevision) {
       const ms = performance.now() - p.sentAt;
       p.firstFrameMs ??= ms;
+      p.buildMs += f.buildMs;
       if (f.kind === "exact" && f.complete) {
         this.diag.lastFirstFrameMs = p.firstFrameMs;
         this.diag.lastExactFrameMs = ms;
         this.diag.lastExactDrawMs = f.ms;
+        this.diag.lastPathBuildMs = p.buildMs;
+        this.diag.lastExactAt = performance.now();
         this.#pending = null;
         this.#emit({ kind: "ready", documentRevision: p.documentRevision, host: f.host });
       }

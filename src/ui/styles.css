@@ -146,3 +146,5 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* The canvas host draws its own keyboard focus ring above its layers (src/canvas-host). */

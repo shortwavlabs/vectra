@@ -31,10 +31,8 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const dev = spawn(
   "pnpm",
   ["exec", "vp", "dev", "--host", "127.0.0.1", "--port", String(PORT), "--strictPort"],
-  {
-    cwd: ROOT,
-    stdio: "ignore",
-  },
+  // Its own process group: stopping it stops pnpm and the vp dev server it starts.
+  { cwd: ROOT, stdio: "ignore", detached: true },
 );
 const report = {
   commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT }).toString().trim(),
@@ -124,7 +122,7 @@ try {
 } finally {
   await s?.quit().catch(() => {});
   for (const b of browsers) await b.close().catch(() => {});
-  dev.kill();
+  if (dev.pid) process.kill(-dev.pid, "SIGTERM");
 }
 report.loadavgEnd = loadavg();
 mkdirSync(OUT, { recursive: true });

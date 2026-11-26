@@ -12,6 +12,8 @@ import { NumericField } from "../ui/numeric-field.tsx";
 import { Button } from "../ui/registry/button";
 import { Slider } from "../ui/registry/slider";
 import {
+  type Box,
+  containsLocked,
   displayName,
   isLocked,
   pathFill,
@@ -72,6 +74,9 @@ export function SelectionInspector(p: {
   session: DocumentSession;
   snap: SessionSnapshot;
   ids: readonly NodeId[];
+  /** The box of what the selection draws (the canvas overlay's box). When it draws nothing
+   *  (hidden), the document geometry's box is used, so the fields still edit. */
+  bounds: Box | null;
   run: Run;
 }) {
   const { session, snap, ids, run } = p;
@@ -79,7 +84,9 @@ export function SelectionInspector(p: {
   const top = topLevel(s, ids);
   const key = top.join(",");
   const locked = ids.some((id) => isLocked(s, id));
-  const b = selectionBounds(s, session.store, top);
+  // A transform never moves a locked object: a locked descendant freezes the transform too.
+  const frozen = locked || top.some((id) => containsLocked(s, id));
+  const b = p.bounds ?? selectionBounds(s, session.store, top);
   const first = s.nodesById.get(ids[0]!)!;
   const paths = fillTargets(s, ids);
   const fill = paths.length ? pathFill(s, paths[0]!) : null;
@@ -129,12 +136,17 @@ export function SelectionInspector(p: {
       </div>
       {b && (
         <Section title="Transform">
+          {frozen && !locked && (
+            <p className="text-xs text-warning" role="note">
+              Contains locked objects: unlock them to move or scale this selection.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <NumericField
               label="X"
               unit="px"
               value={b.x}
-              disabled={locked}
+              disabled={frozen}
               onCommit={(v, o) => move(v - b.x, 0, o.step, "x")}
               onBlur={end}
             />
@@ -142,7 +154,7 @@ export function SelectionInspector(p: {
               label="Y"
               unit="px"
               value={b.y}
-              disabled={locked}
+              disabled={frozen}
               onCommit={(v, o) => move(0, v - b.y, o.step, "y")}
               onBlur={end}
             />
@@ -165,7 +177,7 @@ export function SelectionInspector(p: {
               max={400}
               format={{ style: "unit", unit: "percent" }}
               step={1}
-              disabled={locked}
+              disabled={frozen}
               value={[Math.round(draftScale ?? scalePct)]}
               onPointerDown={() => {
                 drag.current = { active: true, cancelled: false };
@@ -206,14 +218,14 @@ export function SelectionInspector(p: {
                 value={scalePct}
                 min={10}
                 max={400}
-                disabled={locked}
+                disabled={frozen}
                 onCommit={(v, o) => scaleTo(v, o.step)}
                 onBlur={end}
               />
               <Button
                 variant="outline"
                 size="sm"
-                disabled={locked || scalePct === 100}
+                disabled={frozen || scalePct === 100}
                 onClick={() => scaleTo(100, false)}
               >
                 Reset
@@ -222,7 +234,7 @@ export function SelectionInspector(p: {
                 variant="outline"
                 size="icon-sm"
                 aria-label="Rotate 90° counter-clockwise"
-                disabled={locked}
+                disabled={frozen}
                 onClick={() => turn(3)}
               >
                 <RotateCcw />
@@ -231,7 +243,7 @@ export function SelectionInspector(p: {
                 variant="outline"
                 size="icon-sm"
                 aria-label="Rotate 90° clockwise"
-                disabled={locked}
+                disabled={frozen}
                 onClick={() => turn(1)}
               >
                 <RotateCw />

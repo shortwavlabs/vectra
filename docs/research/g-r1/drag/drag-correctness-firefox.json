@@ -1,0 +1,134 @@
+[
+  {
+    "browser": "firefox",
+    "case": "bottom of paint order",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108966,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "firefox",
+    "case": "middle of paint order",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108379,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "firefox",
+    "case": "top of paint order",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108966,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "firefox",
+    "case": "non-contiguous multi-selection",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 107912,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "firefox",
+    "case": "translucent overlap: the middle disc moves between the others",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109000,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "firefox",
+    "case": "clip owned outside the selection stays fixed",
+    "mode": "layers",
+    "dragMs": 2,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 108755,
+    "pctOver32": 0.001,
+    "maxDiff": 59
+  },
+  {
+    "browser": "firefox",
+    "case": "clip owned by the selection moves with it",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109348,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "firefox",
+    "case": "nested groups (a group inside a moved group, and a hidden descendant)",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 101038,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "firefox",
+    "case": "layer transforms (multi-layer, a scaled top layer)",
+    "mode": "layers",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 68712,
+    "pctOver32": 0,
+    "maxDiff": 1
+  },
+  {
+    "browser": "firefox",
+    "case": "fractional device-pixel translation",
+    "mode": "layers",
+    "dragMs": 2,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109146,
+    "pctOver32": 0.067,
+    "maxDiff": 72
+  },
+  {
+    "browser": "firefox",
+    "case": "scale about a corner (handle pose: vectors redrawn live)",
+    "mode": "live",
+    "dragMs": 1,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 109615,
+    "pctOver32": 0,
+    "maxDiff": 2
+  },
+  {
+    "browser": "firefox",
+    "case": "one-axis scale of a non-contiguous selection",
+    "mode": "live",
+    "dragMs": 2,
+    "pixels": 2040192,
+    "geometryErrors": 0,
+    "aaBand": 106600,
+    "pctOver32": 0,
+    "maxDiff": 2
+  }
+]
