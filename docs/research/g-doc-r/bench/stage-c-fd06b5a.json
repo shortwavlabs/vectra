@@ -1,0 +1,498 @@
+{
+  "script": "scripts/bench-g-doc-r.mjs",
+  "commit": "fd06b5a14e782390fc59b188ac76ae2474285693",
+  "trackedChanges": false,
+  "argv": [
+    "--sizes",
+    "43000,250000",
+    "--modes",
+    "incremental",
+    "--reps",
+    "30",
+    "--out",
+    "docs/research/g-doc-r/bench/stage-c-fd06b5a.json"
+  ],
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "cpus": 18,
+  "totalMemGiB": 128,
+  "gcBetweenRepetitions": true,
+  "reps": 30,
+  "warmup": 2,
+  "loadavgStart": [0.75, 0.93, 1.2],
+  "runs": [
+    {
+      "paths": 43000,
+      "anchorsPerPath": 6,
+      "pathsPerGroup": 5375,
+      "replaceLayerPaths": 1000,
+      "setFillManyPaths": 1000,
+      "nodes": 44012,
+      "nodeKinds": {
+        "path": 44000,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 264000,
+      "validation": "incremental",
+      "loadavgStart": [0.75, 0.93, 1.2],
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 1.987,
+            "p95": 2.012,
+            "max": 2.029
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.012,
+            "max": 0.021
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.004,
+            "max": 0.006
+          },
+          "incrementalDecided": 1
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 6.934,
+            "p95": 7.345,
+            "max": 7.923
+          },
+          "undo": {
+            "p50": 0.003,
+            "p95": 0.004,
+            "max": 0.008
+          },
+          "redo": {
+            "p50": 0.003,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "incrementalDecided": 1
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 2.019,
+            "p95": 2.082,
+            "max": 2.083
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 2.025,
+            "p95": 2.103,
+            "max": 2.119
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.024
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 4.935,
+            "p95": 5.071,
+            "max": 5.099
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 3.714,
+            "p95": 3.875,
+            "max": 3.933
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.013
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 4.488,
+            "p95": 4.833,
+            "max": 5.153
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "group": {
+          "dispatch": {
+            "p50": 5.619,
+            "p95": 5.964,
+            "max": 5.975
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.006
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 6.168,
+            "p95": 6.445,
+            "max": 6.456
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 4.945,
+            "p95": 5.069,
+            "max": 5.076
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 5.104,
+            "p95": 5.23,
+            "max": 5.237
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 5.392,
+            "p95": 5.638,
+            "max": 5.659
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.006
+          },
+          "incrementalDecided": 1
+        }
+      },
+      "loadavgEnd": [1.17, 1.01, 1.22]
+    },
+    {
+      "paths": 250000,
+      "anchorsPerPath": 3,
+      "pathsPerGroup": 31250,
+      "replaceLayerPaths": 1000,
+      "setFillManyPaths": 1000,
+      "nodes": 251012,
+      "nodeKinds": {
+        "path": 251000,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 756000,
+      "validation": "incremental",
+      "loadavgStart": [1.17, 1.01, 1.22],
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 13.97,
+            "p95": 14.726,
+            "max": 14.769
+          },
+          "undo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "incrementalDecided": 1
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 40.684,
+            "p95": 41.577,
+            "max": 41.905
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.003
+          },
+          "incrementalDecided": 1
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 14.59,
+            "p95": 15.286,
+            "max": 15.574
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.011
+          },
+          "incrementalDecided": 1
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 14.549,
+            "p95": 15.109,
+            "max": 15.136
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.007,
+            "max": 0.014
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.002,
+            "max": 0.008
+          },
+          "incrementalDecided": 1
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 37.095,
+            "p95": 38.133,
+            "max": 38.251
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 27.455,
+            "p95": 27.864,
+            "max": 28.525
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 30.586,
+            "p95": 31.111,
+            "max": 31.384
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        },
+        "group": {
+          "dispatch": {
+            "p50": 39.578,
+            "p95": 40.896,
+            "max": 40.92
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.003,
+            "max": 0.005
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.022,
+            "max": 0.023
+          },
+          "incrementalDecided": 1
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 44.703,
+            "p95": 45.728,
+            "max": 45.735
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 34.789,
+            "p95": 36.42,
+            "max": 36.462
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 35.592,
+            "p95": 37.302,
+            "max": 37.57
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.002
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 17.546,
+            "p95": 18.985,
+            "max": 19.334
+          },
+          "undo": {
+            "p50": 0.002,
+            "p95": 0.002,
+            "max": 0.003
+          },
+          "redo": {
+            "p50": 0.001,
+            "p95": 0.001,
+            "max": 0.001
+          },
+          "incrementalDecided": 1
+        }
+      },
+      "loadavgEnd": [2.39, 1.31, 1.32]
+    }
+  ],
+  "loadavgEnd": [2.39, 1.31, 1.32]
+}

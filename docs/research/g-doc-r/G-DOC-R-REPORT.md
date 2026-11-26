@@ -1,6 +1,6 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: IN PROGRESS.** Stage B is implemented and qualified (§1). Stages C and D are not started. Nothing is merged; the gate awaits maintainer acceptance stage by stage ([scope](G-DOC-R-SCOPE.md)).
+**Status: IN PROGRESS.** Stage B (§1) and stage C (§2) are implemented and qualified. An independent review of stage B found one correctness defect, which is fixed and re-qualified (§1.6). Stage D is not started. Nothing is merged; the gate awaits maintainer acceptance stage by stage ([scope](G-DOC-R-SCOPE.md)).
 
 | | |
 |---|---|
@@ -118,4 +118,137 @@ The engine (Rust) is untouched by G-DOC-R; its runs confirm the baseline and sup
 | Invalid transactions, resource limits, rollback | **PASS**: §1.2 |
 | Atomicity and immutable ownership | **PASS**: §1.2 |
 | ≥ 10,000 randomized differential transactions | **PASS**: 12,427 enforced in `vp test`; 74,601 recorded, 0 disagreements |
-| Correctness defect, contradiction or regression found | **None.** Every type is faster than the full-pass baseline (Node) |
+| Correctness defect, contradiction or regression found | **One defect, found after this table was first written:** the independent review (§1.6) found an input the proof wrongly accepted. Fixed and re-qualified. No regression: every type is faster than the full-pass baseline (Node) |
+
+### 1.6 Independent review and the defect it found
+A separate reviewer read `incremental-validate.ts` against `validateState` rule by rule at `8913cfb`, without seeing this report's conclusions.
+
+**Defect C1 (confirmed, now fixed in `fd06b5a`).**
+- **Input.** A map entry whose **value is `undefined`**, under a key the previous state lacks, in any of the four ID maps.
+- **Why it was missed.** `diff` compared `old !== v`. For a new key, `old` and `v` are both `undefined`, so the entry was neither seen as changed nor counted as added. An uncounted addition could also hide a real removal from the size shortcut.
+- **Effect.** The proof accepted states that `validateState` rejects (with a `TypeError`), sometimes with stale anchors and chunks. A faulty command (`map.set(id, lookup.get(missing))`) could have reached it.
+  - In `incremental` mode, the production default, such a state would have been **published**.
+  - `compare` mode would have reported it as a `ValidationDisagreement`.
+  - The existing harness never forged an `undefined` value.
+- **Fix.** `diff` and `diffKeys` treat a present key as changed whenever the previous map lacks it. The entry then reaches the per-entry checks, which throw, and the proof answers `undecided`.
+- **Evidence the fix is needed and sufficient.**
+  - With the fix reverted, seed 20261125 gives **199 disagreements** on the new `undefined-entry` forgery; with it, **0**.
+  - `session-faulty-command.test.ts` injects the entry through a faulty `applyCommand` into an `incremental`-mode session, for each map. It fails 4/4 without the fix and passes with it. The full pass rejects, and nothing is published.
+
+**Review gaps now covered.**
+- **New forgeries:** `undefined-entry` (four maps, sometimes with a hidden removal), `asset-field` (changed asset fields under the same key), `shared-list` (two containers sharing one child array), `remove-source` (valid removal of a source and its asset).
+- **A deterministic test:** an ancestor transform overflowing an existing 34-deep chain of 1e9 scales is rejected with `invalid_transform`, identically in every mode.
+
+**Residual risks recorded, not fixed.**
+- **R1.** The identity diff assumes committed states are deeply immutable. `Draft.finish`, `createDocument` and `parseDocumentJson` guarantee this. The constructor trusts a caller-supplied state, which is the existing contract (G-DOC review 3). `full` mode is unaffected.
+- **R2.** The order of the derived chunk map depended on which validator ran. No consumer depends on it: `container.ts` sorts, and `selectChunkIds` now sorts by chunk number.
+- **R3.** "Every chunk prev references is live" holds inside `dispatch`. The source-scan guard pins `session.ts` as the only production caller.
+
+**Re-qualification on the fixed code** (`fcf1425`; production code as in `fd06b5a`, plus one harness-only fix to the new `asset-field` forgery):
+- The 6-seed record: **74,325 comparisons, 0 disagreements** ([`bench/stage-c-differential-fcf1425.json`](bench/stage-c-differential-fcf1425.json)).
+- 30 further seeds (100–129): 385,254 comparisons, 0 disagreements.
+- `vp test`: 435 passed.
+
+## 2. Stage C — Draft write keys and the command fixes
+
+### 2.1 What changed (`85d65f1`)
+**The Draft write log (`DraftLog`, `commands.ts`).**
+- Each `Draft`'s node map is a `DraftNodes`. It records every key passed to `set` or `delete`; `clear` throws. `SealedMap` is the only write path to a Draft's nodes.
+- `dispatch` gives each transaction one `DraftLog` through `CommandContext.log`. Every Draft adds its written keys when it finishes.
+- After each command, `log.step(input, output)` requires the output to be either the input (a no-op) or the last Draft result built on that input. Anything else marks the log **incomplete**, and an incomplete log is never used.
+- **The log is transaction-local.** Nothing is attached to states, so nothing extra is retained in history. A state-keyed side table was rejected for that reason: it would have retained every state's ancestry and its written-key sets.
+
+**Use in validation.**
+- With a complete log, `checkIncremental` builds the node change set from the written keys only, O(written), instead of the whole-map identity diff, O(nodes).
+- The log may be a superset; unchanged keys are skipped.
+- **Defence in depth.** If the map sizes do not balance with the counted additions and removals, the proof answers `undecided`.
+- Forged states and incomplete logs keep the identity diff.
+
+**Publication.**
+- `Draft.finish` freezes only written node entries; before, it scanned the whole map.
+- An unchanged sealed map (`stylesById`, `paletteById`, `sourceAssetsById`) is **shared** with the predecessor. `sealMap` now returns an already-sealed map as is; it is immutable, so sharing is safe.
+- So `diff` on those maps is O(1) when they are unchanged.
+
+**Document order without a tree walk.**
+- `documentOrder`, a whole-tree walk run by every `setFill`, `group`, `delete`, `duplicate` and `reparent`, is removed.
+- A single target needs no order.
+- Several targets are sorted by comparing their root-to-node child-index chains, built from the child lists of their ancestors only. The result is identical: it is pre-order, and distinct nodes have distinct chains.
+
+**Subtree walk** (for container transforms, moves and new edges; the investigation measured 56 ms for a whole layer at 250k).
+- Leaves are checked with `finiteProduct`, which evaluates exactly `multiply`'s six expressions without allocating the matrix.
+- Only containers are deduplicated.
+
+**Not changed in stage C:** the O(nodes) copy in the `Draft` constructor, and cold `parents()`. These belong to stage D.
+
+### 2.2 Correctness qualification
+| Requirement (brief §2 C) | Evidence | Result |
+|---|---|---|
+| Complete mutation tracking | `commands-writelog.test.ts`, for each of 20 command forms (every command type, plus replace-trace): the log is complete and covers every key the identity diff finds. For patch commands it is exactly their targets. Chains of commands give the union. A foreign result marks the log incomplete. In the differential, **every** command transaction's log is checked against the identity diff | **PASS**: 0 incomplete logs |
+| Correct incremental validation coverage | The differential validates every command transaction through its log and every forgery through the identity diff, both against the full pass: 40,922 log-path comparisons in the 6-seed record | **PASS**: 0 disagreements |
+| No-op transactions | An empty transaction and a no-op command (`releaseClip` on an unclipped node) change nothing: same snapshot, same revision. An edit to the same value is still a transaction, as before (semantics unchanged) | **PASS** |
+| Undo and redo | The session script (undo and redo inside), `published states stay immutable…`; the benchmark asserts undo restores the state by reference. Undo and redo stay ≤ 0.03 ms | **PASS** |
+| Invalid-command rejection | The differential's 19,741 command-rejected transactions (6 seeds); the session script's rejections; atomic rollback | **PASS** |
+| Stable serialization and export semantics | The frozen canonical-serialization hash (`e60fa327…`, taken on stage B) is unchanged. Document export **588/588** identical on `fcf1425`. Shared maps and document order are covered by tests (target order in a command does not matter; styles are allocated in document order) | **PASS** |
+
+### 2.3 Performance: integrated dispatch (Node, `incremental` mode)
+Runs:
+- `node --expose-gc scripts/bench-g-doc-r.mjs --sizes 43000,250000 --modes incremental --reps 30` on `fd06b5a` → [`bench/stage-c-fd06b5a.json`](bench/stage-c-fd06b5a.json);
+- `--sizes 330000` → [`bench/stage-c-1m-fd06b5a.json`](bench/stage-c-1m-fd06b5a.json): 330,000 paths, 331,012 nodes, **996,000 anchors** (the 1M-anchor stress workload).
+
+Both runs had no tracked changes. Load average 0.8–2.6 (low, shared).
+
+Dispatch in ms (median / p95):
+
+| Type | 43k B | 43k C | 250k B | 250k C | 330k C (996k anchors) |
+|---|---|---|---|---|---|
+| setFill1 | 7.9 / 8.4 | 2.0 / 2.0 | 62.2 / 66.7 | 14.0 / 14.7 | 21.5 / 22.5 |
+| setFillMany | 8.5 / 9.0 | 6.9 / 7.3 | 65.1 / 67.7 | 40.7 / 41.6 | 61.1 / 64.0 |
+| setVisible | 4.0 / 4.6 | 2.0 / 2.1 | 31.9 / 32.9 | 14.6 / 15.3 | 22.2 / 23.3 |
+| rename | 3.9 / 4.6 | 2.0 / 2.1 | 32.1 / 32.6 | 14.5 / 15.1 | 22.0 / 23.6 |
+| reorder | 7.1 / 7.5 | 4.9 / 5.1 | 52.6 / 55.9 | 37.1 / 38.1 | 56.1 / 57.9 |
+| applyTransformPath | 5.7 / 6.5 | 3.7 / 3.9 | 44.2 / 45.4 | 27.5 / 27.9 | 42.9 / 44.6 |
+| applyTransformLayer | 11.6 / 14.3 | 4.5 / 4.8 | 79.6 / 90.1 | 30.6 / 31.1 | 46.0 / 48.0 |
+| group | 11.1 / 11.7 | 5.6 / 6.0 | 84.4 / 89.4 | 39.6 / 40.9 | 60.9 / 63.2 |
+| ungroup | 9.4 / 10.5 | 6.2 / 6.4 | 67.4 / 72.0 | 44.7 / 45.7 | 66.1 / 69.7 |
+| delete | 11.7 / 12.2 | 4.9 / 5.1 | 88.3 / 91.7 | 34.8 / 36.4 | 57.4 / 59.1 |
+| duplicate | 11.0 / 11.5 | 5.1 / 5.2 | 80.4 / 83.9 | 35.6 / 37.3 | 57.3 / 59.3 |
+| commitTrace | 8.0 / 8.7 | 5.4 / 5.6 | 42.8 / 44.7 | 17.5 / 19.0 | 27.7 / 29.1 |
+
+- **Interactive target:** every type has median ≤ 6.9 ms and p95 ≤ 7.3 ms.
+- **250k paths (756k anchors):** **every type** is under 50 ms at median and p95: medians 14–45 ms, p95 ≤ 45.7 ms.
+- **996k anchors:** 5 types meet ≤ 50 ms. **Seven exceed it** (median 56–66 ms): setFillMany, reorder, group, ungroup, delete, duplicate, and applyTransformLayer at p95 48 ms (just inside).
+- The proof decided every measured transaction. Undo and redo stay ≤ 0.03 ms.
+
+**Where the remaining time goes** (stage profile, `bench-td-perf-007.mjs --only applyTransformLayer,applyTransformPath,setVisible`, [`bench/stage-c-walk-profile-fcf1425.json`](bench/stage-c-walk-profile-fcf1425.json); all figures in ms):
+
+| | 250k | 330k |
+|---|---|---|
+| Draft constructor copy, O(nodes) | 14.0 | 21.5–22.1 |
+| Cold `parents()`, O(nodes): commands that need a parent, and transformed nodes in the proof | 13.0 | 18.2–18.6 |
+| Whole-layer walk (the proof's checks for `applyTransformLayer`) | 19.0 (the investigation measured 56) | 26.1 |
+| Publication | ~1 (was ~8) | ~1 |
+
+The copy and `parents` costs are exactly what stage D's chunked copy-on-write map and persistent parent index remove.
+
+### 2.4 Per-subtree summaries (investigation, brief §2 C)
+**Question.** Do whole-layer transforms need per-subtree summaries to meet ≤ 50 ms?
+
+**Design considered.** For each container, cache a bound on the composed entries of its subtree relative to itself (max |linear entry|, max |translation|). A container transform could then prove finiteness from the bound alone. A translation-only change leaves every linear part, and therefore the clip rule, unchanged, so it needs no walk. The cost: every edit must update the summaries of all its ancestors (O(depth)), structural edits must rebuild them, and the summaries are a second derived structure for the differential harness to check.
+
+**Measured.**
+- The optimised walk costs 19 ms at 250k paths and 26 ms at 330k, about 80 ns per node. The rest of a whole-layer dispatch is the copy and the proof's fixed costs.
+- After stage D removes the copy, the projection is about 30 ms at 996k anchors, within ≤ 50 ms. This is a projection, to be verified in stage D.
+
+**Decision.** **Not implemented in stage C.** The walk is within the target at the 250k workload and, as projected after D, at the 1M-anchor workload. Summaries add an incrementally maintained structure with its own correctness surface.
+
+**Ceiling, recorded.** The walk is O(subtree). A degenerate document of ~1M one-anchor paths in one layer would take about 80 ms. Revisit summaries if a stress workload with realistic paths misses ≤ 50 ms after stage D.
+
+### 2.5 Stage C checkpoint
+| Requirement | Result |
+|---|---|
+| Draft-recorded write keys | **PASS** (§2.1, §2.2) |
+| Qualified command optimisations | **PASS**: `documentOrder` removed; sealed maps shared; publication only of written entries; walk without allocation. Cold `parents` remains for stage D |
+| Mutation tracking, coverage, no-ops, undo/redo, invalid commands, serialization and export | **PASS** (§2.2) |
+| Per-subtree summaries | **Investigated** (§2.4); deferred with a recorded ceiling |
+| ≤ 50 ms at the stress workloads | 250k / 756k anchors: **MET** (Node). 996k anchors: **NOT MET** for 7 of 12 types; stage D addresses this |
+| Defect, contradiction or regression | **None in stage C.** Every type is faster than in stage B |
