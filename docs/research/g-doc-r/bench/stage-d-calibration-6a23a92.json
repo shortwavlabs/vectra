@@ -1,0 +1,216 @@
+{
+  "script": "scripts/calibrate-structure-accounting.mjs",
+  "commit": "6a23a92b04f76ea2502b37e6b33791d03b547021",
+  "trackedChanges": true,
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "totalMemGiB": 128,
+  "reps": 3,
+  "costs": {
+    "object": 24,
+    "field": 8,
+    "heapNumber": 16,
+    "array": 48,
+    "element": 8,
+    "typedArray": 160,
+    "typedElement": 8,
+    "string": 16,
+    "mapTable": 64,
+    "mapSlot": 28,
+    "clonedProperties": 16,
+    "stateBookkeeping": 320
+  },
+  "loadavgStart": [1.28369140625, 1.3447265625, 1.5712890625],
+  "topStart": [
+    "24.9 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS/Claude Helper (Renderer)",
+    "16.4 /Users/shortwavlabs/Library/Application Support/Claude/claude-code/2.1.331/5cdc5c10ac5c/claude.app/Contents/MacOS/claude",
+    "9.8 node",
+    "9.4 node",
+    "4.9 /bin/zsh"
+  ],
+  "scenarios": [
+    {
+      "name": "43k: 1 small edit",
+      "set": "calibration",
+      "entries": 1,
+      "accounted": 7440,
+      "measured": {
+        "min": -21080,
+        "median": 4448,
+        "max": 44712
+      },
+      "ratio": 1.673,
+      "chunkHistory": 0,
+      "runMs": 0.2
+    },
+    {
+      "name": "43k: 10 small edits",
+      "set": "calibration",
+      "entries": 10,
+      "accounted": 74616,
+      "measured": {
+        "min": 70064,
+        "median": 70328,
+        "max": 71528
+      },
+      "ratio": 1.061,
+      "chunkHistory": 0,
+      "runMs": 0.4
+    },
+    {
+      "name": "43k: 50 small edits",
+      "set": "calibration",
+      "entries": 50,
+      "accounted": 373176,
+      "measured": {
+        "min": 355704,
+        "median": 359872,
+        "max": 359872
+      },
+      "ratio": 1.037,
+      "chunkHistory": 0,
+      "runMs": 1.5
+    },
+    {
+      "name": "43k: 100 small edits",
+      "set": "calibration",
+      "entries": 100,
+      "accounted": 746376,
+      "measured": {
+        "min": 719344,
+        "median": 719440,
+        "max": 719520
+      },
+      "ratio": 1.037,
+      "chunkHistory": 0,
+      "runMs": 2.9
+    },
+    {
+      "name": "43k: 20 structural edits",
+      "set": "calibration",
+      "entries": 20,
+      "accounted": 1039088,
+      "measured": {
+        "min": 1034592,
+        "median": 1034592,
+        "max": 1034592
+      },
+      "ratio": 1.004,
+      "chunkHistory": 0,
+      "runMs": 64.5
+    },
+    {
+      "name": "43k: replace the 1k-path layer ×10",
+      "set": "calibration",
+      "entries": 10,
+      "accounted": 2337776,
+      "measured": {
+        "min": 2367724,
+        "median": 2367804,
+        "max": 2380460
+      },
+      "ratio": 0.987,
+      "chunkHistory": 2395820,
+      "runMs": 66.6
+    },
+    {
+      "name": "250k: 100 small edits",
+      "set": "validation",
+      "entries": 100,
+      "accounted": 1715976,
+      "measured": {
+        "min": 1684880,
+        "median": 1689120,
+        "max": 1689120
+      },
+      "ratio": 1.016,
+      "chunkHistory": 0,
+      "runMs": 6.4
+    },
+    {
+      "name": "250k: 20 structural edits",
+      "set": "validation",
+      "entries": 20,
+      "accounted": 14508448,
+      "measured": {
+        "min": 14345824,
+        "median": 14345824,
+        "max": 14345824
+      },
+      "ratio": 1.011,
+      "chunkHistory": 0,
+      "runMs": 319.8
+    },
+    {
+      "name": "330k (996k anchors): 50 small edits",
+      "set": "validation",
+      "entries": 50,
+      "accounted": 1046376,
+      "measured": {
+        "min": 1033056,
+        "median": 1033056,
+        "max": 1033056
+      },
+      "ratio": 1.013,
+      "chunkHistory": 0,
+      "runMs": 4.2
+    },
+    {
+      "name": "330k: delete the whole main layer",
+      "set": "validation",
+      "entries": 1,
+      "accounted": 74292416,
+      "measured": {
+        "min": 63863355,
+        "median": 63867411,
+        "max": 63867411
+      },
+      "ratio": 1.163,
+      "chunkHistory": 46216021,
+      "runMs": 609.9
+    },
+    {
+      "name": "43k: undo/redo and a branch",
+      "set": "validation",
+      "entries": 21,
+      "accounted": 226984,
+      "measured": {
+        "min": 221408,
+        "median": 221488,
+        "max": 221488
+      },
+      "ratio": 1.025,
+      "chunkHistory": 0,
+      "runMs": 4.1
+    },
+    {
+      "name": "large palette and provenance: 20k styles, 30k palette entries, ×5 recolour",
+      "set": "validation",
+      "entries": 5,
+      "accounted": 4651120,
+      "measured": {
+        "min": 4642176,
+        "median": 4642176,
+        "max": 4642176
+      },
+      "ratio": 1.002,
+      "chunkHistory": 0,
+      "runMs": 18.5
+    },
+    {
+      "name": "large provenance: replace a traced layer ×3",
+      "set": "validation",
+      "entries": 3,
+      "accounted": 11402688,
+      "measured": {
+        "min": 10612507,
+        "median": 10613435,
+        "max": 10613435
+      },
+      "ratio": 1.074,
+      "chunkHistory": 1036933,
+      "runMs": 93.2
+    }
+  ],
+  "loadavgEnd": [1.5771484375, 1.408203125, 1.58935546875]
+}

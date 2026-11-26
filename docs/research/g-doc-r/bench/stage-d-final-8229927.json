@@ -19,24 +19,10 @@
   "gcBetweenRepetitions": true,
   "reps": 30,
   "warmup": 2,
-  "loadavgStart": [
-    1.18,
-    1.49,
-    1.7
-  ],
+  "loadavgStart": [1.18, 1.49, 1.7],
   "conditionsStart": {
-    "loadavg": [
-      1.18,
-      1.49,
-      1.7
-    ],
-    "top": [
-      "18.4 WindowServer",
-      "12.5 node",
-      "8.9 claude",
-      "4.8 Claude Helper",
-      "3.5 zsh"
-    ],
+    "loadavg": [1.18, 1.49, 1.7],
+    "top": ["18.4 WindowServer", "12.5 node", "8.9 claude", "4.8 Claude Helper", "3.5 zsh"],
     "ngspice": 0
   },
   "runs": [
@@ -55,11 +41,7 @@
       },
       "anchors": 264000,
       "validation": "incremental",
-      "loadavgStart": [
-        1.18,
-        1.49,
-        1.7
-      ],
+      "loadavgStart": [1.18, 1.49, 1.7],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -278,11 +260,7 @@
           "incrementalDecided": 1
         }
       },
-      "loadavgEnd": [
-        1.18,
-        1.49,
-        1.7
-      ]
+      "loadavgEnd": [1.18, 1.49, 1.7]
     },
     {
       "paths": 250000,
@@ -299,11 +277,7 @@
       },
       "anchors": 756000,
       "validation": "incremental",
-      "loadavgStart": [
-        1.18,
-        1.49,
-        1.7
-      ],
+      "loadavgStart": [1.18, 1.49, 1.7],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -522,11 +496,7 @@
           "incrementalDecided": 1
         }
       },
-      "loadavgEnd": [
-        1.15,
-        1.47,
-        1.69
-      ]
+      "loadavgEnd": [1.15, 1.47, 1.69]
     },
     {
       "paths": 330000,
@@ -543,11 +513,7 @@
       },
       "anchors": 996000,
       "validation": "incremental",
-      "loadavgStart": [
-        1.15,
-        1.47,
-        1.69
-      ],
+      "loadavgStart": [1.15, 1.47, 1.69],
       "commands": {
         "setFill1": {
           "dispatch": {
@@ -766,24 +732,12 @@
           "incrementalDecided": 1
         }
       },
-      "loadavgEnd": [
-        1.55,
-        1.55,
-        1.71
-      ]
+      "loadavgEnd": [1.55, 1.55, 1.71]
     }
   ],
-  "loadavgEnd": [
-    1.55,
-    1.55,
-    1.71
-  ],
+  "loadavgEnd": [1.55, 1.55, 1.71],
   "conditionsEnd": {
-    "loadavg": [
-      1.55,
-      1.55,
-      1.71
-    ],
+    "loadavg": [1.55, 1.55, 1.71],
     "top": [
       "283.4 node",
       "1.8 WindowServer",
