@@ -213,6 +213,31 @@ describe("G-DOC-R stage B: validation modes in dispatch", () => {
     }
   });
 
+  test("an ancestor transform that overflows an existing descendant is rejected in every mode", () => {
+    // Review gap 6: a committed 34-deep chain of 1e9 scales (composed 1e306 at the leaf), then
+    // layer transforms: ×100 stays finite (1e308), ×10 more overflows (1e309).
+    for (const mode of MODES) {
+      const s = fixtureSession(["adjacent_colors-color"], { validation: mode });
+      let inner = "pth_13";
+      for (let i = 0; i < 34; i++) {
+        const g = `grp_${s.nextId}`;
+        s.dispatch({ type: "group", ids: [inner] });
+        s.dispatch({ type: "setTransform", id: g, matrix: [1e9, 0, 0, 1e9, 0, 0] });
+        inner = g;
+      }
+      s.dispatch({ type: "applyTransform", ids: ["lay_1"], matrix: [100, 0, 0, 100, 0, 0] });
+      const before = observe(s);
+      let code = "ok";
+      try {
+        s.dispatch({ type: "applyTransform", ids: ["lay_1"], matrix: [10, 0, 0, 10, 0, 0] });
+      } catch (e) {
+        code = (e as DocumentError).code;
+      }
+      expect(code, mode).toBe("invalid_transform");
+      expect(observe(s)).toEqual(before);
+    }
+  });
+
   test("published states stay immutable and undo/redo restore them by reference", () => {
     const s = fixtureSession(["adjacent_colors-color"], { validation: "incremental" });
     const s0 = s.state;

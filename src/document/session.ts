@@ -19,6 +19,7 @@ import {
   type DocState,
   DocumentError,
   IdAllocator,
+  idNumber,
   type NodeId,
   type SourceMime,
 } from "./model.ts";
@@ -506,6 +507,8 @@ export const selectState = (s: SessionSnapshot) => s.state;
 export const selectNode = (s: SessionSnapshot, id: NodeId) => s.state.nodesById.get(id);
 export const selectRootIds = (s: SessionSnapshot) => s.state.orderedRootIds;
 export const selectDirty = (s: SessionSnapshot) => s.dirty;
-export const selectChunkIds = (session: DocumentSession): ChunkId[] => [
-  ...(session.derivedOf(session.state)?.chunks.keys() ?? []),
-];
+/** Chunk IDs of the current state, by chunk number (independent of which validator ran). */
+export const selectChunkIds = (session: DocumentSession): ChunkId[] =>
+  [...(session.derivedOf(session.state)?.chunks.keys() ?? [])].sort(
+    (a, b) => idNumber(a) - idNumber(b),
+  );

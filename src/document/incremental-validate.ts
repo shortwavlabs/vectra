@@ -89,11 +89,13 @@ function diffKeys<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>, keys: Readon
   for (const k of keys) {
     const old = a.get(k);
     const v = b.get(k);
-    if (v === undefined) {
-      if (old !== undefined) removed.push([k, old]);
-    } else if (old !== v) {
-      changed.push([k, v, old]);
-      if (old === undefined) added++;
+    const isNew = !a.has(k);
+    if (!b.has(k)) {
+      if (!isNew) removed.push([k, old as V]);
+    } else if (old !== v || isNew) {
+      // A present key with an `undefined` value is a change too (G-DOC-R review C1).
+      changed.push([k, v as V, old]);
+      if (isNew) added++;
     }
   }
   return { changed, removed, added };
@@ -107,7 +109,9 @@ function diff<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) {
   let added = 0;
   for (const [k, v] of b) {
     const old = a.get(k);
-    if (old !== v) {
+    // `old === v` with both undefined is a new key holding `undefined`: still a change, and
+    // counted as added, or the removal scan below could be skipped (G-DOC-R review C1).
+    if (old !== v || (old === undefined && !a.has(k))) {
       changed.push([k, v, old]);
       if (old === undefined) added++;
     }

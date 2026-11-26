@@ -24,6 +24,7 @@ import {
   validateState,
 } from "../invariants.ts";
 import {
+  type ContainerNode,
   createDocument,
   type DocNode,
   type DocState,
@@ -227,6 +228,11 @@ const FORGERIES = [
   "bad-local",
   "artboard",
   "document-id",
+  // Added after the stage B independent review (G-DOC-R report §1.6).
+  "undefined-entry",
+  "asset-field",
+  "shared-list",
+  "remove-source",
 ] as const;
 
 function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null {
@@ -253,7 +259,8 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
     return undefined;
   };
   const pick = (pred: (n: DocNode) => boolean): NodeId | null => {
-    const xs = [...nodes].filter(([, n]) => pred(n)).map(([k]) => k);
+    // Skips keys holding `undefined` (the undefined-entry forgery).
+    const xs = [...nodes].filter(([, n]) => n !== undefined && pred(n)).map(([k]) => k);
     return xs.length ? r.pick(xs) : null;
   };
   const containers = () => pick((n) => isContainer(n));
@@ -523,6 +530,64 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
       case "document-id":
         documentId = r.pick(["bad id!", "fine-id"]);
         return true;
+      case "undefined-entry": {
+        // A key holding `undefined` (review C1), sometimes hiding a removal from size checks.
+        if (r.bool(0.3)) {
+          const y = path();
+          if (y) {
+            detach(y);
+            nodes.delete(y);
+          }
+        }
+        const [m, p] = r.pick([
+          [nodes, "pth"],
+          [styles, "sty"],
+          [palette, "pal"],
+          [assets, "ast"],
+        ] as const);
+        (m as Map<string, unknown>).set(freshId(p), undefined);
+        return true;
+      }
+      case "asset-field": {
+        const k = [...assets.keys()];
+        if (!k.length) return false;
+        const id = r.pick(k);
+        const a = assets.get(id)!;
+        assets.set(id, {
+          ...a,
+          ...r.pick<Record<string, unknown>>([
+            { mime: "image/gif" },
+            { width: 0 },
+            { height: 20_000 },
+            { embedded: "no" },
+            { decodePolicy: "x" },
+            { provenance: { kind: "bogus" } },
+            { digest: "AB".repeat(32) },
+            { width: a.width }, // valid: a new object with the same fields
+          ]),
+        });
+        return true;
+      }
+      case "shared-list": {
+        // Two containers share one child array (same reference).
+        const a = containers();
+        const b = containers();
+        if (!a || !b || a === b) return false;
+        const list = (nodes.get(a) as ContainerNode).orderedChildIds;
+        nodes.set(b, { ...nodes.get(b)!, orderedChildIds: list } as DocNode);
+        return true;
+      }
+      case "remove-source": {
+        // Valid: a root source node and, with its last reference, its asset.
+        const x = r.pick(roots.filter((id) => nodes.get(id)?.kind === "source"));
+        if (!x) return false;
+        const asset = (nodes.get(x) as { assetId: string }).assetId;
+        roots = roots.filter((id) => id !== x);
+        nodes.delete(x);
+        if (![...nodes.values()].some((n) => n?.kind === "source" && n.assetId === asset))
+          assets.delete(asset);
+        return true;
+      }
     }
   };
 
