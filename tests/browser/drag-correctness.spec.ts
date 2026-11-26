@@ -366,6 +366,36 @@ test("pointer: a corner handle scales uniformly about the opposite corner", asyn
   expect(b1[2]! / b0[2]!).toBeGreaterThan(1);
 });
 
+// Found by the G-UI-R closure (Firefox): a handle drag left a text-selection range over the
+// canvas overlay, and Firefox turned the next handle drag starting inside it into a native drag
+// (pointercancel), losing the transform. The canvas host is never a text selection.
+test("pointer: consecutive handle drags each commit; a drag leaves no text selection", async ({
+  page,
+}) => {
+  await open(page, "synthetic-correctness");
+  const layer = (await tree(page))[0]!.id;
+  await page.evaluate(
+    ([v, i]) =>
+      (window as unknown as Record<string, Api>)[v as string]!.workspace.select([i as string]),
+    [V, layer] as const,
+  );
+  const drag = async (dir: string, dx: number) => {
+    const h = (await page.getByTestId(`handle-${dir}`).boundingBox())!;
+    await page.mouse.move(h.x + h.width / 2, h.y + h.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(h.x + h.width / 2 + dx, h.y + h.height / 2, { steps: 8 });
+    await page.mouse.up();
+  };
+  const rev0 = await revision(page);
+  await drag("w", -30);
+  await expect.poll(() => revision(page)).toBe(rev0 + 1);
+  expect(await page.evaluate(() => getSelection()?.toString() ?? "")).toBe("");
+  await settled(page);
+  await drag("e", 30);
+  await expect.poll(() => revision(page)).toBe(rev0 + 2);
+  expect(await page.evaluate(() => getSelection()?.toString() ?? "")).toBe("");
+});
+
 test("lock: a selection containing a locked object has no handles and does not move", async ({
   page,
 }) => {

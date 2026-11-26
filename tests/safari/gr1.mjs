@@ -10,6 +10,7 @@
 // - gestures: pan and zoom frame intervals (gesture start/end, display cache) and exact settle.
 // - keyboard: path selection on the canvas with its announcements.
 // - focus: the canvas keyboard focus ring, from screenshot pixels (Option-Tab; a click shows none).
+// - fallback: repeated render-worker crashes fall back to the main thread, disclosed and settled.
 // - offline: workspace offline reload, import and worker recovery from the cache.
 // Results: tests/output/safari/gr1.json.
 import { execFileSync } from "node:child_process";
@@ -585,6 +586,61 @@ try {
           keyboard,
           pointer,
           limeAfterClick,
+        };
+      },
+    );
+
+  if (want("fallback"))
+    await scenario(
+      "crash fallback: repeated render-worker crashes fall back to the main thread, disclosed and settled",
+      async () => {
+        await open();
+        await loadB64("synthetic-correctness");
+        const crash = async () => {
+          await s.exec(() => {
+            window.__crashBase = window.__vectra.canvas.diag().client.crashes;
+            window.__vectra.canvas.crash();
+          });
+          await s.waitFor(() => window.__vectra.canvas.diag().client.crashes > window.__crashBase, {
+            label: "the crash is registered",
+          });
+        };
+        // Three crashes recover on a new worker, each presenting before the next crash; the
+        // fourth within 30 s falls back to the main-thread renderer (RenderClient policy).
+        for (let i = 0; i < 3; i++) {
+          await crash();
+          await settled();
+        }
+        await crash();
+        await s.waitFor(
+          () =>
+            /^the render worker crashed repeatedly/.test(
+              window.__vectra.canvas.diag().client.fallbackReason ?? "",
+            ),
+          { timeout: 30_000, label: "the main-thread fallback" },
+        );
+        // The host settles: ready, with an exact frame of the current revision and camera
+        // (before 17a3ac0 it stayed "rendering").
+        await settled();
+        const d = await diag();
+        const label = await s.exec(
+          () => document.querySelector("[data-testid=canvas-state]")?.textContent ?? "",
+        );
+        assert(
+          d.state.kind === "ready" && d.state.host === "main-thread",
+          `host ready on the main thread: ${JSON.stringify(d.state)}`,
+        );
+        assert(d.lastExact?.host === "main-thread", `exact frame drawn on the main thread`);
+        assert(
+          /main thread \(fallback: the render worker crashed repeatedly/.test(label),
+          `fallback disclosed: ${label}`,
+        );
+        return {
+          state: d.state,
+          fallbackReason: d.client.fallbackReason,
+          crashes: d.client.crashes,
+          recoveries: d.client.recoveries,
+          label,
         };
       },
     );
