@@ -613,7 +613,8 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
 /** Keys whose node entries differ between two states (the identity diff). */
 function changedKeys(a: DocState, b: DocState): Set<NodeId> {
   const out = new Set<NodeId>();
-  for (const [k, v] of b.nodesById) if (a.nodesById.get(k) !== v) out.add(k);
+  // `has`, not only `get`: a new key holding `undefined` is a change (review C1).
+  for (const [k, v] of b.nodesById) if (a.nodesById.get(k) !== v || !a.nodesById.has(k)) out.add(k);
   for (const k of a.nodesById.keys()) if (!b.nodesById.has(k)) out.add(k);
   return out;
 }
@@ -732,7 +733,10 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
         out.noOps++;
         continue;
       }
+      // Both change-set paths: the identity diff, and an exact write set (as a complete Draft
+      // log would give), so the log path's diffKeys also meets every forgery.
       compare(i, "forged", f.label, prev, f.next);
+      compare(i, "forged", `${f.label}~writes`, prev, f.next, changedKeys(prev, f.next));
       continue;
     }
 

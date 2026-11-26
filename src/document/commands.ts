@@ -195,8 +195,10 @@ function topLevel(s: DocState, ids: readonly NodeId[]): NodeId[] {
 
 /** The Draft's node map: records every key it writes (SealedMap is the only write path). */
 class DraftNodes extends SealedMap<NodeId, DocNode> {
-  // Assigned after super(): the copy made by the Map constructor is not a write.
-  readonly written = new Set<NodeId>();
+  // Assigned after super(): the copy made by the Map constructor is not a write. Released
+  // (undefined) by Draft.finish: this map becomes the published state's map, and the set must
+  // not be retained with it in history.
+  written: Set<NodeId> | undefined = new Set<NodeId>();
   override set(k: NodeId, v: DocNode): this {
     super.set(k, v);
     this.written?.add(k);
@@ -204,7 +206,7 @@ class DraftNodes extends SealedMap<NodeId, DocNode> {
   }
   override delete(k: NodeId): boolean {
     const had = super.delete(k);
-    this.written.add(k);
+    this.written?.add(k);
     return had;
   }
   override clear(): void {
@@ -260,7 +262,9 @@ class Draft {
    *  shared with the base. The written keys go to the transaction's log. */
   finish(extra: Partial<DocState> = {}): DocState {
     const base = this.base;
-    for (const k of this.nodes.written) {
+    const written = this.nodes.written!;
+    this.nodes.written = undefined; // sealed below: no further writes
+    for (const k of written) {
       const v = this.nodes.get(k);
       if (v !== undefined && base.nodesById.get(k) !== v) freezeEntry(v);
     }
@@ -282,7 +286,7 @@ class Draft {
       paletteById: freezeChanged(out.paletteById, base.paletteById),
       sourceAssetsById: freezeChanged(out.sourceAssetsById, base.sourceAssetsById),
     });
-    this.#log?.record(base, state, this.nodes.written);
+    this.#log?.record(base, state, written);
     return state;
   }
 }

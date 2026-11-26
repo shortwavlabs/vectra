@@ -80,6 +80,7 @@ const COMMANDS: Record<string, () => Command> = {
     provenance: fixtureProvenance("circle-bw"),
     replaceLayerId: "lay_1",
   }),
+  releaseClip: () => ({ type: "releaseClip", id: "grp_12" }), // clipped first, below
   bake: () => ({
     type: "bake",
     packet: syntheticPacket({ paths: 2, anchorsPerPath: 4, seed: 1 }),
@@ -92,7 +93,9 @@ describe("G-DOC-R stage C: Draft write log", () => {
     "%s: the log is complete and covers every changed key",
     (name) => {
       const s = session();
+      if (name === "releaseClip") s.dispatch(COMMANDS.setClip!());
       const { prev, next, log } = apply(s, [COMMANDS[name]!()]);
+      expect(next).not.toBe(prev);
       expect(log.complete).toBe(true);
       const changed = changedKeys(prev, next);
       for (const k of changed) expect(log.keys.has(k), `${name}: ${k}`).toBe(true);
@@ -105,6 +108,14 @@ describe("G-DOC-R stage C: Draft write log", () => {
         expect([...log.keys].sort()).toEqual([...changed].sort()); // patches write only their targets
     },
   );
+
+  test("a published state's map does not retain the Draft's written keys", () => {
+    const s = session();
+    s.dispatch(COMMANDS.commitTrace!());
+    s.dispatch(COMMANDS.duplicate!());
+    for (const st of [s.state, ...s.historyStates().past])
+      expect((st.nodesById as { written?: unknown }).written).toBeUndefined();
+  });
 
   test("multi-command transactions: the log is the union over the chain", () => {
     const s = session();
