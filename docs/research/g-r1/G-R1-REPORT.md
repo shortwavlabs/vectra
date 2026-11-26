@@ -256,3 +256,37 @@ These decisions are recorded in [decision register §10](../g0/G0-DECISION-REGIS
 | Real Safari, focus ring (`gr1.mjs focus`, on `d9b5208`; `src/canvas-host` unchanged since) | **PASS**, page visible. Canvas reached in 9 Option-Tab presses; `:focus-visible` and the ring shown. Outer band sample (185, 225, 124) against the ring colour (185, 232, 123); inner band (24, 25, 26) against the halo (25, 26, 28). A pointer click: focused, not `:focus-visible`, no ring, 0 lime samples. The JSON record was overwritten by a later run; these values are transcribed from that run's output |
 | Real Safari, G-R0 (`gr0.mjs`), G-UI (`gui.mjs`) and G-R1 (`gr1.mjs`) on `02d22bd` | **INVALID, re-run pending.** The macOS screen was **locked** during the run (`CGSSessionScreenIsLocked` true), so the automation page was hidden: `gr1.mjs` measured 0 animation frames in 500 ms. Focus-visible, tooltips, dialogs and animation-frame timing cannot be tested on a hidden page. Results: G-R0 6/7 (pan-zoom timing failed), G-UI 4/15, G-R1 4/5 with 1 NOT RUN. These are not counted as results. A probe after the run still reported the page hidden |
 
+
+## 13. Final real-Safari qualification (maintainer final-closure brief, 2026-11-25)
+**Conditions.**
+- Commit `bed736d` (the final G-R1 head; `gr1.mjs` gains a `fallback` scenario). Build ID `4768c4044f602a23`.
+- Safari 26.6.2 on macOS 26.6.2, Apple M5 Max. The screen was unlocked (`CGSSessionScreenIsLocked` absent).
+- The automation page was **visible**, with 32 animation frames in 500 ms, both before and after every harness (a visibility probe around each run).
+- Load average 1.20 → 1.89 over the run (20:06–20:08). The machine is shared and was not quiet.
+- Evidence (gitignored, one directory per run, nothing overwritten): `tests/output/safari-runs/g-r1-final-bed736d-20261125T200633/`. It holds, per harness, its output, stdout, conditions and the before/after probes. Earlier results are archived in `tests/output/safari-runs/archive-before-closure-*`.
+
+| Harness | Result |
+|---|---|
+| G-R0 (`gr0.mjs`) | **7/7** |
+| G-JOB (`gjob.mjs`) | **10/10** |
+| G-UI (`gui.mjs`) | **14/14**, findings 0 |
+| G-R1 (`gr1.mjs`) | **7/7, 0 NOT RUN**: render, drag, gestures, keyboard, focus ring, **crash fallback**, offline |
+| Persistence (`persistence.mjs`) | **23/23** |
+
+**Qualified in real Safari:**
+- **Focus ring.** Reached by Option-Tab and `:focus-visible`. The outer band sampled (185, 225, 124) against the ring colour (185, 232, 123); the inner band (24, 25, 26) against the halo (25, 26, 28). A pointer click shows no ring.
+- **Crash fallback.** Four crashes and three recoveries, then the main-thread fallback. It is disclosed ("Renderer: main thread (fallback: the render worker crashed repeatedly (…)) · ready"), and the host settles **ready on the main thread** with an exact frame of the current revision.
+- **Drag.** 6 of 6 RFC §8.4 cases with 0 geometry errors.
+
+**Real-Safari timing**, measured for the first time with the page visible. It supersedes the earlier "NOT RUN (hidden window)":
+
+| Measure | synthetic-many-250k (interactive target) | 977k halftone (stress) |
+|---|---|---|
+| Preview | **178 ms: misses** ≤ 100 ms (accepted temporarily; TD-PERF-001 retained) | 320 ms: measured, no threshold (RFC §8.8) |
+| First / exact frame | 94 / 157 ms | 308 / 308 ms |
+| Visible after load (displayed canvas) | 189 ms | 477 ms |
+| Hit index ready; slices; longest slice | 83 ms; 11; ≤ 5 ms | 238 ms; 27; ≤ 5 ms |
+
+Gestures (display cache): pan p50 / p95 / max 17 / 17 / 19 ms, zoom 17 / 18 / 18 ms (target p95 ≤ 33 ms: **met**). Exact settle 5 and 6 ms.
+
+**Still open:** lower-end hardware and a quiet-machine run. VoiceOver and the stock-Safari keyboard check (owner; not marked PASS).
