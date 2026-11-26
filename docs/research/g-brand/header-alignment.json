@@ -1,0 +1,162 @@
+[
+  {
+    "viewport": "1024x640",
+    "mark": {
+      "x": 12,
+      "y": 9.5,
+      "width": 32,
+      "height": 24
+    },
+    "wordmark": {
+      "x": 50,
+      "y": 10.25,
+      "width": 44.078125,
+      "height": 22.5
+    },
+    "bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1024,
+      "height": 44
+    },
+    "centreOffsetPx": 0,
+    "markCentreInBarPx": -0.5,
+    "gapPx": 6,
+    "ariaHidden": "true",
+    "bannerAccessibleText": "vectra\n\nNo document",
+    "favicons": [
+      "icon ./favicon.ico",
+      "icon ./favicon.svg",
+      "apple-touch-icon ./apple-touch-icon.png",
+      "manifest ./manifest.webmanifest"
+    ]
+  },
+  {
+    "viewport": "1280x720",
+    "mark": {
+      "x": 12,
+      "y": 9.5,
+      "width": 32,
+      "height": 24
+    },
+    "wordmark": {
+      "x": 50,
+      "y": 10.25,
+      "width": 44.078125,
+      "height": 22.5
+    },
+    "bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 44
+    },
+    "centreOffsetPx": 0,
+    "markCentreInBarPx": -0.5,
+    "gapPx": 6,
+    "ariaHidden": "true",
+    "bannerAccessibleText": "vectra\n\nNo document",
+    "favicons": [
+      "icon ./favicon.ico",
+      "icon ./favicon.svg",
+      "apple-touch-icon ./apple-touch-icon.png",
+      "manifest ./manifest.webmanifest"
+    ]
+  },
+  {
+    "viewport": "1366x768",
+    "mark": {
+      "x": 12,
+      "y": 9.5,
+      "width": 32,
+      "height": 24
+    },
+    "wordmark": {
+      "x": 50,
+      "y": 10.25,
+      "width": 44.078125,
+      "height": 22.5
+    },
+    "bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1366,
+      "height": 44
+    },
+    "centreOffsetPx": 0,
+    "markCentreInBarPx": -0.5,
+    "gapPx": 6,
+    "ariaHidden": "true",
+    "bannerAccessibleText": "vectra\n\nNo document",
+    "favicons": [
+      "icon ./favicon.ico",
+      "icon ./favicon.svg",
+      "apple-touch-icon ./apple-touch-icon.png",
+      "manifest ./manifest.webmanifest"
+    ]
+  },
+  {
+    "viewport": "1440x900",
+    "mark": {
+      "x": 12,
+      "y": 9.5,
+      "width": 32,
+      "height": 24
+    },
+    "wordmark": {
+      "x": 50,
+      "y": 10.25,
+      "width": 44.078125,
+      "height": 22.5
+    },
+    "bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 44
+    },
+    "centreOffsetPx": 0,
+    "markCentreInBarPx": -0.5,
+    "gapPx": 6,
+    "ariaHidden": "true",
+    "bannerAccessibleText": "vectra\n\nNo document",
+    "favicons": [
+      "icon ./favicon.ico",
+      "icon ./favicon.svg",
+      "apple-touch-icon ./apple-touch-icon.png",
+      "manifest ./manifest.webmanifest"
+    ]
+  },
+  {
+    "viewport": "1920x1080",
+    "mark": {
+      "x": 12,
+      "y": 9.5,
+      "width": 32,
+      "height": 24
+    },
+    "wordmark": {
+      "x": 50,
+      "y": 10.25,
+      "width": 44.078125,
+      "height": 22.5
+    },
+    "bar": {
+      "x": 0,
+      "y": 0,
+      "width": 1920,
+      "height": 44
+    },
+    "centreOffsetPx": 0,
+    "markCentreInBarPx": -0.5,
+    "gapPx": 6,
+    "ariaHidden": "true",
+    "bannerAccessibleText": "vectra\n\nNo document",
+    "favicons": [
+      "icon ./favicon.ico",
+      "icon ./favicon.svg",
+      "apple-touch-icon ./apple-touch-icon.png",
+      "manifest ./manifest.webmanifest"
+    ]
+  }
+]
