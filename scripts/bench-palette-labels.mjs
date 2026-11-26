@@ -55,7 +55,8 @@ const builders = [
 ];
 const results = [];
 const only = arg("--only", null); // one document (a heap exhaustion ends the process)
-for (const [name, build] of builders) {
+for (const [label, build] of builders) {
+  const name = String(label);
   if (only && name !== only) continue;
   const state = await build();
   let paths = 0;
