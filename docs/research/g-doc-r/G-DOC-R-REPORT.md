@@ -303,3 +303,22 @@ The three extra skips, compared with G-BRAND's 36, are opt-in or serial dependan
 - document export **576/576** (636 minus 60), on `758a689`.
 
 The figures in §1.4 (302 and 588) included `concert-stage-light`; those outputs have been deleted locally.
+
+## 4. Palette traversal and renderer effect (brief §3, §4)
+**`paletteLabels()`** (`src/shell/document.ts`).
+- **Cost.** It walks every path under every traced layer once per new state: 6.1 / 16.5 / 1.5 ms on bark-1224, bark-2350 and synthetic-many-250k ([scope](G-DOC-R-SCOPE.md)). It is cached per state and runs only when the inspector shows a Fill note or Recolor. No code was changed in stages B and C.
+- **What the result depends on:**
+  - which paths each traced layer holds, and their `styleRef`;
+  - `stylesById` and `paletteById`;
+  - the layer's provenance.
+- **What makes it incremental.** Stage C makes two of those inputs cheap to watch.
+  - Unchanged style and palette maps are now **shared** between states, so an identity check proves them unchanged.
+  - The Draft write log names every node a transaction wrote. Membership changes (delete, duplicate, group, reparent, trace) and `styleRef` changes are visible in the logged keys.
+  - So a previous state's labels can be reused, or patched per written path, instead of walking the whole document. This keeps stored names, strict provenance, collision handling, palette order and export semantics, since it computes the same function.
+- **Not implemented here.** The log is transaction-local by design (G-4). Reusing it for UI derivations needs either an exposed per-transaction change set or stage D's persistent per-layer indexes. The choice belongs with stage D, and is listed under AM-2's follow-up work.
+- **Recolor panel virtualisation:** kept separate, as instructed.
+
+**Renderer scheduling and snapshot preparation: NOT RUN for stages B and C.**
+- B and C change no renderer code. The renderer still receives a `RenderSnapshot` built from the published state.
+- The renderer keeps its own O(nodes) parent maps: `render-host.ts` `parents()`, and `CanvasHost.tsx` `parentOf()`, which scans all nodes per call. A stage D parent index could replace them.
+- The measurement (snapshot preparation and frame scheduling after an edit, kept separate from dispatch and from the unchanged 100 ms preview target) is planned with stage D.
