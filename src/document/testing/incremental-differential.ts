@@ -736,7 +736,13 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
       // Both change-set paths: the identity diff, and an exact write set (as a complete Draft
       // log would give), so the log path's diffKeys also meets every forgery.
       compare(i, "forged", f.label, prev, f.next);
-      compare(i, "forged", `${f.label}~writes`, prev, f.next, changedKeys(prev, f.next));
+      // A strict superset as well: unchanged keys and a key absent from both states.
+      const writes = changedKeys(prev, f.next);
+      if (r.bool(0.5)) {
+        for (const k of [...prev.nodesById.keys()].slice(0, 3)) writes.add(k);
+        writes.add("pth_987654321");
+      }
+      compare(i, "forged", `${f.label}~writes`, prev, f.next, writes);
       continue;
     }
 

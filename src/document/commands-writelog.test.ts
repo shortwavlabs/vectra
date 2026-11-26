@@ -2,8 +2,16 @@
 // whole-tree walk. The log must cover every key whose entry differs (the incremental validator
 // trusts it instead of diffing the whole node map).
 import { describe, expect, test } from "vite-plus/test";
-import { applyCommand, type Command, DraftLog } from "./commands.ts";
-import { type ContainerNode, type DocState, IdAllocator, type NodeId } from "./model.ts";
+import { applyCommand, type Command, DraftLog, inDocumentOrder } from "./commands.ts";
+import {
+  type ContainerNode,
+  type DocState,
+  IdAllocator,
+  isContainer,
+  type NodeId,
+  SealedMap,
+} from "./model.ts";
+import { loadContainer, saveContainer } from "../persistence/container.ts";
 import type { DocumentSession } from "./session.ts";
 import { fixturePacket } from "./testing/fixtures.ts";
 import { fixtureProvenance, fixtureSession } from "./testing/helpers.ts";
@@ -12,7 +20,7 @@ import { syntheticPacket } from "./testing/synthetic.ts";
 const kids = (s: DocState, id: string) => (s.nodesById.get(id) as ContainerNode).orderedChildIds;
 const changedKeys = (a: DocState, b: DocState) => {
   const out = new Set<NodeId>();
-  for (const [k, v] of b.nodesById) if (a.nodesById.get(k) !== v) out.add(k);
+  for (const [k, v] of b.nodesById) if (a.nodesById.get(k) !== v || !a.nodesById.has(k)) out.add(k);
   for (const k of a.nodesById.keys()) if (!b.nodesById.has(k)) out.add(k);
   return out;
 };
@@ -113,8 +121,51 @@ describe("G-DOC-R stage C: Draft write log", () => {
     const s = session();
     s.dispatch(COMMANDS.commitTrace!());
     s.dispatch(COMMANDS.duplicate!());
-    for (const st of [s.state, ...s.historyStates().past])
-      expect((st.nodesById as { written?: unknown }).written).toBeUndefined();
+    for (const st of [s.state, ...s.historyStates().past]) {
+      expect(Object.getPrototypeOf(st.nodesById)).toBe(SealedMap.prototype);
+      expect(Object.keys(st.nodesById)).toEqual([]);
+    }
+  });
+
+  test("a published node map has the same shape as a loaded one", async () => {
+    const s = session();
+    s.dispatch(COMMANDS.duplicate!());
+    const loaded = await loadContainer(await saveContainer(s), {});
+    expect(loaded.state.nodesById).toEqual(s.state.nodesById);
+  });
+
+  test("multi-command transactions on nodes created earlier in the same transaction", () => {
+    // Dispatched in compare mode: each result is checked by the full pass as well.
+    const plans: ((s: DocumentSession) => Command[])[] = [
+      (s) => [
+        COMMANDS.duplicate!(),
+        { type: "reparent", ids: [`pth_${s.nextId}`], parentId: "lay_1", index: 0 },
+      ],
+      (s) => [
+        { type: "group", ids: ["pth_13", "pth_14"] },
+        { type: "ungroup", id: `grp_${s.nextId}` },
+      ],
+      (s) => [
+        { type: "group", ids: ["pth_15"] },
+        { type: "setVisible", ids: [`grp_${s.nextId}`], visible: false },
+        { type: "delete", ids: [`grp_${s.nextId}`] },
+      ],
+      (s) => [
+        COMMANDS.commitTrace!(),
+        { type: "setTransform", id: `lay_${s.nextId}`, matrix: [1, 0, 0, 1, 4, 4] },
+        { type: "duplicate", ids: [`lay_${s.nextId}`] },
+      ],
+    ];
+    for (const plan of plans) {
+      const s = session();
+      expect(s.validation).toBe("compare");
+      const { prev, next, log } = apply(s, plan(s));
+      expect(log.complete).toBe(true);
+      for (const k of changedKeys(prev, next)) expect(log.keys.has(k)).toBe(true);
+      const decided = s.validations.incremental;
+      s.dispatch(plan(s));
+      expect(s.validations.incremental).toBe(decided + 1);
+    }
   });
 
   test("multi-command transactions: the log is the union over the chain", () => {
@@ -136,6 +187,43 @@ describe("G-DOC-R stage C: Draft write log", () => {
     expect(log.complete).toBe(true);
     log.step(s.state, forged);
     expect(log.complete).toBe(false);
+    // A Draft result built on a different base, and a stale earlier result.
+    const ctx = {
+      log: new DraftLog(),
+      store: s.store,
+      ids: new IdAllocator(s.nextId),
+      commit: s.store.commit.bind(s.store),
+    };
+    const a = applyCommand(s.state, COMMANDS.rename!(), ctx);
+    const b = applyCommand(a, COMMANDS.setVisible!(), ctx);
+    ctx.log.step(s.state, b); // b was built on a, not on s.state
+    expect(ctx.log.complete).toBe(false);
+    const ctx2 = { ...ctx, log: new DraftLog() };
+    const c = applyCommand(s.state, COMMANDS.rename!(), ctx2);
+    applyCommand(c, COMMANDS.setVisible!(), ctx2);
+    ctx2.log.step(s.state, c); // c is not the last Draft result any more
+    expect(ctx2.log.complete).toBe(false);
+  });
+
+  test("inDocumentOrder equals a pre-order walk for random target sets", () => {
+    const s = session();
+    s.dispatch({ type: "group", ids: ["pth_13", "pth_14"] });
+    s.dispatch({ type: "duplicate", ids: ["grp_12"] });
+    const st = s.state;
+    const order: NodeId[] = [];
+    const walk = (id: NodeId) => {
+      order.push(id);
+      const n = st.nodesById.get(id);
+      if (isContainer(n)) n.orderedChildIds.forEach(walk);
+    };
+    st.orderedRootIds.forEach(walk);
+    let seed = 7;
+    const rand = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
+    for (let t = 0; t < 500; t++) {
+      const ids = order.filter(() => rand() < 0.1).sort(() => rand() - 0.5);
+      const expected = order.filter((id) => ids.includes(id));
+      expect(inDocumentOrder(st, ids)).toEqual(expected);
+    }
   });
 
   test("unchanged sealed maps are shared with the predecessor; changed ones are not", () => {

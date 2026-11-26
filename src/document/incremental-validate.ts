@@ -240,7 +240,9 @@ function run(
   const nodes = writes
     ? diffKeys(prev.nodesById, next.nodesById, writes)
     : diff(prev.nodesById, next.nodesById);
-  // Defence in depth: a log that missed an addition or a removal cannot balance the sizes.
+  // Soundness of the log path rests on DraftNodes being the only write path to a Draft's node
+  // map (and on log.step). This size check is only defence in depth: it catches a log that
+  // missed an unbalanced number of additions or removals, not a missed update.
   if (writes && prev.nodesById.size + nodes.added - nodes.removed.length !== next.nodesById.size)
     no("write log inconsistent with the map sizes");
   timing.diffMs = performance.now() - tDiff;

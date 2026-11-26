@@ -128,26 +128,30 @@ const parentCache = new WeakMap<DocState, ReadonlyMap<NodeId, NodeId | null>>();
 /** Parent of every node (null = root), cached per immutable state. */
 export function parents(s: DocState): ReadonlyMap<NodeId, NodeId | null> {
   let p = parentCache.get(s);
-  if (!p) {
-    const m = new Map<NodeId, NodeId | null>();
-    for (const id of s.orderedRootIds) m.set(id, null);
-    for (const n of s.nodesById.values())
-      if (isContainer(n)) for (const c of n.orderedChildIds) m.set(c, n.id);
-    parentCache.set(s, (p = m));
-  }
+  if (!p) parentCache.set(s, (p = parentMap(s)));
   return p;
+}
+function parentMap(s: DocState): Map<NodeId, NodeId | null> {
+  const m = new Map<NodeId, NodeId | null>();
+  for (const id of s.orderedRootIds) m.set(id, null);
+  for (const n of s.nodesById.values())
+    if (isContainer(n)) for (const c of n.orderedChildIds) m.set(c, n.id);
+  return m;
 }
 const getNode = (s: DocState, id: NodeId): DocNode =>
   s.nodesById.get(id) ?? invalid(`no node ${String(id)}`);
 
 /**
  * Distinct existing nodes sorted in document pre-order (deterministic processing order), by
- * comparing their root-to-node child-index chains. Indexes only the child lists of the
- * targets' ancestors, never the whole tree (G-DOC-R stage C; formerly a whole-tree walk).
+ * comparing their root-to-node child-index chains, built from the child lists of the targets'
+ * ancestors (G-DOC-R stage C; formerly a whole-tree walk). The parent map is the state's
+ * cached one when it exists; otherwise one is built for this call and not cached, so it is not
+ * retained with a history state. Requires a valid tree (inputs are validated states).
+ * Exported for tests.
  */
-function inDocumentOrder(s: DocState, ids: readonly NodeId[]): NodeId[] {
+export function inDocumentOrder(s: DocState, ids: readonly NodeId[]): NodeId[] {
   if (ids.length < 2) return [...ids];
-  const par = parents(s);
+  const par = parentCache.get(s) ?? parentMap(s);
   const positions = new Map<NodeId | null, Map<NodeId, number>>();
   const position = (parent: NodeId | null, id: NodeId): number => {
     let m = positions.get(parent);
@@ -195,10 +199,17 @@ function topLevel(s: DocState, ids: readonly NodeId[]): NodeId[] {
 
 /** The Draft's node map: records every key it writes (SealedMap is the only write path). */
 class DraftNodes extends SealedMap<NodeId, DocNode> {
-  // Assigned after super(): the copy made by the Map constructor is not a write. Released
-  // (undefined) by Draft.finish: this map becomes the published state's map, and the set must
-  // not be retained with it in history.
-  written: Set<NodeId> | undefined = new Set<NodeId>();
+  // Assigned after super(): the copy made by the Map constructor is not a write. Draft.finish
+  // takes the set and turns this object into a plain SealedMap (see `publish`), so a published
+  // map retains nothing of the Draft and has the same shape as a loaded state's map.
+  written?: Set<NodeId> = new Set<NodeId>();
+  /** Returns the written keys and becomes a plain, unsealed SealedMap (sealed by the caller). */
+  publish(): Set<NodeId> {
+    const written = this.written!;
+    delete this.written;
+    Object.setPrototypeOf(this, SealedMap.prototype);
+    return written;
+  }
   override set(k: NodeId, v: DocNode): this {
     super.set(k, v);
     this.written?.add(k);
@@ -262,8 +273,7 @@ class Draft {
    *  shared with the base. The written keys go to the transaction's log. */
   finish(extra: Partial<DocState> = {}): DocState {
     const base = this.base;
-    const written = this.nodes.written!;
-    this.nodes.written = undefined; // sealed below: no further writes
+    const written = this.nodes.publish(); // sealed below: no further writes
     for (const k of written) {
       const v = this.nodes.get(k);
       if (v !== undefined && base.nodesById.get(k) !== v) freezeEntry(v);
