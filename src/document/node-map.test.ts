@@ -62,7 +62,7 @@ describe("NodeMap", () => {
         m = next;
       }
     }
-  });
+  }, 60_000); // ~3 s on the reference machine; slower CI runners exceeded the 5 s default
 
   test("chunks split above MAX and merge below MIN at the boundaries", () => {
     const put = (m: NodeMap<V>, from: number, to: number) =>
