@@ -1,12 +1,11 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: STAGES B AND C ACCEPTED AS CHECKPOINTS (maintainer, 2026-11-26); AM-2 APPROVED; STAGE D IN PROGRESS.** The gate as a whole remains open and unqualified. §§1–4 are the stage B/C record as accepted; stage D follows from §5.
-- Stage B (§1) and stage C (§2) are implemented and qualified, in Node and in the production build in 3 browser engines (§3).
-- An independent review of stage B found one correctness defect, which is fixed and re-qualified (§1.6).
-- Following brief §6 and change control, stage D is **not started**. Its history accounting needs amendment AM-2 ([draft](AM-2-DRAFT.md)), and the defect is reported here first.
-- On the final head (`9ae294f`):
-  - real Safari passes all five harnesses (§3.1), with the screen unlocked and the page visible;
-  - the full Playwright suite passes in 3 engines: 375 passed, 0 failed, 36 opt-in skips.
+**Status: STAGES B, C AND D IMPLEMENTED AND QUALIFIED; AWAITING MAINTAINER ACCEPTANCE. The gate's hardware qualifications remain open.**
+- Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11).
+- Stage D (§5–§7) meets ≤ 50 ms in Node for all 12 transaction types at the 996k-anchor stress workload, and the interactive targets.
+- Three independent reviews found defects; every confirmed one is fixed and re-qualified (§1.6, §2.4b, §5.6).
+- Final head: §11. Renderer against the G-BRAND baseline: §10.
+- Real Safari's gui, gjob and gr1-offline harnesses could not run validly on the final build: Safari's own blob and storage layer was failing for every build, including the verified baseline (§11).
 - Nothing is merged. Decisions: [G-DOC-R-DECISIONS](G-DOC-R-DECISIONS.md).
 
 | | |
@@ -362,25 +361,6 @@ The three extra skips, compared with G-BRAND's 36, are opt-in or serial dependan
 
 The figures in §1.4 (302 and 588) included `concert-stage-light`; those outputs have been deleted locally.
 
-## 4. Palette traversal and renderer effect (brief §3, §4)
-**`paletteLabels()`** (`src/shell/document.ts`).
-- **Cost.** It walks every path under every traced layer once per new state: 6.1 / 16.5 / 1.5 ms on bark-1224, bark-2350 and synthetic-many-250k ([scope](G-DOC-R-SCOPE.md)). It is cached per state and runs only when the inspector shows a Fill note or Recolor. No code was changed in stages B and C.
-- **What the result depends on:**
-  - which paths each traced layer holds, and their `styleRef`;
-  - `stylesById` and `paletteById`;
-  - the layer's provenance.
-- **What makes it incremental.** Stage C makes two of those inputs cheap to watch.
-  - Unchanged style and palette maps are now **shared** between states, so an identity check proves them unchanged.
-  - The Draft write log names every node a transaction wrote. Membership changes (delete, duplicate, group, reparent, trace) and `styleRef` changes are visible in the logged keys.
-  - So a previous state's labels can be reused, or patched per written path, instead of walking the whole document. This keeps stored names, strict provenance, collision handling, palette order and export semantics, since it computes the same function.
-- **Not implemented here.** The log is transaction-local by design (G-4). Reusing it for UI derivations needs either an exposed per-transaction change set or stage D's persistent per-layer indexes. The choice belongs with stage D, and is listed under AM-2's follow-up work.
-- **Recolor panel virtualisation:** kept separate, as instructed.
-
-**Renderer scheduling and snapshot preparation: NOT RUN for stages B and C.**
-- B and C change no renderer code. The renderer still receives a `RenderSnapshot` built from the published state.
-- The renderer keeps its own O(nodes) parent maps: `render-host.ts` `parents()`, and `CanvasHost.tsx` `parentOf()`, which scans all nodes per call. A stage D parent index could replace them.
-- The measurement (snapshot preparation and frame scheduling after an edit, kept separate from dispatch and from the unchanged 100 ms preview target) is planned with stage D.
-
 ### 3.1 Final head (`9ae294f`; production code as `7799e6e`)
 **Build.** It passes. Identifiers: `VERSION` `4b829e176927371e`, `BUILD_ID` `e8cfaf88be26066f`. Bundle (gzip KiB): design-system JS 114.3, CSS 9.5, workspace JS 234.0 (budgets 150 / 15 / 250).
 
@@ -417,6 +397,26 @@ The figures in §1.4 (302 and 588) included `concert-stage-light`; those outputs
 - The comparison against `main` is still planned with stage D (§4).
 
 **Local evidence** (gitignored, in this worktree): `tests/output/g-doc-r/` (Playwright logs, build and bundle outputs, regression hashes, load records) and `tests/output/safari-runs/`. Archive these under `docs/EVIDENCE-PRESERVATION.md` before this worktree is ever removed.
+
+## 4. Palette traversal and renderer effect (brief §3, §4)
+**`paletteLabels()`** (`src/shell/document.ts`).
+- **Cost.** It walks every path under every traced layer once per new state: 6.1 / 16.5 / 1.5 ms on bark-1224, bark-2350 and synthetic-many-250k ([scope](G-DOC-R-SCOPE.md)). It is cached per state and runs only when the inspector shows a Fill note or Recolor. No code was changed in stages B and C.
+- **What the result depends on:**
+  - which paths each traced layer holds, and their `styleRef`;
+  - `stylesById` and `paletteById`;
+  - the layer's provenance.
+- **What makes it incremental.** Stage C makes two of those inputs cheap to watch.
+  - Unchanged style and palette maps are now **shared** between states, so an identity check proves them unchanged.
+  - The Draft write log names every node a transaction wrote. Membership changes (delete, duplicate, group, reparent, trace) and `styleRef` changes are visible in the logged keys.
+  - So a previous state's labels can be reused, or patched per written path, instead of walking the whole document. This keeps stored names, strict provenance, collision handling, palette order and export semantics, since it computes the same function.
+- **Not implemented here.** The log is transaction-local by design (G-4). Reusing it for UI derivations needs either an exposed per-transaction change set or stage D's persistent per-layer indexes. The choice belongs with stage D, and is listed under AM-2's follow-up work.
+- **Recolor panel virtualisation:** kept separate, as instructed.
+
+**Renderer scheduling and snapshot preparation: NOT RUN for stages B and C.**
+- B and C change no renderer code. The renderer still receives a `RenderSnapshot` built from the published state.
+- The renderer keeps its own O(nodes) parent maps: `render-host.ts` `parents()`, and `CanvasHost.tsx` `parentOf()`, which scans all nodes per call. A stage D parent index could replace them.
+- The measurement (snapshot preparation and frame scheduling after an edit, kept separate from dispatch and from the unchanged 100 ms preview target) is planned with stage D.
+
 ## 5. Stage D — persistent storage (AM-2 authorised, 2026-11-26)
 Commits: `c40ca5f` (storage), `7a416dd` (accounting), `d2c1839` (calibration, exact child lists, wider corpus), `f23b79f` (fault injection), `9aac564` (test infrastructure). Design notes: [STAGE-D-DESIGN](STAGE-D-DESIGN.md), written before the code. The implementation departs from that note where measurement required (§5.2).
 
@@ -463,6 +463,82 @@ Three **tests** had picked "the first path" by map iteration while meaning the f
 - **Seeding.** The session constructor seeds the index once at load, in O(n log n).
 - **Exact-length lists.** `Draft.finish` also publishes **exact-length child lists**: a list built by `filter`, `splice` or `push` would otherwise keep up to a third in growth slack, and history would retain it.
 - **Checkable.** `parentIndexMatches(s)` compares the index with a full traversal. `compare` mode runs it after **every decided transaction**, which covers every unit test and the differential. `compare` mode also checks that the write log covers every changed node key, using the structural chunk diff.
+
+### 5.4 Stage D correctness qualification
+**Differential on the final code** (`6a23a92`; `bench/stage-d-differential-6a23a92.json`). Six seeds: **108,249 comparisons**, 51,977 rejected by the full pass, 55,498 decided, 40,951 through the write log, **0 disagreements**. A further 30 seeds (100–129) give **558,472 comparisons, 0 disagreements**.
+
+The corpus now also includes:
+- existing keys set to `undefined`;
+- a node object aliased under two keys;
+- one episode in eight with a 1,100–3,000-path trace, so maps and indexes span several chunks and edits cross split and merge boundaries;
+- a check that no transaction, failed or not, changes its predecessor.
+
+Every episode session runs in `compare` mode. So every real dispatch also checks write-log completeness and the parent index against a full traversal, on the decided path and, after review C4, on the full-pass fallback.
+
+**Targeted tests:**
+
+| Area | Test | Result |
+|---|---|---|
+| Map semantics, chunk boundaries, sharing, `undefined` values, number ties, order, non-string keys, runtime immutability, iterator prototype | `node-map.test.ts` (12) | pass |
+| Write log, map sharing, document order | `commands-writelog.test.ts` | pass |
+| Modes agree, rollback, resource limits, frozen serialization hash, deep overflow, non-string IDs | `session-validation.test.ts` | pass |
+| Fault injection: undefined entries, a misleading log (decided and fallback paths), a corrupted parent index | `session-faulty-command.test.ts` | pass |
+| AM-2 ledger against the oracle (8 seeds × 120 operations; multi-chunk documents; every command kind; multi-command transactions), ownership transitions, a plain-`Map` start | `structure-accounting.test.ts` | pass |
+| No retention | `tests/unit/g-doc-r-retention.test.ts`; `node --expose-gc scripts/check-retention.mjs` | pass, pass |
+| Whole unit suite | `vp test` | **464 passed** |
+
+### 5.5 Stage D performance: integrated dispatch (Node)
+`node --expose-gc scripts/bench-g-doc-r.mjs --sizes 43000,250000,330000 --modes incremental --reps 30` on `6a23a92` → [`bench/stage-d-final-6a23a92.json`](bench/stage-d-final-6a23a92.json).
+- The only tracked change in the tree at run time was the deletion of a superseded record (`stage-d-final-8229927.json`, restored since).
+- **Conditions,** recorded by the script: load 1.3–1.5; top consumers below 3 % each before the run; no `ngspice`. That is a low load, not a designated quiet-machine qualification.
+
+Median / p95 in ms ("before" is the full-pass baseline from §1.3):
+
+| Type | 43k before | **43k D** | 250k before | 250k C | **250k D** | 330k C | **330k D** |
+|---|---|---|---|---|---|---|---|
+| setFill1 | 26.4 / 26.8 | **0.07 / 0.12** | 171.4 / 191.9 | 14.5 / 15.9 | **0.14 / 0.17** | 21.3 / 22.4 | **0.17 / 0.20** |
+| setFillMany | 27.0 / 27.4 | **6.3 / 6.7** | 172.3 / 178.4 | 41.0 / 43.3 | **19.7 / 20.1** | 60.5 / 62.4 | **26.1 / 26.8** |
+| setVisible | 23.1 / 23.9 | **0.06 / 0.08** | 141.3 / 147.6 | 14.8 / 15.6 | **0.12 / 0.15** | 21.1 / 22.2 | **0.15 / 0.17** |
+| rename | 23.3 / 23.5 | **0.06 / 0.09** | 140.2 / 145.3 | 14.5 / 15.6 | **0.13 / 0.17** | 21.1 / 29.5 | **0.15 / 0.17** |
+| reorder | 25.6 / 26.1 | **2.7 / 2.8** | 155.1 / 160.8 | 37.2 / 39.9 | **14.9 / 15.2** | 53.9 / 57.5 | **20.0 / 20.3** |
+| applyTransformPath | 23.4 / 23.6 | **0.06 / 0.09** | 139.5 / 141.8 | 27.2 / 28.5 | **0.13 / 0.15** | 41.8 / 44.1 | **0.15 / 0.18** |
+| applyTransformLayer | 23.4 / 23.6 | **5.0 / 5.3** | 139.9 / 150.7 | 32.1 / 33.2 | **26.2 / 26.5** | 47.3 / 50.3 | **34.4 / 34.7** |
+| group | 29.4 / 29.8 | **3.3 / 3.4** | 186.0 / 190.2 | 40.6 / 43.0 | **17.6 / 18.2** | 59.0 / 62.8 | **23.2 / 23.7** |
+| ungroup | 25.5 / 25.8 | **5.1 / 5.4** | 153.5 / 156.5 | 49.1 / 52.1 | **25.2 / 25.8** | 69.7 / 75.8 | **33.2 / 35.0** |
+| delete | 29.3 / 32.2 | **2.9 / 3.0** | 181.3 / 184.2 | 35.3 / 36.4 | **15.5 / 16.3** | 56.0 / 58.8 | **20.0 / 21.2** |
+| duplicate | 29.3 / 29.6 | **2.9 / 3.0** | 182.2 / 184.6 | 36.2 / 38.0 | **16.0 / 16.4** | 56.5 / 58.1 | **20.7 / 20.9** |
+| commitTrace | 24.9 / 25.8 | **6.9 / 7.5** | 141.4 / 143.1 | 18.0 / 19.7 | **6.1 / 7.1** | 25.6 / 26.5 | **5.8 / 6.3** |
+
+- **Interactive target** (43k paths, 264k anchors): every type has median ≤ 6.9 ms (target 16.7) and p95 ≤ 7.5 ms (target 33): **MET**, in Node.
+- **Stress workloads:** at 250k paths (756k anchors) every type is ≤ 26.2 / 26.5 ms. At the designated **996k-anchor** workload every type is ≤ 34.4 / 35.0 ms. ≤ 50 ms is **MET** in Node, for all 12 types, at both.
+- The incremental proof decided every measured transaction, and undo/redo stay ≤ 0.02 ms.
+- **Regressions found and fixed during stage D:**
+  1. **Hash-bucket storage:** commitTrace took 49.8 / 51.7 ms at 330k; replaced by ID-ordered chunks (§5.2).
+  2. **The first version of the accounting delta:** setFillMany took 179 ms and one-node edits 0.6 ms at 330k (`stage-d-final-8229927.json`, kept). The delta now uses the write log and aligned chunk directories (`6a23a92`).
+- **A measured cost kept on purpose.** Runtime freezing of published chunk arrays (review follow-up) costs about 4 ms on walk-heavy edits at 330k: applyTransformLayer 34.7 ms against 30.3 ms unfrozen (A/B, 20 repetitions). Kept for enforced immutability; still within target.
+
+### 5.6 Independent adversarial review of stage D
+A third reviewer examined the implementation's assumptions at `f23b79f`, writing its own probes and fuzzers. It did not re-run our tests. Its NodeMap fuzz covered about 4,800 edits on maps of up to 36 chunks; the ledger against the oracle, 2,400 comparisons over 8 seeds, 22 command kinds and multi-command transactions. **Main claims held.**
+
+It confirmed five counterexamples. None is reachable from the shipped app; each was reproduced:
+
+| # | Finding | Severity | Disposition |
+|---|---|---|---|
+| C1 | A session built from a state whose node map is not a `NodeMap` undercounted history after an undo: `structureDelta` counted only the map header on mixed sides | Medium (an undercount) | **Fixed** (`8229927`). The test fails without the fix (1,200 against 1,792 bytes) |
+| C2 | `NodeMap.get`/`has` threw `TypeError` for non-string keys, so commands with non-string IDs gave untyped errors instead of `invalid_argument` | Medium-low | **Fixed**: the lookup misses, as in a `Map`. Tested in every mode |
+| C3 | One sealed map used for two map slots, or one array for two node fields, is counted once per slot in the ledger but once in the oracle | Low (an over-count) | Recorded. Unreachable through commands, the loader or `createDocument`. Conservative |
+| C4 | `compare` mode skipped the log and parent-index checks on the full-pass fallback | Low (verification gap) | **Fixed**; tested |
+| C5 | A duplicate ID number names the other entry | Low (message only) | Recorded. AM-2 permits it; the code is unchanged (§5.1) |
+
+Plausible risks and untested assumptions it named:
+- **Contiguity is not enforced.** It is now a stated rule in `commands.ts`, and the oracle fuzz covers every command kind.
+- **Production never checks the parent index.** By design, `compare` mode checks it in development and tests.
+- **Published chunks were immutable only by convention.** Fixed: frozen at runtime.
+- **Iterator helpers would fail.** Fixed: `%IteratorPrototype%`.
+- **The accounting fuzz was narrow.** Widened.
+- **The oracle shares the cost functions.** Acknowledged in §7.
+- **`instanceof NodeMap` fails across module instances.** There is a single instance in the app; the C1 fix covers the effect.
+- **`deriveParents` assumes every intermediate state of a multi-command transaction is a forest.** Commands throw before producing one that is not. Recorded.
 
 ## 6. AM-2 history accounting
 ### 6.1 Model (`src/document/structure-accounting.ts`)
@@ -511,7 +587,50 @@ Each transition the maintainer listed is tested against the oracle and against t
   - It is recorded as debt (TD-UI-006) for the maintainer. No UI change is authorised in this gate.
 
 ## 7. Cost-model calibration (AM-2 §3)
-<!-- filled from the final calibration run (§11) -->
+**Method.** `node --expose-gc scripts/calibrate-structure-accounting.mjs --reps 3` on `6a23a92` → [`bench/stage-d-calibration-6a23a92.json`](bench/stage-d-calibration-6a23a92.json). Each scenario:
+1. builds a document and clears its history;
+2. collects garbage and reads `heapUsed + arrayBuffers`, since chunk arrays live in ArrayBuffers;
+3. runs the scenario's history and reads the session's **accounted** history-only structure bytes;
+4. collects again and reads the heap;
+5. clears the history and reads the heap once more.
+
+**Measured** retention is the heap before clearing minus after, minus the chunk bytes retired into history (their own ledger term). The builder keeps no build-time state alive. An earlier run whose builder did keep it (the benchmark workload's closures) hid retention, and was discarded.
+
+**Constants.** The constants were chosen on the calibration set only. They model:
+- V8's hash-table capacity: the next power of two, 28 bytes per slot;
+- numbers outside the small-integer range, which are boxed (16 bytes);
+- typed-array headers (160 bytes);
+- structured-clone property arrays in provenance;
+- 320 bytes of per-state session bookkeeping.
+
+**Implementation changes the calibration prompted.** Exact-length child lists and an exact chunk directory remove array growth slack from history. They reduce actual retention rather than inflate the model.
+
+| Set | Scenario | Entries | Accounted (MiB) | Measured median [min, max] (MiB) | Ratio |
+|---|---|---|---|---|---|
+| calibration | 43k paths: 1 small edit | 1 | 0.007 | 0.004 [−0.020, 0.043] | below noise |
+| calibration | 43k: 10 small edits | 10 | 0.071 | 0.067 [0.067, 0.068] | 1.061 |
+| calibration | 43k: 50 small edits | 50 | 0.356 | 0.343 [0.339, 0.343] | 1.037 |
+| calibration | 43k: 100 small edits | 100 | 0.712 | 0.686 [0.686, 0.686] | 1.037 |
+| calibration | 43k: 20 structural edits (group, duplicate, delete, layer transform) | 20 | 0.991 | 0.987 [0.987, 0.987] | 1.004 |
+| calibration | 43k: replace the 1k-path layer ×10 | 10 | 2.229 | 2.258 [2.258, 2.270] | **0.987** |
+| validation | 250k: 100 small edits | 100 | 1.636 | 1.611 [1.607, 1.611] | 1.016 |
+| validation | 250k: 20 structural edits (with setFillMany) | 20 | 13.836 | 13.681 [13.681, 13.681] | 1.011 |
+| validation | 330k (996k anchors): 50 small edits | 50 | 0.998 | 0.985 [0.985, 0.985] | 1.013 |
+| validation | 330k: delete the whole main layer | 1 | 70.851 | 60.909 [60.905, 60.909] | 1.163 |
+| validation | 43k: undo/redo and a branch | 21 | 0.216 | 0.211 [0.211, 0.211] | 1.025 |
+| validation | large palette (20k styles, 10k entries) and 30k-entry provenance, ×5 recolour | 5 | 4.436 | 4.427 [4.427, 4.427] | 1.002 |
+| validation | large provenance: replace a traced layer ×3 | 3 | 10.874 | 10.122 [10.121, 10.122] | 1.074 |
+
+**Reading.**
+- **Validation set.** Every scenario, none of which chose the constants, has ratio ≥ 1.0: conservative within about 2–16 %.
+- **Calibration set.** Ratios are 0.987–1.061.
+- **The one value below 1** is the 10× layer replace: 29 KB in 2.26 MiB. That scenario retires chunks into history. The chunk term (C3.2 term 1) counts array bytes but not each typed array's header, so the residual is most likely chunk-header overhead and not structure.
+- **Noise floor.** It is about ±30 KB (the single-edit row), so single edits are below measurement resolution. Results repeat within 0.01 MiB across 3 repetitions.
+
+**Limits.**
+- V8 in Node 24 only.
+- Browser engines lay objects out differently. No browser heap API is required or assumed (`performance.measureUserAgentSpecificMemory` is not universally available and needs cross-origin isolation). So no universal heap guarantee is claimed.
+- The oracle shares the cost functions. It checks the incremental bookkeeping, not the model; the model is checked only by this calibration.
 
 ## 8. Test infrastructure (brief §7)
 **`render_compare`.**
@@ -553,3 +672,99 @@ Either removes the walk, at most about 9.6 ms at bark-2350. Only (2) also avoids
 - The labels are cached per state and computed only while the inspector shows a Fill note or Recolor.
 - Design (1) changes the session snapshot API used by the shell; design (2) adds an accounted persistent index and a differential obligation.
 - **Recommendation:** implement (2) together with Recolor panel virtualisation, which stays separate as instructed, in the gate that next works on that panel.
+
+## 10. Renderer and preview against the G-BRAND `main` baseline (brief §6)
+**Matched setup.**
+- **Builds:** the baseline is `main` `0e95737`, built in a separate worktree. Its `BUILD_ID` is `69b8618a0497ded6`, **the build ID recorded at G-BRAND acceptance**; it reuses the identical WASM package, since the engine sources are unchanged. G-DOC-R is `0700087`, `BUILD_ID` `7debe2a41e0f74d5`.
+- **Same spec, workloads and machine:** `tests/browser/workspace-perf.spec.ts` (`R1_PERF=1`, headed Chromium 159), the registered G-R1 workloads (hash-checked), the same machine and the same session. Runs are interleaved; the second set reversed the order.
+- **Safari:** `tests/safari/gr0.mjs` (pan and zoom, worker host), interleaved pairs.
+- **Evidence:** [`renderer/`](renderer/) (12 Chromium reports), [`safari/gr0-*.json`](safari/).
+
+**Chromium, final build** (8 runs: 4 baseline, 4 G-DOC-R, interleaved both ways). Medians of the runs, in ms:
+
+| Stage | synthetic-many-250k (interactive target) baseline → G-DOC-R | bark-2350 (stress trace) baseline → G-DOC-R |
+|---|---|---|
+| Container load and validation | 123 → **142.5** (+16) | 289 → **304** (+15) |
+| Document evaluation | 11.5 → 14.5 (+3) | 11.8 → 13.6 (+2) |
+| **Snapshot preparation** | 4.0 → 4.6 (+0.6) | 5.2 → **6.7** (+1.5) |
+| Path construction (render worker) | 135 → 139 (noise) | bimodal in **both** builds (≈1,000 or ≈1,160): noise |
+| Exact frame | 129 → 133 (+4) | 284 → 292 (+8) |
+| **Complete preview** (validated document → exact frame; target ≤ 100 ms, unchanged) | 149 → **156** (+7) | 305 → **317** (+12) |
+| Pan / zoom / drag frames p95 | 17.3–18.4 in both | 16.8–18.5 in both |
+| Drag release → exact settle | 93 → **81** (−12) | 134 → **106** (−28) |
+
+**Real Safari 26.6.2** (gr0, interleaved pairs; final build and the earlier `df8e8f2` build agree):
+
+| | Interactive: baseline → G-DOC-R | Stress: baseline → G-DOC-R |
+|---|---|---|
+| Snapshot preparation | 7–8 → **10** ms | 23–24 → **28–31** ms |
+| First frame | 68–70 → 72 ms | 105–110 → 112–117 ms |
+| Exact frame | 107–112 → 108–115 ms | 335–344 → 342–354 ms |
+| Pan / zoom p95 | 17–18 → 17–18 ms | 17–19 → 17–19 ms |
+
+**Reading.** Structural dispatch is reported separately (§5.5), and the renderer's scheduling is unchanged: gestures are identical.
+
+What G-DOC-R costs the renderer path:
+- **Load and validation, about 15 ms slower.** Loading now builds the ID-ordered node map, a sort, and seeds the parent index.
+- **Evaluation and snapshot preparation, 1–6 ms slower.** These are tree walks; `NodeMap.get` is slower than `Map.get` for their access pattern (§5.2).
+- **Complete preview, 7–12 ms slower** in Chromium.
+
+What it gains:
+- **Releasing a drag settles 12–28 ms sooner**, because the transform's dispatch is cheaper.
+
+The preview target (≤ 100 ms at the interactive target) was already missed before G-DOC-R (149 ms baseline). It is unchanged, still missed, and still under the temporary exception. These regressions are recorded (decisions F-14) and are candidates for a later optimisation of the walk lookups.
+
+## 11. Final qualification (final head `0700087`; production code as `6a23a92`)
+| Check | Result |
+|---|---|
+| `vp check` / `vp test` | clean / **464 passed** |
+| Retention outside the runner (`node --expose-gc scripts/check-retention.mjs`) | **PASS** |
+| Differential, final code | 108,249 comparisons (6 seeds) + 558,472 (30 seeds): **0 disagreements** |
+| Ledger against oracle | `structure-accounting.test.ts`: pass (8 seeds, multi-chunk documents, every command kind) |
+| Production build | passes; `VERSION` `5c13b9c9d919e60c`, `BUILD_ID` `7debe2a41e0f74d5` |
+| Bundle (gzip KiB; budgets 150 / 15 / 250) | design-system JS 114.3, CSS 9.5, workspace JS **237.5** (G-BRAND 231.2; +6.3 for the validator, node map and accounting) |
+| Playwright 1.65.1, full suite, 3 engines | **375 passed, 0 failed, 36 opt-in skips** on the first run, identical to G-BRAND. The `render_compare` setup and the canvas-edge fix hold |
+| Bundle v1 (workbench) | **15/15** byte-identical |
+| Document export (frozen 636, every `concert-*` input excluded) | **576/576** identical on `6a23a92` |
+| Engine corpus / bundle v2 | 294/294, 72/72 (engine unchanged by G-DOC-R; runs of §3) |
+| Canonical serialization | the frozen hash (taken on stage B) is unchanged |
+| Real Safari: `gr0` (renderer) | **7/7** (and 7/7 in every comparison run) |
+| Real Safari: `persistence` | **23/23** |
+| Real Safari: `gui`, `gjob`, `gr1` | **NOT RUN validly (environment).** gui 7/15, gjob 2/10, gr1 6/7 (offline only). See below |
+
+**Real-Safari environment fault, diagnosed (`safari/harnesses-0700087-*`).** Every failure is a timeout waiting for a trace, for "offline ready", or for a job stage. Two diagnostic sessions showed:
+- **Imports.** An import fails with "The I/O read operation failed", from the worktree and from `/private/tmp` alike.
+- **Service worker.** `navigator.serviceWorker.register` resolves, but the worker never installs or controls the page.
+- **Workers.** Both workers load and complete their handshake.
+- **The baseline fails identically.** The **verified G-BRAND baseline** (`69b8618a0497ded6`), whose harnesses passed in full earlier on 2026-11-26, shows exactly the same failures in the same Safari session.
+- **Last valid run.** The same harnesses passed in full on `9ae294f` at 12:13 (§3.1).
+
+So Safari's blob and storage layer, or its file access, was failing for every build. These three harnesses are recorded as **NOT RUN (environment)**, not as passes or as G-DOC-R regressions.
+- **To re-run:** restart Safari (not done here: it is the maintainer's application), then run `safari-run.sh <worktree> g-doc-r gui gr1 gjob`.
+- Playwright WebKit's import, trace, offline and update specs all pass on the final build.
+
+**NOT RUN, or open:**
+- lower-end hardware;
+- a designated quiet-machine run (the final dispatch run had load 1.3–1.5, but is not labelled quiet);
+- dispatch timing inside the production build in a browser (the renderer stages are measured in §10);
+- browser-engine heap evidence;
+- VoiceOver and the stock-Safari keyboard check;
+- the three real-Safari harnesses above.
+
+## 12. Disposition
+| Brief item | Result |
+|---|---|
+| AM-2 recorded (C3 r3, RFC §7, decision register, amendment record) | **Done** (`161c679`) |
+| Chunked copy-on-write node map and persistent parent index | **Done**, qualified (§5) |
+| History accounting covering structural allocations; shared allocations once; ownership transitions verified | **Done** (§6). Approximations documented: per-key small records, strings, aliasing in hand-built states |
+| Cost-model calibration (separate validation set; uncertainty; limits) | **Done** (§7). Validation ratios 1.002–1.163; one calibration residual 0.987 |
+| No whole-document or whole-history traversal on ordinary edits; accounting and eviction costs profiled | **Done.** One-node edits 0.06–0.17 ms including accounting; eviction sums at most 100 records |
+| Adversarial corpus; ≥ 10,000 differential; slower reference oracle; independent review | **Done** (§5.4, §5.6) |
+| `paletteLabels()` investigation | **Done**: recommendation in §9; not implemented |
+| Renderer against the verified G-BRAND baseline, matched | **Done** (§10): small regressions in load, evaluation and preview; gestures unchanged; drag settle faster |
+| All 12 types at three workloads, median and p95 | **Met in Node** (§5.5) |
+| Browser suite, real Safari, serialization, export equivalence, history tests | Done, except three Safari harnesses NOT RUN (environment, §11) |
+| `render_compare` deterministic setup; canvas-edge race | **Done** (§8) |
+| Exact omitted fixture set | `concert-small-venue.png`, `concert-small-venue-1280.png`, `concert-stage-light.png` (and every output derived from them): 32 of the 326 engine-corpus hashes and 60 of the 636 export hashes |
+
+**Overall.** Stage D and the G-DOC-R implementation are ready for maintainer review. The gate stays **open and unqualified** until the remaining hardware and environment runs are done: lower-end hardware, a quiet machine, the three Safari harnesses after a Safari restart, and in-browser dispatch timing. No threshold has been relaxed.

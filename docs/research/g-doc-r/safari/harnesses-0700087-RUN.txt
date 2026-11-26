@@ -1,0 +1,10 @@
+commit 07000878884f580b834d5dedeb243d952919b77b
+build 7debe2a41e0f74d5
+label g-doc-r-final
+started Thu Nov 26 13:52:42 CST 2026
+== gui: PASS 7 PARTIAL 0 FAIL 8 of 15 (Safari 26.6.2); findings 0 | before: page visible | after: page visible
+== gr1: 6/7 passed, 0 NOT RUN (Safari 26.6.2; page visible) | before: page visible | after: page visible
+== gjob: 2/10 passed (Safari 26.6.2) | before: page visible | after: page visible
+== gr0: 7/7 passed (Safari 26.6.2) | before: page visible | after: page visible
+== persistence: 23/23 checks passed (Safari 26.6.2) | before: page visible | after: page visible
+finished Thu Nov 26 14:15:19 CST 2026

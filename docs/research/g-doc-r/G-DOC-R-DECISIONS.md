@@ -42,3 +42,35 @@ This register separates the decisions taken within the authorised scope (impleme
 - M-6 is unchanged.
 
 **Safari status reconciled.** Real Safari was NOT RUN on `758a689` (screen locked). It was run on `9ae294f` (`VERSION` `4b829e176927371e`, `BUILD_ID` `e8cfaf88be26066f`): all five harnesses pass (report §3.1).
+
+## 4. Stage D implementation decisions (within AM-2, 2026-11-26)
+| # | Decision | Alternatives considered | Why | Where |
+|---|---|---|---|---|
+| G-12 | Order node-map chunks by (ID number, key): a two-level B+-tree | Hash buckets (the design note) | Measured. Hashing spread a trace's, a layer's or a group's nodes over every bucket: a trace replace took 49.8 ms at 330k (now 4.9), and walk lookups were 2× slower | Report §5.2 |
+| G-13 | Within-chunk order sorted, so iteration depends on contents only | Insertion order within buckets | Equal contents iterate identically whatever the history (stronger than AM-2 requires); loaded and edited maps compare equal | §5.2 |
+| G-14 | One accounting delta per step, with the chain argument; a full-traversal oracle in tests | Reference counts per allocation | Per-allocation counts would mean about a million live entries at 330k. The delta needs two integers per step and no traversal on an edit | §6.2 |
+| G-15 | Per-key scoping of small records shared by `duplicate`; strings counted with their objects | Exact cross-key identity | Exact identity needs per-state reference counts. These over-counts are conservative and bounded; trace provenance (large) is exact | §6.1 |
+| G-16 | Publish exact-length child lists and chunk directories | Model growth slack in the cost model | Reduces real retention, rather than inflating the model | §7 |
+| G-17 | Freeze published chunks at runtime | Immutable by convention | Review follow-up. Costs about 4 ms on 330k walks, within target | §5.5 |
+| G-18 | `render_compare` built by Playwright global setup | Each spec builds it | Specs no longer depend on running order | §8 |
+| G-19 | Canvas-edge test: stable box (5 frames, in page), current box, atomic probe | Retries or a sleep | The race was a stale box in the test; the fix removes it without suppressing failures | §8 |
+| G-20 | `paletteLabels()`: investigated, not implemented | A per-layer usage index now | It adds a persistent accounted index and a differential obligation for at most about 9.6 ms at bark-2350; recommended with Recolor virtualisation | §9 |
+
+## 5. Stage D findings
+| # | Finding | Disposition |
+|---|---|---|
+| F-7 | Hash-bucket storage missed ≤ 50 ms for commitTrace at 330k | Replaced (G-12) |
+| F-8 | The accounting delta's first version was O(n) on wide writes (setFillMany 179 ms) | Fixed (`6a23a92`) |
+| F-9 | Stage D review C1: a plain-`Map` start undercounts history | Fixed (`8229927`) |
+| F-10 | Stage D review C2: non-string keys gave untyped errors | Fixed (`8229927`) |
+| F-11 | Stage D review C4: compare mode skipped checks on the fallback | Fixed (`8229927`) |
+| F-12 | Stage D review C3 (aliasing in hand-built states, over-count) and C5 (duplicate-ID message names the other entry) | Recorded; unreachable or permitted by AM-2 |
+| F-13 | AM-2 makes `history_budget` reachable for single subtrees of about 450k paths or more; the shell has no "commit without history" confirmation | TD-UI-006 (Medium); decision for the maintainer |
+| F-14 | Snapshot preparation of the 43k-path stress trace (bark-2350) is about 5 ms slower in real Safari (24 → 28–31 ms); load and validation of the interactive target are about 16 ms slower in Chromium (123–126 → 142–143 ms) | Recorded (report §10); the preview and exact frame are unchanged within noise |
+
+## 6. Decisions requested from the maintainer (stage D)
+| # | Decision | Recommendation |
+|---|---|---|
+| M-7 | Accept stage D and the G-DOC-R gate's implementation, with the open qualifications (lower-end hardware, quiet machine, browser-dispatch timing in the production build) | Accept as an implementation; the gate's hardware qualifications stay open |
+| M-8 | TD-UI-006: confirmation flow to commit without history, or keep rejection | Decide before supporting very large single subtrees, or enabling the constrained profile |
+| M-9 | `paletteLabels()` incrementalisation timing | With Recolor virtualisation |

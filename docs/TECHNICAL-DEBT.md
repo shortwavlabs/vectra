@@ -925,6 +925,17 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - **Status: OPEN.**
     - The 1M-anchor stress criterion awaits stage D, which is stopped pending amendment AM-2 ([draft](research/g-doc-r/AM-2-DRAFT.md)).
     - The production-build browser measurement and the quiet-machine run are still needed for closure.
+- **G-DOC-R stage D (2026-11-26, branch `gate/g-doc-r`, `6a23a92`; awaiting acceptance).**
+  - **What changed:** a chunked copy-on-write node map ordered by node ID, a persistent parent index, and AM-2 history accounting.
+  - **Integrated dispatch** (Node, low load, not a designated quiet run), worst type, median / p95:
+    - interactive target: **6.9 / 7.5 ms**;
+    - 250k paths: **26.2 / 26.5 ms**;
+    - **996k anchors: 34.4 / 35.0 ms. All 12 types meet ≤ 50 ms.**
+  - One-node edits take 0.06–0.17 ms.
+  - **Differential:** 108,249 comparisons over 6 seeds and 558,472 over 30 more, 0 disagreements. Three independent reviews; every confirmed defect fixed and re-qualified.
+  - **Closure criteria met in Node on the reference machine.** Still required by the approved criteria: a quiet-machine run, and the production build in a browser for dispatch timing. In-browser renderer stages were measured against the G-BRAND baseline (report §10), but not dispatch itself.
+  - Lower-end hardware is NOT RUN.
+  - **Status: OPEN, proposed for closure after those runs.**
 
 <a id="td-perf-008"></a>
 ### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms
@@ -989,6 +1000,11 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - Stage C removed one retention found during review: published node maps briefly kept their transaction's written-key set.
   - Counting node maps and indexes in the history budget changes C3.2 (C3 r2) and RFC-002 §7, so **amendment AM-2 is raised** ([draft](research/g-doc-r/AM-2-DRAFT.md)). It asks the maintainer to decide the cost model, the attribution of shared allocations, earlier eviction and node-map iteration order.
   - Stage D is not started. **OPEN.**
+- **G-DOC-R stage D (2026-11-26; awaiting acceptance).**
+  - **What changed:** history states share node-map and parent-index chunks. A one-node edit retains about 7 KB of accounted structure per step at 43k paths and about 20 KB at 330k; measured retention is within the calibration below. Before stage D it was about 7 MiB per state at 251k.
+  - **Counted in the budget:** AM-2 (C3.2 r3) adds document-structure bytes to the RFC §7 history budget.
+  - **Calibration:** the model against measured V8 retained heap gives 0.987–1.06 on the calibration set and 1.002–1.163 on the validation set (report §7).
+  - **Closure criteria met** ("history memory bounded and counted in the budget, with the full validator still the oracle"). **Proposed for closure**; the maintainer to confirm. Browser-engine heap evidence is not available (report §7, limits).
 
 <a id="td-platform-007"></a>
 ### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs

@@ -1,0 +1,429 @@
+{
+  "browser": "chromium 159.0.8154.6",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "dpr": 1,
+  "machineStart": {
+    "loadavg": [2.14, 1.87, 1.81],
+    "ngspice": 0
+  },
+  "workloads": {
+    "synthetic-many-250k": {
+      "input": "tests/output/rfc-002-review/scenes/synthetic-many-250k.scene.json",
+      "inputSha256": "46280a24968b63f4f8ce3729b46212d7642911076d153bd113be5a56a4981b3c",
+      "containerSha256": "0bc510d1c3fe62fe8be74d0a7008c46f95b9717864d62c58b6e8fc6334acab13",
+      "containerBytes": 3455756,
+      "width": 4000,
+      "height": 3000,
+      "paths": 41853,
+      "anchors": 250000,
+      "subpaths": 50000,
+      "provenanceMode": "color (metadata only; scene params are empty)",
+      "stages": {
+        "fetchMs": 28.19999998807907,
+        "loadValidateMs": 123.30000001192093,
+        "evaluateMs": 10.800000011920929,
+        "snapshotMs": 4.9000000059604645,
+        "copyMs": 0.699999988079071,
+        "postMs": 6.699999988079071,
+        "bytesCopied": 11034832,
+        "pathBuildMs": 132.49999979138374,
+        "firstFrameMs": 83.80000001192093,
+        "exactFrameMs": 130.90000000596046,
+        "exactDrawRendererMs": 75,
+        "previewMs": 151.19999998807907,
+        "presentation": {
+          "sampler": "displayed canvas",
+          "visibleAfterLoadMs": 159.39999997615814,
+          "visibleAfterExactMessageMs": 8.199999988079071
+        }
+      },
+      "loadMainThread": {
+        "frames": 13,
+        "maxGapMs": 116.80000000000001,
+        "p95": 116.80000000000001,
+        "longTasks": 1,
+        "longestTaskMs": 123
+      },
+      "hitIndex": {
+        "readyMs": 50.30000001192093,
+        "buildMs": 28.099999994039536,
+        "slices": 8,
+        "maxSliceMs": 4,
+        "coldClick": {
+          "id": "pth_23918",
+          "stale": false,
+          "ms": 23.900000005960464,
+          "indexReadyBeforeClick": false
+        },
+        "warm": {
+          "p50": 0,
+          "p95": 0.004999999701976776,
+          "max": 0.005000001192092896
+        }
+      },
+      "pan": {
+        "p50": 16.69999999999999,
+        "p95": 17.600000000000023,
+        "max": 17.700000000000045,
+        "exactSettleMs": 52.400000005960464
+      },
+      "zoom": {
+        "p50": 16.699999999999818,
+        "p95": 17,
+        "max": 17.59999999999991,
+        "exactSettleMs": 49.70000001788139
+      },
+      "drag": {
+        "target": "a path from the middle of the paint order",
+        "frames": 61,
+        "startToFirstPoseMs": 19.5,
+        "lastPoseLagAfterLoopMs": 2.7999999821186066,
+        "mode": "layers",
+        "lastComposeMs": 0.09999999403953552,
+        "client": {
+          "crashes": 0,
+          "stale": 2,
+          "staleMessages": 0
+        },
+        "renderRevision": 2,
+        "layers": 3,
+        "layerBytes": 4728168,
+        "rafIntervals": {
+          "p50": 16.699999999999818,
+          "p95": 17.5,
+          "max": 17.59999999999991
+        },
+        "mainThread": {
+          "frames": 62,
+          "maxGapMs": 33.30000000000018,
+          "p95": 17.5,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "exactSettleAfterReleaseMs": 93.39999997615814
+      },
+      "recoveryMs": 84.5,
+      "isolation": "fresh browser context",
+      "host": "worker",
+      "machine": {
+        "loadavg": [2.13, 1.87, 1.81],
+        "ngspice": 0
+      }
+    },
+    "bark-1224": {
+      "input": "tests/output/g-job-workloads/bark-1224.png",
+      "inputSha256": "a4629ed39b6f1d675f68c156f52cc13d59caa3b1015e8b376a99ee8c79d770f5",
+      "containerSha256": "db61246e467e1fd5793ffd9027c119e135b2821df48343657d58c1294c987d17",
+      "containerBytes": 4544646,
+      "width": 1224,
+      "height": 816,
+      "paths": 16056,
+      "anchors": 269996,
+      "subpaths": 16357,
+      "trace": "Full Colour defaults (DEFAULT_SETTINGS.color), seed 1",
+      "stages": {
+        "fetchMs": 33.29999998211861,
+        "loadValidateMs": 132.09999999403954,
+        "evaluateMs": 5.300000011920929,
+        "snapshotMs": 2.199999988079071,
+        "copyMs": 0.800000011920929,
+        "postMs": 3,
+        "bytesCopied": 12851193,
+        "pathBuildMs": 102.30000019073486,
+        "firstFrameMs": 69.80000001192093,
+        "exactFrameMs": 95.80000001192093,
+        "exactDrawRendererMs": 57.19999998807907,
+        "previewMs": 113.60000002384186,
+        "presentation": {
+          "sampler": "displayed canvas",
+          "visibleAfterLoadMs": 114.40000002384187,
+          "visibleAfterExactMessageMs": 0.8000000000000114
+        }
+      },
+      "loadMainThread": {
+        "frames": 12,
+        "maxGapMs": 116.6,
+        "p95": 116.6,
+        "longTasks": 1,
+        "longestTaskMs": 132
+      },
+      "hitIndex": {
+        "readyMs": 37.69999998807907,
+        "buildMs": 23.999999940395355,
+        "slices": 7,
+        "maxSliceMs": 4.299999982118607,
+        "coldClick": {
+          "id": "pth_38538",
+          "stale": false,
+          "ms": 18.80000001192093,
+          "indexReadyBeforeClick": false
+        },
+        "warm": {
+          "p50": 0,
+          "p95": 0.015000000596046448,
+          "max": 0.07999999970197677
+        }
+      },
+      "pan": {
+        "p50": 16.699999999999932,
+        "p95": 17.300000000000068,
+        "max": 17.40000000000009,
+        "exactSettleMs": 29.400000005960464
+      },
+      "zoom": {
+        "p50": 16.699999999999818,
+        "p95": 17.199999999999818,
+        "max": 17.59999999999991,
+        "exactSettleMs": 26.299999982118607
+      },
+      "drag": {
+        "target": "a path from the middle of the paint order",
+        "frames": 61,
+        "startToFirstPoseMs": 15.099999994039536,
+        "lastPoseLagAfterLoopMs": 2.5,
+        "mode": "layers",
+        "lastComposeMs": 0,
+        "client": {
+          "crashes": 0,
+          "stale": 2,
+          "staleMessages": 0
+        },
+        "renderRevision": 2,
+        "layers": 3,
+        "layerBytes": 4728204,
+        "rafIntervals": {
+          "p50": 16.699999999999818,
+          "p95": 17.299999999999727,
+          "max": 17.5
+        },
+        "mainThread": {
+          "frames": 62,
+          "maxGapMs": 17.5,
+          "p95": 17.100000000000364,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "exactSettleAfterReleaseMs": 74.90000000596046
+      },
+      "recoveryMs": 73.90000000596046,
+      "isolation": "fresh browser context",
+      "host": "worker",
+      "machine": {
+        "loadavg": [2.04, 1.85, 1.81],
+        "ngspice": 0
+      }
+    },
+    "bark-2350": {
+      "input": "tests/output/g-job-workloads/bark-2350.png",
+      "inputSha256": "daa939de69169ce5b6fb9ab32dfa9e305452154640bfed47a73ae928d6d4ec72",
+      "containerSha256": "a3181da441835f61684d2d8b6c208444a2eff4a61c38a5ed00a889ac3749c458",
+      "containerBytes": 13151909,
+      "width": 2350,
+      "height": 1566,
+      "paths": 43621,
+      "anchors": 812003,
+      "subpaths": 45211,
+      "trace": "Full Colour defaults (DEFAULT_SETTINGS.color), seed 1",
+      "stages": {
+        "fetchMs": 98,
+        "loadValidateMs": 291.7000000178814,
+        "evaluateMs": 12.099999994039536,
+        "snapshotMs": 5.5999999940395355,
+        "copyMs": 2,
+        "postMs": 7.699999988079071,
+        "bytesCopied": 38735582,
+        "pathBuildMs": 1162.7000022530556,
+        "firstFrameMs": 96.5,
+        "exactFrameMs": 289.5,
+        "exactDrawRendererMs": 194.60000002384186,
+        "previewMs": 310.5,
+        "presentation": {
+          "sampler": "displayed canvas",
+          "visibleAfterLoadMs": 324.4,
+          "visibleAfterExactMessageMs": 13.899999999999977
+        }
+      },
+      "loadMainThread": {
+        "frames": 27,
+        "maxGapMs": 283.3,
+        "p95": 33.19999999999999,
+        "longTasks": 1,
+        "longestTaskMs": 291
+      },
+      "hitIndex": {
+        "readyMs": 91.69999998807907,
+        "buildMs": 60.29999998211861,
+        "slices": 15,
+        "maxSliceMs": 5.200000017881393,
+        "coldClick": {
+          "id": "pth_62198",
+          "stale": false,
+          "ms": 60.099999994039536,
+          "indexReadyBeforeClick": false
+        },
+        "warm": {
+          "p50": 0,
+          "p95": 0.015000000596046448,
+          "max": 0.15499999970197678
+        }
+      },
+      "pan": {
+        "p50": 16.700000000000045,
+        "p95": 17,
+        "max": 17.399999999999864,
+        "exactSettleMs": 73.30000001192093
+      },
+      "zoom": {
+        "p50": 16.699999999999818,
+        "p95": 16.800000000000182,
+        "max": 16.800000000000182,
+        "exactSettleMs": 93.40000000596046
+      },
+      "drag": {
+        "target": "a path from the middle of the paint order",
+        "frames": 61,
+        "startToFirstPoseMs": 49.900000005960464,
+        "lastPoseLagAfterLoopMs": 2.699999988079071,
+        "mode": "layers",
+        "lastComposeMs": 0.19999998807907104,
+        "client": {
+          "crashes": 0,
+          "stale": 2,
+          "staleMessages": 0
+        },
+        "renderRevision": 2,
+        "layers": 3,
+        "layerBytes": 4728096,
+        "rafIntervals": {
+          "p50": 16.699999999999818,
+          "p95": 16.800000000000182,
+          "max": 17.5
+        },
+        "mainThread": {
+          "frames": 63,
+          "maxGapMs": 32.40000000000009,
+          "p95": 16.800000000000182,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "exactSettleAfterReleaseMs": 133.59999999403954
+      },
+      "recoveryMs": 223.30000001192093,
+      "isolation": "fresh browser context",
+      "host": "worker",
+      "machine": {
+        "loadavg": [2.03, 1.86, 1.81],
+        "ngspice": 0
+      }
+    },
+    "architecture-street-halftone": {
+      "input": "tests/output/regression-a4cf172/architecture-street-halftone.scene.json",
+      "inputSha256": "482181c827c32c7a6fb6969bbe515beea8e34fca4e7a72fa5b5888c0d68d4e2b",
+      "containerSha256": "d01b050d20a6247f59e388ee722e870bc107a9a56a7740f5b3bcb831a6f9c5d1",
+      "containerBytes": 10039710,
+      "width": 4080,
+      "height": 3060,
+      "paths": 1,
+      "anchors": 977505,
+      "subpaths": 195501,
+      "stages": {
+        "fetchMs": 75.30000001192093,
+        "loadValidateMs": 69.7999999821186,
+        "evaluateMs": 0.09999999403953552,
+        "snapshotMs": 0.09999999403953552,
+        "copyMs": 2.300000011920929,
+        "postMs": 0,
+        "bytesCopied": 41837230,
+        "pathBuildMs": 0,
+        "firstFrameMs": 276.40000000596046,
+        "exactFrameMs": 276.40000000596046,
+        "exactDrawRendererMs": 0,
+        "previewMs": 292.2000000178814,
+        "presentation": {
+          "sampler": "displayed canvas",
+          "visibleAfterLoadMs": null,
+          "visibleAfterExactMessageMs": null
+        }
+      },
+      "loadMainThread": {
+        "frames": 25,
+        "maxGapMs": 50.099999999999994,
+        "p95": 17.700000000000003,
+        "longTasks": 1,
+        "longestTaskMs": 69
+      },
+      "hitIndex": {
+        "readyMs": 91.7000000178814,
+        "buildMs": 75.40000003576279,
+        "slices": 19,
+        "maxSliceMs": 5.200000017881393,
+        "coldClick": {
+          "id": "pth_5",
+          "stale": false,
+          "ms": 71.40000000596046,
+          "indexReadyBeforeClick": false
+        },
+        "warm": {
+          "p50": 0,
+          "p95": 0.004999999701976776,
+          "max": 0.010000000894069671
+        }
+      },
+      "pan": {
+        "p50": 16.700000000000045,
+        "p95": 17.5,
+        "max": 17.59999999999991,
+        "exactSettleMs": 6.199999988079071
+      },
+      "zoom": {
+        "p50": 16.699999999999818,
+        "p95": 17.200000000000273,
+        "max": 17.600000000000364,
+        "exactSettleMs": 4.5999999940395355
+      },
+      "drag": {
+        "target": "a path from the middle of the paint order",
+        "frames": 61,
+        "startToFirstPoseMs": 11.300000011920929,
+        "lastPoseLagAfterLoopMs": 2.800000011920929,
+        "mode": "layers",
+        "lastComposeMs": 0.09999999403953552,
+        "client": {
+          "crashes": 0,
+          "stale": 2,
+          "staleMessages": 0
+        },
+        "renderRevision": 2,
+        "layers": 3,
+        "layerBytes": 6771328,
+        "rafIntervals": {
+          "p50": 16.699999999999818,
+          "p95": 17,
+          "max": 17.699999999999818
+        },
+        "mainThread": {
+          "frames": 61,
+          "maxGapMs": 17.699999999999818,
+          "p95": 16.90000000000009,
+          "longTasks": 0,
+          "longestTaskMs": 0
+        },
+        "exactSettleAfterReleaseMs": 16.5
+      },
+      "recoveryMs": 240.7000000178814,
+      "isolation": "fresh browser context",
+      "host": "worker",
+      "machine": {
+        "loadavg": [2.59, 1.97, 1.85],
+        "ngspice": 0
+      }
+    }
+  },
+  "machineEnd": {
+    "loadavg": [2.59, 1.97, 1.85],
+    "ngspice": 0
+  }
+}

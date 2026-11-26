@@ -1,0 +1,356 @@
+{
+  "commit": "df8e8f25c0fd8b2a6d239256c81b345cc91d5c0d",
+  "started": "2026-11-26T19:31:40.700Z",
+  "loadavgStart": [2.53466796875, 2.224609375, 1.9658203125],
+  "results": [
+    {
+      "name": "offscreen-canvas-support",
+      "details": {
+        "features": {
+          "transfer": true,
+          "offscreen": true,
+          "offscreen2d": true
+        },
+        "host": "worker"
+      },
+      "pass": true,
+      "ms": 728
+    },
+    {
+      "name": "correctness-worker",
+      "details": {
+        "host": "worker",
+        "results": [
+          {
+            "name": "synthetic-correctness",
+            "scale": 2,
+            "waitMs": 95,
+            "pixels": 512000,
+            "geometryErrors": 0,
+            "aaBand": 43183,
+            "pctOver32": 0.04,
+            "maxDiff": 59,
+            "deviceScale": 2
+          },
+          {
+            "name": "adjacent_colors-limited",
+            "scale": 1,
+            "waitMs": 49,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 5088,
+            "pctOver32": 0,
+            "maxDiff": 0,
+            "deviceScale": 2
+          },
+          {
+            "name": "thin_strokes-halftone",
+            "scale": 1,
+            "waitMs": 62,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 35694,
+            "pctOver32": 0,
+            "maxDiff": 27,
+            "deviceScale": 2
+          },
+          {
+            "name": "thin_strokes-halftone-transparent",
+            "scale": 1,
+            "waitMs": 62,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 43021,
+            "pctOver32": 0,
+            "maxDiff": 28,
+            "deviceScale": 2
+          },
+          {
+            "name": "logo_transparent_hole-mosaic",
+            "scale": 1,
+            "waitMs": 55,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 1480,
+            "pctOver32": 0.007,
+            "maxDiff": 68,
+            "deviceScale": 2
+          },
+          {
+            "name": "nested_rings-color",
+            "scale": 1,
+            "waitMs": 57,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 25826,
+            "pctOver32": 0.126,
+            "maxDiff": 67,
+            "deviceScale": 2
+          },
+          {
+            "name": "edited-transform-clip",
+            "scale": 2,
+            "waitMs": 71,
+            "pixels": 512000,
+            "geometryErrors": 0,
+            "aaBand": 31803,
+            "pctOver32": 0.048,
+            "maxDiff": 63,
+            "deviceScale": 2
+          },
+          {
+            "name": "edited-styles-visibility",
+            "scale": 1,
+            "waitMs": 51,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 5088,
+            "pctOver32": 0,
+            "maxDiff": 0,
+            "deviceScale": 2
+          },
+          {
+            "name": "multi-layer",
+            "scale": 1,
+            "waitMs": 56,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 18429,
+            "pctOver32": 0.091,
+            "maxDiff": 91,
+            "deviceScale": 2
+          },
+          {
+            "name": "empty-group",
+            "scale": 2,
+            "waitMs": 69,
+            "pixels": 512000,
+            "geometryErrors": 0,
+            "aaBand": 41668,
+            "pctOver32": 0.04,
+            "maxDiff": 59,
+            "deviceScale": 2
+          }
+        ]
+      },
+      "pass": true,
+      "ms": 1484
+    },
+    {
+      "name": "correctness-main-thread",
+      "details": {
+        "host": "main-thread",
+        "results": [
+          {
+            "name": "synthetic-correctness",
+            "scale": 2,
+            "waitMs": 89,
+            "pixels": 512000,
+            "geometryErrors": 0,
+            "aaBand": 43183,
+            "pctOver32": 0.04,
+            "maxDiff": 59,
+            "deviceScale": 2
+          },
+          {
+            "name": "adjacent_colors-limited",
+            "scale": 1,
+            "waitMs": 52,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 5088,
+            "pctOver32": 0,
+            "maxDiff": 0,
+            "deviceScale": 2
+          },
+          {
+            "name": "thin_strokes-halftone",
+            "scale": 1,
+            "waitMs": 57,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 35694,
+            "pctOver32": 0,
+            "maxDiff": 27,
+            "deviceScale": 2
+          },
+          {
+            "name": "thin_strokes-halftone-transparent",
+            "scale": 1,
+            "waitMs": 51,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 43021,
+            "pctOver32": 0,
+            "maxDiff": 28,
+            "deviceScale": 2
+          },
+          {
+            "name": "logo_transparent_hole-mosaic",
+            "scale": 1,
+            "waitMs": 50,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 1480,
+            "pctOver32": 0.007,
+            "maxDiff": 68,
+            "deviceScale": 2
+          },
+          {
+            "name": "nested_rings-color",
+            "scale": 1,
+            "waitMs": 52,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 25826,
+            "pctOver32": 0.126,
+            "maxDiff": 67,
+            "deviceScale": 2
+          },
+          {
+            "name": "edited-transform-clip",
+            "scale": 2,
+            "waitMs": 65,
+            "pixels": 512000,
+            "geometryErrors": 0,
+            "aaBand": 31803,
+            "pctOver32": 0.048,
+            "maxDiff": 63,
+            "deviceScale": 2
+          },
+          {
+            "name": "edited-styles-visibility",
+            "scale": 1,
+            "waitMs": 47,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 5088,
+            "pctOver32": 0,
+            "maxDiff": 0,
+            "deviceScale": 2
+          },
+          {
+            "name": "multi-layer",
+            "scale": 1,
+            "waitMs": 51,
+            "pixels": 262144,
+            "geometryErrors": 0,
+            "aaBand": 18429,
+            "pctOver32": 0.091,
+            "maxDiff": 91,
+            "deviceScale": 2
+          },
+          {
+            "name": "empty-group",
+            "scale": 2,
+            "waitMs": 62,
+            "pixels": 512000,
+            "geometryErrors": 0,
+            "aaBand": 41668,
+            "pctOver32": 0.04,
+            "maxDiff": 59,
+            "deviceScale": 2
+          }
+        ]
+      },
+      "pass": true,
+      "ms": 1408
+    },
+    {
+      "name": "first-frame-latency",
+      "details": {
+        "synthetic-correctness": {
+          "showToExactMs": 19,
+          "presentedAfterExactMs": 80,
+          "frame": 6.999999999999972
+        },
+        "thin_strokes-halftone-transparent": {
+          "showToExactMs": 19,
+          "presentedAfterExactMs": 58,
+          "frame": 3
+        },
+        "multi-layer": {
+          "showToExactMs": 14,
+          "presentedAfterExactMs": 49,
+          "frame": 6
+        }
+      },
+      "pass": true,
+      "ms": 944
+    },
+    {
+      "name": "recovery",
+      "details": {
+        "recoveryMs": 7,
+        "firstWait": 70,
+        "recoveredWait": 74,
+        "offlineWait": 60
+      },
+      "pass": true,
+      "ms": 1010
+    },
+    {
+      "name": "pan-zoom-responsiveness",
+      "details": {
+        "interactive": {
+          "loadMs": 2734,
+          "firstFrameMs": 69,
+          "exactFrameMs": 108,
+          "exactDrawWorkerMs": 70.99999999999955,
+          "prepareMs": 8,
+          "copyMs": 1,
+          "pan": {
+            "exactSettleMs": 43,
+            "p50": 17,
+            "p95": 17,
+            "max": 18
+          },
+          "zoom": {
+            "exactSettleMs": 43.00000000000091,
+            "p50": 17,
+            "p95": 18,
+            "max": 18
+          },
+          "host": "worker"
+        },
+        "stress": {
+          "loadMs": 10935,
+          "firstFrameMs": 115,
+          "exactFrameMs": 342,
+          "exactDrawWorkerMs": 239.99999999999636,
+          "prepareMs": 30,
+          "copyMs": 2,
+          "pan": {
+            "exactSettleMs": 78,
+            "p50": 17,
+            "p95": 18,
+            "max": 18
+          },
+          "zoom": {
+            "exactSettleMs": 85,
+            "p50": 17,
+            "p95": 18,
+            "max": 18
+          },
+          "host": "worker"
+        }
+      },
+      "pass": true,
+      "ms": 18618
+    },
+    {
+      "name": "main-thread-fallback",
+      "details": {
+        "label": "Canvas: main-thread fallback",
+        "presentedWait": 85
+      },
+      "pass": true,
+      "ms": 795
+    }
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2 (25G83)"
+  },
+  "loadavgEnd": [2.25439453125, 2.18798828125, 1.9599609375]
+}
