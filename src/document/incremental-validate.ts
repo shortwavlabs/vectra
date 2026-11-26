@@ -1,25 +1,32 @@
-// TD-PERF-007 prototype (G-R1 investigation): a fast-accept incremental check of a
-// transaction's result against its validated predecessor. NOT wired into DocumentSession:
-// the session constructor, and therefore loadContainer, always run the full validateState,
-// which also stays the oracle this module is tested against.
+// G-DOC-R stage B: the incremental validator. `DocumentSession.dispatch` runs it on every
+// transaction (ValidationMode). The session constructor, and therefore loadContainer, always
+// run the full validateState, which stays the oracle this module is tested against
+// (incremental-validate.test.ts: seeded differential, >= 10,000 comparisons).
 //
-// It either proves `next` valid and returns exactly the StateDerived that validateState would
-// return (chunk entries compared as a set), or returns `undecided` with a reason. On
-// `undecided` a caller runs validateState, which accepts or throws the canonical error; so
-// rejected transactions report the full pass's first error by construction.
+// It is fast-accept: it either proves `next` valid and returns exactly the StateDerived that
+// validateState would return (chunk entries compared as a set), or returns `undecided` with a
+// reason. On `undecided` the caller runs validateState, which accepts or throws the canonical
+// error; so rejected transactions report the full pass's first error by construction.
 //
-// Preconditions: `prev` passed validateState with the same store and limits and `prevDerived`
-// is that result; every chunk `prev` references is still live (true inside dispatch, where
-// prev stays owned as `document` until publication).
+// Preconditions: `prev` passed validateState (or this proof) with the same store and limits
+// and `prevDerived` is that result; every chunk `prev` references is still live (true inside
+// dispatch, where prev stays owned as `document` until publication).
 //
-// Cost: the change set comes from an identity diff of the node map, O(nodes). Adoption would
-// have the Draft record the keys it writes (SealedMap is the only write path) and keep a
-// persistent parent index, removing both O(nodes) passes; see the TD-PERF-007 report.
+// Rule: every rule of invariants.ts is applied here to each changed entry, and every
+// cross-entry rule is re-established from the change set. A change to invariants.ts adds the
+// rule here and a forgery to testing/incremental-differential.ts in the same change.
+//
+// Cost: the change set comes from an identity diff of the node map, O(nodes); see
+// G-DOC-R stage C for the Draft write log that replaces it.
 
 import { parents } from "./commands.ts";
 import {
   DEFAULT_DOC_LIMITS,
+  DIGEST_RE,
   type DocLimits,
+  isU32,
+  LONE_SURROGATE,
+  MIMES,
   rectProblem,
   type StateDerived,
 } from "./invariants.ts";
@@ -54,13 +61,6 @@ export interface IncrementalTiming {
 export type IncrementalResult =
   | { readonly derived: StateDerived; readonly timing: IncrementalTiming }
   | { readonly derived: null; readonly reason: string; readonly timing: IncrementalTiming };
-
-// Copies of the full validator's private rules (invariants.ts is deliberately left unchanged).
-const U32_MAX = 2 ** 32 - 1;
-const isU32 = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= U32_MAX;
-const DIGEST_RE = /^[0-9a-f]{64}$/;
-const MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
-const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
 class Undecided {
   readonly reason: string;

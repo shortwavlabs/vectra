@@ -1,6 +1,10 @@
-// Document v1 invariants (RFC-002 §5.1), run on every committed transaction and on load.
-// One whole-state pass: IDs, references, numbers, transforms, tree shape, clip rules (C8) and
-// the per-reference anchor cap (C3.2). Returns the derived per-state data the session caches.
+// Document v1 invariants (RFC-002 §5.1): the authoritative whole-state pass and the oracle.
+// It runs on load (the session constructor) and on every transaction the incremental proof
+// (incremental-validate.ts) cannot decide, or on every transaction in `full` and `compare`
+// modes. IDs, references, numbers, transforms, tree shape, clip rules (C8) and the
+// per-reference anchor cap (C3.2). Returns the derived per-state data the session caches.
+// Rule: a change here adds the rule to incremental-validate.ts and a forgery to
+// testing/incremental-differential.ts in the same change.
 
 import { checkSourceProvenance, checkTraceProvenance, DECODE_POLICIES } from "./provenance.ts";
 import {
@@ -50,13 +54,16 @@ export interface StateDerived {
   readonly maxIdNumber: number;
 }
 
+// Shared with incremental-validate.ts, which must apply exactly these rules.
 const U32_MAX = 2 ** 32 - 1;
-const isU32 = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= U32_MAX;
-const DIGEST_RE = /^[0-9a-f]{64}$/;
-const MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
+export const isU32 = (v: unknown) =>
+  Number.isInteger(v) && (v as number) >= 0 && (v as number) <= U32_MAX;
+export const DIGEST_RE = /^[0-9a-f]{64}$/;
+export const MIMES: ReadonlySet<string> = new Set(["image/png", "image/jpeg", "image/webp"]);
 const MAX_RECT = 1e9;
 /** Names must be well-formed Unicode, or canonical JSON (C7) could not save them. */
-const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
+export const LONE_SURROGATE =
+  /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
 const bad = (message: string): never => {
   throw new DocumentError("invariant", message);

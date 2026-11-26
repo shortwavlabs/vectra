@@ -6,6 +6,7 @@ import type { DecodePolicy } from "./provenance.ts";
 import { sniffImage } from "../vectorization/intake.ts";
 import { applyCommand, type Command, type CommandContext } from "./commands.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
+import { checkIncremental } from "./incremental-validate.ts";
 import {
   DEFAULT_DOC_LIMITS,
   type DocLimits,
@@ -32,6 +33,26 @@ export const DEFAULT_HISTORY_LIMITS: Readonly<HistoryLimits> = Object.freeze({
   maxBytes: 128 * 2 ** 20,
 });
 
+/**
+ * How `dispatch` validates a transaction's result (G-DOC-R stage B). The full `validateState`
+ * is the oracle in every mode, and the constructor (and therefore loading) always runs it.
+ * - `incremental`: the incremental proof against the validated predecessor; when it cannot
+ *   decide, the full pass runs and accepts or throws the canonical error.
+ * - `compare`: as `incremental`, and every decided transaction is also checked by the full
+ *   pass; a disagreement throws `ValidationDisagreement` and the document is unchanged.
+ * - `full`: the full pass only (the pre-G-DOC-R behaviour).
+ */
+export type ValidationMode = "incremental" | "compare" | "full";
+/** `compare` in development and test builds, `incremental` in production (and in Node). */
+export const DEFAULT_VALIDATION_MODE: ValidationMode = import.meta.env?.DEV
+  ? "compare"
+  : "incremental";
+
+/** The incremental and full validators disagreed (a defect, never a user error). */
+export class ValidationDisagreement extends Error {
+  override readonly name = "ValidationDisagreement";
+}
+
 export interface SessionSnapshot {
   readonly state: DocState;
   readonly revision: number;
@@ -57,6 +78,8 @@ export interface SessionOptions {
   sources?: ReadonlyMap<AssetId, Uint8Array>;
   /** Receives errors thrown by subscribers (default: rethrown asynchronously). */
   onListenerError?: (error: unknown) => void;
+  /** Transaction validation (default `DEFAULT_VALIDATION_MODE`). */
+  validation?: ValidationMode;
 }
 
 /** C7 source-section cap, enforced when a source is embedded. */
@@ -84,6 +107,8 @@ export class DocumentSession {
   readonly store: GeometryStore;
   readonly limits: DocLimits;
   readonly historyLimits: HistoryLimits;
+  readonly validation: ValidationMode;
+  readonly #validations = { incremental: 0, full: 0 };
   #state: DocState;
   readonly #derived = new WeakMap<DocState, StateDerived>();
   #past: DocState[] = [];
@@ -105,6 +130,7 @@ export class DocumentSession {
     this.store = store;
     this.limits = o.limits ?? DEFAULT_DOC_LIMITS;
     this.historyLimits = o.history ?? DEFAULT_HISTORY_LIMITS;
+    this.validation = o.validation ?? DEFAULT_VALIDATION_MODE;
     this.#coalesceWindowMs = o.coalesceWindowMs ?? 1000;
     this.#now = o.now ?? (() => performance.now());
     const d = validateState(o.state, store, this.limits);
@@ -133,6 +159,11 @@ export class DocumentSession {
   };
   getSnapshot = (): SessionSnapshot => this.#snapshot;
 
+  /** Accepted transactions by the path that decided them: the incremental proof, or the full
+   *  pass (an undecided fallback, or `full` mode). */
+  get validations(): { readonly incremental: number; readonly full: number } {
+    return { ...this.#validations };
+  }
   get nextId(): number {
     return this.#nextId;
   }
@@ -208,7 +239,7 @@ export class DocumentSession {
         store.settle();
         return this.#revision; // a no-op is not a transaction
       }
-      d = validateState(next, store, this.limits);
+      d = this.#validate(prev, next);
       if (!o.withoutHistory) {
         const entry = this.#entryBytes(prev, d, next);
         if (entry > this.historyLimits.maxBytes)
@@ -246,6 +277,35 @@ export class DocumentSession {
     store.settle();
     this.#emit();
     return this.#revision;
+  }
+
+  /** Validates `next` against the validated `prev` (see ValidationMode). Throws the full
+   *  pass's error on an invalid state; counts only accepted transactions. */
+  #validate(prev: DocState, next: DocState): StateDerived {
+    const { store, limits } = this;
+    if (this.validation !== "full") {
+      const inc = checkIncremental(prev, this.#derived.get(prev)!, next, store, limits);
+      if (inc.derived) {
+        if (this.validation === "compare") {
+          let full: StateDerived;
+          try {
+            full = validateState(next, store, limits);
+          } catch (e) {
+            throw new ValidationDisagreement(
+              `the incremental validator accepted a state the full validator rejects: ${String(e)}`,
+              { cause: e },
+            );
+          }
+          if (!sameDerived(full, inc.derived))
+            throw new ValidationDisagreement("incremental and full derived data differ");
+        }
+        this.#validations.incremental++;
+        return inc.derived;
+      }
+    }
+    const full = validateState(next, store, limits);
+    this.#validations.full++;
+    return full;
   }
 
   /** Bytes the pushed entry alone would hold as history-only (RFC §7 "cannot fit"): chunks and
@@ -427,6 +487,13 @@ export class DocumentSession {
     return this.store.bytes().byOwnerKind.history + this.sourceByteCounts().history;
   }
 }
+
+/** Equal derived data: chunk reference counts compared as a set. */
+export const sameDerived = (a: StateDerived, b: StateDerived): boolean =>
+  a.anchors === b.anchors &&
+  a.maxIdNumber === b.maxIdNumber &&
+  a.chunks.size === b.chunks.size &&
+  [...a.chunks].every(([k, v]) => b.chunks.get(k) === v);
 
 // --- narrow selectors (stable references over immutable state) ---------------------------------
 export const selectState = (s: SessionSnapshot) => s.state;

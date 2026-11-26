@@ -1,5 +1,6 @@
-// TEST-ONLY differential harness (TD-PERF-007): the prototype incremental validator against
-// the full validateState on seeded random transactions. Shared by
+// TEST-ONLY differential harness (TD-PERF-007, G-DOC-R stage B): the incremental validator
+// against the full validateState on seeded random transactions. Every episode's session runs
+// in `compare` mode, so each real dispatch is also checked inside the integrated session. Shared by
 // src/document/incremental-validate.test.ts (asserts) and scripts/bench-td-perf-007.mjs
 // (--differential, writes the record). Node-importable: no import.meta.glob.
 //
@@ -33,7 +34,7 @@ import {
   type NodeId,
   rotate90Matrix,
 } from "../model.ts";
-import { DocumentSession } from "../session.ts";
+import { DocumentSession, sameDerived, ValidationDisagreement } from "../session.ts";
 import { TEST_PROVENANCE } from "./provenance.ts";
 import { randomPacket, rng, type Rng, syntheticPacket } from "./synthetic.ts";
 
@@ -542,12 +543,6 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
 }
 
 // --- harness --------------------------------------------------------------------------------------
-const sameDerived = (a: StateDerived, b: StateDerived) =>
-  a.anchors === b.anchors &&
-  a.maxIdNumber === b.maxIdNumber &&
-  a.chunks.size === b.chunks.size &&
-  [...a.chunks].every(([k, v]) => b.chunks.get(k) === v);
-
 function episode(r: Rng): DocumentSession {
   const limits: DocLimits = {
     ...DEFAULT_DOC_LIMITS,
@@ -560,6 +555,7 @@ function episode(r: Rng): DocumentSession {
     state: createDocument({ documentId: "diff", width: 512, height: 512 }),
     limits,
     history: { maxEntries: 2 + r.int(20), maxBytes: 128 * 2 ** 20 },
+    validation: "compare",
   });
   for (let i = 1 + r.int(3); i > 0; i--)
     try {
@@ -704,6 +700,10 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
           detail: "dispatch accepted a state validateState rejects",
         });
     } catch (e) {
+      if (e instanceof ValidationDisagreement) {
+        out.disagreements.push({ index: i, class: "command", label, detail: e.message });
+        continue;
+      }
       if (!(e instanceof DocumentError)) throw e;
       if (fullOk && e.code !== "history_budget")
         out.disagreements.push({

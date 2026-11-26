@@ -12,7 +12,7 @@ const sources = import.meta.glob<string>(["/src/document/**/*.ts", "/src/persist
   eager: true,
 });
 
-describe("TD-PERF-007 incremental validator (prototype, not wired)", () => {
+describe("incremental validator (G-DOC-R stage B; TD-PERF-007)", () => {
   test(`differential vs validateState, seed ${DIFFERENTIAL_SEED}`, () => {
     const s = runDifferential({ seed: DIFFERENTIAL_SEED, transactions: 16_000 });
     expect(s.disagreements).toEqual([]);
@@ -34,17 +34,20 @@ describe("TD-PERF-007 incremental validator (prototype, not wired)", () => {
       expect(s.fullErrorCodes[code], code).toBeGreaterThan(0);
   }, 120_000);
 
-  test("the session, and therefore loadContainer, never use it", () => {
+  test("only dispatch uses it: the constructor, and therefore loadContainer, run the full pass", () => {
     for (const [path, text] of Object.entries(sources))
       if (
         !path.endsWith(".test.ts") &&
         !path.includes("/testing/") &&
-        !path.endsWith("incremental-validate.ts")
+        !path.endsWith("incremental-validate.ts") &&
+        !path.endsWith("/session.ts")
       )
-        expect(text.includes("incremental-validate"), path).toBe(false);
+        expect(/from "[^"]*incremental-validate/.test(text), path).toBe(false);
+    const session = sources["/src/document/session.ts"]!;
     expect(sources["/src/persistence/container.ts"]).toContain("new DocumentSession(");
-    expect(sources["/src/document/session.ts"]).toContain(
-      "validateState(o.state, store, this.limits)",
-    );
+    const ctor = session.slice(session.indexOf("constructor("), session.indexOf("// --- external"));
+    expect(ctor).toContain("validateState(o.state, store, this.limits)");
+    expect(ctor).not.toContain("checkIncremental");
+    expect(session.match(/checkIncremental\(/g)).toHaveLength(1); // in #validate only
   });
 });
