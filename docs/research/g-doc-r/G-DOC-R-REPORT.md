@@ -1,6 +1,11 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: IN PROGRESS.** Stage B (§1) and stage C (§2) are implemented and qualified. An independent review of stage B found one correctness defect, which is fixed and re-qualified (§1.6). Stage D is not started. Nothing is merged; the gate awaits maintainer acceptance stage by stage ([scope](G-DOC-R-SCOPE.md)).
+**Status: STAGES B AND C QUALIFIED; STAGE D STOPPED.**
+- Stage B (§1) and stage C (§2) are implemented and qualified, in Node and in the production build in 3 browser engines (§3).
+- An independent review of stage B found one correctness defect, which is fixed and re-qualified (§1.6).
+- Following brief §6 and change control, stage D is **not started**. Its history accounting needs amendment AM-2 ([draft](AM-2-DRAFT.md)), and the defect is reported here first.
+- Real Safari is NOT RUN on this head (the screen was locked).
+- Nothing is merged. Decisions: [G-DOC-R-DECISIONS](G-DOC-R-DECISIONS.md).
 
 | | |
 |---|---|
@@ -58,7 +63,12 @@
 - **At benchmark scale.** All 12 workload transaction types at 43k and 250k paths were run in `compare` mode (3 repetitions each): every one was decided by the proof and agreed with the full pass ([`bench/stage-b-compare-scale-8913cfb.json`](bench/stage-b-compare-scale-8913cfb.json)).
 
 **Integrated session tests** (`session-validation.test.ts`, `session-compare.test.ts`):
-- **Modes agree.** One 31-step script runs in all three modes and must give the same revisions, the same errors (code and message), the same final document, history, `nextId` and store bytes. The script covers one-node edits, a layer transform, group, undo and redo, clip, duplicate, delete, fill, reorder, palette, artboard, a second trace, bake, ungroup and a no-op. Its six rejections are `invalid_transform`, a lone-surrogate name (`invariant`), `clip_transform_unsupported`, a two-command transaction whose committed chunk must be freed, and two command-level refusals.
+- **Modes agree.** One 30-step script runs in all three modes and must give the same revisions, the same errors (code and message), the same final document, history, `nextId` and store bytes. The script covers one-node edits, a layer transform, group, undo and redo, clip, duplicate, delete, fill, reorder, palette, artboard, a second trace, bake, ungroup and a no-op. It has seven rejections:
+  - `invalid_transform`;
+  - a lone-surrogate name (`invariant`);
+  - `clip_transform_unsupported`;
+  - a two-command transaction whose committed chunk must be freed (`invalid_transform`);
+  - three command-level refusals (`invalid_argument`).
 - **Atomic rollback.** After every rejection, everything is unchanged: the snapshot object (identity), `nextId`, the undo and redo stacks, the store's live chunk IDs, its byte totals and every chunk's owner counts.
 - **Derived data.** After every step, the session's cached derived data equals a fresh `validateState`.
 - **Resource limits**, in each mode: the anchor cap (`budget`), the node cap and the depth cap (`invariant`) reject identically and atomically, and a change exactly at the depth limit is accepted.
@@ -67,7 +77,7 @@
 - **Fault injection.** With a faulty incremental validator (one that accepts anything, or one that returns wrong anchors), `compare` mode throws `ValidationDisagreement` and leaves the document unchanged; `full` mode never consults it.
 
 ### 1.3 Performance: integrated dispatch (Node)
-`node --expose-gc scripts/bench-g-doc-r.mjs --sizes 43000,250000 --modes incremental,full --reps 30` on `8913cfb` (no tracked changes): [`bench/stage-b-8913cfb.json`](bench/stage-b-8913cfb.json). Load average 2.5–3.0 throughout (low for this machine, but shared, so not "quiet"). Each repetition times `session.dispatch` end to end on a fresh state, which has cold per-state caches.
+`node --expose-gc scripts/bench-g-doc-r.mjs --sizes 43000,250000 --modes incremental,full --reps 30` on `8913cfb` (no tracked changes): [`bench/stage-b-8913cfb.json`](bench/stage-b-8913cfb.json). Load average 2.5–3.0 throughout (low for this machine, but shared, so not "quiet"). Top CPU consumers just before the run (`ps -Ao pcpu,comm -r`): WindowServer 18 %, the Claude app processes 5–10 % each; no `ngspice`. The JSON records load averages only; from stage D on, `bench-g-doc-r.mjs` records the top consumers and the `ngspice` count itself (`conditionsStart`/`conditionsEnd`). Each repetition times `session.dispatch` end to end on a fresh state, which has cold per-state caches.
 
 Workloads:
 - **Interactive target:** 43,000 paths, 44,012 nodes, 264,000 anchors (the investigation's workload; slightly above the registered 250k anchors).
@@ -97,6 +107,8 @@ Dispatch in ms (median / p95):
 - These are Node figures on a shared machine. The production build in a browser, real Safari and lower-end hardware are measured at the end of the gate (§5); no stage-level claim is made beyond Node.
 
 ### 1.4 Frozen regressions on `8913cfb`
+**Corrected in §3.** These counts excluded only `concert-small-venue*`. §3 re-counts them with every `concert-*` input excluded, which gives 294/294 and 576/576.
+
 The maintainer's private concert photograph is **excluded** from every run (`concert-small-venue*`; standing instruction). The counts below are the frozen sets minus exactly those cases; no other case is missing.
 
 | Check | Command | Result |
@@ -104,7 +116,7 @@ The maintainer's private concert photograph is **excluded** from every run (`con
 | Engine corpus (frozen 326) | `regression_corpus` over the procedural fixtures and 7 of the 9 local photographs; SHA-256 against `a4cf172.sha256` | **302/302 identical**. The 24 missing hashes are all `concert-small-venue*` |
 | Owner bundle v2 (frozen 72) | `geo_bundle`, then `cmp` with `owner-acceptance-bundle-v2/` | **72/72 identical** |
 | Document export (frozen 636) | `node scripts/document-export-regression.mjs <corpus out>`: scene → packet → session commit → `.vectra` save (both codecs) → strict load → export → bake → scene, SVG, PDF | **588/588 identical**, 98 scenes × 3 files × 2 codecs. The 48 missing hashes are the 8 concert scenes |
-| Canonical serialization (new guard) | `session-validation.test.ts`: the 31-step script, saved with codec `none`, in every mode | SHA-256 `e60fa327…538e36`, frozen on Stage B for stages C and D |
+| Canonical serialization (new guard) | `session-validation.test.ts`: the 30-step script, saved with codec `none`, in every mode | SHA-256 `e60fa327…538e36`, frozen on Stage B for stages C and D |
 
 The engine (Rust) is untouched by G-DOC-R; its runs confirm the baseline and supply the scenes for the document-export run.
 
@@ -183,7 +195,7 @@ A separate reviewer read `incremental-validate.ts` against `validateState` rule 
 ### 2.2 Correctness qualification
 | Requirement (brief §2 C) | Evidence | Result |
 |---|---|---|
-| Complete mutation tracking | `commands-writelog.test.ts`, for each of 20 command forms (every command type, plus replace-trace): the log is complete and covers every key the identity diff finds. For patch commands it is exactly their targets. Chains of commands give the union. A foreign result marks the log incomplete. In the differential, **every** command transaction's log is checked against the identity diff | **PASS**: 0 incomplete logs |
+| Complete mutation tracking | `commands-writelog.test.ts`, for 21 command forms (all 20 command types, plus replace-trace): the log is complete and covers every key the identity diff finds. For patch commands it is exactly their targets. Chains of commands give the union. A foreign result marks the log incomplete. In the differential, **every** command transaction's log is checked against the identity diff | **PASS**: 0 incomplete logs |
 | Correct incremental validation coverage | The differential validates every command transaction through its log and every forgery through the identity diff, both against the full pass: 40,922 log-path comparisons in the 6-seed record | **PASS**: 0 disagreements |
 | No-op transactions | An empty transaction and a no-op command (`releaseClip` on an unclipped node) change nothing: same snapshot, same revision. An edit to the same value is still a transaction, as before (semantics unchanged) | **PASS** |
 | Undo and redo | The session script (undo and redo inside), `published states stay immutable…`; the benchmark asserts undo restores the state by reference. Undo and redo stay ≤ 0.03 ms | **PASS** |
@@ -195,7 +207,7 @@ Runs:
 - `node --expose-gc scripts/bench-g-doc-r.mjs --sizes 43000,250000 --modes incremental --reps 30` on `fd06b5a` → [`bench/stage-c-fd06b5a.json`](bench/stage-c-fd06b5a.json);
 - `--sizes 330000` → [`bench/stage-c-1m-fd06b5a.json`](bench/stage-c-1m-fd06b5a.json): 330,000 paths, 331,012 nodes, **996,000 anchors** (the 1M-anchor stress workload).
 
-Both runs had no tracked changes. Load average 0.8–2.6 (low, shared).
+Both runs had no tracked changes. Load average 0.8–2.6 (low, shared). Top CPU consumers before the first run: the Claude app (8 %), the wallpaper extension (7 %) and WindowServer (6 %); no `ngspice`.
 
 Dispatch in ms (median / p95):
 
@@ -216,7 +228,7 @@ Dispatch in ms (median / p95):
 
 - **Interactive target:** every type has median ≤ 6.9 ms and p95 ≤ 7.3 ms.
 - **250k paths (756k anchors):** **every type** is under 50 ms at median and p95: medians 14–45 ms, p95 ≤ 45.7 ms.
-- **996k anchors:** 5 types meet ≤ 50 ms. **Seven exceed it** (median 56–66 ms): setFillMany, reorder, group, ungroup, delete, duplicate, and applyTransformLayer at p95 48 ms (just inside).
+- **996k anchors:** 6 types meet ≤ 50 ms at median and p95; applyTransformLayer is the closest (46.0 / 48.0). **Six exceed it** (median 56–66 ms): setFillMany, reorder, group, ungroup, delete and duplicate.
 - The proof decided every measured transaction. Undo and redo stay ≤ 0.03 ms.
 
 **Where the remaining time goes** (stage profile, `bench-td-perf-007.mjs --only applyTransformLayer,applyTransformPath,setVisible`, [`bench/stage-c-walk-profile-fcf1425.json`](bench/stage-c-walk-profile-fcf1425.json); all figures in ms):
@@ -250,5 +262,44 @@ The copy and `parents` costs are exactly what stage D's chunked copy-on-write ma
 | Qualified command optimisations | **PASS**: `documentOrder` removed; sealed maps shared; publication only of written entries; walk without allocation. Cold `parents` remains for stage D |
 | Mutation tracking, coverage, no-ops, undo/redo, invalid commands, serialization and export | **PASS** (§2.2) |
 | Per-subtree summaries | **Investigated** (§2.4); deferred with a recorded ceiling |
-| ≤ 50 ms at the stress workloads | 250k / 756k anchors: **MET** (Node). 996k anchors: **NOT MET** for 7 of 12 types; stage D addresses this |
+| ≤ 50 ms at the stress workloads | 250k / 756k anchors: **MET** (Node). 996k anchors: **NOT MET** for 6 of 12 types; stage D addresses this |
 | Defect, contradiction or regression | **None in stage C.** Every type is faster than in stage B |
+
+## 3. Production build and browsers, on the stage C head (`758a689`)
+**Build.** `pnpm run build` passed, including notices, the service worker and `check-dist`. Identifiers: `VERSION` `a202e8a4cde2a2e7`, `BUILD_ID` `3057066590054808`.
+
+**Bundle** (`node docs/research/g-ui/measure-bundle.mjs`, gzip KiB; budgets 150 / 15 / 250):
+
+| | G-BRAND (`main`) | G-DOC-R |
+|---|---|---|
+| Design-system JS | 114.3 | 114.3 |
+| Workspace CSS | 9.5 | 9.5 |
+| Total initial workspace JS | 231.2 | **234.0** |
+
+The 2.8 KiB growth is the incremental validator. Before stage B no production module imported it, so the bundler dropped it. All budgets pass.
+
+**Playwright 1.65.1, full suite, 3 engines.** First run: **369 passed, 3 failed, 39 skipped** (9.0 min). The three failures:
+- **renderer-behaviour, render-worker crash, both cases.**
+  - The spec needs `target/release/examples/render_compare`, which only `renderer-correctness.spec.ts` builds, in its `beforeAll`.
+  - In this fresh worktree, renderer-behaviour ran first, so the binary was missing (`spawnSync … ENOENT`).
+  - Once it existed, the whole spec passed, **8/8**.
+  - This is a test-environment ordering dependency, unrelated to G-DOC-R; recorded for the gate that next touches the browser suite.
+- **ui-document, "canvas edges: transform handles beside all four edges are never intercepted"** (Chromium, 1280×720).
+  - The `elementFromPoint` probe returned nothing at the e handle.
+  - Run alone 5 times (`--repeat-each=5`), it passed **5/5**.
+  - The test polls until the handle is near the edge, then reads its position once more and probes. Under full-suite load the view can still be settling between the two reads.
+  - The phase that failed changes only the camera (`setView`); no transaction runs in it.
+  - Recorded as **flaky under load**, not fixed here (UI tests are outside this gate). The G-BRAND run of the same suite had no flake.
+
+The three extra skips, compared with G-BRAND's 36, are opt-in or serial dependants of the failed cases. The first run leaves them unexplained; they are not counted as passes.
+
+**Bundle v1 through the workbench** (`OWNER_BUNDLE=1 … owner-bundle.spec.ts`, Chromium): **15/15 files byte-identical** to `docs/research/p0-r/owner-acceptance-bundle/`.
+
+**Real Safari: NOT RUN.** The screen was locked at the time (`CGSSessionScreenIsLocked` true), and runs under a locked screen are invalid (G-R1 report §13). The harnesses (`tests/safari/*.mjs`) are to be run on this head once the screen is unlocked.
+
+**Engine and document regressions on the stage C head**, recounted with **every** `concert-*` input excluded. An earlier session script treated all `concert-*` photographs as private, so `concert-stage-light` is now excluded too:
+- engine corpus **294/294** (326 minus 32 concert files);
+- bundle v2 **72/72**;
+- document export **576/576** (636 minus 60), on `758a689`.
+
+The figures in §1.4 (302 and 588) included `concert-stage-light`; those outputs have been deleted locally.

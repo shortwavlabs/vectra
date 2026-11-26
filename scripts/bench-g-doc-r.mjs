@@ -24,6 +24,17 @@ const OUT = arg("--out", null);
 const gc = globalThis.gc ?? (() => {});
 const now = () => performance.now();
 const load = () => loadavg().map((x) => +x.toFixed(2));
+/** Machine conditions (shared machine): top CPU consumers and the ngspice process count. */
+const conditions = () => {
+  const ps = execFileSync("ps", ["-Ao", "pcpu,comm", "-r"], { encoding: "utf8" })
+    .trim()
+    .split("\n");
+  return {
+    loadavg: load(),
+    top: ps.slice(1, 6).map((l) => l.trim().replace(/^(\S+)\s+.*\/(.*)$/, "$1 $2")),
+    ngspice: ps.filter((l) => /ngspice/.test(l)).length,
+  };
+};
 const q = (xs, p) => {
   const s = [...xs].sort((a, b) => a - b);
   return s[Math.min(s.length - 1, Math.max(0, Math.ceil(p * s.length) - 1))];
@@ -85,6 +96,7 @@ const result = {
   reps: REPS,
   warmup: WARMUP,
   loadavgStart: load(),
+  conditionsStart: conditions(),
   runs: [],
 };
 for (const paths of SIZES)
@@ -103,6 +115,7 @@ for (const paths of SIZES)
     result.runs.push(run);
   }
 result.loadavgEnd = load();
+result.conditionsEnd = conditions();
 const json = JSON.stringify(result, null, 2);
 if (OUT) writeFileSync(OUT, json + "\n");
 else console.log(json);

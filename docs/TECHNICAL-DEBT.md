@@ -903,6 +903,17 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Owner action:** approve the structural-sharing approach (and any dependency) at G-EDIT. *Superseded on 2026-11-25: G-DOC-R is authorised, with no new dependency.*
 - **G-R1 investigation (2026-11-25):** whole-state validation is 62–89 % of a structural transaction and copying 10–18 %. A one-node edit: 22 ms at 43k paths, 144 ms at 250k. A prototype incremental validator (not wired) agrees with the full validator on 62,124 randomized comparisons over 5 seeds, invalid transactions included, with 0 disagreements. Options B (wire it, with a comparison mode), C (Draft key tracking) and D (a chunked copy-on-write map, the only route found to ≤ 50 ms at 250k) are an owner decision. **OPEN.** [Investigation](research/g-r1/TD-PERF-007-INVESTIGATION.md).
 - **Maintainer review (2026-11-25):** options **B, C and D are authorised, in that order**, as the dedicated gate **G-DOC-R**, with no new dependency. The frozen-contract amendment process applies. Retained targets: median ≤ 16.7 ms and p95 ≤ 33 ms at the interactive target, ≤ 50 ms at the stress workloads, and ≥ 10,000 randomized differential transactions. [Scope](research/g-doc-r/G-DOC-R-SCOPE.md). **OPEN.**
+- **G-DOC-R stages B and C (2026-11-26, branch `gate/g-doc-r`; not merged, awaiting maintainer acceptance).**
+  - **What changed.** `dispatch` validates with the incremental proof; the full pass runs as the fallback, in `compare` mode (development and test builds) and on load. Drafts record their written keys, `documentOrder` is gone, unchanged sealed maps are shared, and the subtree walk no longer allocates.
+  - **Differential.** 74,325 comparisons over 6 seeds, plus 385,254 over 30 more seeds: 0 disagreements. 12,427 comparisons are enforced in `vp test`.
+  - **Independent review.** It found one defect (an `undefined` map value accepted by the proof). Fixed and re-qualified; [report](research/g-doc-r/G-DOC-R-REPORT.md) §1.6.
+  - **Integrated dispatch (Node, shared machine, not quiet), worst type, median / p95:**
+    - interactive target (43k paths, 264k anchors): **6.9 / 7.3 ms** (was 29.4 / 32.2);
+    - 250k paths (756k anchors): **44.7 / 45.7 ms**;
+    - 330k paths (**996k anchors**): 66.1 / 69.7 ms. **6 of 12 types exceed 50 ms**.
+  - **Status: OPEN.**
+    - The 1M-anchor stress criterion awaits stage D, which is stopped pending amendment AM-2 ([draft](research/g-doc-r/AM-2-DRAFT.md)).
+    - The production-build browser measurement and the quiet-machine run are still needed for closure.
 
 <a id="td-perf-008"></a>
 ### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms
@@ -962,6 +973,12 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Disposition:** stage **MEASURED**; gate **G-EDIT**. Option D of the investigation (a chunked copy-on-write node map) measured about 0.02 MiB per state; it needs approval.
 - **Closure criteria:** history memory bounded and counted in the budget, with the full validator still the oracle.
 - **Owner action:** a decision on the TD-PERF-007 options. *Decided on 2026-11-25: option D is authorised within G-DOC-R, after B and C. History accounting covers retained node maps, node objects, indexes, geometry and source assets, counting shared allocations once ([scope](research/g-doc-r/G-DOC-R-SCOPE.md)).*
+- **G-DOC-R (2026-11-26).**
+  - Stages B and C do not change history memory.
+  - Stage C removed one retention found during review: published node maps briefly kept their transaction's written-key set.
+  - Counting node maps and indexes in the history budget changes C3.2 (C3 r2) and RFC-002 §7, so **amendment AM-2 is raised** ([draft](research/g-doc-r/AM-2-DRAFT.md)). It asks the maintainer to decide the cost model, the attribution of shared allocations, earlier eviction and node-map iteration order.
+  - Stage D is not started. **OPEN.**
+
 <a id="td-platform-007"></a>
 ### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs
 - **Category / severity / status:** Defect (determinism) · Medium · OPEN TECHNICAL DEBT (found by G-ENG; pre-existing).

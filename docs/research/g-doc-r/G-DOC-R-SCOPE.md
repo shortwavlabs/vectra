@@ -1,6 +1,8 @@
 # G-DOC-R — Document-store performance (scope and authorisation)
 
-**Status:** authorised by the maintainer on 2026-11-25 ([decision register §10](../g0/G0-DECISION-REGISTER.md)). **Not started.**
+**Status:** authorised by the maintainer on 2026-11-25 ([decision register §10](../g0/G0-DECISION-REGISTER.md)).
+- **In progress on branch `gate/g-doc-r` (2026-11-26).** Stages B and C are implemented and qualified ([report](G-DOC-R-REPORT.md)).
+- **Stage D is stopped:** its history accounting needs amendment AM-2 ([draft](AM-2-DRAFT.md)).
 
 G-DOC-R is a dedicated follow-up gate, kept separate from visual refinement. It addresses TD-PERF-007 (structural transactions cost O(nodes)) and TD-PERF-011 (each history entry retains a full node-map table). It builds on the G-R1 investigation: [TD-PERF-007-INVESTIGATION.md](../g-r1/TD-PERF-007-INVESTIGATION.md).
 
