@@ -4,6 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 // the dev server injects HMR sockets and inline scripts that would invalidate CSP and privacy results.
 export default defineConfig({
   testDir: "tests/browser",
+  globalSetup: "./tests/browser/global-setup.ts",
   outputDir: "tests/output/playwright",
   timeout: 120_000,
   fullyParallel: false,

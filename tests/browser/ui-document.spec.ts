@@ -935,15 +935,25 @@ test("canvas edges: transform handles beside all four edges are never intercepte
     for (let k = 0; k < 3; k++) await page.keyboard.press(i % 2 ? "ArrowLeft" : "ArrowRight");
     await page.getByRole("separator", { name: "Resize layers" }).focus();
     for (let k = 0; k < 2; k++) await page.keyboard.press(i % 2 ? "ArrowUp" : "ArrowDown");
-    // The layout settles a frame after a resize: wait for a stable canvas box.
-    let hb = await box();
-    await expect
-      .poll(async () => {
-        const prev = hb;
-        hb = await box();
-        return hb.width === prev.width && hb.height === prev.height;
-      })
-      .toBe(true);
+    // The layout settles after a resize: wait, in the page, until the canvas box is unchanged
+    // for five consecutive animation frames. (Two equal reads across Playwright round trips
+    // were not enough: the box could still change, leaving a handle outside the canvas, over
+    // the splitter; G-DOC-R report §8, canvas-edge race.)
+    const hb = await page.evaluate(async () => {
+      const el = document.querySelector('[data-testid="canvas-host"]')!;
+      let last = "";
+      let same = 0;
+      for (let k = 0; k < 600 && same < 5; k++) {
+        await new Promise((r) => requestAnimationFrame(r));
+        const r = el.getBoundingClientRect();
+        const key = `${r.x} ${r.y} ${r.width} ${r.height}`;
+        same = key === last ? same + 1 : 0;
+        last = key;
+      }
+      const r = el.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height, stable: same >= 5 };
+    });
+    expect(hb.stable, `${at}: the canvas box settles`).toBe(true);
     const [x, y, w, h] = (await bounds())!.split(" ").map(Number) as [
       number,
       number,
@@ -979,6 +989,7 @@ test("canvas edges: transform handles beside all four edges are never intercepte
       };
       const gap = async () => {
         const c = await centre();
+        const hb = await box(); // the current box: a stale one hid a handle beyond the edge
         return edge === "w"
           ? c.x - hb.x
           : edge === "e"
@@ -988,18 +999,27 @@ test("canvas edges: transform handles beside all four edges are never intercepte
               : hb.y + hb.height - c.y;
       };
       await expect.poll(gap, { message: `${at} ${edge}` }).toBeLessThanOrEqual(12);
-      const c = await centre();
-      // The pointer lands on the handle itself, not on a resize target over the canvas.
-      expect(
-        await page.evaluate(
-          ([px, py]) => document.elementFromPoint(px!, py!)?.getAttribute("data-handle") ?? null,
-          [c.x, c.y],
-        ),
-        `${at}: what is under the ${edge} handle`,
-      ).toBe(edge);
-      // A real drag transforms the selection; undo restores it. (A gesture waits for the
-      // current revision's frame, as a person's would after an undo.)
+      expect(await gap(), `${at} ${edge}: the handle is inside the canvas`).toBeGreaterThanOrEqual(
+        0,
+      );
+      // A real drag (below) waits for the current revision's frame, as a person's would.
       await canvasSettled(page);
+      // The pointer lands on the handle itself, not on a resize target over the canvas. The
+      // handle's centre is read and probed in one in-page step: as two round trips, a
+      // re-render between them (the view or the selection bounds settling under load) made
+      // the probe miss a handle that had moved (G-DOC-R report §8, canvas-edge race).
+      const probe = await page.evaluate((h) => {
+        const r = document.querySelector(`[data-testid="handle-${h}"]`)!.getBoundingClientRect();
+        const x = r.x + r.width / 2;
+        const y = r.y + r.height / 2;
+        return {
+          x,
+          y,
+          under: document.elementFromPoint(x, y)?.getAttribute("data-handle") ?? null,
+        };
+      }, edge);
+      expect(probe.under, `${at}: what is under the ${edge} handle`).toBe(edge);
+      const c = { x: probe.x, y: probe.y };
       const before = await bounds();
       await page.mouse.move(c.x, c.y);
       await page.mouse.down();
