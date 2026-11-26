@@ -3,7 +3,7 @@
 // production build (promoted from the R05-A harness suite).
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { EXPECTED_CSP, expect, note, openWorkspace, test } from "./ui-helpers.ts";
+import { EXPECTED_CSP, expect, importFixture, note, openWorkspace, test } from "./ui-helpers.ts";
 
 test("CSP header is the _headers policy; the shell loads clean; the detector fires", async ({
   page,
@@ -56,7 +56,7 @@ test("positive control: without CSPProvider, Base UI's inline <style> is blocked
   expect(guard.consoleErrors.filter((e) => !csp.test(e))).toEqual([]);
 });
 
-test("tool rail: names, pressed state, unavailable tools explained and focusable", async ({
+test("tool rail: only working tools; names, pressed state, keyboard and tooltips", async ({
   page,
 }) => {
   await openWorkspace(page);
@@ -64,24 +64,14 @@ test("tool rail: names, pressed state, unavailable tools explained and focusable
   const names = await rail
     .getByRole("button")
     .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
-  expect(names).toEqual([
-    "Select",
-    "Trace",
-    "Smooth, not available yet",
-    "Simplify, not available yet",
-    "Cleanup, not available yet",
-    "Recolor",
-  ]);
+  // Maintainer review: Smooth, Simplify and Cleanup are hidden until they are implemented.
+  expect(names).toEqual(["Select", "Trace", "Recolor"]);
+  await expect(rail.locator("[aria-disabled=true]")).toHaveCount(0);
   await expect(rail.getByRole("button", { name: "Select" })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  for (const n of ["Smooth", "Simplify", "Cleanup"]) {
-    const b = rail.getByRole("button", { name: new RegExp(`^${n},`) });
-    await expect(b).toHaveAttribute("aria-disabled", "true");
-    await expect(b).not.toHaveAttribute("aria-pressed");
-  }
-  // Keyboard: tooltip on focus, Enter selects, the unavailable tool does nothing.
+  // Keyboard: tooltip on focus, Enter selects; Trace is followed by Recolor.
   await rail.getByRole("button", { name: "Select" }).focus();
   const tip = page.locator('[data-slot="tooltip-content"][data-open]');
   await page.keyboard.press("Tab");
@@ -89,13 +79,161 @@ test("tool rail: names, pressed state, unavailable tools explained and focusable
   await page.keyboard.press("Enter");
   await expect(rail.getByRole("button", { name: "Trace" })).toHaveAttribute("aria-pressed", "true");
   await page.keyboard.press("Tab");
-  await expect(tip).toContainText("Smooth, not available yet");
+  await expect(tip).toContainText("Recolor");
   await page.keyboard.press("Enter");
-  await expect(rail.getByRole("button", { name: "Trace" })).toHaveAttribute("aria-pressed", "true");
+  await expect(rail.getByRole("button", { name: "Recolor" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(rail.getByRole("button", { name: "Recolor" })).toHaveAttribute(
     "aria-keyshortcuts",
     "R",
   );
+});
+
+// Final audit (FINAL-AUDIT.md P2-1): the registry ghost variant's dark hover background overrode
+// the pressed tool's lime, leaving its dark icon at about 1:1 (WCAG 1.4.11).
+test("pressed tool keeps its icon contrast under the pointer", async ({ page }) => {
+  // The bug was in a `dark:` variant, which follows the OS colour scheme (macOS dark mode).
+  await page.emulateMedia({ colorScheme: "dark" });
+  await openWorkspace(page);
+  const select = page
+    .getByRole("navigation", { name: "Tools" })
+    .getByRole("button", { name: "Select" });
+  await expect(select).toHaveAttribute("aria-pressed", "true");
+  await select.hover();
+  await page.waitForTimeout(400); // the button transitions its background
+  // Computed colours, not a screenshot: Playwright's WebKit screenshot trips the strict CSP
+  // guard. Each colour is resolved through a canvas (any CSS colour syntax), and the hovered
+  // background is composited over its ancestors up to the first opaque one.
+  const { bg, icon } = await select.evaluate((btn) => {
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    const rgba = (c: string) => {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = c;
+      ctx.fillRect(0, 0, 1, 1);
+      return Array.from(ctx.getImageData(0, 0, 1, 1).data);
+    };
+    const layers: number[][] = [];
+    for (let el: Element | null = btn; el; el = el.parentElement) {
+      const c = rgba(getComputedStyle(el).backgroundColor);
+      layers.push(c);
+      if (c[3] === 255) break;
+    }
+    let out = [0, 0, 0];
+    for (const [r, g, b, a] of layers.reverse()) {
+      const k = a! / 255;
+      out = [r! * k + out[0]! * (1 - k), g! * k + out[1]! * (1 - k), b! * k + out[2]! * (1 - k)];
+    }
+    return {
+      bg: out.map(Math.round),
+      icon: rgba(getComputedStyle(btn.querySelector("svg")!).color).slice(0, 3),
+    };
+  });
+  const best = ratio(bg, icon);
+  note("hovered pressed tool", { bg, icon, contrast: best });
+  expect(best).toBeGreaterThanOrEqual(3);
+});
+
+// Final closure (FINAL-AUDIT.md P2-2, corrected): each splitter is a resize strip of its own, at
+// least 24 px across (WCAG 2.5.8), outside the canvas and clear of every other control, so it
+// never intercepts the artwork; no pointer target reaches over its neighbours.
+test("splitters: their own 24 px strips, outside the canvas and clear of every control", async ({
+  page,
+}) => {
+  for (const [size, withDocument] of [
+    [{ width: 1024, height: 640 }, false],
+    [{ width: 1920, height: 1080 }, false],
+    [{ width: 1366, height: 768 }, true],
+  ] as const) {
+    await page.setViewportSize(size);
+    await openWorkspace(page);
+    if (withDocument) await importFixture(page, "procedural/nested_rings.png");
+    const geometry = await page.evaluate(() => {
+      const r = (e: Element) => e.getBoundingClientRect();
+      const meet = (a: DOMRect, b: DOMRect) =>
+        a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      const canvas = r(document.querySelector('[data-testid="canvas-host"]')!);
+      const controls = [
+        ...document.querySelectorAll("button, input, [role=slider], [role=application]"),
+      ].filter((e) => r(e).width > 0);
+      return [...document.querySelectorAll('[role="separator"]')].map((sep) => {
+        const b = r(sep);
+        const after = getComputedStyle(sep, "::after");
+        return {
+          name: sep.getAttribute("aria-label"),
+          across: Math.min(b.width, b.height),
+          overlay: after.display !== "none" && after.content !== "none",
+          overCanvas: meet(b, canvas),
+          overControls: controls
+            .filter((c) => meet(b, r(c)))
+            .map((c) => c.getAttribute("aria-label") ?? c.textContent),
+        };
+      });
+    });
+    note(`splitters at ${size.width}x${size.height}${withDocument ? ", document" : ""}`, geometry);
+    expect(geometry.map((g) => g.name)).toEqual(["Resize inspector", "Resize layers"]);
+    for (const g of geometry) {
+      expect(g.across, g.name!).toBeGreaterThanOrEqual(24);
+      expect(g.overlay, `${g.name}: no pointer overlay beyond its box`).toBe(false);
+      expect(g.overCanvas, `${g.name} over the canvas`).toBe(false);
+      expect(g.overControls, `${g.name} over controls`).toEqual([]);
+    }
+  }
+  // Keyboard focus: the dual ring is drawn inside each strip (lime at its edge, dark inside).
+  for (const name of ["Resize inspector", "Resize layers"]) {
+    const sep = page.getByRole("separator", { name });
+    await sep.focus();
+    await page.keyboard.press(name === "Resize inspector" ? "ArrowLeft" : "ArrowUp");
+    const ring = await sep.evaluate((e) => {
+      const cs = getComputedStyle(e);
+      return {
+        outline: `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineColor}`,
+        offset: cs.outlineOffset,
+        shadow: cs.boxShadow,
+      };
+    });
+    note(`${name} focus ring`, ring);
+    expect(ring.outline).toBe("solid 2px rgb(185, 232, 123)");
+    expect(ring.offset).toBe("-2px");
+    expect(ring.shadow).toMatch(/rgb\(25, 26, 28\).*inset|inset.*rgb\(25, 26, 28\)/);
+  }
+});
+
+test("top bar and status bar: no view switch, no Studio label, quiet when idle and healthy", async ({
+  page,
+}) => {
+  await openWorkspace(page);
+  // Final closure: the browser tab reads exactly "Vectra".
+  await expect(page).toHaveTitle("Vectra");
+  const top = page.getByRole("banner");
+  // Artwork is the only view: no switch until Paths or Compare exists.
+  await expect(page.getByRole("group", { name: "View" })).toHaveCount(0);
+  for (const v of ["Artwork", "Paths", "Compare"])
+    await expect(top.getByRole("button", { name: new RegExp(`^${v}`) })).toHaveCount(0);
+  await expect(top).toContainText("vectra");
+  await expect(top).not.toContainText("Studio");
+  // Idle: the status live region is mounted, polite and empty (no "Ready").
+  const status = page.getByTestId("status");
+  await expect(status).toHaveAttribute("role", "status");
+  await expect(status).toHaveText("");
+  // A healthy renderer says nothing; its state stays readable for tests and the debug API.
+  const renderer = page.getByTestId("canvas-state");
+  await expect(renderer).toHaveAttribute("data-state", /^(empty|starting|rendering|ready)$/);
+  await expect(renderer).toHaveAttribute("role", "status");
+  await expect(renderer).toHaveText("");
+  await expect(page.getByRole("contentinfo")).not.toContainText("Renderer");
+});
+
+test("trace presets: the approved descriptions, attached to the radios", async ({ page }) => {
+  await openWorkspace(page);
+  await page.getByRole("button", { name: "Trace", exact: true }).click();
+  for (const [name, note] of [
+    ["Black & White", "Bold shapes and high-contrast artwork."],
+    ["Full Colour", "Preserve the richness of the original image."],
+    ["Limited Palette", "Reduce artwork to a curated set of colours."],
+  ])
+    await expect(page.getByRole("radio", { name })).toHaveAccessibleDescription(note!);
 });
 
 test("shortcuts dialog: opens by key and button, traps focus, Escape returns focus", async ({
@@ -172,8 +310,22 @@ test("resizable panels: keyboard and pointer, inspector width within 288–336 p
   const h0 = (await side.boundingBox())!.height;
   await v.focus();
   for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowDown");
-  expect((await side.boundingBox())!.height).toBeGreaterThan(h0);
-  note("inspector widths", { initial: w0, keyboard: wk, pointer: wp });
+  const hk = (await side.boundingBox())!.height;
+  expect(hk).toBeGreaterThan(h0);
+  // The Layers splitter by pointer: dragged up, the inspector gets shorter, Layers stay open.
+  const vb = (await v.boundingBox())!;
+  await page.mouse.move(vb.x + vb.width / 2, vb.y + vb.height / 2);
+  await page.mouse.down();
+  for (let i = 1; i <= 6; i++)
+    await page.mouse.move(vb.x + vb.width / 2, vb.y + vb.height / 2 - i * 10);
+  await page.mouse.up();
+  const hp = (await side.boundingBox())!.height;
+  expect(hp).toBeLessThan(hk);
+  await expect(page.getByRole("button", { name: "Layers", exact: true })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  note("inspector widths and heights", { w0, wk, wp, h0, hk, hp });
 });
 
 test("reduced motion: transitions collapse when the user asks for it", async ({ page }) => {
@@ -225,6 +377,7 @@ test("tokens: contrast table from the running build; dual focus ring", async ({
       "primary-foreground",
       "destructive",
       "warning",
+      "ink-muted",
     ];
     const probe = document.createElement("i");
     document.body.append(probe);
@@ -252,6 +405,9 @@ test("tokens: contrast table from the running build; dual focus ring", async ({
     add("primary", s, 3); // focus ring outer (lime)
   }
   add("primary-foreground", "primary", 4.5);
+  // G-UI-R empty state: ink text printed on the paper sheet.
+  add("background", "paper", 4.5);
+  add("ink-muted", "paper", 4.5);
   add("background", "paper", 3); // focus ring inner ring on the artwork surface
   add("background", "primary", 3); // inner ring against a lime-filled control
   for (const s of surfaces)

@@ -12,6 +12,7 @@ import {
   type Matrix,
   multiply,
   type NodeId,
+  type PaletteId,
   rotate90Matrix,
 } from "../document/model.ts";
 
@@ -255,17 +256,103 @@ export function displayName(n: DocNode, s: DocState): string {
   return n.kind === "group" ? "Group" : "Layer";
 }
 
+/**
+ * The friendly form of an engine-generated palette name, or null for a name the engine does not
+ * generate. The engine numbers a trace's colours from 0 by preset: `p0`…`p7` (Limited Palette),
+ * `c0`, `c1`… (Full Colour), `ink`, `ink1`… (Black & White and halftone; `ink` is the first),
+ * `x0`… (a Limited Palette fallback). They become "Colour N+1", N being the number in the name,
+ * never the list position (the palette is in first-use order).
+ */
+export function generatedLabel(name: string): string | null {
+  if (name === "ink") return "Colour 1";
+  const m = /^(?:p|c|x|ink)(\d+)$/.exec(name);
+  return m ? `Colour ${Number(m[1]) + 1}` : null;
+}
+
+const labelCache = new WeakMap<DocState, ReadonlyMap<PaletteId, string>>();
+/**
+ * What each palette entry is called on screen and to assistive technology (display only: the
+ * entries, their IDs, names, colours and order, and export are unchanged).
+ *
+ * A name is treated as engine-generated only when trace provenance proves it, never because of
+ * its pattern alone. The commit path names each entry after the scene's palette id, and the
+ * layer's `traceProvenance.originalScene.palette` lists those ids. An entry is generated when a
+ * path under a traced layer uses it and that layer's provenance records the entry's name.
+ *
+ * Strict (maintainer final acceptance): an entry no path uses has no identifiable trace owner, so
+ * it keeps its stored name. Its origin is never inferred from unrelated traces; a raw engine name
+ * ("p2") is preferred over relabelling a name that may be user-defined.
+ * Accepted limitation of the current document model: a custom name equal to an id of the entry's
+ * own trace is indistinguishable from a generated one. To be resolved before user-facing palette
+ * renaming is introduced (TECHNICAL-DEBT, G-UI-R report §18).
+ *
+ * Generated names become "Colour N+1"; every other name is shown as it is. A generated label is
+ * unique in the palette: if a stored name or an earlier entry already has it, " (2)", " (3)"…
+ * is added, in palette order, so a second trace's colours read "Colour 1 (2)"…
+ *
+ * Cost: one walk of each traced layer's subtree, with each layer's recorded ids collected once,
+ * then one pass over the palette; linear in nodes and entries. (The previous form copied each
+ * trace's id list into a set per entry: quadratic in a Full Colour trace's palette, 13,662
+ * entries for bark-1224, and it exhausted the heap; scripts/bench-palette-labels.mjs.)
+ */
+export function paletteLabels(s: DocState): ReadonlyMap<PaletteId, string> {
+  const cached = labelCache.get(s);
+  if (cached) return cached;
+  const generated = new Set<PaletteId>();
+  for (const root of s.orderedRootIds) {
+    const layer = s.nodesById.get(root);
+    if (layer?.kind !== "layer" || !layer.traceProvenance) continue;
+    const ids = new Set(layer.traceProvenance.originalScene.palette.map((e) => e.id));
+    if (ids.size === 0) continue;
+    const stack: NodeId[] = [];
+    for (const c of layer.orderedChildIds) stack.push(c);
+    while (stack.length > 0) {
+      const n = s.nodesById.get(stack.pop()!);
+      if (!n) continue;
+      if (n.kind === "path") {
+        const ref = s.stylesById.get(n.styleRef)?.paletteRef ?? null;
+        if (ref !== null && !generated.has(ref) && ids.has(s.paletteById.get(ref)?.name ?? ""))
+          generated.add(ref);
+      } else if (isContainer(n)) for (const c of n.orderedChildIds) stack.push(c);
+    }
+  }
+  const entries = [...s.paletteById.values()];
+  const friendly = new Map<PaletteId, string>();
+  for (const e of entries) {
+    const g = generated.has(e.id) ? generatedLabel(e.name) : null;
+    if (g !== null) friendly.set(e.id, g);
+  }
+  const taken = new Set<string>();
+  for (const e of entries) if (!friendly.has(e.id)) taken.add(e.name);
+  const next = new Map<string, number>(); // per label: the next suffix to try
+  const out = new Map<PaletteId, string>();
+  for (const e of entries) {
+    const g = friendly.get(e.id);
+    if (g === undefined) {
+      out.set(e.id, e.name);
+      continue;
+    }
+    let label = g;
+    let k = next.get(g) ?? 2;
+    while (taken.has(label)) label = `${g} (${k++})`;
+    next.set(g, k);
+    taken.add(label);
+    out.set(e.id, label);
+  }
+  labelCache.set(s, out);
+  return out;
+}
+
 /** Effective fill of a path (palette entries resolved), or null for no fill. */
 export function pathFill(
   s: DocState,
   id: NodeId,
-): { color: number | null; paletteName: string | null } {
+): { color: number | null; paletteId: PaletteId | null } {
   const n = s.nodesById.get(id);
-  if (n?.kind !== "path") return { color: null, paletteName: null };
+  if (n?.kind !== "path") return { color: null, paletteId: null };
   const st = s.stylesById.get(n.styleRef)!;
-  if (st.paletteRef === null) return { color: st.fill, paletteName: null };
-  const e = s.paletteById.get(st.paletteRef)!;
-  return { color: e.color, paletteName: e.name };
+  if (st.paletteRef === null) return { color: st.fill, paletteId: null };
+  return { color: s.paletteById.get(st.paletteRef)!.color, paletteId: st.paletteRef };
 }
 
 /**

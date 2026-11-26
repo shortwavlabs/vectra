@@ -451,6 +451,19 @@ try {
           };
           const outer = [];
           const inner = [];
+          // Samples under a visible splitter grip (adjacent UI drawn over the canvas edge in the
+          // docked layout, not a canvas layer) are skipped, at most 1/8 of them.
+          const grips = await s.exec(() =>
+            [...document.querySelectorAll('[role="separator"] > div')].map((e) => {
+              const r = e.getBoundingClientRect();
+              return [r.left - 1, r.top - 1, r.right + 1, r.bottom + 1];
+            }),
+          );
+          const covered = (px, py) => {
+            const [cx, cy] = [box.x + px / dpr, box.y + py / dpr];
+            return grips.some(([l, t, r, b]) => cx >= l && cx <= r && cy >= t && cy <= b);
+          };
+          let skipped = 0;
           for (let k = 1; k <= 16; k++) {
             const x = Math.round((w * (k + 1)) / 18);
             const y = Math.round((h * (k + 1)) / 18);
@@ -459,9 +472,18 @@ try {
               [inner, 3],
             ]) {
               const d = Math.round(css * dpr);
-              band.push(at(x, d), at(x, h - 1 - d), at(d, y), at(w - 1 - d, y));
+              for (const [px, py] of [
+                [x, d],
+                [x, h - 1 - d],
+                [d, y],
+                [w - 1 - d, y],
+              ]) {
+                if (covered(px, py)) skipped++;
+                else band.push(at(px, py));
+              }
             }
           }
+          assert(skipped < 16, `samples under splitter grips: ${skipped} of 128`);
           const mid = Math.round(h / 2);
           const profile = Array.from({ length: 10 }, (_, d) => at(d, mid).join(",")).join(" | ");
           return { outer, inner, dpr, profile, size: `${w}x${h} of ${img.w}x${img.h}` };

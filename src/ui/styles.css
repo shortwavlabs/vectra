@@ -27,6 +27,8 @@
   --primary-foreground: #20251a;
   --destructive: #ff8f85;
   --warning: #f2c14e;
+  /* G-UI-R: secondary text printed on the paper surface (empty-state sheet): 5.6:1 on paper. */
+  --ink-muted: #5c5a54;
   --card: var(--panel);
   --card-foreground: var(--foreground);
   --popover: var(--elevated);
@@ -44,6 +46,13 @@
 
 @theme inline {
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* G-UI-R type scale (docs/DESIGN-SYSTEM.md §13): 11 meta · 12 controls · 13 body · 15 title. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-ui: 0.8125rem;
+  --text-ui--line-height: 1.125rem;
+  --text-title: 0.9375rem;
+  --text-title--line-height: 1.25rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-panel: var(--panel);
@@ -64,6 +73,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-warning: var(--warning);
+  --color-ink-muted: var(--ink-muted);
   --color-border: var(--border);
   --color-control-border: var(--control-border);
   --color-input: var(--input);
@@ -100,9 +110,48 @@
   box-shadow: 0 0 0 2px var(--background);
 }
 
+/* Splitters (final closure) are 24 px resize strips of their own: the dual ring is drawn inside
+   the strip (lime at its edge, the dark ring within), so no neighbouring panel can cover it. */
+[data-slot="resizable-handle"]:focus-visible {
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--background);
+}
+
 /* Control boundaries use control-border (≥ 3:1), never the decorative border token. */
 [data-slot="slider-track"] {
   background-color: var(--control-border);
+}
+/* Scroll thumbs are how a cut-off panel announces more content: control-border, not border. */
+[data-slot="scroll-area-thumb"] {
+  background-color: var(--control-border);
+}
+/* A panel that scrolls fades out at its lower edge while more content is below (G-UI-R). */
+[data-slot="scroll-area"][data-overflow-y-end]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1.5rem;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, transparent, var(--panel));
+}
+
+/* Modal scrim (G-UI-R): a flat dim instead of the registry's backdrop blur, so the artwork stays
+   legible behind the export dialog and no full-screen blur is composited over the canvas. */
+[data-slot="dialog-overlay"] {
+  background-color: rgb(10 10 12 / 0.6);
+  /* Unset the utility's blur variable too: the minifier keeps only the prefixed `none`. */
+  --tw-backdrop-blur: initial;
+  backdrop-filter: none;
+}
+
+/* Browser surfaces carry the palette: text selection and the caret. */
+::selection {
+  background-color: color-mix(in srgb, var(--primary) 32%, transparent);
+  color: var(--foreground);
+}
+input {
+  caret-color: var(--primary);
 }
 
 /* Replaces the inline <style> Base UI injects (ScrollArea, Select) when CSPProvider
@@ -116,7 +165,7 @@
 
 /* Colour picker gradients (static; the hue colour itself comes from a CSSOM style prop). */
 .vx-hue [data-slot="slider-track"] {
-  height: 0.5rem;
+  height: 0.625rem;
   background-image: linear-gradient(
     to right,
     #f00 0%,
@@ -134,6 +183,25 @@
 .vx-sv-area {
   background-image:
     linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+}
+/* No fill: the field well struck through once (the common "none" swatch), never black. */
+.vx-swatch-none {
+  background-color: var(--background);
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.75px),
+    var(--destructive) calc(50% - 0.75px) calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
+}
+/* A mixed fill (the selected paths' colours differ): a neutral hatch, never one of the colours. */
+.vx-swatch-mixed {
+  background-color: var(--background);
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--muted-foreground) 0 1px,
+    transparent 1px 4px
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {

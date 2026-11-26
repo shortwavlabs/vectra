@@ -91,6 +91,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-002](#td-ui-002) | Colour picker and slider accessibility | Defect (upstream) | **High** | OPEN | G-UI | G-UI |
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
+| [TD-UI-005](#td-ui-005) | Palette display names: custom vs generated names are not recorded | Limitation (document model) | Medium | OPEN | before user-facing palette renaming | G-UI-R |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
 | [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
 | [TD-PLATFORM-007](#td-platform-007) | Native and WASM Artistic output differ on some inputs (found at G-ENG) | Defect (determinism) | Medium | OPEN | before cross-target reproducibility claims | — |
@@ -110,6 +111,7 @@ Counts:
   - TD-PERF-001: the complete-preview miss is accepted temporarily for downstream engineering. The item and every target are retained.
   - TD-PERF-007 and TD-PERF-011 are authorised as the follow-up gate G-DOC-R (options B, C, D; [scope](research/g-doc-r/G-DOC-R-SCOPE.md)).
   - Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and the stock-Safari keyboard check are executed. The canvas focus ring is fixed at the canvas-host level (#19).
+- **G-UI-R final acceptance (2026-11-25):** one item added, TD-UI-005 (Medium): the palette-name provenance limitation, recorded for resolution before user-facing palette renaming. **43 open items, 14 High.**
 
 ---
 
@@ -835,6 +837,17 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Owner action:** no.
 - **G-UI disposition (2026-11-25):** `scripts/generate-notices.mjs` reads the copied-source manifest `src/ui/registry/PROVENANCE.json` (registry item, URL, upstream and current SHA-256, recorded patches), fails when a copied file differs from its recorded hash, and adds the shadcn/ui and Dice UI MIT texts (verbatim at the recorded upstream commits; git blob SHAs equal upstream's) and tailwindcss's licence when the built CSS carries its banner; lucide-react (ISC with the MIT Feather section) and class-variance-authority (Apache-2.0) come from the source-map pass. `pnpm run build` verifies the notices (55 components). Stage: **PRODUCTION VERIFIED / OWNER ACCEPTANCE PENDING** (closure criteria met; closes on G-UI acceptance). [G-UI report](research/g-ui/G-UI-REPORT.md).
 - **Maintainer disposition (2026-11-25):** "Approve the demonstrated strict-CSP and third-party-notice solutions, subject to regression verification on the combined application." Combined application (`main` `7f57dd7`, tree `36cb205`): `pnpm run build` verifies the notices (55 components), and regenerating them produces no diff. Stage: **SOLUTION APPROVED; combined-application regression verified**. Closure is the maintainer's act. [Decision register §9](research/g0/G0-DECISION-REGISTER.md).
+
+<a id="td-ui-005"></a>
+### TD-UI-005 — Palette display names: custom vs generated names are not recorded
+- **Category / severity / status:** Limitation (document model) · Medium · OPEN.
+- **Description.** The workspace shows engine-generated palette names (`p2`, `c5`, `ink`…) as "Colour N". It decides a name is generated only from trace provenance: a path under a traced layer uses the entry, and that layer's `originalScene.palette` records the name. The document model records no flag saying whether a name was generated or set by a person. So:
+  1. A custom name equal to an id of the entry's **own** trace cannot be told apart from a generated one, and is shown as "Colour N".
+  2. An entry no path uses, or one left after every traced layer is deleted, has no provenable owner. It shows its stored name (strict rule, maintainer final acceptance), for example a raw `p2`.
+- **Today.** No command renames a palette entry, so neither case arises through the UI. Case 1 needs a document authored elsewhere.
+- **Evidence:** `src/shell/document.ts` `paletteLabels()` and its unit tests; G-UI-R report §16 and §18.
+- **Closure criteria:** before user-facing palette renaming ships, record each entry's name origin, via a frozen-contract amendment (schema), so that display never infers it.
+- **Owner action:** none until palette renaming is planned.
 
 <a id="td-geo-010"></a>
 ### TD-GEO-010 — Sliver metric and junction criterion restatement

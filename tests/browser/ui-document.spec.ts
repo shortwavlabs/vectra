@@ -5,6 +5,12 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Page } from "@playwright/test";
+import { GeometryStore } from "../../src/document/geometry-store.ts";
+import { createDocument } from "../../src/document/model.ts";
+import { DocumentSession } from "../../src/document/session.ts";
+import { sceneProvenance } from "../../src/document/testing/provenance.ts";
+import { encodeScene, type SceneV1 } from "../../src/document/testing/synthetic.ts";
+import { saveContainer } from "../../src/persistence/container.ts";
 import {
   canvasSettled,
   expect,
@@ -284,7 +290,9 @@ test("numeric field: Enter commits, Escape reverts, arrow steps coalesce", async
   await expect(x).toHaveValue(String(x0));
 });
 
-const fillTrigger = (page: Page) => page.getByRole("button", { name: /^Fill colour: #/ });
+// The trigger names one colour ("Fill colour: #rrggbb. Edit colour") or, when the selected
+// paths' fills differ, none ("Fill colour: mixed. Edit colour").
+const fillTrigger = (page: Page) => page.getByRole("button", { name: /^Fill colour: / });
 const fillHex = async (page: Page) =>
   /#[0-9a-f]{6}/.exec((await fillTrigger(page).getAttribute("aria-label"))!)![0];
 
@@ -358,9 +366,17 @@ test("keyboard only: select a layer in Layers and fill its paths", async ({ page
   await rowNamed(page, "adjacent_colors").locator("button[aria-pressed]").focus();
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
-  await expect(page.getByTestId("fill-note")).toContainText(/Applies to \d+ paths/);
+  // The layer's paths have different fills: the control names no single colour before Apply,
+  // and the note is exactly the maintainer's sentence.
+  await expect(fillTrigger(page)).toHaveAttribute("aria-label", "Fill colour: mixed. Edit colour");
+  await expect(fillTrigger(page)).toContainText("Mixed");
+  await expect(fillTrigger(page)).not.toContainText("#");
+  await expect(page.getByTestId("fill-note")).toHaveText(
+    "Apply assigns one colour to all unlocked selected paths.",
+  );
   await fillTrigger(page).focus();
   await page.keyboard.press("Enter");
+  await expect(page.getByText("Current mixed")).toBeVisible();
   await page.getByRole("textbox", { name: "Hex" }).focus();
   await page.keyboard.press("ControlOrMeta+a");
   await page.keyboard.type("#2050a0");
@@ -368,6 +384,8 @@ test("keyboard only: select a layer in Layers and fill its paths", async ({ page
   await page.getByRole("button", { name: "Apply" }).focus();
   await page.keyboard.press("Enter");
   await expect(fillTrigger(page)).toHaveAttribute("aria-label", /^Fill colour: #2050a0\./);
+  // One fill now: the ordinary note returns.
+  await expect(page.getByTestId("fill-note")).toContainText(/Applies to [\d,]+ paths/);
   // Every path of the layer now has that fill.
   await selectOnCanvas(page);
   expect(await fillHex(page)).toBe("#2050a0");
@@ -383,7 +401,11 @@ test("recolor: palette colours edit every path that uses them (one undo step)", 
   await page.getByRole("button", { name: "Recolor" }).click();
   const entries = page.getByRole("list", { name: "Palette colours" }).getByRole("listitem");
   expect(await entries.count()).toBeGreaterThan(1);
-  const first = entries.first().getByRole("button", { name: /^Palette colour / });
+  // Locks protect against transforms and deletion, not against a global palette edit.
+  await expect(page.getByTestId("recolor-note")).toHaveText(
+    "A palette edit recolours every path that uses that colour, including locked paths: locks prevent transforms and deletion, not palette edits.",
+  );
+  const first = entries.first().getByRole("button", { name: /^Colour \d+: #[0-9a-f]{6}\./ });
   const before = await first.getAttribute("aria-label");
   await first.click();
   await page.getByRole("textbox", { name: "Hex" }).fill("#0a7f55");
@@ -578,6 +600,41 @@ test("layer rows fit the panel at its minimum and maximum width", async ({ page 
   }
 });
 
+// G-UI-R: at 1366×768 the Fill section was cut off at the inspector/layers split. On small
+// laptops the whole Fill section (trigger and note) must be visible without scrolling.
+test("small laptops: the inspector shows Fill without scrolling", async ({ page }) => {
+  for (const size of [
+    { width: 1366, height: 768 },
+    { width: 1280, height: 720 },
+  ]) {
+    await page.setViewportSize(size);
+    await openWorkspace(page);
+    await importFixture(page, "external/hokusai-great-wave-640.jpg"); // the layer is selected
+    const viewport = page
+      .getByRole("complementary", { name: "Inspector" })
+      .locator('[data-slot="scroll-area-viewport"]');
+    const visible = async (what: string) => {
+      const v = (await viewport.boundingBox())!;
+      for (const el of [fillTrigger(page), page.getByTestId("fill-note")]) {
+        const b = (await el.boundingBox())!;
+        expect(b.y + b.height, `${what} at ${size.width}×${size.height}`).toBeLessThanOrEqual(
+          v.y + v.height + 0.5,
+        );
+      }
+      note(`inspector space left below Fill, ${what}, ${size.width}×${size.height}`, {
+        px: Math.round(
+          v.y +
+            v.height -
+            (await page.getByTestId("fill-note").evaluate((e) => e.getBoundingClientRect().bottom)),
+        ),
+      });
+    };
+    await visible("layer selected");
+    await selectOnCanvas(page);
+    await visible("path selected");
+  }
+});
+
 test("canvas zoom and fit; rotate and reset in the inspector", async ({ page }) => {
   await openWorkspace(page);
   await importFixture(page, "external/hokusai-great-wave-640.jpg");
@@ -704,4 +761,376 @@ test("control boundaries and the OS colour scheme, measured in the running build
   };
   note(`computed control contrast (${browserName})`, { ...rows, colours: light });
   for (const r of Object.values(rows)) expect(r).toBeGreaterThanOrEqual(3);
+});
+
+// Maintainer review of G-UI-R: the engine's generated palette names (p0…, c0…, ink) are shown
+// as "Colour N+1", N being the number in the name, never the list position; the document and
+// its exports keep the engine's names.
+test("palette names: Colour N+1 on screen, the engine's names in the export", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png", "Limited Palette");
+  const exportSvg = async () => {
+    await page.getByRole("button", { name: "Export", exact: true }).click();
+    const [d] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Export SVG" }).click(),
+    ]);
+    return readFileSync((await d.path())!, "utf8");
+  };
+  const before = await exportSvg();
+  // The engine's palette ids as exported: `class="pN"` on each path, with its fill.
+  const fills = new Map<string, string>();
+  for (const m of before.matchAll(/fill="(#[0-9a-f]{6})"[^>]*class="(p\d+)"/g))
+    fills.set(m[2]!, m[1]!);
+  note("exported palette", Object.fromEntries(fills));
+  expect(fills.size).toBeGreaterThan(1);
+  expect(before).not.toContain("Colour");
+
+  // Recolor: every entry is "Colour N", and Colour N is the engine's p(N−1).
+  await page.getByRole("button", { name: "Recolor" }).click();
+  const list = page.getByRole("list", { name: "Palette colours" });
+  const names = await list
+    .getByRole("button")
+    .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")!));
+  note("recolor names", names);
+  const shown = names.map((n) => /^Colour (\d+): (#[0-9a-f]{6})\. Edit colour$/.exec(n)!);
+  expect(shown.every(Boolean), names.join(" | ")).toBe(true);
+  for (const m of shown) expect(fills.get(`p${Number(m[1]) - 1}`)).toBe(m[2]);
+  // The list is in first-use order, so the numbers are not the positions.
+  expect(shown.map((m) => Number(m[1]))).not.toEqual(shown.map((_, i) => i + 1));
+  await expect(list).not.toContainText(/\bp\d/);
+  // The picker's document swatches use the same names.
+  await list.getByRole("button").first().click();
+  const swatches = await page
+    .getByRole("group", { name: "Document colours" })
+    .getByRole("button")
+    .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")!));
+  expect(swatches.length).toBe(names.length);
+  for (const s of swatches) expect(s).toMatch(/^Use Colour \d+, #[0-9a-f]{6}$/);
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+
+  // The Fill note of a single path names its palette colour the same way.
+  await page.getByRole("button", { name: "Select", exact: true }).click();
+  await selectOnCanvas(page);
+  const uses = /Uses Colour (\d+) from the palette/.exec(
+    (await page.getByTestId("fill-note").textContent())!,
+  );
+  expect(uses).not.toBeNull();
+  expect(fills.get(`p${Number(uses![1]) - 1}`)).toBe(await fillHex(page));
+  // Its layer row says it holds the selection (in words, not colour alone).
+  await expect(rowNamed(page, "adjacent_colors")).toContainText("Contains selection");
+  // Nothing shown on screen reaches the document: the export is byte for byte the same.
+  expect(await exportSvg()).toBe(before);
+});
+
+// Maintainer review: Layers never collapse by themselves (no height breakpoint). The header's
+// disclosure collapses them to the header and restores them; the split stays resizable.
+test("layers: an explicit collapse control at 1024×640, 1280×720 and 1366×768", async ({
+  page,
+}) => {
+  const toggle = page.getByRole("button", { name: "Layers", exact: true });
+  const panel = page.getByRole("region", { name: "Layers" });
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  const rows = page.getByTestId("layer-row");
+  const height = async (l: typeof panel) => Math.round((await l.boundingBox())!.height);
+  for (const size of [
+    { width: 1024, height: 640 },
+    { width: 1280, height: 720 },
+    { width: 1366, height: 768 },
+  ]) {
+    const at = `${size.width}×${size.height}`;
+    await page.setViewportSize(size);
+    await openWorkspace(page);
+    await importFixture(page, "procedural/adjacent_colors.png");
+    // Expanded on load at every size.
+    await expect(toggle, at).toHaveAttribute("aria-expanded", "true");
+    await expect(rows.first(), at).toBeVisible();
+    const open = { layers: await height(panel), inspector: await height(inspector) };
+    expect(open.layers, at).toBeGreaterThanOrEqual(120);
+    const t = (await toggle.boundingBox())!;
+    expect(t.y + t.height, `${at}: the control is on screen`).toBeLessThanOrEqual(size.height);
+    // Collapse: the header stays, the rows leave the page (no hidden Tab stops).
+    await toggle.click();
+    await expect(toggle, at).toHaveAttribute("aria-expanded", "false");
+    await expect(rows.first(), at).toBeHidden();
+    await expect.poll(() => height(panel), { message: at }).toBeLessThanOrEqual(37);
+    expect(await height(inspector), at).toBeGreaterThan(open.inspector);
+    // Keyboard: the same control expands them to their previous size.
+    await toggle.focus();
+    await page.keyboard.press("Enter");
+    await expect(toggle, at).toHaveAttribute("aria-expanded", "true");
+    await expect(rows.first(), at).toBeVisible();
+    await expect.poll(() => height(panel), { message: at }).toBe(open.layers);
+    note(`layers at ${at}`, open);
+  }
+  // A shorter window never collapses them: near their minimum at 1366×768, then 1024×640.
+  const separator = page.getByRole("separator", { name: "Resize layers" });
+  const drag = async (dy: number) => {
+    const s = (await separator.boundingBox())!;
+    const [x, y] = [s.x + s.width / 2, s.y + s.height / 2];
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let i = 1; i <= 10; i++) await page.mouse.move(x, y + (dy * i) / 10);
+    await page.mouse.up();
+  };
+  await drag((await height(panel)) - 125);
+  expect(await height(panel)).toBeLessThan(140);
+  await page.setViewportSize({ width: 1024, height: 640 });
+  // (Chromium lays out one frame at the relative size before the panel restores its pixels.)
+  await expect.poll(() => height(panel)).toBeGreaterThanOrEqual(120);
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(rows.first()).toBeVisible();
+  // A drag of the split past the minimum collapses them; the control follows. The pointer
+  // stays inside the window (WebKit drops moves outside it).
+  await drag((await height(panel)) - 10);
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(rows.first()).toBeHidden();
+});
+
+// Maintainer review: a healthy renderer is not shown; the fallback, a recovery and a failure
+// are. `?renderer=main` takes the client's fallback path (a deterministic fallback).
+test("renderer: the main-thread fallback is disclosed; a healthy worker is silent", async ({
+  page,
+}) => {
+  const renderer = page.getByTestId("canvas-state");
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png");
+  await expect(renderer).toHaveAttribute("data-host", "worker");
+  await expect(renderer).toHaveText("");
+  await openWorkspace(page, "?renderer=main");
+  await importFixture(page, "procedural/adjacent_colors.png");
+  await expect(renderer).toHaveAttribute("data-state", "ready");
+  await expect(renderer).toHaveAttribute("data-host", "main-thread");
+  await expect(renderer).toHaveAttribute("role", "status");
+  await expect(renderer).toBeVisible();
+  await expect(renderer).toHaveText(
+    "Renderer: main thread (fallback: main-thread renderer selected)",
+  );
+});
+
+// Final closure: resize targets never intercept the artwork. With a selection's handle about
+// 8 px inside each canvas edge, the pointer reaches the handle and its drag transforms the
+// selection, at four sizes, after the panels are resized and after a live viewport change.
+test("canvas edges: transform handles beside all four edges are never intercepted", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openWorkspace(page, "?debug=1");
+  await importFixture(page, "procedural/nested_rings.png"); // the new layer is selected
+  const host = page.getByTestId("canvas-host");
+  const bounds = () => page.getByTestId("selection-bounds").getAttribute("data-bounds");
+  const box = async () => (await host.boundingBox())!;
+  const sizes = [
+    { width: 1920, height: 1080 },
+    { width: 1366, height: 768 },
+    { width: 1280, height: 720 },
+    { width: 1024, height: 640 },
+  ];
+  for (const [i, size] of sizes.entries()) {
+    const at = `${size.width}×${size.height}`;
+    await page.setViewportSize(size);
+    // Resize both splits by keyboard (the direction alternates per size).
+    await page.getByRole("separator", { name: "Resize inspector" }).focus();
+    for (let k = 0; k < 3; k++) await page.keyboard.press(i % 2 ? "ArrowLeft" : "ArrowRight");
+    await page.getByRole("separator", { name: "Resize layers" }).focus();
+    for (let k = 0; k < 2; k++) await page.keyboard.press(i % 2 ? "ArrowUp" : "ArrowDown");
+    // The layout settles a frame after a resize: wait for a stable canvas box.
+    let hb = await box();
+    await expect
+      .poll(async () => {
+        const prev = hb;
+        hb = await box();
+        return hb.width === prev.width && hb.height === prev.height;
+      })
+      .toBe(true);
+    const [x, y, w, h] = (await bounds())!.split(" ").map(Number) as [
+      number,
+      number,
+      number,
+      number,
+    ];
+    const s = 0.5 * Math.min((hb.width - 40) / w, (hb.height - 40) / h);
+    const cx = (hb.width - s * w) / 2 - s * x;
+    const cy = (hb.height - s * h) / 2 - s * y;
+    const views = {
+      w: [8 - s * x, cy],
+      e: [hb.width - 8 - s * (x + w), cy],
+      n: [cx, 8 - s * y],
+      s: [cx, hb.height - 8 - s * (y + h)],
+    } as const;
+    const inward = { w: [30, 0], e: [-30, 0], n: [0, 30], s: [0, -30] } as const;
+    for (const edge of ["w", "e", "n", "s"] as const) {
+      const [tx, ty] = views[edge];
+      await page.evaluate(
+        ([sc, a, b]) =>
+          (
+            window as unknown as {
+              __vectra: { canvas: { setView(s: number, x: number, y: number): void } };
+            }
+          ).__vectra.canvas.setView(sc!, a!, b!),
+        [s, tx, ty],
+      );
+      const handle = page.getByTestId(`handle-${edge}`);
+      // The handle's centre is within about 8 px of the canvas edge.
+      const centre = async () => {
+        const r = (await handle.boundingBox())!;
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      };
+      const gap = async () => {
+        const c = await centre();
+        return edge === "w"
+          ? c.x - hb.x
+          : edge === "e"
+            ? hb.x + hb.width - c.x
+            : edge === "n"
+              ? c.y - hb.y
+              : hb.y + hb.height - c.y;
+      };
+      await expect.poll(gap, { message: `${at} ${edge}` }).toBeLessThanOrEqual(12);
+      const c = await centre();
+      // The pointer lands on the handle itself, not on a resize target over the canvas.
+      expect(
+        await page.evaluate(
+          ([px, py]) => document.elementFromPoint(px!, py!)?.getAttribute("data-handle") ?? null,
+          [c.x, c.y],
+        ),
+        `${at}: what is under the ${edge} handle`,
+      ).toBe(edge);
+      // A real drag transforms the selection; undo restores it. (A gesture waits for the
+      // current revision's frame, as a person's would after an undo.)
+      await canvasSettled(page);
+      const before = await bounds();
+      await page.mouse.move(c.x, c.y);
+      await page.mouse.down();
+      for (let k = 1; k <= 6; k++)
+        await page.mouse.move(c.x + (inward[edge][0] * k) / 6, c.y + (inward[edge][1] * k) / 6);
+      await page.mouse.up();
+      await expect.poll(bounds, { message: `${at} ${edge} drag` }).not.toBe(before);
+      await undo(page);
+      await expect.poll(bounds, { message: `${at} ${edge} undo` }).toBe(before);
+    }
+    note(`canvas at ${at}`, { width: hb.width, height: hb.height });
+  }
+});
+
+/** A `.vectra` container (base64) whose first path is stroked with no fill: a document may
+ *  hold one (scene v1 needs a fill or a stroke), but no trace or command creates one today. */
+async function strokeOnlyContainer(): Promise<string> {
+  const scene: SceneV1 = {
+    version: 1,
+    width: 200,
+    height: 160,
+    background: null,
+    palette: [],
+    groups: [
+      {
+        id: "shapes",
+        clip: null,
+        paths: [
+          {
+            fill: null,
+            stroke: { color: "#1d4ed8", width: 6 },
+            fillRule: "nonzero",
+            verbs: "MLLLZ",
+            coords: [30, 30, 170, 30, 170, 130, 30, 130],
+          },
+          {
+            fill: { color: "#b91c1c" },
+            stroke: null,
+            fillRule: "nonzero",
+            verbs: "MLLLZ",
+            coords: [70, 60, 130, 60, 130, 100, 70, 100],
+          },
+        ],
+      },
+    ],
+    metadata: {
+      generator: "vectra-test",
+      engineVersion: "0.0.0",
+      mode: "color",
+      presetVersion: 1,
+      seed: 1,
+      sourceWidth: 200,
+      sourceHeight: 160,
+      params: { mode: "color" },
+    },
+  };
+  const s = new DocumentSession(new GeometryStore(), {
+    state: createDocument({ documentId: "no-fill", width: 200, height: 160 }),
+  });
+  s.dispatch({
+    type: "commitTrace",
+    packet: encodeScene(scene),
+    provenance: sceneProvenance(scene, "no-fill"),
+  });
+  return Buffer.from(await saveContainer(s, { codec: "none" })).toString("base64");
+}
+
+// Final closure: a path without a fill is "None", never black: not as a swatch, a hex value,
+// an accessible name or the picker's starting draft.
+test("no fill: an explicit None state, never black", async ({ page }) => {
+  type Api = {
+    __vectra: {
+      workspace: {
+        loadContainer(b64: string): Promise<number>;
+        tree(): { id: string; kind: string; children?: unknown[] }[];
+        select(ids: string[]): void;
+      };
+    };
+  };
+  const b64 = await strokeOnlyContainer();
+  await openWorkspace(page, "?debug=1");
+  await page.evaluate(async (b) => {
+    const w = (window as unknown as Api).__vectra.workspace;
+    await w.loadContainer(b);
+    type N = { id: string; kind: string; children?: N[] };
+    const find = (n: N): string | null =>
+      n.kind === "path" ? n.id : ((n.children ?? []).map(find).find(Boolean) ?? null);
+    w.select([find(w.tree()[0] as N)!]);
+  }, b64);
+  await canvasSettled(page);
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  const trigger = fillTrigger(page);
+  await expect(trigger).toHaveAttribute("aria-label", "Fill colour: none. Edit colour");
+  await expect(trigger).toHaveText("None");
+  const swatch = await trigger
+    .locator("span")
+    .first()
+    .evaluate((e) => ({ bg: getComputedStyle(e).backgroundColor, cls: e.className }));
+  expect(swatch.cls).toContain("vx-swatch-none");
+  expect(swatch.bg).not.toBe("rgb(0, 0, 0)");
+  await expect(page.getByTestId("fill-note")).toContainText("No fill.");
+  await expect(inspector).not.toContainText("#000000");
+  // The picker: "Current none", and the draft starts from a neutral grey, not black.
+  await trigger.click();
+  await expect(page.getByText("Current none")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Hex" })).toHaveValue("#808080");
+  await expect(page.getByTestId("color-draft")).toHaveText("#808080");
+  // Apply commits (any colour replaces none); undo returns to None.
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(trigger).toHaveAttribute("aria-label", /^Fill colour: #808080\./);
+  await undo(page);
+  await expect(trigger).toHaveAttribute("aria-label", "Fill colour: none. Edit colour");
+});
+
+// Final closure: generated palette names are unique within the palette.
+test("palette names: two traces of one image read unique names in Recolor", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png", "Limited Palette");
+  await page
+    .getByTestId("import-input")
+    .setInputFiles(resolve(FIXTURES, "procedural/adjacent_colors.png"));
+  await expect(page.getByTestId("layer-row")).toHaveCount(2, { timeout: 90_000 });
+  await page.getByRole("button", { name: "Recolor" }).click();
+  const names = (
+    await page
+      .getByRole("list", { name: "Palette colours" })
+      .getByRole("button")
+      .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")!))
+  ).map((n) => n.split(":")[0]!);
+  note("recolor names, two traces", names);
+  expect(names).toHaveLength(10);
+  expect(new Set(names).size).toBe(10);
+  expect(names.slice(5)).toEqual(names.slice(0, 5).map((n) => `${n} (2)`));
 });

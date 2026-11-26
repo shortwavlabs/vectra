@@ -5,28 +5,57 @@
 // - D5: the saturation/brightness area is a keyboard-operable 2-D slider;
 // - D6: edits stay in a local draft; `onCommit` fires once on Apply, never on Cancel, Escape
 //   or an outside click, and never for an unchanged colour.
+// G-UI-R: the popover opens below its trigger (over the inspector column, not over the artwork),
+// offers the document's colours as swatches (they set the draft, nothing else), and shows the
+// current and new colour side by side.
+// Maintainer review: a selection whose fills differ is shown as mixed (a hatched swatch, "Mixed",
+// and "mixed" in the name), never as one of its colours. The draft starts from `value`, and
+// Apply always commits then, since any colour makes the fills uniform.
+// Final closure: no colour (`value` null) is shown as "None" (a struck-through swatch, "none" in
+// the name), never as black; its draft starts from a neutral grey, and Apply always commits.
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { type Hsv, hexToHsv, hsvToHex, parseHex } from "./color.ts";
+import { FIELD } from "./numeric-field.tsx";
 import { Button } from "./registry/button";
 import { Input } from "./registry/input";
 import { Popover, PopoverContent, PopoverTrigger } from "./registry/popover";
 import { Slider } from "./registry/slider";
 
 export interface ColorPickerProps {
-  /** The committed colour, `#rrggbb`. */
-  value: string;
+  /** The committed colour, `#rrggbb`, or null for none (shown as "None", never as a colour);
+   *  with `mixed`, only where the draft starts. */
+  value: string | null;
+  /** The targets' colours differ: no single current colour is shown or named. */
+  mixed?: boolean;
   /** What is being coloured, e.g. "Fill colour". */
   label: string;
   onCommit: (hex: string) => void;
   disabled?: boolean;
+  /** A visible name shown in the trigger before the hex value (e.g. a palette colour's name). */
+  name?: string;
+  /** Colours offered as one-click swatches (the document palette). */
+  swatches?: readonly { name: string; hex: string }[];
 }
 
 const clamp = (v: number) => Math.min(100, Math.max(0, v));
+/** Where the draft starts when there is no current colour: a neutral grey, never black. */
+const NO_COLOUR_DRAFT = "#808080";
 
-export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerProps) {
+export function ColorPicker({
+  value,
+  mixed,
+  label,
+  onCommit,
+  disabled,
+  name,
+  swatches,
+}: ColorPickerProps) {
   const [open, setOpen] = useState(false);
-  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(value));
-  const [hexText, setHexText] = useState(value);
+  // No single current colour (none, or mixed): its state replaces the swatch, value and name.
+  const state = mixed ? "mixed" : value === null ? "none" : null;
+  const start = value ?? NO_COLOUR_DRAFT;
+  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(start));
+  const [hexText, setHexText] = useState(start);
   const [hexError, setHexError] = useState(false);
   const area = useRef<HTMLDivElement>(null);
   const thumb = useRef<HTMLDivElement>(null);
@@ -38,10 +67,15 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
     setHexText(hsvToHex(next));
     setHexError(false);
   };
+  /** A typed or picked hex becomes the draft; greys keep the current hue. */
+  const setDraftHex = (hex: string) => {
+    const next = hexToHsv(hex);
+    setDraft(next.s === 0 || next.v === 0 ? { ...next, h: hsv.h } : next);
+  };
   const onOpenChange = (next: boolean) => {
     if (next) {
-      setHsv(hexToHsv(value));
-      setHexText(value);
+      setHsv(hexToHsv(start));
+      setHexText(start);
       setHexError(false);
     }
     setOpen(next); // any close without Apply discards the draft
@@ -49,11 +83,10 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
   const commitHexText = () => {
     const hex = parseHex(hexText);
     if (!hex) return setHexError(true);
-    const next = hexToHsv(hex);
-    setDraft(next.s === 0 || next.v === 0 ? { ...next, h: hsv.h } : next);
+    setDraftHex(hex);
   };
   const apply = () => {
-    if (draft !== value) onCommit(draft);
+    if (state !== null || draft !== value) onCommit(draft);
     setOpen(false);
   };
 
@@ -87,26 +120,29 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
         disabled={disabled}
-        aria-label={`${label}: ${value}. Edit colour`}
-        className="flex h-8 w-full items-center gap-2 rounded-md border border-control-border bg-background px-2 text-left font-mono text-xs hover:bg-elevated disabled:opacity-50"
+        aria-label={`${label}: ${state ?? value}. Edit colour`}
+        className={`${FIELD} flex w-full min-w-0 items-center gap-2 border px-1.5 text-left text-foreground transition-colors hover:border-foreground/55 disabled:pointer-events-none disabled:opacity-50 data-popup-open:border-primary`}
       >
         <span
           aria-hidden="true"
-          className="size-4 shrink-0 rounded-sm border border-control-border"
-          style={{ backgroundColor: value }}
+          className={`size-4 shrink-0 rounded-[3px] ring-1 ring-foreground/25 ring-inset ${state ? `vx-swatch-${state}` : ""}`}
+          style={state ? undefined : { backgroundColor: value! }}
         />
-        {value}
+        {name && <span className="min-w-0 flex-1 truncate">{name}</span>}
+        <span className={name ? "shrink-0 text-muted-foreground" : "min-w-0 truncate"}>
+          {state === "mixed" ? "Mixed" : state === "none" ? "None" : value}
+        </span>
       </PopoverTrigger>
       <PopoverContent
-        side="left"
-        align="start"
-        className="w-64 gap-3"
+        side="bottom"
+        align="end"
+        className="w-64 gap-2.5 p-2.5"
         aria-label={`${label} picker`}
         initialFocus={thumb}
       >
         <div
           ref={area}
-          className="vx-sv-area relative h-36 touch-none rounded-md"
+          className="vx-sv-area relative h-32 touch-none rounded-md ring-1 ring-foreground/10 ring-inset"
           style={{ backgroundColor: hsvToHex({ h: hsv.h, s: 100, v: 100 }) }}
           onPointerDown={(e) => {
             e.currentTarget.setPointerCapture(e.pointerId);
@@ -125,7 +161,7 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
             aria-valuenow={Math.round(hsv.s)}
             aria-valuetext={`Saturation ${Math.round(hsv.s)}%, brightness ${Math.round(hsv.v)}%`}
             onKeyDown={onAreaKey}
-            className="absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white ring-1 ring-black/60"
+            className="absolute size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white ring-1 ring-black/60"
             style={{ left: `${hsv.s}%`, top: `${100 - hsv.v}%`, backgroundColor: draft }}
           />
         </div>
@@ -138,9 +174,32 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
           value={[Math.round(hsv.h) % 360]}
           onValueChange={(v) => setDraft({ ...hsv, h: Array.isArray(v) ? v[0]! : (v as number) })}
         />
-        <div className="flex items-end gap-2">
-          <div className="grid flex-1 gap-1">
-            <label htmlFor={hexId} className="text-xs text-muted-foreground">
+        {swatches && swatches.length > 0 && (
+          <div role="group" aria-label="Document colours" className="grid gap-1.5">
+            <span aria-hidden="true" className="text-2xs text-muted-foreground">
+              Document colours
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {swatches.map((s) => (
+                <button
+                  key={`${s.name}${s.hex}`}
+                  type="button"
+                  aria-label={`Use ${s.name}, ${s.hex}`}
+                  aria-pressed={draft === s.hex}
+                  className="size-6 rounded-[4px] ring-1 ring-control-border ring-inset transition-shadow hover:ring-foreground aria-pressed:ring-2 aria-pressed:ring-primary"
+                  style={{ backgroundColor: s.hex }}
+                  onClick={() => setDraftHex(s.hex)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+          <div className="relative">
+            <label
+              htmlFor={hexId}
+              className="absolute inset-y-0 left-0 flex w-9 items-center justify-center text-2xs font-medium text-muted-foreground"
+            >
               Hex
             </label>
             <Input
@@ -150,7 +209,7 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
               autoComplete="off"
               aria-invalid={hexError || undefined}
               aria-describedby={hexError ? `${hexId}-error` : undefined}
-              className="h-8 font-mono text-xs"
+              className={`${FIELD} pl-9`}
               onChange={(e) => setHexText(e.target.value)}
               onBlur={commitHexText}
               onKeyDown={(e) => {
@@ -162,25 +221,28 @@ export function ColorPicker({ value, label, onCommit, disabled }: ColorPickerPro
             />
           </div>
           <div
-            className="flex overflow-hidden rounded-md border border-control-border"
+            className="flex h-7 overflow-hidden rounded-md ring-1 ring-foreground/25 ring-inset"
             aria-hidden="true"
           >
-            <span className="block h-8 w-6" style={{ backgroundColor: value }} />
-            <span className="block h-8 w-6" style={{ backgroundColor: draft }} />
+            <span
+              className={`block w-7 ${state ? `vx-swatch-${state}` : ""}`}
+              style={state ? undefined : { backgroundColor: value! }}
+            />
+            <span className="block w-7" style={{ backgroundColor: draft }} />
           </div>
         </div>
-        <p className="text-xs text-muted-foreground" aria-live="polite">
+        <p className="min-h-4 text-2xs text-muted-foreground tabular-nums" aria-live="polite">
           {hexError ? (
             <span id={`${hexId}-error`} className="text-destructive">
               Enter a colour as #rrggbb.
             </span>
           ) : (
             <>
-              Current {value} · New <span data-testid="color-draft">{draft}</span>
+              Current {state ?? value} · New <span data-testid="color-draft">{draft}</span>
             </>
           )}
         </p>
-        <div className="flex justify-end gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
             Cancel
           </Button>
