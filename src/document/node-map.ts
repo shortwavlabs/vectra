@@ -395,17 +395,53 @@ export class NodeMapDraft<V> {
 export function changedKeys<V>(a: ReadonlyMap<string, V>, b: ReadonlyMap<string, V>): Set<string> {
   const out = new Set<string>();
   if (a instanceof NodeMap && b instanceof NodeMap) {
-    const inA = new Set<Chunk<V>>(a.chunks);
-    const inB = new Set<Chunk<V>>(b.chunks);
+    const [ua, ub] = unsharedChunks(
+      a.chunks as readonly Chunk<V>[],
+      b.chunks as readonly Chunk<V>[],
+    );
+    // An update-only rebuild shares its keys array: compare those chunks position by position.
+    const byKeys = new Map<readonly string[], Chunk<V>>();
+    for (const c of ua) byKeys.set(c.keys, c);
     const candidates = new Set<string>();
-    for (const c of a.chunks as Chunk<V>[])
-      if (!inB.has(c)) c.keys.forEach((k) => candidates.add(k));
-    for (const c of b.chunks as Chunk<V>[])
-      if (!inA.has(c)) c.keys.forEach((k) => candidates.add(k));
+    for (const c of ub) {
+      const o = byKeys.get(c.keys);
+      if (o) {
+        byKeys.delete(c.keys);
+        for (let i = 0; i < c.keys.length; i++) if (o.vals[i] !== c.vals[i]) out.add(c.keys[i]!);
+      } else c.keys.forEach((k) => candidates.add(k));
+    }
+    for (const c of byKeys.values()) c.keys.forEach((k) => candidates.add(k));
     for (const k of candidates) if (a.get(k) !== b.get(k) || a.has(k) !== b.has(k)) out.add(k);
     return out;
   }
   for (const [k, v] of b) if (a.get(k) !== v || !a.has(k)) out.add(k);
   for (const k of a.keys()) if (!b.has(k)) out.add(k);
   return out;
+}
+
+/**
+ * Chunks of `a` not in `b`, and of `b` not in `a`. Directories of equal length are compared
+ * position by position first (an edit leaves almost every position shared), and only the
+ * differing positions are matched by identity; otherwise every chunk is matched by identity.
+ */
+export function unsharedChunks<V>(
+  a: readonly Chunk<V>[],
+  b: readonly Chunk<V>[],
+): [Chunk<V>[], Chunk<V>[]] {
+  let xa: readonly Chunk<V>[] = a;
+  let xb: readonly Chunk<V>[] = b;
+  if (a.length === b.length) {
+    const da: Chunk<V>[] = [];
+    const db: Chunk<V>[] = [];
+    for (let i = 0; i < a.length; i++)
+      if (a[i] !== b[i]) {
+        da.push(a[i]!);
+        db.push(b[i]!);
+      }
+    xa = da;
+    xb = db;
+  }
+  const inA = new Set(xa);
+  const inB = new Set(xb);
+  return [xa.filter((c) => !inB.has(c)), xb.filter((c) => !inA.has(c))];
 }

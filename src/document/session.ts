@@ -271,7 +271,9 @@ export class DocumentSession {
         // AM-2: the step's structural delta from its chain predecessor: prev, or the entry
         // prev coalesces into. What it removes is what the pushed entry alone would retain.
         const pred = coalesce ? this.#past[this.#past.length - 1]! : prev;
-        delta = structureDelta(pred, next, this.#derived.get(pred), d);
+        // The write log is relative to prev: usable only when prev is the predecessor.
+        const writes = !coalesce && log.complete ? log.keys : null;
+        delta = structureDelta(pred, next, this.#derived.get(pred), d, writes);
         const entry = this.#entryBytes(prev, d, next) + delta.removed;
         if (entry > this.historyLimits.maxBytes)
           throw new DocumentError(

@@ -31,7 +31,7 @@
 import { parents } from "./commands.ts";
 import type { StateDerived } from "./invariants.ts";
 import { type DocNode, type DocState, IDENTITY } from "./model.ts";
-import { changedKeys, NodeMap } from "./node-map.ts";
+import { type Chunk, changedKeys, NodeMap, unsharedChunks } from "./node-map.ts";
 
 /** V8 64-bit object layout estimates (bytes), calibrated in the G-DOC-R report §7. */
 export const COSTS = Object.freeze({
@@ -118,9 +118,10 @@ export function nodeRecords(n: DocNode): [object, number][] {
 export const mapHeaderCost = (m: NodeMap<unknown>) =>
   objectCost(5) + 2 * arrayCost(m.chunks.length) + typedCost(m.chunks.length);
 /** Each chunk's allocations: [identity, cost]. */
-export function chunkParts(m: NodeMap<unknown>): [object, number][] {
+export const chunkParts = (m: NodeMap<unknown>) => partsOf(m.chunks as readonly Chunk<unknown>[]);
+function partsOf(chunks: readonly Chunk<unknown>[]): [object, number][] {
   const out: [object, number][] = [];
-  for (const c of m.chunks) {
+  for (const c of chunks) {
     const n = c.keys.length;
     if (n === 0) continue; // the shared empty-chunk constant, like IDENTITY, is never counted
     out.push(
@@ -181,6 +182,8 @@ export function structureDelta(
   b: DocState,
   da?: StateDerived,
   db?: StateDerived,
+  /** Node keys that may differ (a superset; the transaction's complete write log), or null. */
+  writes: ReadonlySet<string> | null = null,
 ): Delta {
   let removed = 0;
   let added = 0;
@@ -210,8 +213,14 @@ export function structureDelta(
     if (x instanceof NodeMap && y instanceof NodeMap) {
       removed += mapHeaderCost(x);
       added += mapHeaderCost(y);
-      const px = chunkParts(x);
-      const py = chunkParts(y);
+      // Only chunks the other map does not share; their parts may still be shared (an update
+      // shares numbers and keys).
+      const [ux, uy] = unsharedChunks(
+        x.chunks as readonly Chunk<unknown>[],
+        y.chunks as readonly Chunk<unknown>[],
+      );
+      const px = partsOf(ux);
+      const py = partsOf(uy);
       const ix = new Set(px.map((p) => p[0]));
       const iy = new Set(py.map((p) => p[0]));
       for (const [o, c] of px) if (!iy.has(o)) removed += c;
@@ -228,9 +237,10 @@ export function structureDelta(
     }
   }
   // Nodes and their per-key records (identity per key).
-  for (const k of changedKeys(a.nodesById, b.nodesById)) {
+  for (const k of writes ?? changedKeys(a.nodesById, b.nodesById)) {
     const o = a.nodesById.get(k);
     const n = b.nodesById.get(k);
+    if (o === n && a.nodesById.has(k) === b.nodesById.has(k)) continue; // a superset key
     if (o) removed += nodeCost(o);
     if (n) added += nodeCost(n);
     const ro = o ? nodeRecords(o) : [];
