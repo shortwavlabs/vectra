@@ -176,7 +176,7 @@ function IconAction(p: {
             aria-disabled={p.disabled ? true : undefined}
             className={
               p.pressed
-                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/90"
                 : p.disabled
                   ? "text-muted-foreground opacity-40 hover:bg-transparent hover:text-muted-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -729,7 +729,7 @@ export function Workspace() {
             <ResizableHandle
               withHandle
               aria-label="Resize inspector"
-              className="bg-border after:w-2 [&>div]:bg-control-border"
+              className="bg-border after:w-6 [&>div]:bg-control-border"
             />
             <ResizablePanel id="side" defaultSize={SIDE_WIDTH} minSize={288} maxSize={336}>
               <ResizablePanelGroup orientation="vertical">

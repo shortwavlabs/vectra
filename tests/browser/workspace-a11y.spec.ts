@@ -40,7 +40,13 @@ async function edgeBands(page: Page) {
   };
   const outer: Rgb3[] = [];
   const inner: Rgb3[] = [];
-  const where: string[] = [];
+  const where = new Map<Rgb3[], string[]>([
+    [outer, []],
+    [inner, []],
+  ]);
+  const box = (await canvas(page).boundingBox())!;
+  const candidates: { band: Rgb3[]; px: number; py: number; css: number[] }[] = [];
+  let excluded = 0;
   for (let k = 1; k <= 16; k++) {
     const x = Math.round((img.w * (k + 1)) / 18);
     const y = Math.round((img.h * (k + 1)) / 18);
@@ -49,11 +55,37 @@ async function edgeBands(page: Page) {
       [inner, 3],
     ] as const) {
       const d = Math.round(css * dpr);
-      band.push(at(x, d), at(x, img.h - 1 - d), at(d, y), at(img.w - 1 - d, y));
-      if (band === inner)
-        where.push(`${x},${d}`, `${x},${img.h - 1 - d}`, `${d},${y}`, `${img.w - 1 - d},${y}`);
+      for (const [px, py] of [
+        [x, d],
+        [x, img.h - 1 - d],
+        [d, y],
+        [img.w - 1 - d, y],
+      ] as const) {
+        candidates.push({ band, px, py, css: [box.x + px / dpr, box.y + py / dpr] });
+      }
     }
   }
+  // Not under a visible control drawn over the canvas edge (the splitter grips: adjacent UI, not
+  // canvas layers). Hit-testing cannot decide this: the splitters' invisible 24 px pointer
+  // targets also extend over the canvas edge.
+  const grips = await page.locator('[role="separator"] > div').evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect();
+      return [r.left - 1, r.top - 1, r.right + 1, r.bottom + 1];
+    }),
+  );
+  const own = candidates.map(
+    (c) =>
+      !grips.some(
+        ([l, t, r, b]) => c.css[0]! >= l! && c.css[0]! <= r! && c.css[1]! >= t! && c.css[1]! <= b!,
+      ),
+  );
+  candidates.forEach((c, i) => {
+    if (!own[i]) return void excluded++;
+    c.band.push(at(c.px, c.py));
+    where.get(c.band)!.push(`${c.px},${c.py}`);
+  });
+  expect(excluded, "samples covered by other controls").toBeLessThan(candidates.length / 8);
   return { outer, inner, where, size: `${img.w}×${img.h}` };
 }
 
@@ -176,7 +208,9 @@ test("canvas focus ring: rendered above every layer on keyboard focus, not on a 
   await expect(ringEl).toBeVisible();
   const focused = await edgeBands(page);
   const off = (band: Rgb3[], want: Rgb3) =>
-    band.flatMap((c, i) => (near(c, want) ? [] : [`${focused.where[i]}=${c.join(",")}`]));
+    band.flatMap((c, i) =>
+      near(c, want) ? [] : [`${focused.where.get(band)![i]}=${c.join(",")}`],
+    );
   expect(off(focused.outer, lime), focused.size).toEqual([]);
   expect(off(focused.inner, halo), focused.size).toEqual([]);
   // The ring takes no pointer input: at the ring, the topmost element is a canvas layer, and a

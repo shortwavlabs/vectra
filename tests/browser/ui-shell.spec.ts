@@ -91,6 +91,57 @@ test("tool rail: only working tools; names, pressed state, keyboard and tooltips
   );
 });
 
+// Final audit (FINAL-AUDIT.md P2-1, P2-2): the registry ghost variant's dark hover background
+// overrode the pressed tool's lime, leaving its dark icon at about 1:1 (WCAG 1.4.11); and the
+// inspector splitter's pointer target was 8 px (WCAG 2.5.8).
+test("pressed tool keeps its icon contrast under the pointer; the inspector splitter is a 24 px target", async ({
+  page,
+}) => {
+  // The bug was in a `dark:` variant, which follows the OS colour scheme (macOS dark mode).
+  await page.emulateMedia({ colorScheme: "dark" });
+  await openWorkspace(page);
+  const select = page
+    .getByRole("navigation", { name: "Tools" })
+    .getByRole("button", { name: "Select" });
+  await expect(select).toHaveAttribute("aria-pressed", "true");
+  await select.hover();
+  await page.waitForTimeout(400); // the button transitions its background
+  // Computed colours, not a screenshot: Playwright's WebKit screenshot trips the strict CSP
+  // guard. Each colour is resolved through a canvas (any CSS colour syntax), and the hovered
+  // background is composited over its ancestors up to the first opaque one.
+  const { bg, icon } = await select.evaluate((btn) => {
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    const rgba = (c: string) => {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = c;
+      ctx.fillRect(0, 0, 1, 1);
+      return Array.from(ctx.getImageData(0, 0, 1, 1).data);
+    };
+    const layers: number[][] = [];
+    for (let el: Element | null = btn; el; el = el.parentElement) {
+      const c = rgba(getComputedStyle(el).backgroundColor);
+      layers.push(c);
+      if (c[3] === 255) break;
+    }
+    let out = [0, 0, 0];
+    for (const [r, g, b, a] of layers.reverse()) {
+      const k = a! / 255;
+      out = [r! * k + out[0]! * (1 - k), g! * k + out[1]! * (1 - k), b! * k + out[2]! * (1 - k)];
+    }
+    return {
+      bg: out.map(Math.round),
+      icon: rgba(getComputedStyle(btn.querySelector("svg")!).color).slice(0, 3),
+    };
+  });
+  const best = ratio(bg, icon);
+  note("hovered pressed tool", { bg, icon, contrast: best });
+  expect(best).toBeGreaterThanOrEqual(3);
+  const hit = await page
+    .getByRole("separator", { name: "Resize inspector" })
+    .evaluate((el) => getComputedStyle(el, "::after").width);
+  expect(hit).toBe("24px");
+});
+
 test("top bar and status bar: no view switch, no Studio label, quiet when idle and healthy", async ({
   page,
 }) => {

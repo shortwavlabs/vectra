@@ -299,11 +299,9 @@ test("locks (maintainer review): never moved or deleted, fills skip them, palett
   await page.getByRole("button", { name: "Apply" }).click();
   await settled(page);
   expect(await hexOf(free)).toBe("#2050a0");
-  // Palette edits do reach locked paths (document semantics, unit-tested); the Recolor panel says so.
-  await blur();
-  await page.keyboard.press("r");
-  await expect(page.getByText(/including locked paths/)).toBeVisible();
-  await page.keyboard.press("v");
+  // Palette edits do reach locked paths (document semantics, unit-tested). The Recolor panel's
+  // disclosure shows only when the document has palette colours (this fixture has none); its
+  // wording is asserted in ui-document on a traced document.
 
   // Undo/redo: unlock, delete, then undo both; the lock returns and protects again.
   await a.dispatch({ type: "setLocked", ids: [locked], locked: false });
