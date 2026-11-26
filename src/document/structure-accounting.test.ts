@@ -3,7 +3,7 @@
 import { describe, expect, test } from "vite-plus/test";
 import type { Command } from "./commands.ts";
 import { DocumentError, type DocState } from "./model.ts";
-import type { DocumentSession } from "./session.ts";
+import { DocumentSession } from "./session.ts";
 import { structureDelta } from "./structure-accounting.ts";
 import { fixturePacket } from "./testing/fixtures.ts";
 import { fixtureProvenance, fixtureSession, TEST_PROVENANCE } from "./testing/helpers.ts";
@@ -25,7 +25,54 @@ function randomEdit(r: Rng, st: DocState): Command {
   const layers = ids(st, "layer");
   const any = [...paths, ...groups, ...layers];
   const pick = <T>(xs: T[]) => (xs.length ? r.pick(xs) : undefined);
-  switch (r.int(11)) {
+  const pal = [...st.paletteById.keys()];
+  switch (r.int(21)) {
+    // Stage D review: every command kind (cases 11–20 widen the original ten).
+    case 11:
+      return { type: "reorder", id: pick(paths) ?? "pth_1", index: r.int(3) };
+    case 12:
+      return {
+        type: "reparent",
+        ids: paths.slice(r.int(5), r.int(5) + 1 + r.int(30)),
+        parentId: pick(groups) ?? null,
+        index: 0,
+      };
+    case 13:
+      return {
+        type: "setClip",
+        id: pick(groups) ?? "grp_1",
+        rect: { x: 0, y: 0, width: 1 + r.int(50), height: 2.5 },
+      };
+    case 14:
+      return { type: "releaseClip", id: pick(groups) ?? "grp_1" };
+    case 15:
+      return pal.length
+        ? { type: "setPaletteColor", paletteRef: r.pick(pal), color: r.int(2 ** 32) }
+        : { type: "setArtboard", width: 7, height: 7 };
+    case 16:
+      return {
+        type: "attachSource",
+        asset: {
+          digest: "cd".repeat(32),
+          mime: "image/png",
+          width: 8,
+          height: 8,
+          embedded: false,
+          decodePolicy: "browser-canvas-v1",
+        },
+      };
+    case 17:
+      return {
+        type: "bake",
+        packet: syntheticPacket({ paths: 1, anchorsPerPath: 3, seed: r.int(1e6) }),
+        targetIds: [pick(paths) ?? "pth_1"],
+      };
+    case 18:
+      return { type: "rotate90", ids: [pick(any) ?? "pth_1"], turns: r.pick([1, 2, 3] as const) };
+    case 19:
+      return { type: "setTransform", id: pick(any) ?? "pth_1", matrix: [1, 0, 0, 1, r.int(9), 0] };
+    case 20:
+      return { type: "setLocked", ids: [pick(any) ?? "pth_1"], locked: r.bool() };
     case 0:
       return { type: "setVisible", ids: [pick(any) ?? "pth_1"], visible: r.bool() };
     case 1:
@@ -63,13 +110,28 @@ function randomEdit(r: Rng, st: DocState): Command {
 describe("AM-2 structure accounting", () => {
   test("the incremental ledger equals the full-traversal oracle under random histories", () => {
     let ops = 0;
-    for (const seed of [1, 2, 3, 4, 5, 6]) {
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
       const r = rng(seed);
       const s = fixtureSession(["adjacent_colors-color"], {
-        history: { maxEntries: 2 + r.int(12), maxBytes: r.pick([128 * 2 ** 20, 40_000, 200_000]) },
+        history: {
+          maxEntries: 2 + r.int(12),
+          maxBytes: r.pick([128 * 2 ** 20, 40_000, 200_000, 2 * 2 ** 20]),
+        },
         now: () => ops * 10, // coalescing within 1000 "ms" when keys repeat
       });
-      for (let i = 0; i < 160; i++, ops++) {
+      // Half the seeds hold a 1,500–3,000-path trace: maps and indexes span many chunks.
+      if (seed % 2 === 0)
+        s.dispatch({
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: syntheticPacket({
+            paths: 1500 + r.int(1500),
+            anchorsPerPath: 2,
+            groups: 3,
+            seed,
+          }),
+        });
+      for (let i = 0; i < 120; i++, ops++) {
         const roll = r.next();
         if (roll < 0.15) s.undo();
         else if (roll < 0.25) s.redo();
@@ -80,7 +142,12 @@ describe("AM-2 structure accounting", () => {
               ? { withoutHistory: true }
               : {};
           try {
-            s.dispatch(randomEdit(r, s.state), o);
+            // A quarter of the transactions hold 2–3 commands (built from the same state).
+            const n = r.bool(0.25) ? 2 + r.int(2) : 1;
+            s.dispatch(
+              Array.from({ length: n }, () => randomEdit(r, s.state)),
+              o,
+            );
           } catch (e) {
             if (!(e instanceof DocumentError)) throw e;
           }
@@ -121,6 +188,18 @@ describe("AM-2 structure accounting", () => {
     s.dispatch({ type: "setVisible", ids: ["pth_16"], visible: false }, { withoutHistory: true });
     expect(s.historyStructureBytes()).toBe(0);
     agrees(s, "without history");
+  });
+
+  test("a session started from a plain Map node map accounts correctly (review C1)", () => {
+    const base = fixtureSession(["adjacent_colors-color", "nested_rings-bw"]);
+    const plain: DocState = { ...base.state, nodesById: new Map(base.state.nodesById) };
+    const s = new DocumentSession(base.store, { state: plain });
+    s.dispatch({ type: "setVisible", ids: ["pth_13"], visible: false });
+    agrees(s, "edit from a plain map");
+    s.undo();
+    agrees(s, "undo to the plain map");
+    s.redo();
+    agrees(s, "redo");
   });
 
   test("deltas are exact, symmetric and checked; shared allocations count once", () => {

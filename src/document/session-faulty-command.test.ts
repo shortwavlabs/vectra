@@ -110,3 +110,20 @@ describe("stage D: a misleading write log and a corrupted parent index", () => {
     ).toThrow(/composed transform|not finite/);
   });
 });
+
+describe("stage D review C4: compare mode checks on the full-pass fallback too", () => {
+  test("an undecided transaction with a misleading write log is caught", () => {
+    const s = fixtureSession(["adjacent_colors-color"], { validation: "compare" });
+    const before = s.getSnapshot();
+    // The predecessor's index lacks pth_13's entry: the proof answers "no parent" (undecided)
+    // and the full pass accepts; the log also misses pth_13. Before the fix the fallback path
+    // skipped the compare-mode checks.
+    fault.corruptState = s.state;
+    fault.corruptParent = ["pth_13", "pth_999999999"];
+    fault.dropFromLog = ["pth_13"];
+    expect(() =>
+      s.dispatch({ type: "applyTransform", ids: ["pth_13"], matrix: [1, 0, 0, 1, 2, 2] }),
+    ).toThrow(ValidationDisagreement);
+    expect(s.getSnapshot()).toBe(before);
+  });
+});

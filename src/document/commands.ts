@@ -1,4 +1,8 @@
 // RFC-002 §7 commands as pure functions: (state, command, context) → new immutable state.
+// Rule (AM-2 accounting, G-DOC-R stage D): a command builds its result only from objects of
+// its input state and freshly allocated (or copied) values. It never stores a caller-supplied
+// object uncopied, and never re-inserts an object from an older state: history accounting
+// (structure-accounting.ts) relies on each allocation living in one contiguous run of states.
 // They throw a typed DocumentError on bad input; the session then discards the draft, so the
 // document is unchanged. Structural commands never touch geometry (C2 rule 9): only
 // commitTrace and bake call ctx.commit, which is the store's C2 commit.

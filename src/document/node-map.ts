@@ -19,6 +19,7 @@ type Write<V> = V | typeof DELETED;
 
 /** Sort number of a key: the ID number of "xxx_<1–15 digits>", else +Infinity. */
 export function keyNumber(k: string): number {
+  if (typeof k !== "string") return Infinity; // a non-string key simply misses, as in a Map
   const n = k.length;
   if (n < 5 || n > 19 || k.charCodeAt(3) !== 95) return Infinity;
   let v = 0;
@@ -48,11 +49,16 @@ const EMPTY_CHUNK: Chunk<never> = Object.freeze({
   keys: Object.freeze([]),
   vals: Object.freeze([]),
 });
-const chunkOf = <V>(e: readonly Entry<V>[]): Chunk<V> => ({
-  nums: Float64Array.from(e, (x) => x[0]),
-  keys: e.map((x) => x[1]),
-  vals: e.map((x) => x[2]),
-});
+/** A chunk is frozen at creation (its numbers array, a typed array, cannot be frozen; it is
+ *  reachable only through the chunk, read-only by contract). */
+const frozenChunk = <V>(nums: Float64Array, keys: string[], vals: V[]): Chunk<V> =>
+  Object.freeze({ nums, keys: Object.freeze(keys), vals: Object.freeze(vals) });
+const chunkOf = <V>(e: readonly Entry<V>[]): Chunk<V> =>
+  frozenChunk(
+    Float64Array.from(e, (x) => x[0]),
+    e.map((x) => x[1]),
+    e.map((x) => x[2]),
+  );
 /** Sorted entries cut into chunks of about TARGET (all of them when there are few). */
 function cut<V>(e: readonly Entry<V>[]): Chunk<V>[] {
   if (e.length === 0) return [];
@@ -89,7 +95,7 @@ function rebuild<V>(c: Chunk<V>, list: Entry<Write<V>>[]): Chunk<V>[] {
   if (list.every(([, , v], i) => v !== DELETED && at[i]! >= 0)) {
     const vals = c.vals.slice();
     list.forEach(([, , v], i) => (vals[at[i]!] = v as V));
-    return [{ nums: c.nums, keys: c.keys, vals }];
+    return [Object.freeze({ nums: c.nums, keys: c.keys, vals: Object.freeze(vals) })];
   }
   const nums: number[] = [];
   const keys: string[] = [];
@@ -135,16 +141,13 @@ function split<V>(nums: number[], keys: string[], vals: V[]): Chunk<V>[] {
   for (let p = 0; p < parts; p++) {
     const a = Math.floor((p * len) / parts);
     const b = Math.floor(((p + 1) * len) / parts);
-    out.push({
-      nums: Float64Array.from(nums.slice(a, b)),
-      keys: keys.slice(a, b),
-      vals: vals.slice(a, b),
-    });
+    out.push(frozenChunk(Float64Array.from(nums.slice(a, b)), keys.slice(a, b), vals.slice(a, b)));
   }
   return out;
 }
 
-/** Iterates chunks' parallel arrays without a generator. */
+/** Iterates chunks' parallel arrays without a generator. Its prototype chain includes
+ *  %IteratorPrototype% (below), so iterator helpers work wherever the engine has them. */
 class ChunkIterator<V, T> implements IterableIterator<T> {
   #c = 0;
   #i = 0;
@@ -169,6 +172,11 @@ class ChunkIterator<V, T> implements IterableIterator<T> {
   }
 }
 
+Object.setPrototypeOf(
+  ChunkIterator.prototype,
+  Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]())),
+);
+
 export class NodeMap<V> implements ReadonlyMap<string, V> {
   readonly #chunks: readonly Chunk<V>[];
   /** First entry of each chunk (the directory), for locating a key's chunk. */
@@ -180,7 +188,7 @@ export class NodeMap<V> implements ReadonlyMap<string, V> {
 
   private constructor(chunks: readonly Chunk<V>[], size: number) {
     // An exact-length copy: a directory built by pushes would keep growth slack in history.
-    const cs = chunks.length ? chunks.slice() : [EMPTY_CHUNK as Chunk<V>];
+    const cs = Object.freeze(chunks.length ? chunks.slice() : [EMPTY_CHUNK as Chunk<V>]);
     this.#chunks = cs;
     this.#firstNums = Float64Array.from(cs, (c) => (c.keys.length ? c.nums[0]! : -Infinity));
     this.#firstKeys = cs.map((c) => c.keys[0] ?? "");

@@ -314,6 +314,7 @@ export class DocumentSession {
       const inc = checkIncremental(prev, this.#derived.get(prev)!, next, store, limits, writes);
       if (inc.derived) {
         if (this.validation === "compare") {
+          this.#compareInvariants(prev, next, writes);
           let full: StateDerived;
           try {
             full = validateState(next, store, limits);
@@ -325,22 +326,28 @@ export class DocumentSession {
           }
           if (!sameDerived(full, inc.derived))
             throw new ValidationDisagreement("incremental and full derived data differ");
-          // Stage C/D invariants checked on every decided transaction in compare mode: the
-          // write log covers every changed node key, and the parent index equals the tree.
-          if (writes)
-            for (const k of changedKeys(prev.nodesById, next.nodesById))
-              if (!writes.has(k))
-                throw new ValidationDisagreement(`the write log misses changed node ${k}`);
-          if (!parentIndexMatches(next))
-            throw new ValidationDisagreement("the parent index disagrees with the tree");
         }
         this.#validations.incremental++;
         return inc.derived;
       }
     }
     const full = validateState(next, store, limits);
+    // Compare mode checks the stage C/D invariants on the full-pass path too (review C4).
+    if (this.validation === "compare") this.#compareInvariants(prev, next, writes);
     this.#validations.full++;
     return full;
+  }
+
+  /** Compare mode: the write log covers every changed node key, and the parent index of
+   *  `next` equals a full traversal (only meaningful for a valid `next`; called after the
+   *  incremental proof decided it, or after the full pass accepted it). */
+  #compareInvariants(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): void {
+    if (writes)
+      for (const k of changedKeys(prev.nodesById, next.nodesById))
+        if (!writes.has(k))
+          throw new ValidationDisagreement(`the write log misses changed node ${k}`);
+    if (!parentIndexMatches(next))
+      throw new ValidationDisagreement("the parent index disagrees with the tree");
   }
 
   /** Bytes the pushed entry alone would hold as history-only (RFC §7 "cannot fit"): chunks and

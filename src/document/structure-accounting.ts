@@ -217,8 +217,14 @@ export function structureDelta(
       for (const [o, c] of px) if (!iy.has(o)) removed += c;
       for (const [o, c] of py) if (!ix.has(o)) added += c;
     } else {
-      removed += entryMapCost(x);
-      added += entryMapCost(y);
+      // Not both NodeMaps (a state built by hand): nothing is shared; each side counts in
+      // full (review C1: the NodeMap side's chunks were omitted).
+      const whole = (m: ReadonlyMap<string, unknown>) =>
+        m instanceof NodeMap
+          ? mapHeaderCost(m) + chunkParts(m).reduce((t, [, c]) => t + c, 0)
+          : entryMapCost(m);
+      removed += whole(x);
+      added += whole(y);
     }
   }
   // Nodes and their per-key records (identity per key).

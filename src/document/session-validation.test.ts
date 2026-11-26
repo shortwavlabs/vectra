@@ -262,6 +262,27 @@ describe("G-DOC-R stage B: validation modes in dispatch", () => {
     expect(s.historyStates().future).toEqual([]);
   });
 
+  test("non-string node IDs are typed invalid_argument errors (review C2)", () => {
+    for (const mode of MODES) {
+      const s = fixtureSession(["adjacent_colors-color"], { validation: mode });
+      const before = s.getSnapshot();
+      for (const cmd of [
+        { type: "rename", id: undefined, name: "x" },
+        { type: "setVisible", ids: [5], visible: false },
+        { type: "delete", ids: [null] },
+      ] as unknown as Command[]) {
+        let code = "ok";
+        try {
+          s.dispatch(cmd);
+        } catch (e) {
+          code = e instanceof DocumentError ? e.code : `untyped:${String(e)}`;
+        }
+        expect(code, `${mode} ${cmd.type}`).toBe("invalid_argument");
+      }
+      expect(s.getSnapshot()).toBe(before);
+    }
+  });
+
   test("untrusted documents: the constructor runs the full pass in every mode", () => {
     const good = fixtureSession(["adjacent_colors-color"]).state;
     const cyclic: DocState = {

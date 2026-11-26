@@ -205,3 +205,44 @@ describe("NodeMapDraft", () => {
     expect(m.get("pth_1")).toEqual({ v: 9 });
   });
 });
+
+describe("NodeMap: review follow-ups (stage D)", () => {
+  test("a non-string key misses, as in a Map (review C2)", () => {
+    const m = NodeMap.from<V>([["pth_1", { v: 1 }]]);
+    for (const k of [undefined, null, 5, {}, Symbol("x")] as unknown[]) {
+      expect(m.get(k as string)).toBeUndefined();
+      expect(m.has(k as string)).toBe(false);
+    }
+    expect(m.with(new Map([[5 as unknown as string, DELETED]]))).toBe(m);
+  });
+
+  test("published chunks and the directory are frozen at runtime", () => {
+    const m = NodeMap.from<V>(Array.from({ length: 3000 }, (_, i) => [`pth_${i}`, { v: i }]));
+    const n = m.with(
+      new Map([
+        ["pth_5", { v: -5 }],
+        ["pth_9999", { v: 1 }],
+      ]),
+    );
+    for (const x of [m, n]) {
+      expect(Object.isFrozen(x.chunks)).toBe(true);
+      for (const c of x.chunks) {
+        expect(Object.isFrozen(c)).toBe(true);
+        expect(Object.isFrozen(c.keys)).toBe(true);
+        expect(Object.isFrozen(c.vals)).toBe(true);
+      }
+    }
+    expect(() => (n.chunks[0]!.vals as V[]).push({ v: 0 })).toThrow(TypeError);
+  });
+
+  test("iterators inherit the standard iterator prototype (helpers work where supported)", () => {
+    const m = NodeMap.from<V>([
+      ["pth_2", { v: 2 }],
+      ["pth_1", { v: 1 }],
+    ]);
+    const proto = Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]()));
+    expect(Object.getPrototypeOf(Object.getPrototypeOf(m.keys()))).toBe(proto);
+    const it = m.keys() as unknown as { toArray?: () => string[] };
+    if (typeof it.toArray === "function") expect(it.toArray()).toEqual(["pth_1", "pth_2"]);
+  });
+});
