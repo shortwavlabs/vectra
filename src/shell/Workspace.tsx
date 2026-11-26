@@ -108,6 +108,10 @@ const PRESET_NOTES: Record<PresetId, string> = {
 };
 
 const ACCEPT = "image/png,image/jpeg,image/webp";
+/** A splitter's own resize strip: panel-coloured, a hairline on the canvas or Layers side, the
+ *  registry's overlay hit area removed (it reached over the canvas). */
+const SPLITTER =
+  "shrink-0 border-border bg-panel after:hidden hover:bg-elevated [&>div]:bg-control-border";
 /** The Layers header's height (h-9): what a collapsed Layers panel keeps. */
 const LAYERS_HEADER = 36;
 /** The side column starts narrower on small laptops (under 1440 px wide): more canvas. */
@@ -654,9 +658,12 @@ export function Workspace() {
 
           <ResizablePanelGroup orientation="horizontal" className="min-w-0 flex-1">
             <ResizablePanel id="canvas" minSize={360}>
+              {/* No text selection in the canvas region: a handle drag otherwise leaves a range
+                  over the overlay, and Firefox turns the next handle drag inside it into a
+                  native drag (pointercancel), cancelling the transform. */}
               <section
                 aria-label="Canvas"
-                className="relative h-full min-w-0 overflow-hidden bg-canvas-surround"
+                className="relative h-full min-w-0 overflow-hidden bg-canvas-surround select-none"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -726,10 +733,14 @@ export function Workspace() {
                 )}
               </section>
             </ResizablePanel>
+            {/* The splitters are resize strips of their own (final closure): 24 px across, outside
+                the canvas and clear of every control, so neither intercepts the artwork or a
+                transform handle (WCAG 2.5.8 without an overlay). The hairline marks the panel
+                edge; the grip sits in the middle of the strip. */}
             <ResizableHandle
               withHandle
               aria-label="Resize inspector"
-              className="bg-border after:w-6 [&>div]:bg-control-border"
+              className={`${SPLITTER} w-6 border-l`}
             />
             <ResizablePanel id="side" defaultSize={SIDE_WIDTH} minSize={288} maxSize={336}>
               <ResizablePanelGroup orientation="vertical">
@@ -753,7 +764,7 @@ export function Workspace() {
                 <ResizableHandle
                   withHandle
                   aria-label="Resize layers"
-                  className="bg-border aria-[orientation=horizontal]:after:h-2 [&>div]:bg-control-border"
+                  className={`${SPLITTER} border-t aria-[orientation=horizontal]:h-6`}
                 />
                 {/* Layers never collapse by themselves (not by viewport height either): the
                     header's disclosure, or a drag of the split past the minimum, collapses them

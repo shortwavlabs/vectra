@@ -110,6 +110,13 @@
   box-shadow: 0 0 0 2px var(--background);
 }
 
+/* Splitters (final closure) are 24 px resize strips of their own: the dual ring is drawn inside
+   the strip (lime at its edge, the dark ring within), so no neighbouring panel can cover it. */
+[data-slot="resizable-handle"]:focus-visible {
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--background);
+}
+
 /* Control boundaries use control-border (≥ 3:1), never the decorative border token. */
 [data-slot="slider-track"] {
   background-color: var(--control-border);
@@ -176,6 +183,16 @@ input {
 .vx-sv-area {
   background-image:
     linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+}
+/* No fill: the field well struck through once (the common "none" swatch), never black. */
+.vx-swatch-none {
+  background-color: var(--background);
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.75px),
+    var(--destructive) calc(50% - 0.75px) calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
 }
 /* A mixed fill (the selected paths' colours differ): a neutral hatch, never one of the colours. */
 .vx-swatch-mixed {

@@ -11,6 +11,8 @@
 // Maintainer review: a selection whose fills differ is shown as mixed (a hatched swatch, "Mixed",
 // and "mixed" in the name), never as one of its colours. The draft starts from `value`, and
 // Apply always commits then, since any colour makes the fills uniform.
+// Final closure: no colour (`value` null) is shown as "None" (a struck-through swatch, "none" in
+// the name), never as black; its draft starts from a neutral grey, and Apply always commits.
 import { useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { type Hsv, hexToHsv, hsvToHex, parseHex } from "./color.ts";
 import { FIELD } from "./numeric-field.tsx";
@@ -20,8 +22,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "./registry/popover";
 import { Slider } from "./registry/slider";
 
 export interface ColorPickerProps {
-  /** The committed colour, `#rrggbb`; with `mixed`, only where the draft starts. */
-  value: string;
+  /** The committed colour, `#rrggbb`, or null for none (shown as "None", never as a colour);
+   *  with `mixed`, only where the draft starts. */
+  value: string | null;
   /** The targets' colours differ: no single current colour is shown or named. */
   mixed?: boolean;
   /** What is being coloured, e.g. "Fill colour". */
@@ -35,6 +38,8 @@ export interface ColorPickerProps {
 }
 
 const clamp = (v: number) => Math.min(100, Math.max(0, v));
+/** Where the draft starts when there is no current colour: a neutral grey, never black. */
+const NO_COLOUR_DRAFT = "#808080";
 
 export function ColorPicker({
   value,
@@ -46,8 +51,11 @@ export function ColorPicker({
   swatches,
 }: ColorPickerProps) {
   const [open, setOpen] = useState(false);
-  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(value));
-  const [hexText, setHexText] = useState(value);
+  // No single current colour (none, or mixed): its state replaces the swatch, value and name.
+  const state = mixed ? "mixed" : value === null ? "none" : null;
+  const start = value ?? NO_COLOUR_DRAFT;
+  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(start));
+  const [hexText, setHexText] = useState(start);
   const [hexError, setHexError] = useState(false);
   const area = useRef<HTMLDivElement>(null);
   const thumb = useRef<HTMLDivElement>(null);
@@ -66,8 +74,8 @@ export function ColorPicker({
   };
   const onOpenChange = (next: boolean) => {
     if (next) {
-      setHsv(hexToHsv(value));
-      setHexText(value);
+      setHsv(hexToHsv(start));
+      setHexText(start);
       setHexError(false);
     }
     setOpen(next); // any close without Apply discards the draft
@@ -78,7 +86,7 @@ export function ColorPicker({
     setDraftHex(hex);
   };
   const apply = () => {
-    if (mixed || draft !== value) onCommit(draft);
+    if (state !== null || draft !== value) onCommit(draft);
     setOpen(false);
   };
 
@@ -112,17 +120,17 @@ export function ColorPicker({
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
         disabled={disabled}
-        aria-label={`${label}: ${mixed ? "mixed" : value}. Edit colour`}
+        aria-label={`${label}: ${state ?? value}. Edit colour`}
         className={`${FIELD} flex w-full min-w-0 items-center gap-2 border px-1.5 text-left text-foreground transition-colors hover:border-foreground/55 disabled:pointer-events-none disabled:opacity-50 data-popup-open:border-primary`}
       >
         <span
           aria-hidden="true"
-          className={`size-4 shrink-0 rounded-[3px] ring-1 ring-foreground/25 ring-inset ${mixed ? "vx-swatch-mixed" : ""}`}
-          style={mixed ? undefined : { backgroundColor: value }}
+          className={`size-4 shrink-0 rounded-[3px] ring-1 ring-foreground/25 ring-inset ${state ? `vx-swatch-${state}` : ""}`}
+          style={state ? undefined : { backgroundColor: value! }}
         />
         {name && <span className="min-w-0 flex-1 truncate">{name}</span>}
         <span className={name ? "shrink-0 text-muted-foreground" : "min-w-0 truncate"}>
-          {mixed ? "Mixed" : value}
+          {state === "mixed" ? "Mixed" : state === "none" ? "None" : value}
         </span>
       </PopoverTrigger>
       <PopoverContent
@@ -217,8 +225,8 @@ export function ColorPicker({
             aria-hidden="true"
           >
             <span
-              className={`block w-7 ${mixed ? "vx-swatch-mixed" : ""}`}
-              style={mixed ? undefined : { backgroundColor: value }}
+              className={`block w-7 ${state ? `vx-swatch-${state}` : ""}`}
+              style={state ? undefined : { backgroundColor: value! }}
             />
             <span className="block w-7" style={{ backgroundColor: draft }} />
           </div>
@@ -230,7 +238,7 @@ export function ColorPicker({
             </span>
           ) : (
             <>
-              Current {mixed ? "mixed" : value} · New <span data-testid="color-draft">{draft}</span>
+              Current {state ?? value} · New <span data-testid="color-draft">{draft}</span>
             </>
           )}
         </p>

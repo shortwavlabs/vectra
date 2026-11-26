@@ -1,12 +1,13 @@
 import { describe, expect, test } from "vite-plus/test";
 import { fixtureSession } from "../document/testing/helpers.ts";
-import { isContainer } from "../document/model.ts";
+import { type DocState, isContainer } from "../document/model.ts";
 import type { DocumentSession } from "../document/session.ts";
 import {
   fillTargets,
+  generatedLabel,
   isLocked,
   moveCommand,
-  paletteLabel,
+  paletteLabels,
   pathFill,
   planDeletion,
   quarterTurnAbout,
@@ -141,8 +142,21 @@ describe("fill targets", () => {
 });
 
 describe("palette names on screen (display only)", () => {
-  test("generated names become Colour N+1 from the number in the name; others are kept", () => {
-    expect(["p0", "p7", "c0", "c12", "x3", "ink", "ink1"].map(paletteLabel)).toEqual([
+  const names = (s: DocState) => {
+    const l = paletteLabels(s);
+    return [...s.paletteById.values()].map((e) => [e.name, l.get(e.id)]);
+  };
+  /** A copy of the state with palette entries renamed (no command renames them today). */
+  const renamed = (s: DocState, to: Record<string, string>) =>
+    ({
+      ...s,
+      paletteById: new Map(
+        [...s.paletteById].map(([id, e]) => [id, to[e.name] ? { ...e, name: to[e.name]! } : e]),
+      ),
+    }) as DocState;
+
+  test("the friendly form: Colour N+1 from the number in the name", () => {
+    expect(["p0", "p7", "c0", "c12", "x3", "ink", "ink1"].map(generatedLabel)).toEqual([
       "Colour 1",
       "Colour 8",
       "Colour 1",
@@ -151,20 +165,79 @@ describe("palette names on screen (display only)", () => {
       "Colour 1",
       "Colour 2",
     ]);
-    for (const custom of ["Sky", "p", "p1a", "pink", "P2", "Colour 3", ""])
-      expect(paletteLabel(custom)).toBe(custom);
+    for (const other of ["Sky", "p", "p1a", "pink", "P2", "Colour 3", ""])
+      expect(generatedLabel(other)).toBeNull();
   });
 
-  test("real traces: the number, not the list position; the entries are unchanged", () => {
+  test("real traces: provenance-backed, numbered by name, unique across traces", () => {
     const s = fixtureSession(["adjacent_colors-limited", "adjacent_colors-color", "circle-bw"]);
-    const entries = [...s.state.paletteById.values()];
-    const before = JSON.stringify(entries);
-    const shown = entries.map((e) => [e.name, paletteLabel(e.name)]);
-    // The palette is in first-use order, so a name's number is not its position.
-    expect(shown.some(([name], i) => name !== `p${i}` && /^p\d$/.test(name!))).toBe(true);
-    for (const [name, label] of shown)
-      expect(label).toBe(`Colour ${name === "ink" ? 1 : Number(/\d+$/.exec(name!)![0]) + 1}`);
+    const before = JSON.stringify([...s.state.paletteById.values()]);
+    expect(names(s.state)).toEqual([
+      // Limited Palette, in first-use order: the number is the name's, not the position.
+      ["p2", "Colour 3"],
+      ["p3", "Colour 4"],
+      ["p0", "Colour 1"],
+      ["p1", "Colour 2"],
+      ["p4", "Colour 5"],
+      // Full Colour: the same labels are taken, so this trace's read "(2)".
+      ...[0, 1, 2, 3, 4].map((n) => [`c${n}`, `Colour ${n + 1} (2)`]),
+      // Black & White: "ink" is its first colour.
+      ["ink", "Colour 1 (3)"],
+    ]);
+    // Display only: IDs, names, colours and order are unchanged.
     expect(JSON.stringify([...s.state.paletteById.values()])).toBe(before);
+  });
+
+  test("two traces of one image: the second set reads (2); labels are stable across edits", () => {
+    const s = fixtureSession(["adjacent_colors-limited", "adjacent_colors-limited"]);
+    const shown = names(s.state).map(([, l]) => l);
+    expect(new Set(shown).size).toBe(shown.length);
+    expect(shown.slice(5)).toEqual(shown.slice(0, 5).map((l) => `${l} (2)`));
+    s.dispatch({ type: "setVisible", ids: [roots(s)[0]!], visible: false });
+    expect(names(s.state).map(([, l]) => l)).toEqual(shown);
+  });
+
+  test("custom names are never renamed, even when they match an engine pattern", () => {
+    const s = fixtureSession(["adjacent_colors-limited", "adjacent_colors-color"]);
+    // "p9" and "x1" match the patterns but no trace generated them; "c0" was generated, but by
+    // the other trace, not by the one whose paths use this entry.
+    const r = renamed(s.state, { p2: "p9", p3: "c0", p0: "x1" });
+    expect(names(r).slice(0, 3)).toEqual([
+      ["p9", "p9"],
+      ["c0", "c0"],
+      ["x1", "x1"],
+    ]);
+    // A custom name equal to a label keeps it; the generated entry gives way.
+    const t = renamed(s.state, { p2: "Colour 2" });
+    expect(names(t).slice(0, 4)).toEqual([
+      ["Colour 2", "Colour 2"],
+      ["p3", "Colour 4"],
+      ["p0", "Colour 1"],
+      ["p1", "Colour 2 (2)"],
+    ]);
+  });
+
+  test("with no traced layer left, no provenance remains: entries show their stored names", () => {
+    // The limit of the signal (reported, not worked around): deleting the only traced layer
+    // leaves its palette entries in the document but removes the provenance that named them.
+    const s = fixtureSession(["adjacent_colors-limited"]);
+    s.dispatch({ type: "delete", ids: [roots(s)[0]!] });
+    expect(s.state.paletteById.size).toBe(5);
+    expect(names(s.state).every(([name, label]) => name === label)).toBe(true);
+    s.undo();
+    expect(names(s.state).every(([, label]) => /^Colour \d$/.test(label!))).toBe(true);
+  });
+
+  test("an entry no path uses any more keeps its label (document provenance)", () => {
+    const s = fixtureSession(["adjacent_colors-limited"]);
+    const shown = names(s.state);
+    const layer = roots(s)[0]!;
+    s.dispatch({
+      type: "setFill",
+      ids: fillTargets(s.state, [layer]),
+      fill: { color: 0x2050a0ff },
+    });
+    expect(names(s.state)).toEqual(shown);
   });
 });
 

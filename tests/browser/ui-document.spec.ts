@@ -5,6 +5,12 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Page } from "@playwright/test";
+import { GeometryStore } from "../../src/document/geometry-store.ts";
+import { createDocument } from "../../src/document/model.ts";
+import { DocumentSession } from "../../src/document/session.ts";
+import { sceneProvenance } from "../../src/document/testing/provenance.ts";
+import { encodeScene, type SceneV1 } from "../../src/document/testing/synthetic.ts";
+import { saveContainer } from "../../src/persistence/container.ts";
 import {
   canvasSettled,
   expect,
@@ -360,12 +366,14 @@ test("keyboard only: select a layer in Layers and fill its paths", async ({ page
   await rowNamed(page, "adjacent_colors").locator("button[aria-pressed]").focus();
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("selection-name")).toHaveText("adjacent_colors");
-  await expect(page.getByTestId("fill-note")).toContainText(/Applies to [\d,]+ paths/);
-  // The layer's paths have different fills: the control names no single colour before Apply.
+  // The layer's paths have different fills: the control names no single colour before Apply,
+  // and the note is exactly the maintainer's sentence.
   await expect(fillTrigger(page)).toHaveAttribute("aria-label", "Fill colour: mixed. Edit colour");
   await expect(fillTrigger(page)).toContainText("Mixed");
   await expect(fillTrigger(page)).not.toContainText("#");
-  await expect(page.getByTestId("fill-note")).toContainText("Their fills differ");
+  await expect(page.getByTestId("fill-note")).toHaveText(
+    "Apply assigns one colour to all unlocked selected paths.",
+  );
   await fillTrigger(page).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByText("Current mixed")).toBeVisible();
@@ -376,6 +384,8 @@ test("keyboard only: select a layer in Layers and fill its paths", async ({ page
   await page.getByRole("button", { name: "Apply" }).focus();
   await page.keyboard.press("Enter");
   await expect(fillTrigger(page)).toHaveAttribute("aria-label", /^Fill colour: #2050a0\./);
+  // One fill now: the ordinary note returns.
+  await expect(page.getByTestId("fill-note")).toContainText(/Applies to [\d,]+ paths/);
   // Every path of the layer now has that fill.
   await selectOnCanvas(page);
   expect(await fillHex(page)).toBe("#2050a0");
@@ -896,4 +906,231 @@ test("renderer: the main-thread fallback is disclosed; a healthy worker is silen
   await expect(renderer).toHaveText(
     "Renderer: main thread (fallback: main-thread renderer selected)",
   );
+});
+
+// Final closure: resize targets never intercept the artwork. With a selection's handle about
+// 8 px inside each canvas edge, the pointer reaches the handle and its drag transforms the
+// selection, at four sizes, after the panels are resized and after a live viewport change.
+test("canvas edges: transform handles beside all four edges are never intercepted", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openWorkspace(page, "?debug=1");
+  await importFixture(page, "procedural/nested_rings.png"); // the new layer is selected
+  const host = page.getByTestId("canvas-host");
+  const bounds = () => page.getByTestId("selection-bounds").getAttribute("data-bounds");
+  const box = async () => (await host.boundingBox())!;
+  const sizes = [
+    { width: 1920, height: 1080 },
+    { width: 1366, height: 768 },
+    { width: 1280, height: 720 },
+    { width: 1024, height: 640 },
+  ];
+  for (const [i, size] of sizes.entries()) {
+    const at = `${size.width}×${size.height}`;
+    await page.setViewportSize(size);
+    // Resize both splits by keyboard (the direction alternates per size).
+    await page.getByRole("separator", { name: "Resize inspector" }).focus();
+    for (let k = 0; k < 3; k++) await page.keyboard.press(i % 2 ? "ArrowLeft" : "ArrowRight");
+    await page.getByRole("separator", { name: "Resize layers" }).focus();
+    for (let k = 0; k < 2; k++) await page.keyboard.press(i % 2 ? "ArrowUp" : "ArrowDown");
+    // The layout settles a frame after a resize: wait for a stable canvas box.
+    let hb = await box();
+    await expect
+      .poll(async () => {
+        const prev = hb;
+        hb = await box();
+        return hb.width === prev.width && hb.height === prev.height;
+      })
+      .toBe(true);
+    const [x, y, w, h] = (await bounds())!.split(" ").map(Number) as [
+      number,
+      number,
+      number,
+      number,
+    ];
+    const s = 0.5 * Math.min((hb.width - 40) / w, (hb.height - 40) / h);
+    const cx = (hb.width - s * w) / 2 - s * x;
+    const cy = (hb.height - s * h) / 2 - s * y;
+    const views = {
+      w: [8 - s * x, cy],
+      e: [hb.width - 8 - s * (x + w), cy],
+      n: [cx, 8 - s * y],
+      s: [cx, hb.height - 8 - s * (y + h)],
+    } as const;
+    const inward = { w: [30, 0], e: [-30, 0], n: [0, 30], s: [0, -30] } as const;
+    for (const edge of ["w", "e", "n", "s"] as const) {
+      const [tx, ty] = views[edge];
+      await page.evaluate(
+        ([sc, a, b]) =>
+          (
+            window as unknown as {
+              __vectra: { canvas: { setView(s: number, x: number, y: number): void } };
+            }
+          ).__vectra.canvas.setView(sc!, a!, b!),
+        [s, tx, ty],
+      );
+      const handle = page.getByTestId(`handle-${edge}`);
+      // The handle's centre is within about 8 px of the canvas edge.
+      const centre = async () => {
+        const r = (await handle.boundingBox())!;
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      };
+      const gap = async () => {
+        const c = await centre();
+        return edge === "w"
+          ? c.x - hb.x
+          : edge === "e"
+            ? hb.x + hb.width - c.x
+            : edge === "n"
+              ? c.y - hb.y
+              : hb.y + hb.height - c.y;
+      };
+      await expect.poll(gap, { message: `${at} ${edge}` }).toBeLessThanOrEqual(12);
+      const c = await centre();
+      // The pointer lands on the handle itself, not on a resize target over the canvas.
+      expect(
+        await page.evaluate(
+          ([px, py]) => document.elementFromPoint(px!, py!)?.getAttribute("data-handle") ?? null,
+          [c.x, c.y],
+        ),
+        `${at}: what is under the ${edge} handle`,
+      ).toBe(edge);
+      // A real drag transforms the selection; undo restores it. (A gesture waits for the
+      // current revision's frame, as a person's would after an undo.)
+      await canvasSettled(page);
+      const before = await bounds();
+      await page.mouse.move(c.x, c.y);
+      await page.mouse.down();
+      for (let k = 1; k <= 6; k++)
+        await page.mouse.move(c.x + (inward[edge][0] * k) / 6, c.y + (inward[edge][1] * k) / 6);
+      await page.mouse.up();
+      await expect.poll(bounds, { message: `${at} ${edge} drag` }).not.toBe(before);
+      await undo(page);
+      await expect.poll(bounds, { message: `${at} ${edge} undo` }).toBe(before);
+    }
+    note(`canvas at ${at}`, { width: hb.width, height: hb.height });
+  }
+});
+
+/** A `.vectra` container (base64) whose first path is stroked with no fill: a document may
+ *  hold one (scene v1 needs a fill or a stroke), but no trace or command creates one today. */
+async function strokeOnlyContainer(): Promise<string> {
+  const scene: SceneV1 = {
+    version: 1,
+    width: 200,
+    height: 160,
+    background: null,
+    palette: [],
+    groups: [
+      {
+        id: "shapes",
+        clip: null,
+        paths: [
+          {
+            fill: null,
+            stroke: { color: "#1d4ed8", width: 6 },
+            fillRule: "nonzero",
+            verbs: "MLLLZ",
+            coords: [30, 30, 170, 30, 170, 130, 30, 130],
+          },
+          {
+            fill: { color: "#b91c1c" },
+            stroke: null,
+            fillRule: "nonzero",
+            verbs: "MLLLZ",
+            coords: [70, 60, 130, 60, 130, 100, 70, 100],
+          },
+        ],
+      },
+    ],
+    metadata: {
+      generator: "vectra-test",
+      engineVersion: "0.0.0",
+      mode: "color",
+      presetVersion: 1,
+      seed: 1,
+      sourceWidth: 200,
+      sourceHeight: 160,
+      params: { mode: "color" },
+    },
+  };
+  const s = new DocumentSession(new GeometryStore(), {
+    state: createDocument({ documentId: "no-fill", width: 200, height: 160 }),
+  });
+  s.dispatch({
+    type: "commitTrace",
+    packet: encodeScene(scene),
+    provenance: sceneProvenance(scene, "no-fill"),
+  });
+  return Buffer.from(await saveContainer(s, { codec: "none" })).toString("base64");
+}
+
+// Final closure: a path without a fill is "None", never black: not as a swatch, a hex value,
+// an accessible name or the picker's starting draft.
+test("no fill: an explicit None state, never black", async ({ page }) => {
+  type Api = {
+    __vectra: {
+      workspace: {
+        loadContainer(b64: string): Promise<number>;
+        tree(): { id: string; kind: string; children?: unknown[] }[];
+        select(ids: string[]): void;
+      };
+    };
+  };
+  const b64 = await strokeOnlyContainer();
+  await openWorkspace(page, "?debug=1");
+  await page.evaluate(async (b) => {
+    const w = (window as unknown as Api).__vectra.workspace;
+    await w.loadContainer(b);
+    type N = { id: string; kind: string; children?: N[] };
+    const find = (n: N): string | null =>
+      n.kind === "path" ? n.id : ((n.children ?? []).map(find).find(Boolean) ?? null);
+    w.select([find(w.tree()[0] as N)!]);
+  }, b64);
+  await canvasSettled(page);
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  const trigger = fillTrigger(page);
+  await expect(trigger).toHaveAttribute("aria-label", "Fill colour: none. Edit colour");
+  await expect(trigger).toHaveText("None");
+  const swatch = await trigger
+    .locator("span")
+    .first()
+    .evaluate((e) => ({ bg: getComputedStyle(e).backgroundColor, cls: e.className }));
+  expect(swatch.cls).toContain("vx-swatch-none");
+  expect(swatch.bg).not.toBe("rgb(0, 0, 0)");
+  await expect(page.getByTestId("fill-note")).toContainText("No fill.");
+  await expect(inspector).not.toContainText("#000000");
+  // The picker: "Current none", and the draft starts from a neutral grey, not black.
+  await trigger.click();
+  await expect(page.getByText("Current none")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Hex" })).toHaveValue("#808080");
+  await expect(page.getByTestId("color-draft")).toHaveText("#808080");
+  // Apply commits (any colour replaces none); undo returns to None.
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(trigger).toHaveAttribute("aria-label", /^Fill colour: #808080\./);
+  await undo(page);
+  await expect(trigger).toHaveAttribute("aria-label", "Fill colour: none. Edit colour");
+});
+
+// Final closure: generated palette names are unique within the palette.
+test("palette names: two traces of one image read unique names in Recolor", async ({ page }) => {
+  await openWorkspace(page);
+  await importFixture(page, "procedural/adjacent_colors.png", "Limited Palette");
+  await page
+    .getByTestId("import-input")
+    .setInputFiles(resolve(FIXTURES, "procedural/adjacent_colors.png"));
+  await expect(page.getByTestId("layer-row")).toHaveCount(2, { timeout: 90_000 });
+  await page.getByRole("button", { name: "Recolor" }).click();
+  const names = (
+    await page
+      .getByRole("list", { name: "Palette colours" })
+      .getByRole("button")
+      .evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")!))
+  ).map((n) => n.split(":")[0]!);
+  note("recolor names, two traces", names);
+  expect(names).toHaveLength(10);
+  expect(new Set(names).size).toBe(10);
+  expect(names.slice(5)).toEqual(names.slice(0, 5).map((n) => `${n} (2)`));
 });

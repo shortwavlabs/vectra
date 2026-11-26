@@ -19,7 +19,7 @@ import {
   containsLocked,
   displayName,
   isLocked,
-  paletteLabel,
+  paletteLabels,
   pathCount,
   pathFill,
   fillTargets,
@@ -142,8 +142,9 @@ export function SelectionInspector(p: {
   const [draftScale, setDraftScale] = useState<number | null>(null);
   const drag = useRef({ active: false, cancelled: false });
   const end = () => session.endCoalescing();
+  const labels = paletteLabels(s);
   const swatches = [...s.paletteById.values()].map((e) => ({
-    name: paletteLabel(e.name),
+    name: labels.get(e.id)!,
     hex: rgbHex(e.color),
   }));
 
@@ -339,7 +340,7 @@ export function SelectionInspector(p: {
           <>
             <ColorPicker
               label="Fill colour"
-              value={fill.color === null ? "#000000" : rgbHex(fill.color)}
+              value={fill.color === null ? null : rgbHex(fill.color)}
               mixed={mixed}
               disabled={locked}
               swatches={swatches}
@@ -352,14 +353,19 @@ export function SelectionInspector(p: {
               }
             />
             <p className="text-2xs text-pretty text-muted-foreground" data-testid="fill-note">
-              {targets.length > 1 &&
-                `Applies to ${paths(targets.length)}; locked paths are skipped. `}
-              {mixed && "Their fills differ: Apply gives them all this colour. "}
-              {fill.color === null && "No fill. "}
-              {fill.paletteName !== null &&
-                !mixed &&
-                `Uses ${paletteLabel(fill.paletteName)} from the palette; Apply sets a custom fill instead. `}
-              To edit a palette colour everywhere, use Recolor (R).
+              {/* The mixed-state note is exactly this sentence (maintainer's final closure). */}
+              {mixed ? (
+                "Apply assigns one colour to all unlocked selected paths."
+              ) : (
+                <>
+                  {targets.length > 1 &&
+                    `Applies to ${paths(targets.length)}; locked paths are skipped. `}
+                  {fill.color === null && "No fill. "}
+                  {fill.paletteId !== null &&
+                    `Uses ${labels.get(fill.paletteId)} from the palette; Apply sets a custom fill instead. `}
+                  To edit a palette colour everywhere, use Recolor (R).
+                </>
+              )}
             </p>
           </>
         ) : (
@@ -374,7 +380,8 @@ export function SelectionInspector(p: {
 
 export function RecolorInspector({ snap, run }: { snap: SessionSnapshot; run: Run }) {
   const entries = [...snap.state.paletteById.values()];
-  const swatches = entries.map((e) => ({ name: paletteLabel(e.name), hex: rgbHex(e.color) }));
+  const labels = paletteLabels(snap.state);
+  const swatches = entries.map((e) => ({ name: labels.get(e.id)!, hex: rgbHex(e.color) }));
   return (
     <>
       <div className="grid gap-0.5 px-3 pt-3 pb-2.5">
@@ -399,8 +406,8 @@ export function RecolorInspector({ snap, run }: { snap: SessionSnapshot; run: Ru
             {entries.map((e) => (
               <li key={e.id}>
                 <ColorPicker
-                  label={paletteLabel(e.name)}
-                  name={paletteLabel(e.name)}
+                  label={labels.get(e.id)!}
+                  name={labels.get(e.id)!}
                   value={rgbHex(e.color)}
                   swatches={swatches}
                   onCommit={(hex) =>

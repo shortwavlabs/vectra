@@ -91,12 +91,9 @@ test("tool rail: only working tools; names, pressed state, keyboard and tooltips
   );
 });
 
-// Final audit (FINAL-AUDIT.md P2-1, P2-2): the registry ghost variant's dark hover background
-// overrode the pressed tool's lime, leaving its dark icon at about 1:1 (WCAG 1.4.11); and the
-// inspector splitter's pointer target was 8 px (WCAG 2.5.8).
-test("pressed tool keeps its icon contrast under the pointer; the inspector splitter is a 24 px target", async ({
-  page,
-}) => {
+// Final audit (FINAL-AUDIT.md P2-1): the registry ghost variant's dark hover background overrode
+// the pressed tool's lime, leaving its dark icon at about 1:1 (WCAG 1.4.11).
+test("pressed tool keeps its icon contrast under the pointer", async ({ page }) => {
   // The bug was in a `dark:` variant, which follows the OS colour scheme (macOS dark mode).
   await page.emulateMedia({ colorScheme: "dark" });
   await openWorkspace(page);
@@ -136,16 +133,59 @@ test("pressed tool keeps its icon contrast under the pointer; the inspector spli
   const best = ratio(bg, icon);
   note("hovered pressed tool", { bg, icon, contrast: best });
   expect(best).toBeGreaterThanOrEqual(3);
-  const hit = await page
-    .getByRole("separator", { name: "Resize inspector" })
-    .evaluate((el) => getComputedStyle(el, "::after").width);
-  expect(hit).toBe("24px");
+});
+
+// Final closure (FINAL-AUDIT.md P2-2, corrected): each splitter is a resize strip of its own, at
+// least 24 px across (WCAG 2.5.8), outside the canvas and clear of every other control, so it
+// never intercepts the artwork; no pointer target reaches over its neighbours.
+test("splitters: their own 24 px strips, outside the canvas and clear of every control", async ({
+  page,
+}) => {
+  for (const size of [
+    { width: 1024, height: 640 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(size);
+    await openWorkspace(page);
+    const geometry = await page.evaluate(() => {
+      const r = (e: Element) => e.getBoundingClientRect();
+      const meet = (a: DOMRect, b: DOMRect) =>
+        a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      const canvas = r(document.querySelector('[data-testid="canvas-host"]')!);
+      const controls = [
+        ...document.querySelectorAll("button, input, [role=slider], [role=application]"),
+      ].filter((e) => r(e).width > 0);
+      return [...document.querySelectorAll('[role="separator"]')].map((sep) => {
+        const b = r(sep);
+        const after = getComputedStyle(sep, "::after");
+        return {
+          name: sep.getAttribute("aria-label"),
+          across: Math.min(b.width, b.height),
+          overlay: after.display !== "none" && after.content !== "none",
+          overCanvas: meet(b, canvas),
+          overControls: controls
+            .filter((c) => meet(b, r(c)))
+            .map((c) => c.getAttribute("aria-label") ?? c.textContent),
+        };
+      });
+    });
+    note(`splitters at ${size.width}x${size.height}`, geometry);
+    expect(geometry.map((g) => g.name)).toEqual(["Resize inspector", "Resize layers"]);
+    for (const g of geometry) {
+      expect(g.across, g.name!).toBeGreaterThanOrEqual(24);
+      expect(g.overlay, `${g.name}: no pointer overlay beyond its box`).toBe(false);
+      expect(g.overCanvas, `${g.name} over the canvas`).toBe(false);
+      expect(g.overControls, `${g.name} over controls`).toEqual([]);
+    }
+  }
 });
 
 test("top bar and status bar: no view switch, no Studio label, quiet when idle and healthy", async ({
   page,
 }) => {
   await openWorkspace(page);
+  // Final closure: the browser tab reads exactly "Vectra".
+  await expect(page).toHaveTitle("Vectra");
   const top = page.getByRole("banner");
   // Artwork is the only view: no switch until Paths or Compare exists.
   await expect(page.getByRole("group", { name: "View" })).toHaveCount(0);
@@ -250,8 +290,22 @@ test("resizable panels: keyboard and pointer, inspector width within 288–336 p
   const h0 = (await side.boundingBox())!.height;
   await v.focus();
   for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowDown");
-  expect((await side.boundingBox())!.height).toBeGreaterThan(h0);
-  note("inspector widths", { initial: w0, keyboard: wk, pointer: wp });
+  const hk = (await side.boundingBox())!.height;
+  expect(hk).toBeGreaterThan(h0);
+  // The Layers splitter by pointer: dragged up, the inspector gets shorter, Layers stay open.
+  const vb = (await v.boundingBox())!;
+  await page.mouse.move(vb.x + vb.width / 2, vb.y + vb.height / 2);
+  await page.mouse.down();
+  for (let i = 1; i <= 6; i++)
+    await page.mouse.move(vb.x + vb.width / 2, vb.y + vb.height / 2 - i * 10);
+  await page.mouse.up();
+  const hp = (await side.boundingBox())!.height;
+  expect(hp).toBeLessThan(hk);
+  await expect(page.getByRole("button", { name: "Layers", exact: true })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  note("inspector widths and heights", { w0, wk, wp, h0, hk, hp });
 });
 
 test("reduced motion: transitions collapse when the user asks for it", async ({ page }) => {
