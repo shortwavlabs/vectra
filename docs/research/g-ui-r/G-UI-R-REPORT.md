@@ -497,7 +497,7 @@ The failures were deterministic and test-side only: the lock test expected the R
 
 ## 17. Final verification after the closure (2026-11-25)
 **Heads.**
-- #20 app source `3a96a8b`, build ID **`96221ca763e15c51`**. A rebuild reproduces the same ID.
+- #20 app source `3a96a8b`, build ID **`96221ca763e15c51`**. A rebuild in the same worktree and a clean build of `35a7a75` in a second worktree both reproduce the ID. The two `dist` trees are byte-identical, file by file (SHA-256).
 - On it: the closure branch (§16, `188ddd9`), #19's final head merged forward, and the removal of the shell's `select-none` (`3a96a8b`).
   - The Firefox handle-drag text-selection defect is fixed at the root in the canvas host, #19 `01a3dab`. It has a regression test that fails in Firefox 3/3 before the fix.
 - #19's docs head `06a2976` is merged in as well. The later commits are docs and screenshots only.
@@ -512,6 +512,7 @@ The failures were deterministic and test-side only: the lock test expected the R
 | Playwright full suite, 3 engines | **375 passed, 0 failed, 0 flaky**, 36 opt-in skips; 9.0 min; load average 0.99 → 2.31 |
 | Stress: 7 affected specs × 3 repeats × 3 engines | **675 passed**; 11.7 min; load average 2.31 → 1.42 |
 | Export byte identity against `c29d5e2` (§16) | 28/28 `cmp`-identical |
+| Export-relevant paths | Unchanged between #19 (`01a3dab`) and #20 (`3a96a8b`): no file under `src/document`, `src/export`, `src/persistence`, `src/canvas-host`, `src/renderer`, `src/hit-test`, `src/jobs`, `crates`, `packages`, the lockfile or `public/_headers` |
 
 **Real Safari 26.6.2.** Run `tests/output/safari-runs/g-ui-r-final-3a96a8b-20261125T212357/` (gitignored; one directory per harness, nothing overwritten).
 - Screen unlocked (`CGSSessionScreenIsLocked` absent); the page was **visible before and after** each run (32 animation frames in 500 ms); load average 1.36 → 1.86.
