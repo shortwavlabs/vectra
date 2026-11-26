@@ -44,3 +44,21 @@ No `.impeccable/` folder, config or sidecar was written, and no dependency was a
 | `workspace-context-inherited` | mention | `packages/vector-engine-wasm` inherits the root records. It is the WASM engine package with no UI, so inheriting them does no harm; no child record is needed. `packages/` is outside this gate's files |
 
 `buildPath` is not recorded: no answer was given, and Operate surfaces build code-first either way.
+
+## Final closure (maintainer decisions)
+The maintainer approved both root records as Impeccable context documents. The existing specs remain normative. The maintainer also approved compacting DESIGN.md, and ruled that the hook stays uninstalled and local Claude settings stay untouched.
+
+**What changed:**
+- `PRODUCT.md` now separates **current vector export** (SVG and vector PDF, made on the device) from **future qualified professional print output**: CMYK, PDF/X, separations and print-provider compliance, which are not yet qualified. The unqualified "print-ready" claim in Product Purpose is gone.
+- `DESIGN.md`:
+  - Its content was first updated for the closure: the splitter strips, the None fill, the exact mixed note, provenance-backed palette names with their de-duplication, and the "Vectra" title.
+  - `impeccable design-compact` was previewed: 6,856 bytes became a 2,695-byte map, keeping the frontmatter tokens, the do's and don'ts and the mapped files. Then it was run with `--write`.
+  - The full text is now `.impeccable/design-full.md`, which the map points to.
+  - One line was added to the map: DESIGN-SYSTEM and RFC-002 §16 win over the map and the full file, and `docs/DESIGN.md` is not an authority.
+
+**`doctor --json` afterwards:**
+- `design-md-sprawl` is gone.
+- `hook-not-installed` (route) remains: not installed, as decided.
+- `workspace-context-inherited` (mention) remains: the WASM package, as before.
+
+**Side effects checked:** `git status` shows nothing under `.claude/`, and `~/.impeccable` has no new files. Telemetry, update check, taste and switch sync were off.

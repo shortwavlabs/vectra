@@ -14,7 +14,7 @@ Designers, illustrators, zine makers, independent musicians and labels, merch an
 
 ## Product Purpose
 
-Vectra imports raster artwork, traces it into genuine vectors, lets the artist edit the result and exports SVG or vector PDF. Tracing is the beginning of the workflow, not the deliverable. Success is editable, print-ready vector artwork made entirely on the artist's device.
+Vectra imports raster artwork, traces it into genuine vectors, lets the artist edit the result and exports SVG or vector PDF. Tracing is the beginning of the workflow, not the deliverable. Success is editable vector artwork, made entirely on the artist's device and exported as SVG or vector PDF. Qualified professional print output is future work (see Capabilities and Constraints).
 
 ## Positioning
 
@@ -26,12 +26,14 @@ A desktop browser workspace (`workspace.html`): import a PNG, JPEG or WebP, choo
 
 ## Capabilities and Constraints
 
+- **Current vector export:** SVG and vector PDF (RGB, with a chosen physical page size for PDF), the engine's own output, generated on the device.
+- **Future professional print output is not qualified:** CMYK, PDF/X, print separations and print-provider compliance need dedicated validation first (PRD "Could"; PRD-002 VS-12 and VS-20). No print-readiness is claimed.
 - Genuine vectors only: no raster imagery in vector exports, no raster fallback.
 - No account, upload, server processing, subscription or telemetry; the core is free and open source.
 - No AI or generative models in the creative runtime; deterministic conventional algorithms only.
 - A strict Content Security Policy (no inline styles or scripts, no remote assets or fonts).
 - Features ship only when implemented: unavailable tools and views are not shown.
-- Photographs are approximations; no print-provider compliance is claimed until tested.
+- Photographs are approximations, not lossless vector conversions.
 
 ## Brand Commitments
 
