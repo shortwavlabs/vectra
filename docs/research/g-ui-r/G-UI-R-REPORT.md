@@ -494,3 +494,51 @@ The failures were deterministic and test-side only: the lock test expected the R
 
 **Not run:** real Safari (the lead runs it), VoiceOver (the checklist is updated: A6, A7, D4, D5, E5, E6, E7), the other browser specs, and Windows and Linux.
 
+
+## 17. Final verification after the closure (2026-11-25)
+**Heads.**
+- #20 app source `3a96a8b`, build ID **`96221ca763e15c51`**. A rebuild reproduces the same ID.
+- On it: the closure branch (§16, `188ddd9`), #19's final head merged forward, and the removal of the shell's `select-none` (`3a96a8b`).
+  - The Firefox handle-drag text-selection defect is fixed at the root in the canvas host, #19 `01a3dab`. It has a regression test that fails in Firefox 3/3 before the fix.
+- #19's docs head `06a2976` is merged in as well. The later commits are docs and screenshots only.
+
+**Automated.** Environment: macOS 26.6.2 arm64, Node 24.22.1, pnpm 12.23.0, Playwright 1.65.1 (Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2). The machine is shared and was not quiet.
+
+| Check | Result |
+|---|---|
+| `vp check` | Clean |
+| `vp test` | 26 files, **393 passed** |
+| Bundle (gzip KiB) | 114.3 / 9.5 / **231.0** (budgets 150 / 15 / 250) |
+| Playwright full suite, 3 engines | **375 passed, 0 failed, 0 flaky**, 36 opt-in skips; 9.0 min; load average 0.99 → 2.31 |
+| Stress: 7 affected specs × 3 repeats × 3 engines | **675 passed**; 11.7 min; load average 2.31 → 1.42 |
+| Export byte identity against `c29d5e2` (§16) | 28/28 `cmp`-identical |
+
+**Real Safari 26.6.2.** Run `tests/output/safari-runs/g-ui-r-final-3a96a8b-20261125T212357/` (gitignored; one directory per harness, nothing overwritten).
+- Screen unlocked (`CGSSessionScreenIsLocked` absent); the page was **visible before and after** each run (32 animation frames in 500 ms); load average 1.36 → 1.86.
+- **`gui.mjs`: 14/14**, findings 0. The resizable-panels scenario qualifies the **corrected splitters**:
+  - both are strips at least 24 px across, with no overlay, clear of the canvas and of every control;
+  - keyboard and pointer resizing;
+  - the Layers collapse control;
+  - a pointer-down 4 px inside the canvas edge reaches the canvas.
+- **`gr1.mjs`: 7/7**, 0 NOT RUN:
+  - render: preview 185 ms on the interactive target (a miss, accepted temporarily); halftone 293 ms (stress, no threshold);
+  - drag: 6/6, 0 geometry errors;
+  - gestures: pan and zoom p95 18 / 18 ms;
+  - keyboard;
+  - **focus ring**: outer band sampled (185, 225, 124), inner band (24, 25, 26);
+  - **crash fallback**: ready on the main thread;
+  - offline.
+
+**Final screenshots.** The six committed `*-after.png` are replaced by the closure build (1366×768, palette-quantised, 0.91 MB for the six). The full set is local in `tests/output/g-ui-r/after-closure/`.
+
+**Owner checks (not marked PASS).** VoiceOver and the stock-Safari keyboard check use `docs/research/g-r1/VOICEOVER-CHECKLIST.md`, against build ID `96221ca763e15c51`.
+
+**Open, for the maintainer:**
+- **Palette-name limits** (§16):
+  - Entries left after every traced layer is deleted show raw names. Fixing this needs a schema change.
+  - A custom name equal to an id of its own trace can't be told apart from a generated one.
+  - An unused custom name matching any trace's id is relabelled. The strict alternative is a one-line change, but shows raw names after layer fills.
+- **No fill:** the picker's starting draft is #808080, and the swatch's strike uses the destructive red. Both are the agent's choices.
+- **Splitter strips** cost 23 px of canvas width (998 px at 1366×768) and a little inspector and Layers height (§16).
+- `.impeccable/design-full.md` is now tracked: the full DESIGN.md text, moved there by Impeccable's compaction.
+- Lower-end hardware and a quiet-machine run remain outstanding.

@@ -2,6 +2,16 @@
 
 These two checks need a person at the Mac. Automated tests cover keyboard behaviour and the announced text (`tests/browser/workspace-a11y.spec.ts`), but they are **not** a screen-reader test. ARIA snapshots and Playwright's accessibility tree do not stand in for VoiceOver.
 
+**Exact build to test (final closure, 2026-11-25).**
+- PR #20 (G-UI-R) at the head named in its description, with app source `3a96a8b` (later commits are docs only).
+- Build ID **`96221ca763e15c51`**. After `pnpm run build`, `grep BUILD_ID dist/sw.js` must print it. If it differs, you are not testing the qualified build.
+- Commands:
+  ```bash
+  pnpm install --frozen-lockfile && pnpm run build && grep BUILD_ID dist/sw.js
+  pnpm exec vp preview --port 4173
+  ```
+- Record every result against that build ID, with the macOS and Safari versions. Nothing here is marked PASS until a person has run it.
+
 **Setup**
 - Use real Safari on macOS with stock settings.
 - Open the workspace from the G-R1 build, or from the G-UI-R build stacked on it (E1 and E2 describe the G-UI-R inspector and picker). After the G-UI-R maintainer review the rail holds only Select, Trace and Recolor, there is no view switch, Layers has a collapse button (D1, D4), palette colours are named "Colour N" (E2) and a mixed fill is named as such (E5). After the final closure the tab title is "Vectra" (A7), both splitters are 24 px strips of their own (A6, D5), palette names are unique (E7), and a path without a fill is "None" (E6):
