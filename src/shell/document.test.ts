@@ -228,10 +228,9 @@ describe("palette names on screen (display only)", () => {
     expect(names(s.state).every(([, label]) => /^Colour \d$/.test(label!))).toBe(true);
   });
 
-  test("limit: an unused entry is checked against every trace, so a matching custom name is relabelled", () => {
-    // The trade-off (reported): an entry no path uses has no owning trace, so the document's
-    // provenance stands in. A custom name equal to an id some trace generated would then read as
-    // generated. The strict alternative would show raw names (p2…) after every layer fill.
+  test("strict: an unused entry has no trace owner, so it keeps its stored name", () => {
+    // Maintainer final acceptance: an entry no path uses is never relabelled from unrelated
+    // traces; a raw engine name is preferred over relabelling a possibly user-defined name.
     const s = fixtureSession(["adjacent_colors-limited", "adjacent_colors-color"]);
     const layer = roots(s)[0]!;
     s.dispatch({
@@ -239,15 +238,23 @@ describe("palette names on screen (display only)", () => {
       ids: fillTargets(s.state, [layer]),
       fill: { color: 0x2050a0ff },
     });
+    // The Limited Palette entries are now unused: stored names, even "c0" (which the Full Colour
+    // trace generated for one of its own entries).
     const r = renamed(s.state, { p2: "c0", p3: "Sky" });
-    // The renamed entry comes first in palette order, so it takes "Colour 1".
-    expect(names(r).slice(0, 2)).toEqual([
-      ["c0", "Colour 1"],
+    expect(names(r).slice(0, 5)).toEqual([
+      ["c0", "c0"],
       ["Sky", "Sky"],
+      ["p0", "p0"],
+      ["p1", "p1"],
+      ["p4", "p4"],
     ]);
+    // The Full Colour trace's entries are still used: provenance-backed labels, and the stored
+    // "c0" above takes nothing from them (labels and stored names never collide).
+    const shown = names(r).slice(5);
+    expect(shown.map(([, l]) => l)).toEqual([0, 1, 2, 3, 4].map((n) => `Colour ${n + 1}`));
   });
 
-  test("an entry no path uses any more keeps its label (document provenance)", () => {
+  test("an entry no path uses any more shows its stored name; undo restores the label", () => {
     const s = fixtureSession(["adjacent_colors-limited"]);
     const shown = names(s.state);
     const layer = roots(s)[0]!;
@@ -256,7 +263,66 @@ describe("palette names on screen (display only)", () => {
       ids: fillTargets(s.state, [layer]),
       fill: { color: 0x2050a0ff },
     });
+    expect(names(s.state).every(([name, label]) => name === label)).toBe(true);
+    s.undo();
     expect(names(s.state)).toEqual(shown);
+  });
+
+  test("labels are computed once per state, linear in nodes and entries", () => {
+    // A guard for the quadratic form (an id set copied per entry): 20,000 entries used by
+    // 20,000 paths of one traced layer must label in well under a second.
+    const s = fixtureSession(["adjacent_colors-limited"]);
+    const st = s.state;
+    const layer = st.nodesById.get(roots(s)[0]!)! as unknown as {
+      traceProvenance: { originalScene: { palette: { id: string; color: string }[] } };
+    };
+    const big = 20_000;
+    const palette = new Map(st.paletteById);
+    const styles = new Map(st.stylesById);
+    const nodes = new Map(st.nodesById);
+    const first = [...st.nodesById.values()].find((n) => n.kind === "path")! as {
+      styleRef: string;
+      id: string;
+    };
+    const proto = st.paletteById.values().next().value!;
+    const ids: { id: string; color: string }[] = [];
+    const kids: string[] = [];
+    for (let i = 0; i < big; i++) {
+      const pid = `pal_big_${i}`;
+      palette.set(pid as never, { ...proto, id: pid as never, name: `c${i}` });
+      styles.set(`sty_big_${i}` as never, {
+        ...st.stylesById.get(first.styleRef as never)!,
+        paletteRef: pid as never,
+      });
+      nodes.set(
+        `pth_big_${i}` as never,
+        { ...(first as object), id: `pth_big_${i}`, styleRef: `sty_big_${i}` } as never,
+      );
+      ids.push({ id: `c${i}`, color: "#000000" });
+      kids.push(`pth_big_${i}`);
+    }
+    nodes.set(
+      roots(s)[0]! as never,
+      {
+        ...(layer as object),
+        orderedChildIds: kids,
+        traceProvenance: {
+          ...layer.traceProvenance,
+          originalScene: { ...layer.traceProvenance.originalScene, palette: ids },
+        },
+      } as never,
+    );
+    const bigState = {
+      ...st,
+      paletteById: palette,
+      stylesById: styles,
+      nodesById: nodes,
+    } as DocState;
+    const t0 = performance.now();
+    const l = paletteLabels(bigState);
+    expect(performance.now() - t0).toBeLessThan(1000);
+    expect(l.get("pal_big_19999" as never)).toBe("Colour 20000");
+    expect(paletteLabels(bigState)).toBe(l); // cached per state
   });
 });
 

@@ -272,58 +272,70 @@ export function generatedLabel(name: string): string | null {
 const labelCache = new WeakMap<DocState, ReadonlyMap<PaletteId, string>>();
 /**
  * What each palette entry is called on screen and to assistive technology (display only: the
- * entries, their IDs, names and order, and export are unchanged).
+ * entries, their IDs, names, colours and order, and export are unchanged).
  *
- * A name is treated as engine-generated only when trace provenance records it, never because of
+ * A name is treated as engine-generated only when trace provenance proves it, never because of
  * its pattern alone. The commit path names each entry after the scene's palette id, and the
- * layer's `traceProvenance.originalScene.palette` lists those ids. An entry is checked against
- * the provenance of the traced layers whose paths use it. An entry no path uses (after a fill
- * edit or a deletion) has no recorded owner, so the provenance of every traced layer in the
- * document stands in.
+ * layer's `traceProvenance.originalScene.palette` lists those ids. An entry is generated when a
+ * path under a traced layer uses it and that layer's provenance records the entry's name.
  *
- * Generated names become "Colour N+1". Every other name is shown as it is. A generated label is
- * unique in the palette: if a custom name or an earlier entry already has it, " (2)", " (3)"…
- * is added, in palette order. So a second trace's colours read "Colour 1 (2)"…
+ * Strict (maintainer final acceptance): an entry no path uses has no identifiable trace owner, so
+ * it keeps its stored name. Its origin is never inferred from unrelated traces; a raw engine name
+ * ("p2") is preferred over relabelling a name that may be user-defined.
+ * Accepted limitation of the current document model: a custom name equal to an id of the entry's
+ * own trace is indistinguishable from a generated one. To be resolved before user-facing palette
+ * renaming is introduced (TECHNICAL-DEBT, G-UI-R report §18).
+ *
+ * Generated names become "Colour N+1"; every other name is shown as it is. A generated label is
+ * unique in the palette: if a stored name or an earlier entry already has it, " (2)", " (3)"…
+ * is added, in palette order, so a second trace's colours read "Colour 1 (2)"…
+ *
+ * Cost: one walk of each traced layer's subtree, with each layer's recorded ids collected once,
+ * then one pass over the palette; linear in nodes and entries. (The previous form copied each
+ * trace's id list into a set per entry: quadratic in a Full Colour trace's palette, 13,662
+ * entries for bark-1224, and it exhausted the heap; scripts/bench-palette-labels.mjs.)
  */
 export function paletteLabels(s: DocState): ReadonlyMap<PaletteId, string> {
   const cached = labelCache.get(s);
   if (cached) return cached;
-  const par = parents(s);
-  const sceneIds = (root: NodeId): readonly string[] => {
-    const n = s.nodesById.get(root);
-    return n?.kind === "layer"
-      ? (n.traceProvenance?.originalScene.palette.map((e) => e.id) ?? [])
-      : [];
-  };
-  const everyTrace = new Set<string>();
-  for (const id of s.orderedRootIds) for (const x of sceneIds(id)) everyTrace.add(x);
-  // Per entry: the generated ids recorded by the traces whose paths use it.
-  const owners = new Map<PaletteId, Set<string>>();
-  const rootOf = (id: NodeId) => {
-    let r = id;
-    for (let p = par.get(r) ?? null; p !== null; p = par.get(p) ?? null) r = p;
-    return r;
-  };
-  for (const n of s.nodesById.values()) {
-    if (n.kind !== "path") continue;
-    const ref = s.stylesById.get(n.styleRef)?.paletteRef ?? null;
-    if (ref === null) continue;
-    let o = owners.get(ref);
-    if (!o) owners.set(ref, (o = new Set()));
-    for (const x of sceneIds(rootOf(n.id))) o.add(x);
+  const generated = new Set<PaletteId>();
+  for (const root of s.orderedRootIds) {
+    const layer = s.nodesById.get(root);
+    if (layer?.kind !== "layer" || !layer.traceProvenance) continue;
+    const ids = new Set(layer.traceProvenance.originalScene.palette.map((e) => e.id));
+    if (ids.size === 0) continue;
+    const stack: NodeId[] = [];
+    for (const c of layer.orderedChildIds) stack.push(c);
+    while (stack.length > 0) {
+      const n = s.nodesById.get(stack.pop()!);
+      if (!n) continue;
+      if (n.kind === "path") {
+        const ref = s.stylesById.get(n.styleRef)?.paletteRef ?? null;
+        if (ref !== null && !generated.has(ref) && ids.has(s.paletteById.get(ref)?.name ?? ""))
+          generated.add(ref);
+      } else if (isContainer(n)) for (const c of n.orderedChildIds) stack.push(c);
+    }
   }
-  const generated = (id: PaletteId, name: string) =>
-    (owners.get(id) ?? everyTrace).has(name) ? generatedLabel(name) : null;
-  const entries = [...s.paletteById.values()].map((e) => ({ e, g: generated(e.id, e.name) }));
-  const taken = new Set(entries.filter((x) => x.g === null).map((x) => x.e.name));
+  const entries = [...s.paletteById.values()];
+  const friendly = new Map<PaletteId, string>();
+  for (const e of entries) {
+    const g = generated.has(e.id) ? generatedLabel(e.name) : null;
+    if (g !== null) friendly.set(e.id, g);
+  }
+  const taken = new Set<string>();
+  for (const e of entries) if (!friendly.has(e.id)) taken.add(e.name);
+  const next = new Map<string, number>(); // per label: the next suffix to try
   const out = new Map<PaletteId, string>();
-  for (const { e, g } of entries) {
-    if (g === null) {
+  for (const e of entries) {
+    const g = friendly.get(e.id);
+    if (g === undefined) {
       out.set(e.id, e.name);
       continue;
     }
     let label = g;
-    for (let k = 2; taken.has(label); k++) label = `${g} (${k})`;
+    let k = next.get(g) ?? 2;
+    while (taken.has(label)) label = `${g} (${k++})`;
+    next.set(g, k);
     taken.add(label);
     out.set(e.id, label);
   }
