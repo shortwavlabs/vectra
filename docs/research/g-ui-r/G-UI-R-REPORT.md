@@ -1,6 +1,6 @@
 # G-UI-R — Design refinement of the integrated workspace
 
-**Status:** ready for review, 2026-11-25. Branch `gate/g-ui-r`, built on `gate/g-r1-interactive` at `ee72fb3`, then merged with the final G-R1 head `24550b8` (merge `1e7c184`; §13 has the merged head's results). The PR is stacked on G-R1 (#19). Nothing is merged or deployed.
+**Status:** ready for maintainer review, 2026-11-25. Branch `gate/g-ui-r` (PR #20), stacked on G-R1 (#19). It took #19's corrected head by merge commits: §13 covers the first merge, §14 the maintainer-review corrections, and §15 the merged head, the final audit and the verification. Nothing is merged or deployed.
 **Scope:** visual and UX changes to `workspace.html` (via `src/shell/**` and `src/ui/**`) only. No document, renderer, hit-test, job or canvas-host code changed. The charcoal, lime and ivory identity is kept; the §4 palette is unchanged; one token was added (`ink-muted`).
 
 | Brief item | Result |
@@ -373,3 +373,46 @@ Accessible names are unchanged.
 **Screenshots.** None committed. Local after-captures were refreshed (`UI_R_SHOTS=after-review`, `tests/output/g-ui-r/after-review/`, gitignored), with scratch views of the fallback, the mixed picker and collapsed Layers. The lead produces the representative set.
 
 **NOT RUN:** real Safari (`tests/safari/*.mjs`; the lead runs it), VoiceOver (owner checklist: D1, D4, E2 and E5 updated), the other browser specs, and lower-end hardware, Windows and Linux.
+
+## 15. Merged head after the maintainer review (#19 corrected, the corrections, the final audit)
+**History** (merge commits only; nothing force-pushed):
+- `14c4e9a`: the review corrections (§14), fast-forwarded from the review branch.
+- `a66adc2`: merge of #19's corrected head `7b44bda`. It brings the canvas-host focus ring, the deletion lock policy, the test-race fixes and the review docs.
+  - Conflicts were resolved as follows: both sides' Layers props (collapse control, `onDelete`); both sets of unit tests; `styles.css` from #19.
+  - The **G-UI-R shell focus workaround** (`.vx-canvas-frame::after`), the old `.vectra-canvas:focus-visible` rule and the unused `vx-canvas-frame` class are **removed**. The canvas host draws its own ring above its layers.
+- `f7efb05`: the fallback disclosure test also asserts that the host settles ready.
+- `2303e18`: merge of #19's `247d094`, which adds the crash-fallback host-state fix (`17a3ac0`). It is a #19 canvas-host defect, found by the G-UI-R review agent (§14). Both fallback tests are kept.
+- `e2d133c`: the focused final Impeccable audit, [FINAL-AUDIT.md](FINAL-AUDIT.md). Score 15/20 ("Good"); no P0 or P1; 2 P2; 6 P3.
+- `30b2d60`: **the two P2 findings are fixed**, together with two merged-test fixes:
+  - **P2-1, WCAG 1.4.11.** The registry ghost variant's `dark:hover:bg-muted/50` overrode the pressed tool's lime, so its icon sat at about 1.03:1 under the pointer. Fixed with `dark:hover:bg-primary/90`.
+  - **P2-2, WCAG 2.5.8.** The "Resize inspector" splitter's pointer target was 8 px; it is now 24 px, centred on the split line. It therefore extends 12 px over the canvas's right edge, where the resize cursor shows. The Layers splitter stays at 8 px: a 24 px target would cover the Layers disclosure button.
+  - `ui-shell` asserts both in OS dark mode. Before the fix: 1.03–1.04:1 and 8 px in 3 engines.
+  - Lock test: the Recolor disclosure appears only when the document has palette colours, and this fixture has none. Its wording is asserted in `ui-document`.
+  - Focus-ring test: samples under a visible splitter grip (adjacent UI over the canvas edge in the docked layout) are excluded, at most 1/8. Hit-testing cannot decide occlusion, because the 24 px targets are invisible.
+- The audit's **P3s are reported, not fixed**:
+  - 11 px multi-line notes;
+  - no `main` landmark or h1;
+  - plain-Tab order in Playwright WebKit (to confirm in real Safari);
+  - token literals;
+  - a no-fill path shown as `#000000`;
+  - copy: the tab title "Vectra · Studio", and "this colour" in the mixed Fill note.
+
+**Verification on `30b2d60`** (the final source; later commits are docs and screenshots only). Environment: macOS 26.6.2 arm64, Node 24.22.1, pnpm 12.23.0, Playwright 1.65.1 (Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2). The machine is shared and was not quiet.
+
+| Check | Result |
+|---|---|
+| `vp check` | Clean (307 files formatted; no lint or type errors in 170) |
+| `vp test` | 26 files, **388 passed** (on `2303e18`; `30b2d60` changes no unit-tested code) |
+| Build | Dist check passed |
+| Bundle (gzip KiB) | Design-system JS **114.3**, CSS **9.4**, initial workspace JS **230.6** (budgets 150 / 15 / 250) |
+| Playwright full suite, 3 engines | **360 passed, 0 failed, 0 flaky**, 36 skipped (opt-in specs); 8.9 min; load average 1.28 → 1.70 |
+| Stress: `ui-shell`, `ui-document`, `workspace-a11y`, `workspace-integration`, `workspace-lifecycle`, `workspace-offline`, `drag-correctness`, `--repeat-each=3`, 3 engines | **630 passed**; 11.2 min; load average 1.70 → 2.52 |
+| Final representative screenshots | 6 states at 1366×768 from `30b2d60` (Chromium, production build), palette-quantised, replacing the committed `*-after.png`. 0.93 MB for the 6; the full set is local in `tests/output/g-ui-r/after-final/` |
+| Real Safari (`gui.mjs`, `gr1.mjs`) on this head | **NOT RUN: the macOS screen is locked**, so the automation page is hidden. To run once it is unlocked |
+
+**Earlier runs on `2303e18`, before the P2 fixes:**
+- Full suite: 353 passed, 4 failed.
+- Stress: 609 passed, 12 failed.
+
+The failures were deterministic and test-side only: the lock test expected the Recolor disclosure without palette colours, and in WebKit the splitter grip covered one ring sample. Both are fixed in `30b2d60`, as described above.
+
