@@ -66,6 +66,7 @@ Normative: docs/DESIGN-SYSTEM.md (§4, §8, §9, §13) and docs/RFC-002.md §16 
 Name: Vectra
 Colors: background #191a1c, panel #212224, elevated #292a2c, canvas-surround #303134, paper #eee8d8, foreground #eeeef0, muted-foreground #a9abad, border #414347, control-border #787a7e, primary #b9e87b, primary-foreground #20251a (+3 more in the frontmatter)
 Fonts: system-ui (meta, control, body, title)
+Symbol: the approved Vectra symbol, branding/vectra-symbol.svg (masters, colours, clear space and usage in branding/BRAND.md); the top bar shows the ivory + lime variant beside the system-font "vectra"
 Radius: sm 4px, md 6px, lg 8px
 Don't:
 - Show controls for features that do not exist yet.
@@ -75,7 +76,9 @@ Do:
 - Keep lime for state and the primary action; keep the artwork the brightest element.
 - Put names, states and shortcuts on the control itself; keep statuses in words.
 - Keep the strict CSP: no inline `<style>`, no remote fonts or assets.
+- Use the symbol only as supplied: one of its four colour variants, never redrawn or re-pathed.
 Map: src/ui/styles.css
+Map: branding/BRAND.md
 Map: docs/DESIGN-SYSTEM.md
 Map: docs/RFC-002.md
 Map: docs/DESIGN.md

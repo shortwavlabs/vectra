@@ -17,6 +17,10 @@ const TYPES = {
   ".txt": "text/plain",
   ".png": "image/png",
   ".jpg": "image/jpeg",
+  // G-BRAND icons and manifest, as `vp preview` serves them (as in tests/browser/sw-site.ts).
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".webmanifest": "application/manifest+json",
 };
 const CSP = /Content-Security-Policy: (.*)/.exec(
   readFileSync(join(ROOT, "public/_headers"), "utf8"),

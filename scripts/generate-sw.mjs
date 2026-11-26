@@ -22,8 +22,9 @@
 //   no offline copy and says so; the worker handshake (C5) independently refuses mixing.
 // - Cache lookups ignore Vary (same-origin, content-hashed assets): with "Vary: Origin", the
 //   P0 worker never matched module scripts and stylesheets, so an offline reload was blank.
-// - Non-shell precached files are content-hashed, except THIRD-PARTY-NOTICES.txt (text, never
-//   executed): a network fallback can only return the same bytes or fail.
+// - Non-shell precached files are content-hashed, except THIRD-PARTY-NOTICES.txt and the brand
+//   icons and web manifest (public/, fixed names: text, images and JSON, never executed): a
+//   network fallback returns the same bytes, another build's icon, or fails.
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -60,6 +61,30 @@ const csp = /Content-Security-Policy:\s*(.+)/
   .exec(readFileSync(join(dist, "_headers"), "utf8"))?.[1]
   ?.trim();
 if (!csp) throw new Error(`no Content-Security-Policy in ${dist}/_headers`);
+// The Vectra symbol for the recovery page: branding/vectra-symbol.svg inline and verbatim (no
+// request, no style), decorative beside the heading. Inline, not read from branding/, because
+// this generator must stay self-contained (the update tests run a copy of it elsewhere);
+// src/shell/brand-mark.test.ts fails if it drifts from the master.
+const symbol = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 13 453 343" width="64" height="48" aria-hidden="true">
+  <g id="pixels">
+    <rect x="16" y="195" width="30" height="30" fill="#191a1c"/>
+    <rect x="63" y="223" width="44" height="44" fill="#b9e87b"/>
+    <rect x="107" y="146" width="67" height="67" fill="#191a1c"/>
+  </g>
+  <g id="vector-ribbon">
+    <path fill="#191a1c" d="M420 46 C183 84 255 222 135 323 C358 283 272 128 420 46 Z"/>
+    <path fill="#b9e87b" d="M420 46 C183 84 255 222 135 323 C314 264 216 100 420 46 Z"/>
+  </g>
+  <g id="control-handles" fill="#b9e87b" stroke="#b9e87b" stroke-width="5">
+    <path d="M256 46 H420 M135 323 H341" fill="none"/>
+    <circle cx="256" cy="46" r="11"/>
+    <circle cx="341" cy="323" r="11"/>
+  </g>
+  <g id="anchor-points" fill="#b9e87b" stroke="#191a1c" stroke-width="5">
+    <rect x="405.5" y="31.5" width="29" height="29"/>
+    <rect x="120.5" y="308.5" width="29" height="29"/>
+  </g>
+</svg>`;
 
 const precache = files.map((f) => `./${f}`);
 const VERSION_SLOT = "@@VECTRA_SW_VERSION@@";
@@ -122,6 +147,7 @@ function recovery(reason) {
 <title>Vectra — offline copy incomplete</title></head>
 <body data-testid="sw-recovery" data-reason="\${reason}" data-version="\${escapeHtml(VERSION)}">
 <main>
+${symbol}
 <h1>This tab's offline copy of Vectra is incomplete</h1>
 <p>\${escapeHtml(cause)} The browser may have removed it to free storage.</p>
 <ul>

@@ -24,6 +24,8 @@ Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Li
 | P0-G5 | privacy and initial benchmark | network/offline test, performance report |
 | P1 | *(superseded at G-0: see the gate plan above)* workspace, five core presets, export, Save/Open | gate reports and owner acceptance |
 | P2 | *(superseded at G-0)* Line Art (P2-A); flagship Old Print, DIY Underground, Virtual Printing Press, initial Variation Lab (P2-C); the other Print presets (Halftone, Screen Print, Poster, Comic Ink) after the flagship within P2 | deterministic vector styles and owner art review |
-| P3 | woodcut, engraving, blueprint, stencil, batch/PWA | per-feature qualification, no silent raster fallback |
+| P3 | woodcut, engraving, blueprint, stencil, batch, full PWA qualification | per-feature qualification, no silent raster fallback |
+
+**PWA scope (maintainer, 2026-11-26).** G-BRAND ships **basic installability** early: a web app manifest (`display: standalone`, local icons) on top of the existing build-aware offline service worker, so Chromium-based browsers may offer to install Vectra. This is not the P3 PWA deliverable. **Full P3 PWA qualification stays open:** install, update and uninstall across browsers and platforms, offline-first behaviour, file handling, and mobile and touch. P3 is not complete.
 
 P0 may use a disposable harness; no polished UI before engine proof. Each gate has its own report and reviewable commit. Stop and report if a dependency fails instead of silently substituting it. Scope changes require RFC update. After P0, pick a release version and actual browser support from evidence.

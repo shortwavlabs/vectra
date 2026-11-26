@@ -16,6 +16,11 @@ const TYPES: Record<string, string> = {
   ".css": "text/css",
   ".wasm": "application/wasm",
   ".txt": "text/plain",
+  // G-BRAND icons and manifest, as `vp preview` serves them.
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".webmanifest": "application/manifest+json",
 };
 const CSP = readFileSync(join(ROOT, "public/_headers"), "utf8").match(
   /Content-Security-Policy: (.*)/,

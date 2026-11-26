@@ -1,0 +1,17 @@
+# G-BRAND raster exports: renders the brand SVGs to PNG with resvg (the renderer the engine's
+# tests already pin). Standalone workspace with its own lockfile; never shipped, never part of
+# the app build. Driven by branding/generate.mjs.
+[package]
+name = "vectra-brand-rasterize"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[workspace]
+
+[dependencies]
+resvg = { version = "=0.50.0", default-features = false }
+
+[profile.release]
+debug = false

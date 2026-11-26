@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="branding/vectra-symbol-ivory.svg">
+  <img src="branding/vectra-symbol.svg" alt="" width="120">
+</picture>
+
 # Vectra
 
 **From pixels to paths.** An open-source, local-first browser studio for raster tracing and artistic vector print effects.
@@ -24,6 +29,7 @@ Import an image, choose a tracing or artistic preset, compare the result, tune i
 - [Validation](docs/VALIDATION.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Design](docs/DESIGN.md)
+- [Brand](branding/BRAND.md): the approved symbol, its variants, social and icon assets, and their reproducible generation
 - [Vector Studio PRD (proposed)](docs/PRD-002-VECTOR-STUDIO.md), [tools](docs/VECTOR-STUDIO-TOOLS.md), [Creative Lab](docs/CREATIVE-LAB.md), [image sources and community](docs/IMAGE-SOURCES-AND-COMMUNITY.md), [brand and business](docs/BRAND-AND-BUSINESS.md)
 - [Deployment](docs/DEPLOYMENT.md): Cloudflare Workers Static Assets, assets-only, approved; deployment deferred until a suitable UI exists.
 - [P1 handoff](docs/P1-HANDOFF.md) · [Technical debt register](docs/TECHNICAL-DEBT.md) · [P0 acceptance record](docs/research/P0-ACCEPTANCE.md) · [P0 postmortem](docs/research/P0-POSTMORTEM.md)
