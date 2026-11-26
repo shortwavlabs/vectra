@@ -1,0 +1,66 @@
+{
+  "loadavgStart": [1.453125, 1.62939453125, 1.26806640625],
+  "checks": [
+    {
+      "label": "favicon, Apple touch icon and manifest links resolve (200, real types)",
+      "pass": true,
+      "detail": [
+        {
+          "status": 200,
+          "href": "http://127.0.0.1:65115/favicon.ico",
+          "type": "image/x-icon"
+        },
+        {
+          "status": 200,
+          "href": "http://127.0.0.1:65115/favicon.svg",
+          "type": "image/svg+xml"
+        },
+        {
+          "status": 200,
+          "href": "http://127.0.0.1:65115/apple-touch-icon.png",
+          "type": "image/png"
+        },
+        {
+          "status": 200,
+          "href": "http://127.0.0.1:65115/manifest.webmanifest",
+          "type": "application/manifest+json"
+        }
+      ]
+    },
+    {
+      "label": "workspace shell evicted from the service-worker cache",
+      "pass": true,
+      "detail": {
+        "evicted": true
+      }
+    },
+    {
+      "label": "offline recovery page served, with the canonical symbol",
+      "pass": true,
+      "detail": {
+        "svgPaths": 3,
+        "svgViewBox": "0 13 453 343",
+        "version": "5441379d9f451517",
+        "reason": "offline",
+        "text": "This tab's offline copy of Vectra is incomplete\n\nPart of the offline copy of Vectra that this tab uses is missing, and the server cannot be reached. The browser may have removed it to free storage.\n\nO"
+      }
+    }
+  ],
+  "safari": "26.6.2",
+  "page": {
+    "visibility": "visible",
+    "title": "Vectra"
+  },
+  "tabs": {
+    "workspace": "page-CD4D6497-3144-4034-9411-C15D9716C9D7",
+    "workbench": "page-30AD2F15-DBC9-4F1D-AF6F-974E8EB8CC93"
+  },
+  "recovery": {
+    "svgPaths": 3,
+    "svgViewBox": "0 13 453 343",
+    "version": "5441379d9f451517",
+    "reason": "offline",
+    "text": "This tab's offline copy of Vectra is incomplete\n\nPart of the offline copy of Vectra that this tab uses is missing, and the server cannot be reached. The browser may have removed it to free storage.\n\nO"
+  },
+  "loadavgEnd": [1.1435546875, 1.5478515625, 1.25634765625]
+}

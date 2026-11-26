@@ -1,0 +1,10 @@
+commit a4dc6bd599b5807c35d40760a861f6923337c49f
+build 69b8618a0497ded6
+label g-brand-final
+started Thu Nov 26 10:08:48 CST 2026
+== gui: PASS 14 PARTIAL 0 FAIL 0 of 14 (Safari 26.6.2); findings 0 | before: page visible | after: page visible
+== gr1: 7/7 passed, 0 NOT RUN (Safari 26.6.2; page visible) | before: page visible | after: page visible
+== gjob: 10/10 passed (Safari 26.6.2) | before: page visible | after: page visible
+== gr0: 7/7 passed (Safari 26.6.2) | before: page visible | after: page visible
+== persistence: 23/23 checks passed (Safari 26.6.2) | before: page visible | after: page visible
+finished Thu Nov 26 10:10:41 CST 2026

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the maintainer subject to closure (PR #21, `gate/g-brand` from `main` `d7bdfcf`); closure in §10, text banners in §11; not merged, not deployed, not published to any account |
+| Status | Approved by the maintainer subject to closure (PR #21, `gate/g-brand` from `main` `d7bdfcf`); closure in §10, text banners in §11, final qualification in §12; not merged, not deployed, not published to any account |
 | Date | 2026-11-25 |
 | Machine | macOS (Darwin 25.6.0) arm64, shared; load averages recorded per run |
 | Tools | Node 24.22.1, pnpm 12.23.0, Rust 1.96.0, resvg/usvg 0.50.0, tiny-skia 0.12.0, png 0.18.1, Playwright 1.65.1 (Chromium, Firefox, WebKit) |
@@ -337,3 +337,48 @@ The profile pictures and app icons are unchanged, byte for byte.
 | Playwright, 3 engines: `ui-shell`, `ui-document`, `privacy`, `sw-update-lifecycle`, `workspace-offline` | **150 passed, 0 failed**, 3.3 min | 0.26 → 3.08 |
 
 All Playwright runs used my own `vp preview` on port 4195, stopped afterwards; real Safari was not run.
+
+## 12. Final qualification (2026-11-26)
+**Build.** Branch `gate/g-brand` at `a4dc6bd` (app source unchanged since the closure; later commits are test harnesses and docs). Build ID **`69b8618a0497ded6`**, service-worker version `5441379d9f451517`. The canonical master's SHA-256 is **unchanged**: `fad9ae97a0a82349647f25b03283814c13700055f9a5da3c2521547333d7881a`.
+
+**Real Safari 26.6.2** (macOS 26.6.2). The screen was unlocked (`CGSSessionScreenIsLocked` absent), and the automation page was **visible with animation frames delivered**, checked by a probe before and after every harness. Each run has its own directory in `tests/output/safari-runs/`; the records are copied in `safari/`.
+
+| Harness | Result | Load (1-min) |
+|---|---|---|
+| G-UI (`gui.mjs`) | **14/14**, findings 0 | 1.20 → 1.16 |
+| G-R1 (`gr1.mjs`) | **7/7, 0 NOT RUN**: render, drag, gestures, keyboard, focus ring, crash fallback, offline | 1.16 → 1.73 |
+| G-JOB (`gjob.mjs`), including service-worker eviction and build isolation | **10/10** | 1.73 → 1.60 |
+| G-R0 (`gr0.mjs`) | **7/7** | 1.60 → 1.67 |
+| Persistence | **23/23** | 1.67 → 1.56 |
+| G-BRAND (`brand.mjs`, new) | **3/3** | 1.45 → 1.14 |
+
+**`brand.mjs` (new)** checks three things:
+- The favicon (ICO and SVG), the Apple touch icon and the manifest resolve from the built pages with their real types.
+- After the workspace is offline-ready, its shell is evicted from the service-worker cache and the origin is made unreachable.
+- A navigation then gets the **offline recovery page** with the canonical symbol (viewBox `0 13 453 343`, 3 paths) and the build's version: `safari/recovery-page-safari.png`.
+
+The first attempt failed for two reasons, both fixed:
+- The Safari test server (`tests/safari/support.mjs`) lacked the svg, ico and webmanifest MIME types. They are added there too, matching the approved `sw-site.ts` correction.
+- The harness misread WebDriver's tab-handle order. It now keeps the original handle and uses the one `newTab` returns.
+
+**Safari favicon presentation.** The harness held the workspace and the workbench open in two tabs, and Safari's own tab strip was captured with a read-only window screenshot. Both tabs show the favicon tile (the ivory and lime symbol on charcoal) next to "Vectra" and "Vectra · P0 engineering workbench": `safari/tab-strip-favicons-safari.jpg` and `safari/window-two-tabs-safari.jpg`. The workspace header shows the brand mark beside "vectra", and the status bar shows "Offline ready".
+
+**Playwright full suite, 3 engines** (Playwright 1.65.1: Chromium 159.0.8154.6, Firefox 159.0, WebKit 27.2; load average 1.57 → 1.69):
+- **375 passed, 0 failed, 0 flaky**, 36 opt-in skips, 9.1 min.
+- The skips fell from 39 to 36 because the three `pdf-eval` tests now run (below). An earlier full run was cut short by a session restart and is not counted.
+
+**Restored PDF coverage** (new qualification results, not historical evidence):
+- `tests/output/native` was regenerated in this worktree with `cargo run --release --locked -p vector-engine --example export_samples` (105 SVG/PDF pairs, 314 files).
+- `pdf-eval.spec.ts` then passed **3/3** (Chromium, Firefox, WebKit), each evaluating all 6 samples.
+
+**Other checks:**
+- `vp check` is clean (315 files) and `vp test` passes (27 files, 396 tests).
+- Bundle: design-system JS 114.3, CSS 9.5, initial workspace JS 231.2 KiB (budgets 150 / 15 / 250).
+- **Deterministic generation:** two runs of `node branding/generate.mjs` gave identical SHA-256 for all 41 committed raster and SVG assets, and `git status --porcelain branding public` stayed empty.
+- Build-aware service-worker isolation is covered by `sw-update-lifecycle` and `workspace-offline` (in the full suite) and by G-JOB's eviction and repair scenarios in real Safari.
+
+**Evidence preservation.**
+- The permanent policy is `docs/EVIDENCE-PRESERVATION.md`, referenced from `AGENTS.md`. It records the 2026-11-25 loss and the failed recovery attempt.
+- Nothing lost was reconstructed. `FINAL-AUDIT.md` remains the committed record of that audit, and its raw inputs are marked lost.
+
+**Still open:** VoiceOver, the stock-Safari keyboard check, lower-end hardware, a quiet-machine run, Windows and Linux, mobile touch, and logo licensing (a public-release decision).
