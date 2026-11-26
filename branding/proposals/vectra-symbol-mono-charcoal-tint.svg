@@ -1,0 +1,22 @@
+<!-- PROPOSAL, not approved: single-ink mono-charcoal with lime replaced by a 50 % tint of the ink; colour substitution only. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 13 453 343" role="img" aria-labelledby="title">
+  <title id="title">Vectra — Refined Minimal symbol</title>
+  <g id="pixels">
+    <rect x="16" y="195" width="30" height="30" fill="#191a1c"/>
+    <rect x="63" y="223" width="44" height="44" fill="#8c8d8e"/>
+    <rect x="107" y="146" width="67" height="67" fill="#191a1c"/>
+  </g>
+  <g id="vector-ribbon">
+    <path fill="#191a1c" d="M420 46 C183 84 255 222 135 323 C358 283 272 128 420 46 Z"/>
+    <path fill="#8c8d8e" d="M420 46 C183 84 255 222 135 323 C314 264 216 100 420 46 Z"/>
+  </g>
+  <g id="control-handles" fill="#8c8d8e" stroke="#8c8d8e" stroke-width="5">
+    <path d="M256 46 H420 M135 323 H341" fill="none"/>
+    <circle cx="256" cy="46" r="11"/>
+    <circle cx="341" cy="323" r="11"/>
+  </g>
+  <g id="anchor-points" fill="#8c8d8e" stroke="#191a1c" stroke-width="5">
+    <rect x="405.5" y="31.5" width="29" height="29"/>
+    <rect x="120.5" y="308.5" width="29" height="29"/>
+  </g>
+</svg>
