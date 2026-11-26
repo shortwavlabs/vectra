@@ -3,8 +3,8 @@
 //   node branding/generate.mjs        (from anywhere; needs the Rust toolchain for resvg)
 // A re-run on the same machine is byte-identical: `git status --porcelain branding public`
 // stays empty.
-// - The three colour masters are the canonical file with its two colours substituted, nothing
-//   else (same bytes once each #rrggbb is masked).
+// - The five derived masters (three colour, two tonal) are the canonical file with its two
+//   colours substituted, nothing else (same bytes once each #rrggbb is masked).
 // - Every composition (favicon, icons, social) places a master's own markup, verbatim, in a
 //   nested <svg> with the master's viewBox: coordinates are never retyped or rewritten.
 // - Rasters come from branding/rasterize (resvg 0.50.0), which refuses a non-uniform scale and
@@ -47,6 +47,10 @@ const masters = {
   "vectra-symbol-ivory.svg": { [CHARCOAL]: IVORY, [LIME]: LIME }, // ivory + lime, dark backgrounds
   "vectra-symbol-mono-charcoal.svg": { [CHARCOAL]: CHARCOAL, [LIME]: CHARCOAL },
   "vectra-symbol-mono-ivory.svg": { [CHARCOAL]: IVORY, [LIME]: IVORY },
+  // Tonal (approved at closure): one ink plus its 50 % RGB screen tint for the lime parts, so the
+  // ribbon's two paths and the anchors stay distinct. Screen tints, not print-qualified separations.
+  "vectra-symbol-tonal-charcoal.svg": { [CHARCOAL]: CHARCOAL, [LIME]: "#8c8d8e" }, // charcoal 50 % on white
+  "vectra-symbol-tonal-ivory.svg": { [CHARCOAL]: IVORY, [LIME]: "#84817a" }, // ivory 50 % on charcoal
 };
 const masked = (svg) => svg.replace(/#[0-9a-f]{6}/g, "#------");
 for (const [name, map] of Object.entries(masters)) {
@@ -164,26 +168,6 @@ for (const master of ["vectra-symbol.svg", "vectra-symbol-ivory.svg"]) {
   for (const s of [16, 32]) jobs.push([svg, join(CHECKS, `${stem}-bare-${s}.png`), s, s]);
 }
 
-// Proposals for maintainer approval: not masters, not wired into the app (BRAND.md).
-mkdirSync(join(root, b("proposals")), { recursive: true });
-const proposal = (name, note, svg) => {
-  write(b(`proposals/${name}`), `<!-- PROPOSAL, not approved: ${note} -->\n${svg}`);
-  return b(`proposals/${name}`);
-};
-// Two-tone monochrome: the lime parts become a 50 % screen of the single ink (colour only).
-for (const [stem, ink, tint] of [
-  ["mono-charcoal", CHARCOAL, "#8c8d8e"], // charcoal at 50 % on white
-  ["mono-ivory", IVORY, "#84817a"], // ivory at 50 % on charcoal
-]) {
-  const note = `single-ink ${stem} with lime replaced by a 50 % tint of the ink; colour substitution only.`;
-  const svg = canonical.replace(/#191a1c|#b9e87b/g, (c) => (c === CHARCOAL ? ink : tint));
-  jobs.push([
-    proposal(`vectra-symbol-${stem}-tint.svg`, note, svg),
-    b(`proposals/vectra-symbol-${stem}-tint-453x343.png`),
-    453,
-    343,
-  ]);
-}
 // Evidence only: is an optical simplification by omission worth proposing at 16 px? The shipped
 // tile without the control handles (no new coordinates), for comparison in the contact sheet.
 const noHandles = masters["vectra-symbol-ivory.svg"].replace(
@@ -237,15 +221,23 @@ for (const name of ["profile", "icon-maskable", "apple-touch-icon"]) {
   if (Math.hypot(p.x1 - p.x0, p.y1 - p.y0) / 2 > 0.4 * p.w)
     errors.push(`${name}: outside the 80 % safe zone`);
 }
-// YouTube: the geometry lies inside the 1546×423 safe area, centred.
-const yt = placements["youtube-banner"];
-if (
-  yt.x0 < (2560 - 1546) / 2 ||
-  yt.y0 < (1440 - 423) / 2 ||
-  yt.x1 > (2560 + 1546) / 2 ||
-  yt.y1 > (1440 + 423) / 2
-)
-  errors.push("youtube-banner: outside the safe area");
+// Banner safe areas, [x0, y0, x1, y1] in banner pixels: the content lies inside `inside` and
+// clear of `avoid`.
+// - X: the profile picture covers the bottom left (taken as x < 27 %, y > 60 %).
+// - GitHub: link previews crop the 2:1 preview to 1.91:1 (1222×640, centred); 40 px margin.
+// - YouTube: the centred 1546×423 area is visible on every device.
+const SAFE = {
+  "x-banner": { inside: [0, 0, 1500, 500], avoid: [0, 300, 405, 500] },
+  "github-social": { inside: [69, 40, 1211, 600] },
+  "youtube-banner": { inside: [507, 508.5, 2053, 931.5] },
+};
+for (const [name, { inside, avoid }] of Object.entries(SAFE)) {
+  const p = placements[name];
+  if (p.x0 < inside[0] || p.y0 < inside[1] || p.x1 > inside[2] || p.y1 > inside[3])
+    errors.push(`${name}: outside its safe area`);
+  if (avoid && p.x0 < avoid[2] && p.x1 > avoid[0] && p.y0 < avoid[3] && p.y1 > avoid[1])
+    errors.push(`${name}: under the avatar`);
+}
 if (errors.length) throw new Error("brand checks failed:\n  " + errors.join("\n  "));
 
 // 5. favicon.ico: the 16 and 32 px PNGs, PNG-encoded ICO entries.
@@ -282,4 +274,6 @@ for (const f of [
 
 for (const [, png] of jobs)
   console.log(`${reports[png].size.padStart(9)}  ${png}  bbox ${reports[png].bbox.join(" ")}`);
-console.log(`${jobs.length} rasters, 3 colour masters, favicon.ico; checks passed`);
+console.log(
+  `${jobs.length} rasters, ${Object.keys(masters).length - 1} derived masters, favicon.ico; checks passed`,
+);

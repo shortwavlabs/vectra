@@ -92,8 +92,10 @@ const cell = (label, body, bg = "#fff", fg = "#191a1c") =>
 const masters = [
   ["vectra-symbol.svg", "charcoal + lime (canonical)"],
   ["vectra-symbol-ivory.svg", "ivory + lime"],
-  ["vectra-symbol-mono-charcoal.svg", "mono charcoal"],
-  ["vectra-symbol-mono-ivory.svg", "mono ivory"],
+  ["vectra-symbol-mono-charcoal.svg", "mono charcoal (solid)"],
+  ["vectra-symbol-mono-ivory.svg", "mono ivory (solid)"],
+  ["vectra-symbol-tonal-charcoal.svg", "tonal charcoal (screen tint)"],
+  ["vectra-symbol-tonal-ivory.svg", "tonal ivory (screen tint)"],
 ];
 const LIGHT = ["#ffffff", "#191a1c"];
 const DARK = ["#191a1c", "#eeeef0"];
@@ -104,7 +106,7 @@ const tab = (bg, fg, icon) =>
   `<div class="tab" style="background:${bg};color:${fg}">${img(icon, 16)}<span>Vectra</span></div>`;
 const sections = [
   [
-    "Masters (colour substitution only) on light, ivory paper and dark",
+    "Masters: colour, solid mono and tonal (colour substitution only) on light, ivory paper and dark",
     masters
       .flatMap(([f, label]) =>
         [LIGHT, PAPER, DARK].map(([bg, fg]) =>
@@ -112,26 +114,6 @@ const sections = [
         ),
       )
       .join(""),
-  ],
-  [
-    "Proposal (not approved): two-tone monochrome, lime as a 50 % tint of the ink",
-    [
-      cell(
-        "mono charcoal tint on #ffffff",
-        img("branding/proposals/vectra-symbol-mono-charcoal-tint.svg", 180),
-        ...LIGHT,
-      ),
-      cell(
-        "mono charcoal tint on #eee8d8",
-        img("branding/proposals/vectra-symbol-mono-charcoal-tint.svg", 180),
-        ...PAPER,
-      ),
-      cell(
-        "mono ivory tint on #191a1c",
-        img("branding/proposals/vectra-symbol-mono-ivory-tint.svg", 180),
-        ...DARK,
-      ),
-    ].join(""),
   ],
   [
     "Social kit (scaled to fit; dashed: YouTube 1546×423 safe area, X avatar zone)",

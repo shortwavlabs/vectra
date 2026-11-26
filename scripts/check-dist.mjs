@@ -2,6 +2,7 @@
 // Static checks on the production build (dist/) for Cloudflare Pages / static hosting.
 // Fails if any asset exceeds the Pages per-file limit, the file count limit is exceeded,
 // required assets are missing, or the bundle references a remote origin at runtime.
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 
@@ -45,6 +46,34 @@ else {
   const extra = listed.filter((p) => !expected.includes(p));
   if (missing.length || extra.length)
     errors.push(`sw.js precache mismatch: missing ${missing.join(",")}, extra ${extra.join(",")}`);
+}
+
+// Branding sources are generation-only (G-BRAND): no font file in the build (so none is
+// precached either), and no built file whose bytes match a file under branding/, except the
+// shipped icons copied from branding/web/ into public/.
+if (has(/\.(ttf|otf|woff2?)$/i))
+  errors.push("font file in dist (branding fonts are generation-only)");
+const brand = new Map();
+const walkBrand = (dir) => {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) {
+      if (name !== "target") walkBrand(p); // the rasteriser's cargo output
+    } else {
+      const h = createHash("sha256").update(readFileSync(p)).digest("hex");
+      brand.set(h, [...(brand.get(h) ?? []), relative(resolve(dist, ".."), p)]);
+    }
+  }
+};
+walkBrand(resolve(dist, "../branding"));
+for (const f of files) {
+  const from = brand.get(
+    createHash("sha256")
+      .update(readFileSync(join(dist, f.path)))
+      .digest("hex"),
+  );
+  if (from && !from.includes(`branding/web/${f.path}`))
+    errors.push(`${f.path} is a branding source (${from.join(", ")})`);
 }
 
 // No runtime dependency on a third-party origin: scan text assets for absolute http(s) URLs
