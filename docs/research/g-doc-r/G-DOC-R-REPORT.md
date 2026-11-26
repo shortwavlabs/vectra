@@ -753,7 +753,12 @@ What it gains:
 
 The preview target (≤ 100 ms at the interactive target) was already missed before G-DOC-R (149 ms baseline). It is unchanged, still missed, and still under the temporary exception. These regressions are recorded (decisions F-14) and are candidates for a later optimisation of the walk lookups.
 
-## 11. Final qualification (final head `0700087`; production code as `6a23a92`)
+## 11. Final qualification (document code as `6a23a92`; builds `0700087` and `748e820`)
+**Exact final head `748e820`.** The only production change since `0700087` is the debug-only qualification hooks (`historyBytes()`, a `withoutHistory` option). Rebuilt as `VERSION` `47772f1728efb048`, `BUILD_ID` `e3cfd750f82410a6`, bundle workspace JS 237.5 KiB. Re-run there:
+- the full Playwright suite: **375 passed, 0 failed, 39 skipped** (36 opt-in, plus the new opt-in memory spec in 3 engines);
+- `vp test`: 464 passed.
+
+The rows below were measured on `0700087` (`BUILD_ID` `7debe2a41e0f74d5`) unless stated.
 | Check | Result |
 |---|---|
 | `vp check` / `vp test` | clean / **464 passed** |
