@@ -22,8 +22,9 @@
 //   no offline copy and says so; the worker handshake (C5) independently refuses mixing.
 // - Cache lookups ignore Vary (same-origin, content-hashed assets): with "Vary: Origin", the
 //   P0 worker never matched module scripts and stylesheets, so an offline reload was blank.
-// - Non-shell precached files are content-hashed, except THIRD-PARTY-NOTICES.txt (text, never
-//   executed): a network fallback can only return the same bytes or fail.
+// - Non-shell precached files are content-hashed, except THIRD-PARTY-NOTICES.txt and the brand
+//   icons and web manifest (public/, fixed names: text, images and JSON, never executed): a
+//   network fallback returns the same bytes, another build's icon, or fails.
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -60,6 +61,14 @@ const csp = /Content-Security-Policy:\s*(.+)/
   .exec(readFileSync(join(dist, "_headers"), "utf8"))?.[1]
   ?.trim();
 if (!csp) throw new Error(`no Content-Security-Policy in ${dist}/_headers`);
+// The Vectra symbol for the recovery page: the canonical master inline (no request, no style),
+// decorative beside the heading.
+const symbol = readFileSync(resolve(import.meta.dirname, "../branding/vectra-symbol.svg"), "utf8")
+  .replace(/\n\s*<title[^>]*>[^<]*<\/title>/, "")
+  .replace('role="img" aria-labelledby="title"', 'width="64" height="48" aria-hidden="true"')
+  .trim();
+if (!symbol.includes('aria-hidden="true"') || symbol.includes("<title"))
+  throw new Error("branding/vectra-symbol.svg: unexpected markup");
 
 const precache = files.map((f) => `./${f}`);
 const VERSION_SLOT = "@@VECTRA_SW_VERSION@@";
@@ -122,6 +131,7 @@ function recovery(reason) {
 <title>Vectra — offline copy incomplete</title></head>
 <body data-testid="sw-recovery" data-reason="\${reason}" data-version="\${escapeHtml(VERSION)}">
 <main>
+${symbol}
 <h1>This tab's offline copy of Vectra is incomplete</h1>
 <p>\${escapeHtml(cause)} The browser may have removed it to free storage.</p>
 <ul>

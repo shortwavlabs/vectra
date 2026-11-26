@@ -68,6 +68,10 @@ test("no artwork bytes, filename, settings or exports are transmitted", async ({
   writeOutput(`privacy/${browserName}-requests.json`, JSON.stringify(log, null, 2));
 
   const origin = new URL(baseURL!).origin;
+  // G-BRAND: the app's own icons (public/, fixed names, precached) are the only PNGs it requests.
+  const icons = ["apple-touch-icon", "icon-192", "icon-512", "icon-maskable-512"].map(
+    (f) => `${origin}/${f}.png`,
+  );
   for (const r of log) {
     expect(r.method === "GET" || r.url.startsWith("blob:"), JSON.stringify(r)).toBe(true);
     expect(r.bodyBytes, JSON.stringify(r)).toBe(0);
@@ -76,7 +80,7 @@ test("no artwork bytes, filename, settings or exports are transmitted", async ({
       JSON.stringify(r),
     ).toBe(true);
     expect(r.url).not.toContain(TOKEN);
-    expect(r.url).not.toMatch(/threshold|nested_rings|\.png/i);
+    if (!icons.includes(r.url)) expect(r.url).not.toMatch(/threshold|nested_rings|\.png/i);
   }
   // After start-up, the session itself must not hit the network at all (blob: downloads are local).
   expect(

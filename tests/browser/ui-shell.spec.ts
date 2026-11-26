@@ -213,6 +213,20 @@ test("top bar and status bar: no view switch, no Studio label, quiet when idle a
     await expect(top.getByRole("button", { name: new RegExp(`^${v}`) })).toHaveCount(0);
   await expect(top).toContainText("vectra");
   await expect(top).not.toContainText("Studio");
+  // G-BRAND: the symbol is decorative beside the "vectra" text (one announcement), and centred
+  // on it from 1024×640 to 1920×1080.
+  const mark = top.locator('svg[viewBox="0 13 453 343"]');
+  await expect(mark).toHaveAttribute("aria-hidden", "true");
+  const word = top.getByText("vectra", { exact: true });
+  for (const size of [
+    { width: 1024, height: 640 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(size);
+    const [m, w] = [(await mark.boundingBox())!, (await word.boundingBox())!];
+    expect(Math.abs(m.y + m.height / 2 - (w.y + w.height / 2)), `at ${size.width}`).toBeLessThan(1);
+    expect(m.x + m.width, "mark before the text").toBeLessThanOrEqual(w.x);
+  }
   // Idle: the status live region is mounted, polite and empty (no "Ready").
   const status = page.getByTestId("status");
   await expect(status).toHaveAttribute("role", "status");

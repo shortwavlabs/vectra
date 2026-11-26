@@ -211,10 +211,32 @@ const Divider = ({ vertical = true }: { vertical?: boolean }) => (
   />
 );
 
-function LogoMark() {
+/**
+ * The Vectra symbol, ivory + lime for the dark top bar: branding/vectra-symbol-ivory.svg
+ * repeated verbatim, geometry and brand colours (not themed tokens). Decorative: the "vectra"
+ * text beside it carries the name. src/shell/brand-mark.test.ts fails if it drifts.
+ */
+function BrandMark() {
   return (
-    <svg viewBox="0 0 40 34" className="h-5 w-6" aria-hidden="true">
-      <path d="M0 0h9l11 21L31 0h9L20 34z" fill="var(--primary)" />
+    <svg viewBox="0 13 453 343" className="h-6 w-8" aria-hidden="true">
+      <g>
+        <rect x="16" y="195" width="30" height="30" fill="#eee8d8" />
+        <rect x="63" y="223" width="44" height="44" fill="#b9e87b" />
+        <rect x="107" y="146" width="67" height="67" fill="#eee8d8" />
+      </g>
+      <g>
+        <path fill="#eee8d8" d="M420 46 C183 84 255 222 135 323 C358 283 272 128 420 46 Z" />
+        <path fill="#b9e87b" d="M420 46 C183 84 255 222 135 323 C314 264 216 100 420 46 Z" />
+      </g>
+      <g fill="#b9e87b" stroke="#b9e87b" strokeWidth="5">
+        <path d="M256 46 H420 M135 323 H341" fill="none" />
+        <circle cx="256" cy="46" r="11" />
+        <circle cx="341" cy="323" r="11" />
+      </g>
+      <g fill="#b9e87b" stroke="#eee8d8" strokeWidth="5">
+        <rect x="405.5" y="31.5" width="29" height="29" />
+        <rect x="120.5" y="308.5" width="29" height="29" />
+      </g>
     </svg>
   );
 }
@@ -557,7 +579,7 @@ export function Workspace() {
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-panel px-3">
           <div className="flex min-w-0 items-center gap-2.5">
             <div className="flex shrink-0 items-center gap-1.5">
-              <LogoMark />
+              <BrandMark />
               <span className="text-[15px] font-bold tracking-tight">vectra</span>
             </div>
             <Divider />
