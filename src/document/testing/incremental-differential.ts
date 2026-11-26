@@ -549,7 +549,7 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
         return true;
       }
       case "asset-field": {
-        const k = [...assets.keys()];
+        const k = [...assets].filter(([, a]) => a !== undefined).map(([id]) => id);
         if (!k.length) return false;
         const id = r.pick(k);
         const a = assets.get(id)!;
