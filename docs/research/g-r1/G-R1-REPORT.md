@@ -263,17 +263,22 @@ These decisions are recorded in [decision register §10](../g0/G0-DECISION-REGIS
 
 | Harness | Result | Visibility and conditions |
 |---|---|---|
-| G-R0 | **7/7** | Visible before and after; load average 1.9–2.1 |
-| G-JOB | **10/10** | Visible |
-| G-UI | **14/14**, findings 0 | Visible |
+| G-R0 | **7/7** | Visible before and after; load average 1.14 → 1.70 |
+| G-JOB | **10/10** | Visible; load average 1.70 → 1.71 |
+| G-UI | **14/14**, findings 0 | Visible; load average 1.71 → 2.12 |
 | G-R1 (first run) | 5/7: **invalid** | The macOS screen **locked during the run**: unlocked at its start, locked at its end. The gesture-timing and focus-ring scenarios failed under the lock (an animation-frame wait timed out; `:focus-visible` false). They do not count as functional failures |
 | G-R1 (re-run after unlock) | **7/7, 0 NOT RUN** | Visible before and after (32 rAF in 500 ms); load average 1.86 → 1.54. Preview 178 ms (interactive target); pan and zoom p95 18 / 18 ms; focus ring sampled (185, 225, 124) and (24, 25, 26); crash fallback ready on the main thread |
-| Persistence | **23/23** | Ran while the screen was locked. It does not depend on page visibility (no rendering, focus or animation frames) |
+| Persistence (first run) | 23/23: **invalid** | Ran while the screen was locked, so it is not counted, even though it passed |
+| Persistence (re-run after unlock) | **23/23** | Visible before and after; load average 1.00 → 1.16 |
 
 The earlier run on `bed736d`, below, was the first full qualification. The only app change after it is correction 6.
 
+**Bundle on `01a3dab`** (gzip KiB): design-system JS 113.8, CSS 8.4, initial workspace JS 228.6 (budgets 150 / 15 / 250).
+
+**Export compatibility.** No file under `src/document`, `src/export`, `src/persistence`, `crates`, `packages`, `package.json`, `pnpm-lock.yaml` or `public/_headers` changed between `323a04c` and `01a3dab`. `323a04c` is where the frozen 636-export check and bundle v1 last passed (636/636, 14/14). Document semantics and export output are therefore unchanged by construction.
+
 **Conditions.**
-- Commit `bed736d` (the final G-R1 head; `gr1.mjs` gains a `fallback` scenario). Build ID `4768c4044f602a23`.
+- Commit `bed736d` (the G-R1 head at the time; `gr1.mjs` gains a `fallback` scenario). Build ID `4768c4044f602a23`. The final head `01a3dab` (above) adds only correction 6.
 - Safari 26.6.2 on macOS 26.6.2, Apple M5 Max. The screen was unlocked (`CGSSessionScreenIsLocked` absent).
 - The automation page was **visible**, with 32 animation frames in 500 ms, both before and after every harness (a visibility probe around each run).
 - Load average 1.20 → 1.89 over the run (20:06–20:08). The machine is shared and was not quiet.
