@@ -417,3 +417,139 @@ The figures in §1.4 (302 and 588) included `concert-stage-light`; those outputs
 - The comparison against `main` is still planned with stage D (§4).
 
 **Local evidence** (gitignored, in this worktree): `tests/output/g-doc-r/` (Playwright logs, build and bundle outputs, regression hashes, load records) and `tests/output/safari-runs/`. Archive these under `docs/EVIDENCE-PRESERVATION.md` before this worktree is ever removed.
+## 5. Stage D — persistent storage (AM-2 authorised, 2026-11-26)
+Commits: `c40ca5f` (storage), `7a416dd` (accounting), `d2c1839` (calibration, exact child lists, wider corpus), `f23b79f` (fault injection), `9aac564` (test infrastructure). Design notes: [STAGE-D-DESIGN](STAGE-D-DESIGN.md), written before the code. The implementation departs from that note where measurement required (§5.2).
+
+### 5.1 Audit of node-map iteration consumers (before replacing the map)
+Every production use of `nodesById` beyond `get`, `has` and `size`:
+
+| Consumer | Uses the order? | Result |
+|---|---|---|
+| `invariants.ts` `validateState`: per-node checks | Which defect is reported **first** in a document with several defects | Allowed by AM-2. Single-defect rejections keep the same code and message, with one exception: a **duplicate ID number** between two nodes names whichever is visited second. That can now be the other node; the code (`invariant`) is unchanged |
+| `commands.ts` `parentMap` (verification); `render-host.ts` `parents`; `CanvasHost.tsx` `parentOf` | No: each node has one parent in a valid tree | Unchanged |
+| `incremental-validate.ts` max-ID rescan | No (a maximum) | Unchanged |
+| `document-json.ts` save | No: canonical JSON sorts keys | Bytes unchanged (frozen hash test; 576/576 export regression, §11) |
+| `shell/qualification.ts` (chunk count), `workspace/qualification.ts` (setFill IDs) | No: a count, and setFill sorts targets in document order | Unchanged |
+
+Three **tests** had picked "the first path" by map iteration while meaning the first path in paint order (`export.test.ts`, `p1a-document-export.test.ts`). They now walk the tree. Export, rendering, layer order and persistence never relied on map order.
+
+### 5.2 `NodeMap`: a chunked copy-on-write map ordered by node ID
+**Design** (`src/document/node-map.ts`):
+- An immutable, `ReadonlyMap`-compatible map; all state is in private fields.
+- Entries are sorted by **(ID number, key)**: the number of `xxx_<digits>`, otherwise +∞, with ties broken by the key string. They are cut into chunks of about 512, splitting above 1,024 and merging rebuilt chunks below 128: a two-level B+-tree.
+- **Iteration order depends on the contents only**, never on chunk boundaries or edit history, which is AM-2's deterministic bucket iteration. It also follows creation order.
+- **Copy-on-write.** An edit copies only the chunks it touches and the directory, which has about n/512 entries. An update-only chunk shares its keys and numbers arrays and copies only the values. Writes that change nothing are skipped.
+- **Draft overlay.** `NodeMapDraft` is O(1) to create and never mutates its base, so a failed transaction simply drops the overlay. It publishes once.
+- A key may hold `undefined`, as in a `Map`.
+
+**Why not hash buckets (STAGE-D-DESIGN §1).** That was implemented first and measured at 331k entries (Node 24):
+
+| Operation | Hash buckets (`Map` per bucket) | Hash buckets (sorted arrays) | **ID-ordered chunks** | Plain `Map` |
+|---|---|---|---|---|
+| Wide write: 1,000 deletes and 1,000 inserts (a trace replace) | 25.4 ms | 5.0 ms | **0.35 ms** | — |
+| 1,000 scattered updates (setFillMany) | 18.7 ms | 0.4 ms | **0.8 ms** | — |
+| 331k lookups in walk order | 25 ms | 30 ms | **15 ms** | 8 ms |
+| 331k lookups in random order | — | 42 ms | 78 ms | 20 ms |
+| Iteration | 19 ms | 6.5 ms | **2 ms** | — |
+
+- **Hashing scatters locality.** A trace's nodes, a deleted layer's nodes and a group's children have neighbouring IDs. A hash spreads them over every bucket, so a trace replace rebuilt every bucket: `commitTrace` took 49.8 / 51.7 ms at 330k paths, over the target.
+- **ID order keeps them together.** The same transaction now takes 4.9 ms.
+- **Walk lookups** hit a cached chunk hint, with a binary search on a `Float64Array` of numbers inside the chunk.
+- **Random-order lookups are slower** than a `Map`. They are rare in the edit paths: commands, the validator walks and evaluation all follow tree order.
+
+### 5.3 Persistent parent index
+- **What it is.** `parents(s)` is a `NodeMap<NodeId | null>` per state, held in a `WeakMap` keyed by state. It references no state, so there is no ancestry retention (verified in §6.3).
+- **Derivation.** `Draft.finish` derives it from the base's index through the written keys. Only the child lists of written containers whose list changed, and the root list when it changed, are rescanned.
+- **Seeding.** The session constructor seeds the index once at load, in O(n log n).
+- **Exact-length lists.** `Draft.finish` also publishes **exact-length child lists**: a list built by `filter`, `splice` or `push` would otherwise keep up to a third in growth slack, and history would retain it.
+- **Checkable.** `parentIndexMatches(s)` compares the index with a full traversal. `compare` mode runs it after **every decided transaction**, which covers every unit test and the differential. `compare` mode also checks that the write log covers every changed node key, using the structural chunk diff.
+
+## 6. AM-2 history accounting
+### 6.1 Model (`src/document/structure-accounting.ts`)
+- **Accounted bytes, not a measurement.** They come from deterministic, checked integer costs (`COSTS`), with `Number.isSafeInteger` and non-negativity asserted.
+- **Allocations, each counted once by identity:**
+  - **Per state:** the state record, roots, artboard, derived data, and the node-map and parent-index headers and directories.
+  - **Shared:** node-map and parent-index chunks. The chunk object and its numbers, keys and values arrays count separately, because updates share them.
+  - **Per node:** the node object, with its id and name strings.
+  - **Per key:** transforms, geometry and clip records, and child lists.
+  - **Exact across keys:** trace provenance (layers are roots).
+  - **Entry maps:** style, palette and asset map tables, and each entry with its strings and its stroke or provenance record.
+- **Excluded:** chunk bytes and source bytes, which are C3.2 terms 1 and 2, and shared constants (`IDENTITY`, the empty chunk).
+- **Documented approximations:**
+  - **Per-key records shared by `duplicate`** are counted once per key: a conservative over-count bounded by those small records.
+  - **Strings** are counted with their node or entry object. A setVisible copy, which shares the id string, over-counts it by a few dozen bytes.
+
+### 6.2 Incremental computation and the reference oracle
+- **One delta per step.** `structureDelta(a, b)` gives the accounted bytes `a` holds and `b` does not (removed), and the reverse (added). It costs O(chunks + changed entries): unshared chunks, changed node keys, provenance through the roots, and entry maps only when they changed.
+- **History-only bytes.** The session stores one delta per published state, measured from its chain predecessor (coalescing included). History-only bytes are the removed bytes of retained steps up to the current state, plus the added bytes of redo steps. That is O(history entries), with no traversal of any state; undo, redo and eviction compute nothing new.
+- **Why that is correct (contiguity).** No command revives an allocation once a later state has dropped it, so each allocation lives in one contiguous run of the history chain.
+- **The oracle.** `testing/structure-oracle.ts` recomputes the same quantity by full traversal with identity sets, without the chain argument.
+- **Ledger against oracle.** `structure-accounting.test.ts` compares the two after **every operation** of random histories: 6 seeds × 160 operations, mixing edits, undo, redo, branching, keyed coalescing, `withoutHistory` and evictions by count and by bytes. The first run of this test found a real double count, fixed before commit: the shared empty-chunk constant was counted once per map.
+
+### 6.3 Ownership transitions and retention
+Each transition the maintainer listed is tested against the oracle and against the expected delta (`ownership transitions …`):
+- an edit;
+- a state entering history;
+- undo and redo;
+- a discarded redo branch;
+- eviction from either end;
+- `withoutHistory`.
+
+**Replaced or closed documents.** `tests/unit/g-doc-r-retention.test.ts` and `scripts/check-retention.mjs` force garbage collection and hold `WeakRef`s. Evicted states, a discarded redo state and every state of a dropped session must all be collected, and they are: **PASS** in both.
+- A first version of the in-runner test failed. The test's own block-scoped variables held states; reproduced outside the runner and fixed in the test.
+- The GeometryStore ownership contract (C2) is unchanged; chunk accounting is untouched.
+
+### 6.4 Budget behaviour (user-visible)
+- The limits are unchanged: 100 entries, 128 MiB. Eviction stays oldest-first, with visible truncation.
+- **Small edits are cheap.** A one-node edit's step is about 7 KB at 43k paths and about 20 KB at 330k (directories plus one chunk).
+- **Large edits.** Deleting the whole 330k-path, 996k-anchor layer is a **114.9 MiB** entry: 70.9 MiB of structure plus 44.1 MiB of chunks.
+  - It **fits** the standard 128 MiB.
+  - In the **constrained 64 MiB profile** it would now be refused with `history_budget`; chunks alone, 44 MiB, fitted.
+  - The application does not configure the constrained profile today: `historyLimits` is never set in `src/shell` or `src/workspace`.
+- **Beyond the designated workloads**, a single deleted or replaced subtree of roughly 450k paths or more would now exceed 128 MiB. The shell then reports "Edit rejected: … confirm to commit without history".
+  - The shell has **no confirmation path** to commit without history. RFC §7's "committed without history after explicit confirmation" is not implemented in the UI; that gap predates this gate.
+  - It is recorded as debt (TD-UI-006) for the maintainer. No UI change is authorised in this gate.
+
+## 7. Cost-model calibration (AM-2 §3)
+<!-- filled from the final calibration run (§11) -->
+
+## 8. Test infrastructure (brief §7)
+**`render_compare`.**
+- `tests/browser/global-setup.ts` builds the binary once, before any spec, so specs no longer depend on running order.
+- Verified by deleting the binary and running `renderer-behaviour.spec.ts` alone: 8/8.
+
+**Canvas-edge race: a test defect, not a product defect.**
+- **Diagnosis.** On a failure, the e handle lay at x 975–984 while the canvas ended at x 968: outside the canvas, over the panel splitter.
+- **Cause.** The test measured the canvas box once per viewport. The layout kept settling after that measurement under load, so the "within 12 px of the edge" poll passed against a stale box.
+- **Fix:**
+  - the box must be unchanged for five consecutive animation frames, measured in the page;
+  - the gap uses the current box, and the handle must lie inside the canvas;
+  - the handle's centre is read and probed in one in-page step.
+- No sleep was added and the assertion is unchanged.
+- **Result:** 40/40 passes under load. The atomic probe alone was not enough: 1 failure in 20, then many under load, which is what led to the diagnosis.
+
+## 9. `paletteLabels()` investigation (brief §6)
+**Cost on stage D storage** (`scripts/bench-palette-labels.mjs --reps 15`, median per new state):
+
+| Document | Now | Stage B/C baseline |
+|---|---|---|
+| bark-1224 | 6.3 ms | 6.1 ms |
+| bark-2350 | 17.5 ms | 16.5 ms |
+| synthetic-many-250k | 2.8 ms | 1.5 ms |
+
+Random-order lookups in its tree walk are a little slower on `NodeMap` (§5.2).
+
+**Split for bark-2350:**
+- the walk over traced paths: **9.6 ms**, including 0.9 ms to collect provenance IDs;
+- the per-entry label pass over 30,595 entries: about **8 ms**.
+
+**What could make it incremental.** Labels change only when the set of generated entries changes or the palette changes. Stage C already shares unchanged palette and style maps, and the Draft write log names every node a transaction wrote. Two designs keep strict provenance, collision handling, palette order and export semantics:
+1. **Reuse a predecessor's labels** when the transaction wrote no path, group or layer whose palette membership could change, and the palette and style maps are the same objects. This needs the transaction's change set exposed to the shell, plus a one-slot reference to the predecessor's labels.
+2. **A persistent per-layer usage index** (palette reference → count), derived at `Draft.finish` like the parent index. This is a new retained structure that AM-2 accounting must count.
+
+Either removes the walk, at most about 9.6 ms at bark-2350. Only (2) also avoids recomputation after edits to unrelated paths. The O(entries) label pass remains whenever the generated set changes.
+
+**Not implemented here:**
+- The labels are cached per state and computed only while the inspector shows a Fill note or Recolor.
+- Design (1) changes the session snapshot API used by the shell; design (2) adds an accounted persistent index and a differential obligation.
+- **Recommendation:** implement (2) together with Recolor panel virtualisation, which stays separate as instructed, in the gate that next works on that panel.

@@ -92,6 +92,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-005](#td-ui-005) | Palette display names: custom vs generated names are not recorded | Limitation (document model) | Medium | OPEN | before user-facing palette renaming | G-UI-R |
+| [TD-UI-006](#td-ui-006) | No "commit without history" confirmation in the shell (RFC §7) | Limitation (UI) | Medium | OPEN | before documents above ~450k paths per subtree are supported | G-DOC-R |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
 | [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
 | [TD-PLATFORM-007](#td-platform-007) | Native and WASM Artistic output differ on some inputs (found at G-ENG) | Defect (determinism) | Medium | OPEN | before cross-target reproducibility claims | — |
@@ -112,6 +113,7 @@ Counts:
   - TD-PERF-007 and TD-PERF-011 are authorised as the follow-up gate G-DOC-R (options B, C, D; [scope](research/g-doc-r/G-DOC-R-SCOPE.md)).
   - Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and the stock-Safari keyboard check are executed. The canvas focus ring is fixed at the canvas-host level (#19).
 - **G-UI-R final acceptance (2026-11-25):** one item added, TD-UI-005 (Medium): the palette-name provenance limitation, recorded for resolution before user-facing palette renaming. **43 open items, 14 High.**
+- **G-DOC-R (2026-11-26, not yet accepted):** one item added, TD-UI-006 (Medium): there is no shell confirmation to commit without history, and AM-2 makes it reachable for very large subtrees. **44 open items, 14 High.** TD-PERF-007 and TD-PERF-011 dispositions are updated in their entries.
 
 ---
 
@@ -848,6 +850,15 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Evidence:** `src/shell/document.ts` `paletteLabels()` and its unit tests; G-UI-R report §16 and §18.
 - **Closure criteria:** before user-facing palette renaming ships, record each entry's name origin, via a frozen-contract amendment (schema), so that display never infers it.
 - **Owner action:** none until palette renaming is planned.
+
+<a id="td-ui-006"></a>
+### TD-UI-006 — No "commit without history" confirmation in the shell (RFC §7)
+- **Category / severity / status:** Limitation (UI) · Medium · OPEN (found by G-DOC-R stage D).
+- **Description.** RFC-002 §7: "A command that cannot fit is either rejected, or committed without history after explicit confirmation." `DocumentSession.dispatch` supports both: `history_budget`, and `withoutHistory: true` after confirmation. The shell implements only the rejection: `Workspace.tsx` `run` reports "Edit rejected: …", with no confirmation path.
+- **Why it matters now.** AM-2 (C3.2 r3) adds document-structure bytes to the history budget. A single deleted or replaced subtree of roughly 450k paths or more can now exceed the standard 128 MiB on its own. The designated 996k-anchor workload's whole-layer delete is 114.9 MiB, which still fits. The constrained 64 MiB profile, which the shell does not configure today, would reject it.
+- **Evidence:** [G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §6.4; calibration record (§7).
+- **Closure criteria:** a confirmation flow that commits without history, or a recorded maintainer decision to keep rejection, before documents of that size are supported, or before the constrained profile is enabled.
+- **Owner action:** decide the UI path (no UI change was authorised in G-DOC-R).
 
 <a id="td-geo-010"></a>
 ### TD-GEO-010 — Sliver metric and junction criterion restatement
