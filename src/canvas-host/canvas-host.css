@@ -4,6 +4,13 @@
    host matches :focus-visible (keyboard focus; a pointer click does not show it), above every
    canvas layer, and transparent to pointer input. An outline, so it survives forced-colors
    mode; the inset shadow is the dark inner ring of the dual focus ring (DESIGN-SYSTEM §4). */
+/* The canvas host is never a text selection: a pointer drag over its layers (a transform handle)
+   otherwise left a selection range, and Firefox turned the next drag starting inside it into a
+   native drag (pointercancel), losing the transform. */
+.vx-canvas-host {
+  -webkit-user-select: none;
+  user-select: none;
+}
 .vx-canvas-host:focus-visible {
   outline: none;
   box-shadow: none;
