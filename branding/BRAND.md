@@ -1,11 +1,11 @@
 # Vectra brand
 
-**Status:** the symbol ("Refined Minimal: Pixel to Path") is approved by the maintainer. Its integration (G-BRAND) is on a review branch and not yet accepted. Normative UI rules stay in [DESIGN-SYSTEM](../docs/DESIGN-SYSTEM.md) and [RFC-002 §16](../docs/RFC-002.md). Report: [G-BRAND-REPORT](../docs/research/g-brand/G-BRAND-REPORT.md).
+**Status:** the symbol ("Refined Minimal: Pixel to Path") and the G-BRAND integration are approved by the maintainer, subject to closure (PR #21). The text banners wait for the approved font (see Social media). Normative UI rules stay in [DESIGN-SYSTEM](../docs/DESIGN-SYSTEM.md) and [RFC-002 §16](../docs/RFC-002.md). Report: [G-BRAND-REPORT](../docs/research/g-brand/G-BRAND-REPORT.md).
 
 The symbol has no wordmark. Where the name appears next to it, as in the app's top bar ("vectra"), the name is typeset separately in the system font.
 
 ## Canonical assets
-The masters are editable vector SVGs: shapes only, with no `<image>`, raster data, text, fonts or styles. All four share the canonical geometry: the viewBox `0 13 453 343`, three pixel squares, two ribbon paths, two control handles (lines and r=11 circles) and two anchor squares. Only the colours differ.
+The masters are editable vector SVGs: shapes only, with no `<image>`, raster data, text, fonts or styles. All six share the canonical geometry: the viewBox `0 13 453 343`, three pixel squares, two ribbon paths, two control handles (lines and r=11 circles) and two anchor squares. Only the colours differ.
 
 | File | Colours | Use | SHA-256 |
 |---|---|---|---|
@@ -13,8 +13,10 @@ The masters are editable vector SVGs: shapes only, with no `<image>`, raster dat
 | `vectra-symbol-ivory.svg` | ivory + lime | dark backgrounds | `a80db5a3780811e6077ba17acfb5720fc569df3de300ced8d933bc06e71d96c7` |
 | `vectra-symbol-mono-charcoal.svg` | charcoal | one colour, light backgrounds | `fb580f20375a0a951edb95b479dec6c8cc50a68c89c820f7263f0d45f5a102cf` |
 | `vectra-symbol-mono-ivory.svg` | ivory | one colour, dark backgrounds | `1a6d2ba4ff0266cc619d4714264ab32b83cea23f8adc08533522530da0219e72` |
+| `vectra-symbol-tonal-charcoal.svg` | charcoal + `#8c8d8e` | tonal, light backgrounds | `b155c9e4154e81c7446531f00d233f3e3509c319d5e9e1278d378d7a2def720b` |
+| `vectra-symbol-tonal-ivory.svg` | ivory + `#84817a` | tonal, dark backgrounds | `02609a991ee238abf03033abf68582bd29ed81f70d8e8df621a86f04cdc0220f` |
 
-- **The canonical file is the source of truth.** The other three are generated from it by colour substitution only. In the ivory variant, charcoal becomes ivory everywhere, including the anchor squares' stroke.
+- **The canonical file is the source of truth.** The five other masters (ivory, the two mono and the two tonal files) are generated from it by colour substitution only. The four colour masters are unchanged since review; the tonal files were added at closure. In the ivory variant, charcoal becomes ivory everywhere, including the anchor squares' stroke.
 - **Never edit the geometry.** Do not redraw, retrace, simplify, re-path or optimise it. SVGO-style rewriting of path data is forbidden.
 
 ## Colours
@@ -43,18 +45,17 @@ On light backgrounds, lime is an accent, not structure: charcoal carries the for
 ## Light and dark
 | Background | Use |
 |---|---|
-| White, ivory/paper, light greys | `vectra-symbol.svg` (canonical) or `-mono-charcoal` |
-| Charcoal, the app chrome, dark greys | `vectra-symbol-ivory.svg` or `-mono-ivory` |
+| White, ivory/paper, light greys | `vectra-symbol.svg` (canonical), `-mono-charcoal` or `-tonal-charcoal` |
+| Charcoal, the app chrome, dark greys | `vectra-symbol-ivory.svg`, `-mono-ivory` or `-tonal-ivory` |
 | Mid-tones, photographs, patterns | Place the symbol on a solid charcoal or ivory field first |
 
 The app's top bar is dark (`panel`), so it uses the ivory + lime variant.
 
-## Monochrome (finding; decision pending)
-Colour substitution alone has a cost in one colour. It merges the two ribbon paths into one silhouette, and fuses the anchor squares with the ribbon tips and handle lines. The symbol stays recognisable as pixels, a curve and handles, but the two-tone ribbon is lost. See the contact sheet.
-
-The mono masters stay pure substitutions, as specified.
-
-**Proposal for maintainer approval (not a master, not used anywhere):** `proposals/vectra-symbol-mono-*-tint.svg`. They are single-ink and two-tone: the lime parts become a 50 % screen of the ink, `#8c8d8e` (charcoal at 50 % on white) and `#84817a` (ivory at 50 % on charcoal). This is still colour substitution only, with no new geometry. It keeps the ribbon's two paths and the anchors distinct.
+## Solid monochrome and tonal reproduction (approved)
+Two kinds of one-colour reproduction exist; choose by what the medium can hold.
+- **Solid monochrome** (`-mono-charcoal`, `-mono-ivory`): one flat ink. The two ribbon paths merge into one silhouette, and the anchor squares fuse with the ribbon tips and handle lines. The symbol stays recognisable as pixels, a curve and handles, but the two-tone ribbon is lost. Use it where only a single flat colour is possible (stamps, embossing, single-colour engraving or cutting).
+- **Tonal reproduction** (`-tonal-charcoal`, `-tonal-ivory`): the ink plus an RGB tint of it for the inner ribbon, the middle pixel, the handles and the anchors' fill. The tints are `#8c8d8e` (charcoal at 50 % on white) and `#84817a` (ivory at 50 % on charcoal). The ribbon's two paths and the anchors stay distinct. Colour substitution only; the geometry is unchanged.
+- **Tonal files are screen tints, not print-qualified separations.** They are RGB colours for screens and RGB documents. They are not qualified as physical single-ink separations (no halftone screen, ink, paper or press has been validated). A print job that needs one ink plus a screen must prepare and proof its own separation.
 
 ## Clear space
 The unit is **A**, the anchor square's side: 29 units, or 6.4 % of the 453-unit symbol width.
@@ -71,8 +72,8 @@ The unit is **A**, the anchor square's side: 29 units, or 6.4 % of the 453-unit 
 
 ## Social media
 Files are in `social/`.
-- Each one is the ivory + lime symbol on charcoal, centred, with no text.
-- None of them uses a gradient, illustration or claim.
+- The profile pictures are the ivory + lime symbol on charcoal, centred, with no text. They are final.
+- None of the assets uses a gradient, illustration or claim.
 
 | File | Size | Notes |
 |---|---|---|
@@ -81,9 +82,10 @@ Files are in `social/`.
 | `github-social-1280x640.png` | 1280×640 | Repository social preview. |
 | `youtube-banner-2560x1440.png` | 2560×1440 | The geometry is 254 px high, within the 1546×423 centred safe area. |
 
-- **Why there is no text.** The banners carry no text: this was the smallest compliant option.
-  - Typesetting "Vectra" (or the README tagline "From pixels to paths.") deterministically needs a vendored font with a licence that permits it, for example an OFL font. That font needs maintainer approval.
-  - Proprietary system fonts must not be converted to outlines in distributable assets.
+- **Banners: text-free now; text banners pending.** The committed X, GitHub and YouTube banners are the interim text-free versions. The approved direction replaces them: the ivory + lime symbol on charcoal with the lowercase wordmark "vectra" and the tagline "From pixels to paths.", in ivory with restrained lime accents, in a minimal horizontal symbol-and-text composition, optically aligned within each platform's safe area. The wordmark is separate from the canonical symbol.
+  - **Font:** Inter 4.1 (OFL), to be vendored under `branding/fonts/` with its licence, source, version and checksums, for offline generation only. It must never enter the runtime bundle, `public/`, `dist` or the precache; `scripts/check-dist.mjs` fails the build if a font file, or any file under `branding/`, other than the shipped icons, reaches `dist`.
+  - **Safe areas** checked by the generator, in banner pixels: X keeps clear of the avatar zone (x < 27 %, y > 60 %); GitHub stays inside its 1.91:1 crop with a 40 px margin (69–1211 × 40–600); YouTube stays inside the centred 1546×423 area.
+  - Proprietary system fonts must never be converted to outlines in distributable assets.
 - **Publishing.** Nothing here has been published to any account.
 
 ## Favicons and app icons
@@ -107,15 +109,30 @@ Files are in `web/`. The subset the app ships is copied into `public/`.
   - no stretching or skewing;
   - no rotating;
   - no cropping into the geometry.
-- Do not use colours outside the four variants. Do not swap lime for another accent.
+- Do not use colours outside the six masters. Do not swap lime for another accent.
 - Do not add effects: no gradients, shadows, glows, strokes around the symbol or textures.
-- Do not use the canonical file on dark backgrounds or the ivory variant on light ones. Never put mono charcoal on dark or mono ivory on light (they disappear; see the contact sheet).
+- Do not use the canonical file on dark backgrounds or the ivory variant on light ones. Never put a charcoal mono or tonal variant on dark, or an ivory one on light (they disappear; see the contact sheet).
+- Do not present the tonal files as print-ready single-ink separations.
 - Do not use the symbol below 32 px outside the favicon tile.
 - Do not lock it up with a wordmark set in a proprietary font converted to outlines.
 - Do not place it on busy imagery without a solid field.
 
-## Rendering note
-The two ribbon paths share their first curve exactly. Anti-aliased renderers therefore show a faint hairline of the back path along the front path's outer edge: charcoal on the canonical file, ivory on the ivory variant. This is a property of the approved geometry, visible only at large sizes, and it is left as supplied.
+## Rendering note (accepted)
+The two ribbon paths share their first curve exactly. Anti-aliased renderers therefore show a faint hairline of the back path along the front path's outer edge: charcoal on the canonical file, ivory on the ivory variant. This is a property of the approved geometry, visible only at large sizes. The maintainer accepted it with the master geometry untouched.
+
+## Decisions (maintainer, closure)
+Approved, without changing behaviour:
+- **Web manifest and early installability.** `display: standalone`, `start_url` `./workspace.html`; browsers may offer to install the app before ROADMAP's P3.
+- **Local branding-asset exception to DESIGN-SYSTEM §6.** Local icon files and the manifest ship in `public/`; no fonts, remote assets or images in the UI itself.
+- **Literal brand colours** in the app's mark, independent of theme tokens.
+- **The privacy-test icon exemption:** `tests/browser/privacy.spec.ts` exempts exactly the four same-origin icon PNG URLs from its `.png` filename guard; its other assertions are unchanged.
+- **The standalone rasteriser** (`branding/rasterize`, own lockfile), outside the runtime build: nothing under `branding/` enters `dist`, the `vite.config.ts` inputs or the service-worker precache, apart from the icons copied into `public/` (`scripts/check-dist.mjs` enforces it).
+- **The MIME-type corrections** in the service-worker test origin (`tests/browser/sw-site.ts`).
+- **The 16 px favicon** as shipped (canonical geometry).
+- **Tonal variants** as official masters (above).
+
+## Licensing and trademark (open: public-release decision)
+The repository's MIT licence is unchanged, and no restrictive or trademark terms are added here. How the Vectra name and symbol may be used by others (logo licensing and any trademark clarification) is an open item to decide before public release.
 
 ## Reproducible generation
 ```bash
@@ -124,12 +141,12 @@ git status --porcelain branding public         # empty after a re-run: byte-iden
 ```
 
 **What the script does:**
-- Verifies the canonical SHA-256 and derives the three colour masters. It checks they equal the canonical file byte for byte once each `#rrggbb` is masked, and that they are vector-only.
+- Verifies the canonical SHA-256 and derives the five other masters (three colour, two tonal). It checks they equal the canonical file byte for byte once each `#rrggbb` is masked, and that they are vector-only.
 - Builds each composition by nesting a master's own markup in its viewBox, so no coordinate is retyped.
 - Renders with `branding/rasterize`, a standalone Rust crate on resvg 0.50.0.
   - Its lockfile resolves only to versions already in the root `Cargo.lock`.
   - It refuses any non-uniform scale and reports each output's size and the bounding box of its non-transparent pixels.
-- Checks the exact sizes, the viewBox margin of every transparent export (nothing clipped or stretched), and the circular and YouTube safe zones.
+- Checks the exact sizes, the viewBox margin of every transparent export (nothing clipped or stretched), the circular safe zones and the banner safe areas (X avatar, GitHub crop, YouTube).
 - Packs the ICO, and copies the shipped icons to `public/`.
 
 **Tools:** Node 24.22.1, Rust 1.96.0 (`rust-toolchain.toml`), resvg/usvg 0.50.0, tiny-skia 0.12.0, png 0.18.1.

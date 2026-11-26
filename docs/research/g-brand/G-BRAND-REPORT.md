@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implemented on review branch `gate/g-brand` (from `main` `d7bdfcf`); not merged, not deployed, not published to any account |
+| Status | Approved by the maintainer subject to closure (PR #21, `gate/g-brand` from `main` `d7bdfcf`); closure in §10; text banners wait for the font; not merged, not deployed, not published to any account |
 | Date | 2026-11-25 |
 | Machine | macOS (Darwin 25.6.0) arm64, shared; load averages recorded per run |
 | Tools | Node 24.22.1, pnpm 12.23.0, Rust 1.96.0, resvg/usvg 0.50.0, tiny-skia 0.12.0, png 0.18.1, Playwright 1.65.1 (Chromium, Firefox, WebKit) |
@@ -218,7 +218,7 @@ The icons are static files outside the JS/CSS budget (largest: `icon-512.png`, 1
 - **Header alignment** (`header-alignment.json`). The mark's centre equals the wordmark's centre (0.000 px offset) at 1024×640, 1280×720, 1366×768, 1440×900 and 1920×1080. The gap is 6 px, and the mark sits 0.5 px above the bar's centre, which is the bar's 1 px bottom border.
 - **Favicon in context.** Headless Chromium has no tab strip, so the contact sheet shows simulated tabs. A real browser check is left to the lead's Safari and desktop passes.
 
-## 9. For maintainer approval
+## 9. For maintainer approval (as submitted; decisions in §10)
 1. **Monochrome.** By colour substitution alone, the two ribbon paths merge and the anchors fuse. Options: accept the silhouette masters as delivered, or approve the two-tone tint proposal (`branding/proposals/`), which is colour only with no new geometry.
 2. **16 px favicon.** The canonical geometry ships. At 16 px it reads as the ribbon plus one block, and omitting the handles does not help. Options: accept this, or commission a redrawn small-size variant (new geometry, a design task).
 3. **Banner text.** The banners are text-free. Adding "Vectra" (and at most the tagline) needs an OFL-class font vendored under `branding/` with its licence.
@@ -229,3 +229,59 @@ The icons are static files outside the JS/CSS budget (largest: `icon-512.png`, 1
 8. **Licence.** No licence or trademark statement is made for the mark. That is for the maintainer.
 9. **Rasteriser crate.** `branding/rasterize` is a standalone crate with its own lockfile (`resvg =0.50.0`), following the `experiments/` precedent. It adds no package version beyond the root `Cargo.lock` and is never shipped.
 10. **Test harness.** `tests/browser/sw-site.ts` now serves `.svg`, `.png`, `.ico` and `.webmanifest` with their real types (alongside item 7).
+
+## 10. Closure (maintainer decisions, 2026-11-25)
+Committed on top of `47d44e4`; nothing amended or rewritten.
+
+**Decisions applied:**
+
+| Decision | Applied |
+|---|---|
+| Tonal variants | The two-tone proposals are now official masters: `branding/vectra-symbol-tonal-charcoal.svg` (`b155c9e4154e81c7446531f00d233f3e3509c319d5e9e1278d378d7a2def720b`) and `-tonal-ivory.svg` (`02609a991ee238abf03033abf68582bd29ed81f70d8e8df621a86f04cdc0220f`), 1,004 bytes each, with 453×343 and 1812×1372 PNGs. `branding/proposals/` is removed. The generator derives them by colour substitution and checks them like the other masters. `BRAND.md` separates solid monochrome from tonal reproduction and says the tonal files are RGB screen tints, not print-qualified single-ink separations. The four colour masters are unchanged |
+| 16 px favicon | Accepted as is; no change |
+| Standalone manifest, early installability | Recorded as approved (`BRAND.md`, DESIGN-SYSTEM §14); no behaviour change |
+| §6 local branding-asset exception | Recorded as approved |
+| Literal brand colours | Recorded as approved |
+| `privacy.spec.ts` icon exemption | Recorded as approved. `git diff d7bdfcf -- tests/browser/privacy.spec.ts` touches two lines only: the `icons` list and the guard `if (!icons.includes(r.url))` before the unchanged `.png`/fixture-name assertion. The GET-only, zero-body, same-origin, token and no-network-during-session assertions are unchanged |
+| Standalone rasteriser | Recorded as approved; isolation proven below |
+| MIME-type corrections (`sw-site.ts`) | Recorded as approved |
+| Shared-edge anti-aliasing | Recorded as accepted; geometry untouched |
+| Logo licensing and trademark | Open public-release decision in `BRAND.md`; the MIT licence is unchanged and no terms were added |
+
+**`branding/` stays out of the runtime build:**
+- `vite.config.ts` has no reference to `branding` (0 matches). Its build inputs are `index.html` and `workspace.html`. The build ID hashes `src/`, `public/`, the WASM package and six named root files.
+- No runtime source imports from `branding/`. The only `src/` mentions are a comment in `Workspace.tsx` and the unit test `brand-mark.test.ts`, which reads the masters at test time. `grep -rl branding dist` finds nothing.
+- The service-worker precache is exactly the files in `dist/`; `check-dist.mjs` already enforced this.
+- New guard in `scripts/check-dist.mjs` (runs in `pnpm run build`). It fails the build if `dist/` contains a font file (`.ttf`, `.otf`, `.woff`, `.woff2`), or any file whose bytes match a file under `branding/`, other than the six shipped icons copied from `branding/web/`.
+  - Negative control: a copied master (`dist/leak.svg`) and a stray `dist/assets/x.woff2` were both reported, alongside the existing precache mismatch. After their removal the check passed.
+- Rebuild after the closure changes: build ID `69b8618a0497ded6` and SW VERSION `5441379d9f451517`, both unchanged, so the runtime output is byte-identical. 20 precached files; dist check passed.
+
+**Banner preparation (blocked on the text engine; nothing rendered):**
+- **Safe areas.** The generator now checks every banner against a per-platform safe area. It runs on today's text-free banners and is written for the text block's box to join it:
+  - X: clear of the avatar zone, x < 27 % and y > 60 % of 1500×500;
+  - GitHub: inside its 1.91:1 crop with a 40 px margin (69–1211 × 40–600);
+  - YouTube: inside the centred 1546×423 area.
+  - Negative control: moving the X avatar zone to the centre and narrowing the GitHub area made both checks fail.
+- **Blocker.** The requested path, resvg/usvg's `fontdb` loading only the vendored files, needs resvg's `text` feature.
+  - That feature pulls in `fontdb` 0.24, `harfrust`, `skrifa` (with `read-fonts` and `font-types`), `unicode-bidi`, `unicode-script`, `unicode-vo`, `xmlwriter` and `base64` 0.23.
+  - None of these is in the root `Cargo.lock` or the local cargo cache. Resolving offline fails: `cargo generate-lockfile --offline` reports "no matching package named `fontdb` found".
+  - Enabling it would mean downloading crates, which this closure forbids. No dependency was added; the rasteriser is unchanged.
+- **Options** (decision needed):
+  1. Permit fetching those crates (MIT/Apache) into `branding/rasterize/Cargo.lock`: real HarfRust shaping, as specified.
+  2. Stay offline: a small owned TrueType outliner in `generate.mjs` reads exactly the vendored Inter files (cmap, glyf with composite glyphs, hmtx, GPOS pair kerning) and emits glyph outlines as SVG paths, rendered by resvg as today. It uses no system fonts by construction. Its shaping is limited (no contextual alternates), which is adequate for "vectra" and "From pixels to paths.". Outlining an OFL font in an image is permitted.
+  3. Chromium text rendering with `@font-face`: not resvg, and weaker determinism; not recommended.
+- **Composition plan once unblocked:** symbol left, wordmark "vectra" (Inter SemiBold) with the tagline (Inter Regular) right, ivory with one restrained lime accent, centred as a block and optically aligned. The text-free banners stay in place until then.
+
+**Qualification of the closure changes:**
+
+| Check | Result |
+|---|---|
+| `node branding/generate.mjs` | 32 rasters, 5 derived masters, all checks passed |
+| Re-run of the generator | `git status --porcelain branding public` empty: byte-identical |
+| `pnpm exec vp check` | Pass |
+| `pnpm exec vp test` | Pass |
+| `pnpm run build` | Notices verified; dist check passed with the new guard |
+| Contact sheet | Regenerated with the tonal masters on white, ivory and charcoal |
+| App screenshots | Byte-identical to the committed ones |
+| Playwright | Not re-run: no runtime, test or `dist` change (same build ID and SW VERSION) |
+
