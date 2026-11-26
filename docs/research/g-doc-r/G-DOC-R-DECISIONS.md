@@ -23,7 +23,9 @@ This register separates the decisions taken within the authorised scope (impleme
 | F-1 | **Correctness defect C1** in the stage B validator. A map entry holding `undefined` under a new key was accepted. In `incremental` mode it would have been published | **Fixed** (`fd06b5a`) with regression forgeries and a faulty-command test; re-qualified (report §1.6) |
 | F-2 | Published node maps retained their transaction's written-key set (introduced in stage C) | **Fixed** (`758a689`), with a test |
 | F-3 | The browser suite's renderer-behaviour spec depends on a binary that another spec builds | Recorded; not G-DOC-R scope (report §3) |
-| F-4 | The canvas-edge handle test is flaky under full-suite load | Recorded; not G-DOC-R scope (report §3) |
+| F-4 | The canvas-edge handle test is flaky under full-suite load (it passed in the final-head run) | Recorded; not G-DOC-R scope (report §3) |
+| F-5 | Independent stage C review: no counterexample. Follow-ups: the published map's shape, an uncached parent map for `setFill`, the size-check comment, coverage tests | **Fixed** (`7799e6e`); report §2.4b |
+| F-6 | Fresh worktrees lack local, gitignored prerequisites (`render_compare`, `export_samples` outputs, the G-R1 workloads). Their absence fails or skips tests rather than reporting them as not run | Recorded (report §3, §3.1) |
 
 ## 3. Decisions requested from the maintainer
 | # | Decision | Options | Recommendation |
@@ -33,4 +35,4 @@ This register separates the decisions taken within the authorised scope (impleme
 | M-3 | AM-2: attribution of shared allocations | Count once at the highest-precedence owner (the chunk rule) / another rule | The chunk rule |
 | M-4 | AM-2: earlier history eviction under the unchanged 128 MiB | Approve / adjust the limits through RFC §7 | Approve; eviction stays oldest-first and visible |
 | M-5 | Node-map iteration order under stage D | Bucket order / insertion order (an extra index) | Bucket order. Deterministic, persistence unaffected; only the first error named for a multi-defect load may differ |
-| M-6 | Real-Safari qualification of this head | Unlock the screen for a run | Needed before acceptance |
+| M-6 | Owner checks still open from earlier gates | VoiceOver, the stock-Safari keyboard check, lower-end hardware, a quiet-machine run | Unchanged by this gate |

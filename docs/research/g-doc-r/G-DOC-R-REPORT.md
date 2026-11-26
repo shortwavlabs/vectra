@@ -4,7 +4,9 @@
 - Stage B (§1) and stage C (§2) are implemented and qualified, in Node and in the production build in 3 browser engines (§3).
 - An independent review of stage B found one correctness defect, which is fixed and re-qualified (§1.6).
 - Following brief §6 and change control, stage D is **not started**. Its history accounting needs amendment AM-2 ([draft](AM-2-DRAFT.md)), and the defect is reported here first.
-- Real Safari is NOT RUN on this head (the screen was locked).
+- On the final head (`9ae294f`):
+  - real Safari passes all five harnesses (§3.1), with the screen unlocked and the page visible;
+  - the full Playwright suite passes in 3 engines: 375 passed, 0 failed, 36 opt-in skips.
 - Nothing is merged. Decisions: [G-DOC-R-DECISIONS](G-DOC-R-DECISIONS.md).
 
 | | |
@@ -294,6 +296,21 @@ The copy and `parents` costs are exactly what stage D's chunked copy-on-write ma
 
 **Differential on this head:** 6 seeds, **108,362 comparisons** (forged states are now compared through both change-set paths), **0 disagreements**; 40,770 through the write log ([`bench/stage-c-differential-7799e6e.json`](bench/stage-c-differential-7799e6e.json)).
 
+### 2.4b Independent review of stage C
+A second reviewer read `758a689` against `8913cfb` (`src/document`) without this report's conclusions. It ran the document tests (165 passed) and a scratch fuzz of verbatim copies of the pure functions:
+- `inDocumentOrder` against the old `documentOrder` on random valid forests: 20,000 comparisons, **0 differences**;
+- `finiteProduct` against `multiply(...).every(Number.isFinite)`: 2,000,000 matrices built from ±0, ±1, ±1e9, ±1e154, ±1e308, the extreme magnitudes, ±Infinity and NaN, **0 differences**.
+
+**No counterexample.** Every node-map write goes through `DraftNodes`. Every `applyCommand` branch returns its input or one `Draft.finish`. `step` holds by induction over a transaction. Given a superset, `diffKeys` returns the same change set as `diff`.
+
+**Follow-ups, fixed in `7799e6e`:**
+- **The published map's shape.** It was a `DraftNodes` carrying an own property, while a loaded state's map is a plain `SealedMap`. Vitest's `toEqual` compares constructors and own keys. It is now a plain `SealedMap` again (with a test comparing published and loaded maps).
+- **Retained parent maps.** A multi-target `setFill` built `parents(s)`, which is cached per state, so it was retained with history. `inDocumentOrder` now builds an uncached map unless the state already has one. Note that `parents()` maps cached by `delete`, `group`, `duplicate`, `reparent` and by the proof are **pre-existing per-state retention**, uncounted, like the node maps themselves. AM-2's "indexes" covers them, and stage D's persistent parent index replaces them.
+- **The size-check comment** now says it catches only unbalanced misses. Soundness rests on `DraftNodes` being the only write path.
+- **Tests for the coverage gaps:** `DraftLog` negatives (a result built on another base, a stale result); multi-command transactions on nodes created earlier in the same transaction (dispatched in `compare` mode); `inDocumentOrder` against a pre-order walk (500 random target sets); write-set forgeries with strict supersets.
+
+**Residual risk, recorded.** A write that bypasses the map overrides would reach every state sharing that sealed map and be hidden from the validator (`Map.prototype.set.call(map, …)`, or a future `Map` method such as `getOrInsert`). No code does this today, and `SealedMap` has the same exposure. The `full` mode and the load path are unaffected.
+
 ### 2.5 Stage C checkpoint
 | Requirement | Result |
 |---|---|
@@ -361,3 +378,40 @@ The figures in §1.4 (302 and 588) included `concert-stage-light`; those outputs
 - B and C change no renderer code. The renderer still receives a `RenderSnapshot` built from the published state.
 - The renderer keeps its own O(nodes) parent maps: `render-host.ts` `parents()`, and `CanvasHost.tsx` `parentOf()`, which scans all nodes per call. A stage D parent index could replace them.
 - The measurement (snapshot preparation and frame scheduling after an edit, kept separate from dispatch and from the unchanged 100 ms preview target) is planned with stage D.
+
+### 3.1 Final head (`9ae294f`; production code as `7799e6e`)
+**Build.** It passes. Identifiers: `VERSION` `4b829e176927371e`, `BUILD_ID` `e8cfaf88be26066f`. Bundle (gzip KiB): design-system JS 114.3, CSS 9.5, workspace JS 234.0 (budgets 150 / 15 / 250).
+
+**Playwright, full suite, 3 engines.** **372 passed, 0 failed, 39 skipped** (9.0 min).
+- The three skips beyond G-BRAND's 36 were `pdf-eval`, which needs locally generated `export_samples` outputs that a fresh worktree lacks.
+- After `cargo run --release --locked -p vector-engine --example export_samples`, `pdf-eval` passed **3/3**.
+- Total: **375 passed, 0 failed, 36 opt-in skips**, identical to G-BRAND's final run.
+- §3's render_compare ordering issue did not recur, because the binary now exists. The canvas-edge test passed.
+
+**Bundle v1 (workbench): 15/15** byte-identical. **Document export: 576/576** identical.
+
+**Real Safari 26.6.2** (macOS 26.6.2). The screen was unlocked, the page visible before and after every harness, and each run's directory records the commit, build, load and lock state. Records are in [`safari/`](safari/).
+
+| Harness | Result |
+|---|---|
+| `gui.mjs` (G-UI workspace) | **14/14 PASS**, 0 findings |
+| `gr1.mjs` (focus ring, crash fallback) | **7/7** |
+| `gjob.mjs` (scheduler, service-worker eviction and isolation) | **10/10** |
+| `gr0.mjs` (renderer) | First run **6/7**: `pan-zoom-responsiveness` timed out (300 s) waiting for its workload. The registered G-R1 workloads (`bark-1224`, `bark-2350`, local and gitignored under `tests/output/g-job-workloads/`) were missing from this fresh worktree. Copied from the main checkout (SHA-256 verified identical) and re-run: **7/7** |
+| `persistence.mjs` (save, open, relink) | **23/23** |
+
+**Renderer in real Safari on this head** (`gr0` pan-zoom, worker host, [`safari/gr0-9ae294f.json`](safari/gr0-9ae294f.json)):
+
+| | bark-1224 (interactive) | bark-2350 (stress) |
+|---|---|---|
+| Snapshot preparation | 9 ms | 24 ms |
+| First frame | 69 ms | 102 ms |
+| Exact frame | 108 ms | 343 ms |
+| Exact draw in the worker | 70 ms | 243 ms |
+| Pan, gesture frames p50 / p95 | 17 / 18 ms | 17 / 18 ms |
+| Zoom, gesture frames p50 / p95 | 17 / 19 ms | 17 / 18 ms |
+
+- These are single-run figures for this head. No `main` baseline was taken under the same conditions, so they are **not** a measured G-DOC-R effect. Stages B and C change no renderer code, and the 100 ms preview target is unchanged and not graded here.
+- The comparison against `main` is still planned with stage D (§4).
+
+**Local evidence** (gitignored, in this worktree): `tests/output/g-doc-r/` (Playwright logs, build and bundle outputs, regression hashes, load records) and `tests/output/safari-runs/`. Archive these under `docs/EVIDENCE-PRESERVATION.md` before this worktree is ever removed.
