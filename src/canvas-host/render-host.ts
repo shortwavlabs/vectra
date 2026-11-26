@@ -626,6 +626,18 @@ export class DocumentRenderHost {
         p.coordOffsets.byteLength,
       0,
     );
+    // Waiting for this revision's frame before sending: the main-thread renderer (?renderer=main,
+    // or the crash fallback's replay) can draw a small document's complete exact frame
+    // synchronously inside `send`. Registered afterwards, that frame was missed and the host
+    // stayed "rendering" (found by the G-UI-R review's fallback test).
+    this.#pending = {
+      renderRevision: snapshot.renderRevision,
+      documentRevision,
+      sentAt: t0,
+      firstFrameMs: null,
+      buildMs: 0,
+    };
+    this.#emit({ kind: "rendering", documentRevision });
     this.client.send(snapshot, render, release);
     // A document change during a transform gesture: the preview restarts on the new snapshot.
     if (this.#transform) this.#sendDragStart();
@@ -639,14 +651,6 @@ export class DocumentRenderHost {
     this.diag.lastSnapshotMs = t1 - tEval;
     this.diag.lastCopyMs = t2 - t1;
     this.diag.lastPostMs = t3 - t2;
-    this.#pending = {
-      renderRevision: snapshot.renderRevision,
-      documentRevision,
-      sentAt: t0,
-      firstFrameMs: null,
-      buildMs: 0,
-    };
-    this.#emit({ kind: "rendering", documentRevision });
   }
 
   #onFrame(f: FrameInfo & { host: HostMode }): void {
