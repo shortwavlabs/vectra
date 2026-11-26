@@ -161,9 +161,13 @@ export class SealedMap<K, V> extends Map<K, V> {
     super.clear();
   }
 }
-/** Seals `m` (copying it first unless it is an unsealed SealedMap owned by the caller). */
+/** True for a sealed (immutable, shareable) document map. */
+export const isSealedMap = (m: ReadonlyMap<unknown, unknown>): boolean => SEALED.has(m);
+/** Seals `m`: an already sealed map is returned as is (immutable, so shareable); an unsealed
+ *  SealedMap owned by the caller is sealed in place; anything else is copied first. */
 export function sealMap<K, V>(m: ReadonlyMap<K, V>): ReadonlyMap<K, V> {
-  const out = m instanceof SealedMap && !SEALED.has(m) ? m : new SealedMap(m);
+  if (SEALED.has(m)) return m;
+  const out = m instanceof SealedMap ? m : new SealedMap(m);
   SEALED.add(out);
   return out;
 }

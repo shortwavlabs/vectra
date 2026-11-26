@@ -4,7 +4,7 @@
 
 import type { DecodePolicy } from "./provenance.ts";
 import { sniffImage } from "../vectorization/intake.ts";
-import { applyCommand, type Command, type CommandContext } from "./commands.ts";
+import { applyCommand, type Command, type CommandContext, DraftLog } from "./commands.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
 import { checkIncremental } from "./incremental-validate.ts";
 import {
@@ -230,16 +230,21 @@ export class DocumentSession {
     const prev = this.#state;
     const ids = new IdAllocator(this.#nextId);
     const store = this.store;
-    const ctx: CommandContext = { store, ids, commit: (p) => store.commit(p) };
+    const log = new DraftLog();
+    const ctx: CommandContext = { store, ids, commit: (p) => store.commit(p), log };
     let next = prev;
     let d: StateDerived;
     try {
-      for (const c of list) next = applyCommand(next, c, ctx);
+      for (const c of list) {
+        const out = applyCommand(next, c, ctx);
+        log.step(next, out);
+        next = out;
+      }
       if (next === prev) {
         store.settle();
         return this.#revision; // a no-op is not a transaction
       }
-      d = this.#validate(prev, next);
+      d = this.#validate(prev, next, log.complete ? log.keys : null);
       if (!o.withoutHistory) {
         const entry = this.#entryBytes(prev, d, next);
         if (entry > this.historyLimits.maxBytes)
@@ -279,12 +284,13 @@ export class DocumentSession {
     return this.#revision;
   }
 
-  /** Validates `next` against the validated `prev` (see ValidationMode). Throws the full
-   *  pass's error on an invalid state; counts only accepted transactions. */
-  #validate(prev: DocState, next: DocState): StateDerived {
+  /** Validates `next` against the validated `prev` (see ValidationMode). `writes` is the
+   *  transaction's complete Draft write log, or null (identity diff). Throws the full pass's
+   *  error on an invalid state; counts only accepted transactions. */
+  #validate(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): StateDerived {
     const { store, limits } = this;
     if (this.validation !== "full") {
-      const inc = checkIncremental(prev, this.#derived.get(prev)!, next, store, limits);
+      const inc = checkIncremental(prev, this.#derived.get(prev)!, next, store, limits, writes);
       if (inc.derived) {
         if (this.validation === "compare") {
           let full: StateDerived;

@@ -14,7 +14,7 @@
 // A disagreement is an acceptance of a state the full validator rejects, or an acceptance with
 // different derived data. `undecided` on a valid state is only a missed fast path.
 
-import { applyCommand, type Command } from "../commands.ts";
+import { applyCommand, type Command, DraftLog } from "../commands.ts";
 import { GeometryStore } from "../geometry-store.ts";
 import { checkIncremental } from "../incremental-validate.ts";
 import {
@@ -70,6 +70,8 @@ export interface DifferentialSummary {
   undecidedReasons: Record<string, number>;
   /** Reasons for `undecided` on states the full validator accepts (missed fast paths). */
   undecidedValidReasons: Record<string, number>;
+  /** Command transactions validated through their Draft write log (stage C). */
+  writeLogged: number;
   disagreements: Disagreement[];
 }
 
@@ -543,6 +545,13 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
 }
 
 // --- harness --------------------------------------------------------------------------------------
+/** Keys whose node entries differ between two states (the identity diff). */
+function changedKeys(a: DocState, b: DocState): Set<NodeId> {
+  const out = new Set<NodeId>();
+  for (const [k, v] of b.nodesById) if (a.nodesById.get(k) !== v) out.add(k);
+  for (const k of a.nodesById.keys()) if (!b.nodesById.has(k)) out.add(k);
+  return out;
+}
 function episode(r: Rng): DocumentSession {
   const limits: DocLimits = {
     ...DEFAULT_DOC_LIMITS,
@@ -589,6 +598,7 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     fullErrorCodes: {},
     undecidedReasons: {},
     undecidedValidReasons: {},
+    writeLogged: 0,
     disagreements: [],
   };
   const count = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
@@ -602,6 +612,7 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     label: string,
     prev: DocState,
     next: DocState,
+    writes: ReadonlySet<NodeId> | null = null,
   ) => {
     const { store, limits } = session;
     let full: StateDerived | null = null;
@@ -613,7 +624,7 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
         e instanceof DocumentError ? e.code : `untyped:${(e as Error).name}`,
       );
     }
-    const inc = checkIncremental(prev, session.derivedOf(prev)!, next, store, limits);
+    const inc = checkIncremental(prev, session.derivedOf(prev)!, next, store, limits, writes);
     const rows = [out.byClass[cls], (out.byLabel[`${cls}:${label}`] ??= tally())];
     out.compared++;
     for (const t of rows) t.compared++;
@@ -668,14 +679,20 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     };
     const cmds = build();
     const label = cmds.map((c) => c.type).join("+");
+    const log = new DraftLog();
     const ctx = {
       store,
       ids: new IdAllocator(session.nextId),
       commit: (p: Parameters<typeof store.commit>[0]) => store.commit(p),
+      log,
     };
     let next = prev;
     try {
-      for (const c of cmds) next = applyCommand(next, c, ctx);
+      for (const c of cmds) {
+        const out = applyCommand(next, c, ctx);
+        log.step(next, out);
+        next = out;
+      }
     } catch (e) {
       if (!(e instanceof DocumentError)) throw e;
       out.commandRejected++;
@@ -687,7 +704,17 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
       store.settle();
       continue;
     }
-    const fullOk = compare(i, "command", label, prev, next);
+    // Stage C: every command transaction's log must be complete and cover the true change set.
+    const missed = [...changedKeys(prev, next)].filter((k) => !log.keys.has(k));
+    if (!log.complete || missed.length)
+      out.disagreements.push({
+        index: i,
+        class: "command",
+        label,
+        detail: `write log incomplete (flag ${log.complete}; missed ${missed.slice(0, 5).join(",")})`,
+      });
+    else out.writeLogged++;
+    const fullOk = compare(i, "command", label, prev, next, log.complete ? log.keys : null);
     store.settle();
     // Advance through the real dispatch, which must reach the same verdict.
     try {

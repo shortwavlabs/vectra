@@ -20,6 +20,9 @@ describe("incremental validator (G-DOC-R stage B; TD-PERF-007)", () => {
     expect(s.decided).toBeGreaterThanOrEqual(5_000); // fast-accepted and checked, not fallbacks
     expect(s.fullRejected).toBeGreaterThanOrEqual(2_000); // invalid states reach both validators
     expect(s.commandRejected).toBeGreaterThan(0); // reparent cycles, dangling ids, bad palette refs
+    // Stage C: command transactions use their (verified complete) Draft write log; forgeries
+    // have none and use the identity diff, so both paths are compared with the oracle.
+    expect(s.writeLogged).toBeGreaterThanOrEqual(5_000);
     for (const label of [
       "cycle",
       "second-parent",

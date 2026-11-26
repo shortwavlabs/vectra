@@ -16,8 +16,9 @@
 // cross-entry rule is re-established from the change set. A change to invariants.ts adds the
 // rule here and a forgery to testing/incremental-differential.ts in the same change.
 //
-// Cost: the change set comes from an identity diff of the node map, O(nodes); see
-// G-DOC-R stage C for the Draft write log that replaces it.
+// Cost: the node change set comes from the transaction's Draft write log when the session has
+// a complete one (G-DOC-R stage C), O(written keys); otherwise from an identity diff of the
+// node map, O(nodes). The log is a superset of the changed keys; unchanged keys are skipped.
 
 import { parents } from "./commands.ts";
 import {
@@ -80,6 +81,24 @@ const ok = (f: () => unknown) => {
   }
 };
 
+/** `diff` restricted to `keys`, a superset of the keys whose entries differ. */
+function diffKeys<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>, keys: ReadonlySet<K>) {
+  const changed: [K, V, V | undefined][] = [];
+  const removed: [K, V][] = [];
+  let added = 0;
+  for (const k of keys) {
+    const old = a.get(k);
+    const v = b.get(k);
+    if (v === undefined) {
+      if (old !== undefined) removed.push([k, old]);
+    } else if (old !== v) {
+      changed.push([k, v, old]);
+      if (old === undefined) added++;
+    }
+  }
+  return { changed, removed, added };
+}
+
 /** Added or updated entries of `b` (in `b`'s order), and entries of `a` missing from `b`. */
 function diff<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) {
   const changed: [K, V, V | undefined][] = [];
@@ -97,17 +116,44 @@ function diff<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) {
   return { changed, removed, added };
 }
 
+/** `multiply(m1, m2).every(Number.isFinite)` without the allocation (same expressions; the
+ *  `+ 0` that normalises −0 in `multiply` cannot change finiteness). */
+function finiteProduct(m1: Matrix, m2: Matrix): boolean {
+  const a = m1[0],
+    b = m1[1],
+    c = m1[2],
+    d = m1[3],
+    e = m1[4],
+    f = m1[5];
+  const A = m2[0],
+    B = m2[1],
+    C = m2[2],
+    D = m2[3],
+    E = m2[4],
+    F = m2[5];
+  return (
+    Number.isFinite(a * A + c * B) &&
+    Number.isFinite(b * A + d * B) &&
+    Number.isFinite(a * C + c * D) &&
+    Number.isFinite(b * C + d * D) &&
+    Number.isFinite(a * E + c * F + e) &&
+    Number.isFinite(b * E + d * F + f)
+  );
+}
+
 export function checkIncremental(
   prev: DocState,
   prevDerived: StateDerived,
   next: DocState,
   store: ChunkLookup,
   limits: DocLimits = DEFAULT_DOC_LIMITS,
+  /** Node keys that may differ (a superset), from a complete Draft write log; else null. */
+  writes: ReadonlySet<NodeId> | null = null,
 ): IncrementalResult {
   const t0 = performance.now();
   const timing: IncrementalTiming = { diffMs: 0, parentsMs: 0, checksMs: 0 };
   try {
-    const derived = run(prev, prevDerived, next, store, limits, timing);
+    const derived = run(prev, prevDerived, next, store, limits, timing, writes);
     timing.checksMs = performance.now() - t0 - timing.diffMs - timing.parentsMs;
     return { derived, timing };
   } catch (e) {
@@ -126,6 +172,7 @@ function run(
   store: ChunkLookup,
   limits: DocLimits,
   timing: IncrementalTiming,
+  writes: ReadonlySet<NodeId> | null,
 ): StateDerived {
   const prevMax = prevDerived.maxIdNumber;
   if (next.documentId !== prev.documentId && !SCENE_ID_RE.test(next.documentId)) no("documentId");
@@ -186,7 +233,12 @@ function run(
 
   if (next.nodesById.size > limits.maxNodes) no("maxNodes");
   const tDiff = performance.now();
-  const nodes = diff(prev.nodesById, next.nodesById);
+  const nodes = writes
+    ? diffKeys(prev.nodesById, next.nodesById, writes)
+    : diff(prev.nodesById, next.nodesById);
+  // Defence in depth: a log that missed an addition or a removal cannot balance the sizes.
+  if (writes && prev.nodesById.size + nodes.added - nodes.removed.length !== next.nodesById.size)
+    no("write log inconsistent with the map sizes");
   timing.diffMs = performance.now() - tDiff;
 
   // --- per-node checks, chunk and anchor deltas, child-reference delta ---
@@ -325,15 +377,20 @@ function run(
     placed.set(id, out);
     return out;
   };
+  // Containers already walked (walk roots may overlap). Leaves are checked without allocating
+  // their composed matrix: `finiteProduct` evaluates exactly `multiply`'s expressions.
   const walked = new Set<NodeId>();
   const walk = (id: NodeId, m: Matrix, depth: number): void => {
-    if (walked.has(id)) return;
-    walked.add(id);
     if (depth > limits.maxDepth) no("depth");
     const n = next.nodesById.get(id)!;
+    if (!isContainer(n)) {
+      if (!finiteProduct(m, n.localTransform)) no("composed transform");
+      return;
+    }
+    if (walked.has(id)) return;
+    walked.add(id);
     const composed = multiply(m, n.localTransform);
     if (!composed.every(Number.isFinite)) no("composed transform");
-    if (!isContainer(n)) return;
     if (n.clipRef !== undefined && !isAxisPreserving(composed)) no("clip transform");
     for (const c of n.orderedChildIds) walk(c, composed, depth + 1);
   };
