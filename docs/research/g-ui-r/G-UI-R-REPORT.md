@@ -454,7 +454,7 @@ The failures were deterministic and test-side only: the lock test expected the R
   - Collapsed Layers: the 36 px header, plus the 24 px strip above it.
 - **Found and fixed in the shell: a Firefox-only defect in handle drags.**
   - A transform-handle drag left a selection range over the canvas overlay. Firefox then turned the next handle drag that started inside that range into a native drag (`pointercancel`), and the transform was lost (west, then east, in that order).
-  - The canvas section is now `select-none`.
+  - The canvas section is now `select-none`. *Superseded: the root cause is fixed in the canvas host (#19, `01a3dab`: `user-select: none` on `.vx-canvas-host`, with a regression test that fails in Firefox before the fix). The shell class was removed when #19 was merged forward.*
   - The root cause is in canvas-host: the handles neither prevent default on pointer-down nor set `user-select`. That is the lead's to fix, if wanted.
 
 | Splitter evidence | Result |

@@ -663,7 +663,7 @@ export function Workspace() {
                   native drag (pointercancel), cancelling the transform. */}
               <section
                 aria-label="Canvas"
-                className="relative h-full min-w-0 overflow-hidden bg-canvas-surround select-none"
+                className="relative h-full min-w-0 overflow-hidden bg-canvas-surround"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
