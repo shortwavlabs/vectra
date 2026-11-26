@@ -228,6 +228,25 @@ describe("palette names on screen (display only)", () => {
     expect(names(s.state).every(([, label]) => /^Colour \d$/.test(label!))).toBe(true);
   });
 
+  test("limit: an unused entry is checked against every trace, so a matching custom name is relabelled", () => {
+    // The trade-off (reported): an entry no path uses has no owning trace, so the document's
+    // provenance stands in. A custom name equal to an id some trace generated would then read as
+    // generated. The strict alternative would show raw names (p2…) after every layer fill.
+    const s = fixtureSession(["adjacent_colors-limited", "adjacent_colors-color"]);
+    const layer = roots(s)[0]!;
+    s.dispatch({
+      type: "setFill",
+      ids: fillTargets(s.state, [layer]),
+      fill: { color: 0x2050a0ff },
+    });
+    const r = renamed(s.state, { p2: "c0", p3: "Sky" });
+    // The renamed entry comes first in palette order, so it takes "Colour 1".
+    expect(names(r).slice(0, 2)).toEqual([
+      ["c0", "Colour 1"],
+      ["Sky", "Sky"],
+    ]);
+  });
+
   test("an entry no path uses any more keeps its label (document provenance)", () => {
     const s = fixtureSession(["adjacent_colors-limited"]);
     const shown = names(s.state);

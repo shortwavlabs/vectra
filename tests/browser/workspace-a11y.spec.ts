@@ -65,9 +65,9 @@ async function edgeBands(page: Page) {
       }
     }
   }
-  // Not under a visible control drawn over the canvas edge (the splitter grips: adjacent UI, not
-  // canvas layers). Hit-testing cannot decide this: the splitters' invisible 24 px pointer
-  // targets also extend over the canvas edge.
+  // No sample may lie under a splitter grip: since the final closure the splitters are resize
+  // strips of their own outside the canvas, so nothing is drawn over its edge (the grip boxes
+  // are kept as a guard; before, a 24 px splitter target reached over the canvas edge).
   const grips = await page.locator('[role="separator"] > div').evaluateAll((els) =>
     els.map((e) => {
       const r = e.getBoundingClientRect();
@@ -85,7 +85,7 @@ async function edgeBands(page: Page) {
     c.band.push(at(c.px, c.py));
     where.get(c.band)!.push(`${c.px},${c.py}`);
   });
-  expect(excluded, "samples covered by other controls").toBeLessThan(candidates.length / 8);
+  expect(excluded, "samples covered by a splitter grip").toBe(0);
   return { outer, inner, where, size: `${img.w}×${img.h}` };
 }
 

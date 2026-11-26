@@ -3,7 +3,7 @@
 // production build (promoted from the R05-A harness suite).
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { EXPECTED_CSP, expect, note, openWorkspace, test } from "./ui-helpers.ts";
+import { EXPECTED_CSP, expect, importFixture, note, openWorkspace, test } from "./ui-helpers.ts";
 
 test("CSP header is the _headers policy; the shell loads clean; the detector fires", async ({
   page,
@@ -141,12 +141,14 @@ test("pressed tool keeps its icon contrast under the pointer", async ({ page }) 
 test("splitters: their own 24 px strips, outside the canvas and clear of every control", async ({
   page,
 }) => {
-  for (const size of [
-    { width: 1024, height: 640 },
-    { width: 1920, height: 1080 },
-  ]) {
+  for (const [size, withDocument] of [
+    [{ width: 1024, height: 640 }, false],
+    [{ width: 1920, height: 1080 }, false],
+    [{ width: 1366, height: 768 }, true],
+  ] as const) {
     await page.setViewportSize(size);
     await openWorkspace(page);
+    if (withDocument) await importFixture(page, "procedural/nested_rings.png");
     const geometry = await page.evaluate(() => {
       const r = (e: Element) => e.getBoundingClientRect();
       const meet = (a: DOMRect, b: DOMRect) =>
@@ -169,7 +171,7 @@ test("splitters: their own 24 px strips, outside the canvas and clear of every c
         };
       });
     });
-    note(`splitters at ${size.width}x${size.height}`, geometry);
+    note(`splitters at ${size.width}x${size.height}${withDocument ? ", document" : ""}`, geometry);
     expect(geometry.map((g) => g.name)).toEqual(["Resize inspector", "Resize layers"]);
     for (const g of geometry) {
       expect(g.across, g.name!).toBeGreaterThanOrEqual(24);
@@ -177,6 +179,24 @@ test("splitters: their own 24 px strips, outside the canvas and clear of every c
       expect(g.overCanvas, `${g.name} over the canvas`).toBe(false);
       expect(g.overControls, `${g.name} over controls`).toEqual([]);
     }
+  }
+  // Keyboard focus: the dual ring is drawn inside each strip (lime at its edge, dark inside).
+  for (const name of ["Resize inspector", "Resize layers"]) {
+    const sep = page.getByRole("separator", { name });
+    await sep.focus();
+    await page.keyboard.press(name === "Resize inspector" ? "ArrowLeft" : "ArrowUp");
+    const ring = await sep.evaluate((e) => {
+      const cs = getComputedStyle(e);
+      return {
+        outline: `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineColor}`,
+        offset: cs.outlineOffset,
+        shadow: cs.boxShadow,
+      };
+    });
+    note(`${name} focus ring`, ring);
+    expect(ring.outline).toBe("solid 2px rgb(185, 232, 123)");
+    expect(ring.offset).toBe("-2px");
+    expect(ring.shadow).toMatch(/rgb\(25, 26, 28\).*inset|inset.*rgb\(25, 26, 28\)/);
   }
 });
 
