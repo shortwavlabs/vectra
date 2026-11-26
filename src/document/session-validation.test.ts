@@ -15,6 +15,8 @@ import {
 import { fixturePacket } from "./testing/fixtures.ts";
 import { fixtureProvenance, fixtureSession, TEST_PROVENANCE } from "./testing/helpers.ts";
 import { syntheticPacket } from "./testing/synthetic.ts";
+import { saveContainer } from "../persistence/container.ts";
+import { sha256Hex } from "./session.ts";
 
 const MODES: readonly ValidationMode[] = ["incremental", "compare", "full"];
 const ROT45: Matrix = [Math.SQRT1_2, Math.SQRT1_2, -Math.SQRT1_2, Math.SQRT1_2, 0, 0];
@@ -162,6 +164,16 @@ describe("G-DOC-R stage B: validation modes in dispatch", () => {
     expect(inc!.session.validations.incremental).toBeGreaterThan(10);
     expect(cmp!.session.validations).toEqual(inc!.session.validations);
     expect(full!.session.validations.incremental).toBe(0);
+  });
+
+  test("stable serialization: the scripted document saves to the frozen bytes in every mode", async () => {
+    // Frozen on G-DOC-R stage B (8913cfb), before the command layer changes in stages C and D.
+    const FROZEN = "e60fa32756cdcf1dd6ed42ffff9fc65fe4432492b58f727dc4132fff77538e36";
+    for (const mode of MODES) {
+      const { session } = run(mode, script());
+      const bytes = await saveContainer(session, { codec: "none" });
+      expect(await sha256Hex(bytes), mode).toBe(FROZEN);
+    }
   });
 
   test("resource limits: anchors, nodes and depth are enforced identically in every mode", () => {
