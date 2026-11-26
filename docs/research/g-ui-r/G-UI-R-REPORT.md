@@ -305,7 +305,7 @@ Total initial workspace JS measured 228.1 at `24550b8` and 227.8 at `ee72fb3`. R
 
   | Measure (real Safari) | synthetic-many-250k | architecture-street-halftone |
   |---|---|---|
-  | Preview (budget ≤ 100 ms) | **190 ms (miss)** | **302 ms (miss)** |
+  | Preview | **190 ms: misses** the interactive target's ≤ 100 ms | 302 ms: a stress workload (RFC §8.8). Measured; no 100 ms threshold applies (maintainer ruling, 2026-11-25) |
   | First / exact frame | 100 / 160 ms | 292 / 292 ms |
   | Visible after load (displayed-canvas sampler) | 206 ms | 478 ms |
   | Hit index ready, slices, max slice | 89 ms, 11, 4 ms | 288 ms, 31, 5 ms |
@@ -385,7 +385,7 @@ Accessible names are unchanged.
 - `e2d133c`: the focused final Impeccable audit, [FINAL-AUDIT.md](FINAL-AUDIT.md). Score 15/20 ("Good"); no P0 or P1; 2 P2; 6 P3.
 - `30b2d60`: **the two P2 findings are fixed**, together with two merged-test fixes:
   - **P2-1, WCAG 1.4.11.** The registry ghost variant's `dark:hover:bg-muted/50` overrode the pressed tool's lime, so its icon sat at about 1.03:1 under the pointer. Fixed with `dark:hover:bg-primary/90`.
-  - **P2-2, WCAG 2.5.8.** The "Resize inspector" splitter's pointer target was 8 px; it is now 24 px, centred on the split line. It therefore extends 12 px over the canvas's right edge, where the resize cursor shows. The Layers splitter stays at 8 px: a 24 px target would cover the Layers disclosure button.
+  - **P2-2, WCAG 2.5.8.** The "Resize inspector" splitter's pointer target was 8 px; it is now 24 px, centred on the split line. It therefore extends 12 px over the canvas's right edge, where the resize cursor shows. The **Layers splitter stays at 8 px and still fails WCAG 2.5.8** (open: a 24 px target would cover the Layers disclosure button, so it needs a layout decision). The canvas trade-off: the canvas's rightmost 12 px now start a panel resize instead of a canvas gesture, including any transform handle that falls in that strip. Reverting is one class (`after:w-6` back to `after:w-2`).
   - `ui-shell` asserts both in OS dark mode. Before the fix: 1.03–1.04:1 and 8 px in 3 engines.
   - Lock test: the Recolor disclosure appears only when the document has palette colours, and this fixture has none. Its wording is asserted in `ui-document`.
   - Focus-ring test: samples under a visible splitter grip (adjacent UI over the canvas edge in the docked layout) are excluded, at most 1/8. Hit-testing cannot decide occlusion, because the 24 px targets are invisible.
