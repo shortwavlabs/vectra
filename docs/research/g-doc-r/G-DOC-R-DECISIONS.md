@@ -74,3 +74,5 @@ This register separates the decisions taken within the authorised scope (impleme
 | M-7 | Accept stage D and the G-DOC-R gate's implementation, with the open qualifications (lower-end hardware, quiet machine, browser-dispatch timing in the production build) | Accept as an implementation; the gate's hardware qualifications stay open |
 | M-8 | TD-UI-006: confirmation flow to commit without history, or keep rejection | Decide before supporting very large single subtrees, or enabling the constrained profile |
 | M-9 | `paletteLabels()` incrementalisation timing | With Recolor virtualisation |
+
+**Safari environment (2026-11-26).** After the maintainer restarted Safari, all five harnesses pass on the final build `e3cfd750f82410a6`: gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23. The earlier failures on `0700087` were the Safari environment fault diagnosed in report §11.

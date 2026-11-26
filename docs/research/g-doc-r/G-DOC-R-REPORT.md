@@ -1,10 +1,10 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: PARTIAL. Stages B, C and D are implemented; Node, Playwright (3 engines) and part of real Safari are qualified. Awaiting maintainer acceptance; the gate remains open.**
+**Status: PARTIAL. Stages B, C and D are implemented and qualified on the reference machine: Node, Playwright in 3 engines, and all five real-Safari harnesses. Awaiting maintainer acceptance. The gate remains open only for runs not done: lower-end hardware, a designated quiet machine, and in-browser dispatch timing.**
 - Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11).
 - Stage D (§5–§7) meets ≤ 50 ms in Node for all 12 transaction types at the 996k-anchor stress workload, and the interactive targets.
 - Three independent reviews ran (§1.6, §2.4b, §5.6). Every confirmed defect that breaks a stated claim is fixed and re-qualified. Two low-severity findings are recorded, not fixed (§5.6 C3, an over-count in hand-built states; C5, an error message).
-- **No stage D build has completed an import, trace and commit in real Safari.** Safari's blob and storage layer was failing for every build during the final run (§11); this needs a Safari restart and a re-run.
+- **Real Safari:** after the maintainer restarted Safari, all five harnesses pass on the final build `e3cfd750f82410a6`: gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23 (§11). The earlier failures were Safari's environment, as diagnosed.
 - Final head: §11. Renderer against the G-BRAND baseline: §10.
 - Nothing is merged. Decisions: [G-DOC-R-DECISIONS](G-DOC-R-DECISIONS.md).
 
@@ -776,9 +776,8 @@ The rows below were measured on `0700087` (`BUILD_ID` `7debe2a41e0f74d5`) unless
 | Document export (frozen 636, every `concert-*` input excluded) | **576/576** identical on `6a23a92` |
 | Engine corpus / bundle v2 | 294/294, 72/72 (engine unchanged by G-DOC-R; runs of §3) |
 | Canonical serialization | the frozen hash (taken on stage B) is unchanged |
-| Real Safari: `gr0` (renderer) | **7/7** (and 7/7 in every comparison run) |
-| Real Safari: `persistence` | **23/23** |
-| Real Safari: `gui`, `gjob`, `gr1` | **NOT RUN validly (environment).** gui 7/15, gjob 2/10, gr1 6/7 (offline only). See below |
+| Real Safari 26.6.2 on the final build `e3cfd750f82410a6` (`2e37eba`), after a Safari restart. Screen unlocked; page visible before and after each harness. Records: `safari/g-doc-r-rerun*-e3cfd750-*` | **gui 14/14 · gr1 7/7 · gjob 10/10 · gr0 7/7 · persistence 23/23** |
+| Real Safari on `0700087`, before the restart | gr0 7/7 and persistence 23/23 passed. gui 7/15, gjob 2/10 and gr1 6/7 (offline only) failed through the environment fault below; superseded by the re-run |
 
 **Real-Safari environment fault, diagnosed (`safari/harnesses-0700087-*`).** Every failure is a timeout waiting for a trace, for "offline ready", or for a job stage. Two diagnostic sessions showed:
 - **Imports.** An import fails with "The I/O read operation failed", from the worktree and from `/private/tmp` alike.
@@ -787,17 +786,16 @@ The rows below were measured on `0700087` (`BUILD_ID` `7debe2a41e0f74d5`) unless
 - **The baseline fails identically.** The **verified G-BRAND baseline** (`69b8618a0497ded6`), whose harnesses passed in full earlier on 2026-11-26, shows exactly the same failures in the same Safari session.
 - **Last valid run.** The same harnesses passed in full on `9ae294f` at 12:13 (§3.1).
 
-So Safari's blob and storage layer, or its file access, was failing for every build. These three harnesses are recorded as **NOT RUN (environment)**, not as passes or as G-DOC-R regressions.
-- **To re-run:** restart Safari (not done here: it is the maintainer's application), then run `safari-run.sh <worktree> g-doc-r gui gr1 gjob`.
-- Playwright WebKit's import, trace, offline and update specs all pass on the final build.
+So Safari's blob and storage layer, or its file access, was failing for every build. Those runs were recorded as invalid (environment), not as passes or as G-DOC-R regressions.
+
+**Resolved.** The maintainer restarted Safari. On the final build all five harnesses pass, including every import, trace and commit, offline readiness, the scheduler and the service-worker update scenarios (table above). This confirms the diagnosis.
 
 **NOT RUN, or open:**
 - lower-end hardware;
 - a designated quiet-machine run (the final dispatch run had load 1.3–1.5, but is not labelled quiet);
 - dispatch timing inside the production build in a browser (the renderer stages are measured in §10);
 - browser-engine heap evidence;
-- VoiceOver and the stock-Safari keyboard check;
-- the three real-Safari harnesses above.
+- VoiceOver and the stock-Safari keyboard check.
 
 ## 12. Disposition
 | Brief item | Result |
@@ -811,7 +809,7 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 | `paletteLabels()` investigation | **Done**: recommendation in §9; not implemented |
 | Renderer against the verified G-BRAND baseline, matched | **Done** (§10): small regressions in load, evaluation and preview; gestures unchanged; drag settle faster |
 | All 12 types at three workloads, median and p95 | **Met in Node** (§5.5) |
-| Browser suite, real Safari, serialization, export equivalence, history tests | Done, except three Safari harnesses NOT RUN (environment, §11) |
+| Browser suite, real Safari, serialization, export equivalence, history tests | **Done.** Playwright 375/0 in 3 engines; real Safari 5/5 harnesses on the final build (§11) |
 | `render_compare` deterministic setup; canvas-edge race | **Done** (§8) |
 | Exact omitted fixture set | `concert-small-venue.png`, `concert-small-venue-1280.png`, `concert-stage-light.png` (and every output derived from them): 32 of the 326 engine-corpus hashes and 60 of the 636 export hashes |
 
@@ -820,6 +818,5 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 - The gate stays **open and unqualified** until the remaining runs are done:
   - lower-end hardware;
   - a quiet machine;
-  - the three Safari harnesses after a Safari restart (no stage D build has completed an import, trace and commit in real Safari yet);
   - in-browser dispatch timing.
 - No threshold has been relaxed.

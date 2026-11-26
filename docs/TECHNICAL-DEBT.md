@@ -923,7 +923,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
     - 250k paths (756k anchors): 44.7 / 45.7 ms (`ungroup`; borderline across runs, p95 up to 53.6 under heavier load);
     - 330k paths (**996k anchors**): 66.1 / 69.7 ms. **6 of 12 types exceed 50 ms**.
   - **Status: OPEN.**
-    - The 1M-anchor stress criterion awaits stage D, which is stopped pending amendment AM-2 ([draft](research/g-doc-r/AM-2-DRAFT.md)).
+    - The 1M-anchor stress criterion was then met by stage D (entry below).
     - The production-build browser measurement and the quiet-machine run are still needed for closure.
 - **G-DOC-R stage D (2026-11-26, branch `gate/g-doc-r`, `6a23a92`; awaiting acceptance).**
   - **What changed:** a chunked copy-on-write node map ordered by node ID, a persistent parent index, and AM-2 history accounting.

@@ -1,0 +1,7 @@
+commit 2e37eba21b79aa4b69fb51a6cd91feb42c2edfaf
+build e3cfd750f82410a6
+label g-doc-r-rerun-b
+started Thu Nov 26 14:56:42 CST 2026
+== gr0: 7/7 passed (Safari 26.6.2) | before: page visible | after: page visible
+== persistence: 23/23 checks passed (Safari 26.6.2) | before: page visible | after: page visible
+finished Thu Nov 26 14:57:19 CST 2026
