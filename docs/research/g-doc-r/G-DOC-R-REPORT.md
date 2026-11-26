@@ -1,11 +1,11 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: STAGES B, C AND D IMPLEMENTED AND QUALIFIED; AWAITING MAINTAINER ACCEPTANCE. The gate's hardware qualifications remain open.**
+**Status: PARTIAL. Stages B, C and D are implemented; Node, Playwright (3 engines) and part of real Safari are qualified. Awaiting maintainer acceptance; the gate remains open.**
 - Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11).
 - Stage D (§5–§7) meets ≤ 50 ms in Node for all 12 transaction types at the 996k-anchor stress workload, and the interactive targets.
-- Three independent reviews found defects; every confirmed one is fixed and re-qualified (§1.6, §2.4b, §5.6).
+- Three independent reviews ran (§1.6, §2.4b, §5.6). Every confirmed defect that breaks a stated claim is fixed and re-qualified. Two low-severity findings are recorded, not fixed (§5.6 C3, an over-count in hand-built states; C5, an error message).
+- **No stage D build has completed an import, trace and commit in real Safari.** Safari's blob and storage layer was failing for every build during the final run (§11); this needs a Safari restart and a re-run.
 - Final head: §11. Renderer against the G-BRAND baseline: §10.
-- Real Safari's gui, gjob and gr1-offline harnesses could not run validly on the final build: Safari's own blob and storage layer was failing for every build, including the verified baseline (§11).
 - Nothing is merged. Decisions: [G-DOC-R-DECISIONS](G-DOC-R-DECISIONS.md).
 
 | | |
@@ -425,7 +425,7 @@ Every production use of `nodesById` beyond `get`, `has` and `size`:
 
 | Consumer | Uses the order? | Result |
 |---|---|---|
-| `invariants.ts` `validateState`: per-node checks | Which defect is reported **first** in a document with several defects | Allowed by AM-2. Single-defect rejections keep the same code and message, with one exception: a **duplicate ID number** between two nodes names whichever is visited second. That can now be the other node; the code (`invariant`) is unchanged |
+| `invariants.ts` `validateState`: per-node checks | Which defect is reported **first** in a document with several defects | Allowed by AM-2. Single-defect rejections keep the same code and message, with one exception: a **duplicate ID number** between two nodes names whichever is visited second. That can now be the other node; the code (`invariant`) is unchanged. **Tested:** the differential validates every single-forgery state as a plain `Map` and as a `NodeMap`. Over 3 seeds, 12,818 states: identical verdicts and codes; messages differ only for duplicate numbers (96). `vp test` asserts this |
 | `commands.ts` `parentMap` (verification); `render-host.ts` `parents`; `CanvasHost.tsx` `parentOf` | No: each node has one parent in a valid tree | Unchanged |
 | `incremental-validate.ts` max-ID rescan | No (a maximum) | Unchanged |
 | `document-json.ts` save | No: canonical JSON sorts keys | Bytes unchanged (frozen hash test; 576/576 export regression, §11) |
@@ -563,6 +563,21 @@ Plausible risks and untested assumptions it named:
 - **The oracle.** `testing/structure-oracle.ts` recomputes the same quantity by full traversal with identity sets, without the chain argument.
 - **Ledger against oracle.** `structure-accounting.test.ts` compares the two after **every operation** of random histories: 6 seeds × 160 operations, mixing edits, undo, redo, branching, keyed coalescing, `withoutHistory` and evictions by count and by bytes. The first run of this test found a real double count, fixed before commit: the shared empty-chunk constant was counted once per map.
 
+### 6.2a Accounting and eviction costs, profiled separately
+`node --expose-gc scripts/profile-accounting.mjs --sizes 43000,330000 --reps 20` → [`bench/stage-d-accounting-profile-6f4b5d4.json`](bench/stage-d-accounting-profile-6f4b5d4.json). Load 0.3–1.0. Times are medians, in ms.
+
+| | 43k | 330k |
+|---|---|---|
+| `structureDelta`, with the write log: one-node edits (setVisible, rename, setFill1, transforms) | 0.003–0.012 | 0.010–0.015 |
+| `structureDelta`, with the write log: structural edits (reorder, group, ungroup, delete, duplicate) | 0.004–0.019 | 0.010–0.018 |
+| `structureDelta`, with the write log: setFillMany / commitTrace | 0.48 / 0.55 | 0.86 / 0.58 |
+| `structureDelta`, structural diff (coalesced steps only): structural edits | 0.24–0.25 | 0.23–0.24 |
+| `structureDelta`, structural diff: setFillMany / commitTrace | 0.73 / 0.88 | 3.30 / 1.03 |
+| `historyStructureBytes()` / `historyBytes()`, 103 entries | 0.001 / 0.002 | 0.001 / 0.001 |
+| Eviction: dispatch median at maxEntries 10 (evicting every edit) against 1000 | 0.023 vs 0.025 | 0.065 vs 0.065 |
+
+Accounting adds at most about 0.9 ms to an ordinary edit at 330k (setFillMany). Eviction costs nothing measurable. Neither traverses the document or the history.
+
 ### 6.3 Ownership transitions and retention
 Each transition the maintainer listed is tested against the oracle and against the expected delta (`ownership transitions …`):
 - an edit;
@@ -588,50 +603,73 @@ Each transition the maintainer listed is tested against the oracle and against t
   - It is recorded as debt (TD-UI-006) for the maintainer. No UI change is authorised in this gate.
 
 ## 7. Cost-model calibration (AM-2 §3)
-**Method.** `node --expose-gc scripts/calibrate-structure-accounting.mjs --reps 3` on `6a23a92` → [`bench/stage-d-calibration-6a23a92.json`](bench/stage-d-calibration-6a23a92.json). Each scenario:
+**Record:** `node --expose-gc scripts/calibrate-structure-accounting.mjs --reps 3` on `629cec6` → [`bench/stage-d-calibration-final-629cec6.json`](bench/stage-d-calibration-final-629cec6.json). (The earlier record, [`bench/stage-d-calibration-6a23a92.json`](bench/stage-d-calibration-6a23a92.json), has the same values for its scenarios under the old labels.)
+
+**Method.** Each scenario:
 1. builds a document and clears its history;
 2. collects garbage and reads `heapUsed + arrayBuffers`, since chunk arrays live in ArrayBuffers;
-3. runs the scenario's history and reads the session's **accounted** history-only structure bytes;
-4. collects again and reads the heap;
-5. clears the history and reads the heap once more.
+3. runs the scenario and reads the session's **accounted** history-only structure bytes;
+4. collects and reads the heap;
+5. clears the history, collects and reads again.
 
-**Measured** retention is the heap before clearing minus after, minus the chunk bytes retired into history (their own ledger term). The builder keeps no build-time state alive. An earlier run whose builder did keep it (the benchmark workload's closures) hid retention, and was discarded.
+**Measured** retention is the heap before clearing minus after, minus chunk bytes retired into history (their own ledger term). The builder keeps no build-time state alive. An earlier builder, the benchmark workload's closures, did keep it: that hid retention, and the run was discarded.
 
-**Constants.** The constants were chosen on the calibration set only. They model:
-- V8's hash-table capacity: the next power of two, 28 bytes per slot;
+**Constants.** They model:
+- hash-table capacity: the next power of two, 28 bytes per slot;
 - numbers outside the small-integer range, which are boxed (16 bytes);
 - typed-array headers (160 bytes);
 - structured-clone property arrays in provenance;
 - 320 bytes of per-state session bookkeeping.
 
-**Implementation changes the calibration prompted.** Exact-length child lists and an exact chunk directory remove array growth slack from history. They reduce actual retention rather than inflate the model.
+**Implementation changes the calibration prompted.** Exact-length child lists and an exact chunk directory remove array growth slack from history. They reduce real retention rather than inflate the model.
+
+**Which scenarios were seen during tuning.**
+- **"Calibration":** every scenario whose result changed a constant. The two large-palette and provenance scenarios were first labelled validation; their undercounts (0.71, 0.73, then 0.80) shaped three constants, so they are **relabelled calibration**.
+- **"Validation":** results observed while tuning but not used to choose constants.
+- **"Fresh validation":** added **after** the constants were frozen at `6a23a92`, and run once as they came out.
 
 | Set | Scenario | Entries | Accounted (MiB) | Measured median [min, max] (MiB) | Ratio |
 |---|---|---|---|---|---|
-| calibration | 43k paths: 1 small edit | 1 | 0.007 | 0.004 [−0.020, 0.043] | below noise |
+| calibration | 43k paths: 1 small edit | 1 | 0.007 | 0.004 [−0.038, 0.043] | below noise |
 | calibration | 43k: 10 small edits | 10 | 0.071 | 0.067 [0.067, 0.068] | 1.061 |
 | calibration | 43k: 50 small edits | 50 | 0.356 | 0.343 [0.339, 0.343] | 1.037 |
 | calibration | 43k: 100 small edits | 100 | 0.712 | 0.686 [0.686, 0.686] | 1.037 |
-| calibration | 43k: 20 structural edits (group, duplicate, delete, layer transform) | 20 | 0.991 | 0.987 [0.987, 0.987] | 1.004 |
+| calibration | 43k: 20 structural edits | 20 | 0.991 | 0.987 [0.987, 0.987] | 1.004 |
 | calibration | 43k: replace the 1k-path layer ×10 | 10 | 2.229 | 2.258 [2.258, 2.270] | **0.987** |
+| calibration | 20k styles, 10k entries, 30k-entry provenance, ×5 recolour | 5 | 4.436 | 4.427 | 1.002 |
+| calibration | 30k-entry provenance: replace a traced layer ×3 | 3 | 10.874 | 10.122 [10.121, 10.122] | 1.074 |
 | validation | 250k: 100 small edits | 100 | 1.636 | 1.611 [1.607, 1.611] | 1.016 |
-| validation | 250k: 20 structural edits (with setFillMany) | 20 | 13.836 | 13.681 [13.681, 13.681] | 1.011 |
-| validation | 330k (996k anchors): 50 small edits | 50 | 0.998 | 0.985 [0.985, 0.985] | 1.013 |
+| validation | 250k: 20 structural edits (with setFillMany) | 20 | 13.836 | 13.681 | 1.011 |
+| validation | 330k (996k anchors): 50 small edits | 50 | 0.998 | 0.985 | 1.013 |
 | validation | 330k: delete the whole main layer | 1 | 70.851 | 60.909 [60.905, 60.909] | 1.163 |
-| validation | 43k: undo/redo and a branch | 21 | 0.216 | 0.211 [0.211, 0.211] | 1.025 |
-| validation | large palette (20k styles, 10k entries) and 30k-entry provenance, ×5 recolour | 5 | 4.436 | 4.427 [4.427, 4.427] | 1.002 |
-| validation | large provenance: replace a traced layer ×3 | 3 | 10.874 | 10.122 [10.121, 10.122] | 1.074 |
+| validation | 43k: undo/redo and a branch | 21 | 0.216 | 0.211 | 1.025 |
+| fresh | 120k paths: 60 mixed edits (visibility, rename, layer transform) | 60 | 0.761 | 0.742 | 1.025 |
+| fresh | 8k styles, 12k-entry provenance: ×8 palette and fill edits | 16 | 2.685 | 2.679 | 1.002 |
+| fresh | 50k-entry provenance: replace ×2 | 2 | 11.936 | 11.063 | 1.079 |
+| fresh | 250k: 15 structural edits (group, duplicate, delete) | 15 | 3.404 | 3.402 | 1.001 |
+| fresh | **eviction:** 60 small edits at maxEntries 10 | 10 | 0.071 | 0.103 [0.069, 0.106] | **0.689** (noise floor) |
+| fresh, added after the line above | **eviction:** 40 reorders in a 31k-sibling group at maxEntries 10 | 10 | 2.548 | 2.546 | 1.001 |
+
+**Disposal** (a 43k-path session with 53 entries is dropped): it held about 21.9 MB. After dropping it and collecting, the heap is back within **−1.5 to +4.1 KB** of its pre-build level (3 repetitions). Nothing is retained.
 
 **Reading.**
-- **Validation set.** Every scenario, none of which chose the constants, has ratio ≥ 1.0: conservative within about 2–16 %.
-- **Calibration set.** Ratios are 0.987–1.061.
-- **The one value below 1** is the 10× layer replace: 29 KB in 2.26 MiB. That scenario retires chunks into history. The chunk term (C3.2 term 1) counts array bytes but not each typed array's header, so the residual is most likely chunk-header overhead and not structure.
-- **Noise floor.** It is about ±30 KB (the single-edit row), so single edits are below measurement resolution. Results repeat within 0.01 MiB across 3 repetitions.
+- **Validation and fresh validation:** every scenario above the noise floor is conservative (ratio ≥ 1.001).
+- **The 10-entry eviction case** holds about 70 KB, inside the ±30 KB noise floor. Its median is 0.69, but its range reaches 0.97, so it is inconclusive, not counted as a pass. The larger eviction case, added and labelled as such, measures 1.001.
+- **The one calibration value below 1** (0.987, 29 KB) retires chunks into history. Chunk typed-array headers are not in the chunk term, which most likely explains it.
 
-**Limits.**
-- V8 in Node 24 only.
-- Browser engines lay objects out differently. No browser heap API is required or assumed (`performance.measureUserAgentSpecificMemory` is not universally available and needs cross-origin isolation). So no universal heap guarantee is claimed.
-- The oracle shares the cost functions. It checks the incremental bookkeeping, not the model; the model is checked only by this calibration.
+**Browser evidence: Chromium only** (`G_DOC_R_MEMORY=1 … g-doc-r-memory.spec.ts`; page main-isolate heap via the DevTools protocol, after forced collection; [`bench/stage-d-memory-chromium.json`](bench/stage-d-memory-chromium.json)):
+
+| Workload | Scenario | Accounted | Measured | Ratio |
+|---|---|---|---|---|
+| bark-1224 | 50 small edits | 308,000 B | 291,416 B | 1.057 |
+| bark-1224 | 10 reorders (new sibling list each) | 1,346,640 B | 886,732 B | 1.519 |
+| bark-2350 | 50 small edits | 370,856 B | 284,472 B | 1.304 |
+| bark-2350 | 10 reorders | 3,564,400 B | 1,450,956 B | 2.457 |
+
+- **Chrome over-counts, conservatively.** Chrome's V8 uses pointer compression (4-byte pointers), while the model is calibrated on Node's 64-bit layout (8-byte pointers). Pointer arrays, such as child lists, cost about half the modelled bytes in Chrome. So Chrome may evict history earlier than strictly necessary, never later.
+- **Other engines:** Firefox and WebKit expose no comparable heap reading. No universal heap guarantee is claimed.
+
+**Limits.** The cost functions are shared with the oracle, so the oracle checks the incremental bookkeeping, not the model. The model is checked only by this calibration.
 
 ## 8. Test infrastructure (brief §7)
 **`render_compare`.**
@@ -722,6 +760,10 @@ The preview target (≤ 100 ms at the interactive target) was already missed bef
 | Retention outside the runner (`node --expose-gc scripts/check-retention.mjs`) | **PASS** |
 | Differential, final code | 108,249 comparisons (6 seeds) + 558,472 (30 seeds): **0 disagreements** |
 | Ledger against oracle | `structure-accounting.test.ts`: pass (8 seeds, multi-chunk documents, every command kind) |
+| Single-defect equivalence (plain `Map` against `NodeMap`) | identical verdicts and codes over 12,818 states; only duplicate-ID messages differ (permitted); asserted in `vp test` |
+| Accounting and eviction cost | ≤ 0.02 ms per ordinary edit, ≤ 0.9 ms for the widest; eviction not measurable (§6.2a) |
+| Calibration (§7) | validation and fresh validation conservative (1.001–1.163) above the noise floor; disposal returns the heap within 4 KB |
+| Browser memory | Chromium: 1.06–2.46, conservative (pointer compression). Firefox and WebKit: NOT RUN (no comparable heap reading) |
 | Production build | passes; `VERSION` `5c13b9c9d919e60c`, `BUILD_ID` `7debe2a41e0f74d5` |
 | Bundle (gzip KiB; budgets 150 / 15 / 250) | design-system JS 114.3, CSS 9.5, workspace JS **237.5** (G-BRAND 231.2; +6.3 for the validator, node map and accounting) |
 | Playwright 1.65.1, full suite, 3 engines | **375 passed, 0 failed, 36 opt-in skips** on the first run, identical to G-BRAND. The `render_compare` setup and the canvas-edge fix hold |
@@ -758,9 +800,9 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 | AM-2 recorded (C3 r3, RFC §7, decision register, amendment record) | **Done** (`161c679`) |
 | Chunked copy-on-write node map and persistent parent index | **Done**, qualified (§5) |
 | History accounting covering structural allocations; shared allocations once; ownership transitions verified | **Done** (§6). Approximations documented: per-key small records, strings, aliasing in hand-built states |
-| Cost-model calibration (separate validation set; uncertainty; limits) | **Done** (§7). Validation ratios 1.002–1.163; one calibration residual 0.987 |
-| No whole-document or whole-history traversal on ordinary edits; accounting and eviction costs profiled | **Done.** One-node edits 0.06–0.17 ms including accounting; eviction sums at most 100 records |
-| Adversarial corpus; ≥ 10,000 differential; slower reference oracle; independent review | **Done** (§5.4, §5.6) |
+| Cost-model calibration (separate validation set; uncertainty; limits) | **Done** (§7). Validation and fresh validation 1.001–1.163 above the noise floor. The 10-entry eviction case is at the noise floor (inconclusive); the larger eviction case is 1.001. Disposal frees everything. One calibration residual is 0.987. Chromium heap evidence is conservative; other engines are NOT RUN |
+| No whole-document or whole-history traversal on ordinary edits; accounting and eviction costs profiled | **Done** (§6.2a). `structureDelta` takes ≤ 0.02 ms on ordinary edits and ≤ 0.9 ms on the widest; eviction is not measurable |
+| Adversarial corpus; ≥ 10,000 differential; slower reference oracle; independent review | **Done** (§5.4, §5.6). Single-defect equivalence tested (§5.1) |
 | `paletteLabels()` investigation | **Done**: recommendation in §9; not implemented |
 | Renderer against the verified G-BRAND baseline, matched | **Done** (§10): small regressions in load, evaluation and preview; gestures unchanged; drag settle faster |
 | All 12 types at three workloads, median and p95 | **Met in Node** (§5.5) |
@@ -768,4 +810,11 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 | `render_compare` deterministic setup; canvas-edge race | **Done** (§8) |
 | Exact omitted fixture set | `concert-small-venue.png`, `concert-small-venue-1280.png`, `concert-stage-light.png` (and every output derived from them): 32 of the 326 engine-corpus hashes and 60 of the 636 export hashes |
 
-**Overall.** Stage D and the G-DOC-R implementation are ready for maintainer review. The gate stays **open and unqualified** until the remaining hardware and environment runs are done: lower-end hardware, a quiet machine, the three Safari harnesses after a Safari restart, and in-browser dispatch timing. No threshold has been relaxed.
+**Overall: PARTIAL.**
+- Stage D and the G-DOC-R implementation are ready for maintainer review.
+- The gate stays **open and unqualified** until the remaining runs are done:
+  - lower-end hardware;
+  - a quiet machine;
+  - the three Safari harnesses after a Safari restart (no stage D build has completed an import, trace and commit in real Safari yet);
+  - in-browser dispatch timing.
+- No threshold has been relaxed.

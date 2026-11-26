@@ -1,0 +1,317 @@
+{
+  "script": "scripts/calibrate-structure-accounting.mjs",
+  "commit": "629cec6a239bc3b03dd28e88c11c3435f56c12f4",
+  "trackedChanges": false,
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "totalMemGiB": 128,
+  "reps": 3,
+  "costs": {
+    "object": 24,
+    "field": 8,
+    "heapNumber": 16,
+    "array": 48,
+    "element": 8,
+    "typedArray": 160,
+    "typedElement": 8,
+    "string": 16,
+    "mapTable": 64,
+    "mapSlot": 28,
+    "clonedProperties": 16,
+    "stateBookkeeping": 320
+  },
+  "loadavgStart": [1.40576171875, 0.99462890625, 1.02685546875],
+  "topStart": [
+    "18.2 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+    "15.1 /Users/shortwavlabs/Library/Application Support/Claude/claude-code/2.1.331/5cdc5c10ac5c/claude.app/Contents/MacOS/claude",
+    "14.3 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS/Claude Helper (Renderer)",
+    "5.9 node",
+    "3.6 /Applications/Claude.app/Contents/Frameworks/Claude Helper.app/Contents/MacOS/Claude Helper"
+  ],
+  "scenarios": [
+    {
+      "name": "43k: 1 small edit",
+      "set": "calibration",
+      "entries": 1,
+      "accounted": 7440,
+      "measured": {
+        "min": -39504,
+        "median": 4448,
+        "max": 45280
+      },
+      "ratio": 1.673,
+      "chunkHistory": 0,
+      "runMs": 0.1
+    },
+    {
+      "name": "43k: 10 small edits",
+      "set": "calibration",
+      "entries": 10,
+      "accounted": 74616,
+      "measured": {
+        "min": 70064,
+        "median": 70328,
+        "max": 71528
+      },
+      "ratio": 1.061,
+      "chunkHistory": 0,
+      "runMs": 0.4
+    },
+    {
+      "name": "43k: 50 small edits",
+      "set": "calibration",
+      "entries": 50,
+      "accounted": 373176,
+      "measured": {
+        "min": 355704,
+        "median": 359872,
+        "max": 359872
+      },
+      "ratio": 1.037,
+      "chunkHistory": 0,
+      "runMs": 1.5
+    },
+    {
+      "name": "43k: 100 small edits",
+      "set": "calibration",
+      "entries": 100,
+      "accounted": 746376,
+      "measured": {
+        "min": 719344,
+        "median": 719440,
+        "max": 719520
+      },
+      "ratio": 1.037,
+      "chunkHistory": 0,
+      "runMs": 2.8
+    },
+    {
+      "name": "43k: 20 structural edits",
+      "set": "calibration",
+      "entries": 20,
+      "accounted": 1039088,
+      "measured": {
+        "min": 1034592,
+        "median": 1034592,
+        "max": 1034592
+      },
+      "ratio": 1.004,
+      "chunkHistory": 0,
+      "runMs": 62.6
+    },
+    {
+      "name": "43k: replace the 1k-path layer ×10",
+      "set": "calibration",
+      "entries": 10,
+      "accounted": 2337776,
+      "measured": {
+        "min": 2367724,
+        "median": 2367804,
+        "max": 2380460
+      },
+      "ratio": 0.987,
+      "chunkHistory": 2395820,
+      "runMs": 65.8
+    },
+    {
+      "name": "250k: 100 small edits",
+      "set": "validation",
+      "entries": 100,
+      "accounted": 1715976,
+      "measured": {
+        "min": 1684880,
+        "median": 1689120,
+        "max": 1689120
+      },
+      "ratio": 1.016,
+      "chunkHistory": 0,
+      "runMs": 6.4
+    },
+    {
+      "name": "250k: 20 structural edits",
+      "set": "validation",
+      "entries": 20,
+      "accounted": 14508448,
+      "measured": {
+        "min": 14345824,
+        "median": 14345824,
+        "max": 14345824
+      },
+      "ratio": 1.011,
+      "chunkHistory": 0,
+      "runMs": 317.5
+    },
+    {
+      "name": "330k (996k anchors): 50 small edits",
+      "set": "validation",
+      "entries": 50,
+      "accounted": 1046376,
+      "measured": {
+        "min": 1033056,
+        "median": 1033056,
+        "max": 1033056
+      },
+      "ratio": 1.013,
+      "chunkHistory": 0,
+      "runMs": 4.2
+    },
+    {
+      "name": "330k: delete the whole main layer",
+      "set": "validation",
+      "entries": 1,
+      "accounted": 74292416,
+      "measured": {
+        "min": 63863355,
+        "median": 63867411,
+        "max": 63867411
+      },
+      "ratio": 1.163,
+      "chunkHistory": 46216021,
+      "runMs": 591.3
+    },
+    {
+      "name": "43k: undo/redo and a branch",
+      "set": "validation",
+      "entries": 21,
+      "accounted": 226984,
+      "measured": {
+        "min": 221408,
+        "median": 221488,
+        "max": 221488
+      },
+      "ratio": 1.025,
+      "chunkHistory": 0,
+      "runMs": 4
+    },
+    {
+      "name": "large palette and provenance: 20k styles, 30k palette entries, ×5 recolour",
+      "set": "calibration",
+      "entries": 5,
+      "accounted": 4651120,
+      "measured": {
+        "min": 4642176,
+        "median": 4642176,
+        "max": 4642176
+      },
+      "ratio": 1.002,
+      "chunkHistory": 0,
+      "runMs": 18.1
+    },
+    {
+      "name": "large provenance: replace a traced layer ×3",
+      "set": "calibration",
+      "entries": 3,
+      "accounted": 11402688,
+      "measured": {
+        "min": 10612483,
+        "median": 10613427,
+        "max": 10613427
+      },
+      "ratio": 1.074,
+      "chunkHistory": 1036933,
+      "runMs": 93.8
+    },
+    {
+      "name": "fresh: 120k paths, 60 mixed edits (visibility, transform, rename, reorder)",
+      "set": "fresh-validation",
+      "entries": 72,
+      "accounted": 797904,
+      "measured": {
+        "min": 778544,
+        "median": 778544,
+        "max": 778544
+      },
+      "ratio": 1.025,
+      "chunkHistory": 0,
+      "runMs": 149.3
+    },
+    {
+      "name": "fresh: 8k styles, 12k-entry provenance, ×8 palette and fill edits",
+      "set": "fresh-validation",
+      "entries": 16,
+      "accounted": 2815456,
+      "measured": {
+        "min": 2808904,
+        "median": 2808904,
+        "max": 2808904
+      },
+      "ratio": 1.002,
+      "chunkHistory": 0,
+      "runMs": 15.6
+    },
+    {
+      "name": "fresh: 50k-entry provenance, replace a traced layer ×2",
+      "set": "fresh-validation",
+      "entries": 2,
+      "accounted": 12516256,
+      "measured": {
+        "min": 11600546,
+        "median": 11600586,
+        "max": 11600594
+      },
+      "ratio": 1.079,
+      "chunkHistory": 1039390,
+      "runMs": 100.8
+    },
+    {
+      "name": "fresh: 250k paths, 15 structural edits (group, duplicate, delete)",
+      "set": "fresh-validation",
+      "entries": 15,
+      "accounted": 3569352,
+      "measured": {
+        "min": 3567024,
+        "median": 3567024,
+        "max": 3567024
+      },
+      "ratio": 1.001,
+      "chunkHistory": 0,
+      "runMs": 213.1
+    },
+    {
+      "name": "fresh: eviction, 60 edits at maxEntries 10 (history keeps 10)",
+      "set": "fresh-validation",
+      "entries": 10,
+      "accounted": 74640,
+      "measured": {
+        "min": 71976,
+        "median": 108344,
+        "max": 111064
+      },
+      "ratio": 0.689,
+      "chunkHistory": 0,
+      "runMs": 1.6
+    },
+    {
+      "name": "fresh (added): eviction, 40 reorders in an 31k-sibling group at maxEntries 10",
+      "set": "fresh-validation",
+      "entries": 10,
+      "accounted": 2671920,
+      "measured": {
+        "min": 2669256,
+        "median": 2669256,
+        "max": 2669256
+      },
+      "ratio": 1.001,
+      "chunkHistory": 0,
+      "runMs": 576.4
+    }
+  ],
+  "disposal": [
+    {
+      "held": 22004032,
+      "accountedHistory": 1047744,
+      "afterDropMinusBefore": -1504
+    },
+    {
+      "held": 21889528,
+      "accountedHistory": 1047744,
+      "afterDropMinusBefore": 4128
+    },
+    {
+      "held": 21996216,
+      "accountedHistory": 1047744,
+      "afterDropMinusBefore": 400
+    }
+  ],
+  "loadavgEnd": [1.66015625, 1.0771484375, 1.0537109375]
+}

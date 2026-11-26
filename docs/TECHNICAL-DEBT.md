@@ -1003,7 +1003,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **G-DOC-R stage D (2026-11-26; awaiting acceptance).**
   - **What changed:** history states share node-map and parent-index chunks. A one-node edit retains about 7 KB of accounted structure per step at 43k paths and about 20 KB at 330k; measured retention is within the calibration below. Before stage D it was about 7 MiB per state at 251k.
   - **Counted in the budget:** AM-2 (C3.2 r3) adds document-structure bytes to the RFC §7 history budget.
-  - **Calibration:** the model against measured V8 retained heap gives 0.987–1.06 on the calibration set and 1.002–1.163 on the validation set (report §7).
+  - **Calibration:** the model against measured V8 retained heap (Node) gives 0.987–1.074 on the calibration set. On validation and fresh validation it gives 1.001–1.163 above the noise floor. A 10-entry eviction case sits at the noise floor and is inconclusive (0.69, range to 0.97); the larger eviction case is 1.001. Disposal returns the heap within 4 KB. Chromium heap evidence is 1.06–2.46, conservative (report §7).
   - **Closure criteria met** ("history memory bounded and counted in the budget, with the full validator still the oracle"). **Proposed for closure**; the maintainer to confirm. Browser-engine heap evidence is not available (report §7, limits).
 
 <a id="td-platform-007"></a>
