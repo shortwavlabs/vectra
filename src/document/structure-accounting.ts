@@ -37,13 +37,16 @@ import { changedKeys, NodeMap } from "./node-map.ts";
 export const COSTS = Object.freeze({
   object: 24, // header: map, properties, elements
   field: 8,
+  heapNumber: 16, // a number field outside the small-integer range is boxed
   array: 48, // JSArray header and FixedArray header
   element: 8,
-  typedArray: 112, // JSTypedArray, ArrayBuffer and backing-store headers
+  typedArray: 160, // JSTypedArray, ArrayBuffer and backing-store headers
   typedElement: 8, // Float64
   string: 16, // sequential string header
   mapTable: 64, // JSMap and hash-table headers
-  mapEntry: 32, // per entry, including its share of the hash buckets
+  mapSlot: 28, // per table slot (capacity = next power of two ≥ size): 3 entry words + ½ bucket
+  clonedProperties: 16, // structured-clone objects keep their fields in a property array
+  stateBookkeeping: 320, // per retained state: session records (derived, delta, index entries)
 });
 
 const C = COSTS;
@@ -61,20 +64,31 @@ const stringCost = (s: string) => {
   for (let i = 0; i < s.length && !wide; i++) wide = s.charCodeAt(i) > 255;
   return C.string + align8(s.length * (wide ? 2 : 1));
 };
-const mapTableCost = (n: number) => C.mapTable + C.mapEntry * n;
+const SMI = 2 ** 31;
+/** Extra bytes for a number stored in an object field or a generic array (boxed if not Smi). */
+const numberCost = (v: number) => (Number.isInteger(v) && v >= -SMI && v < SMI ? 0 : C.heapNumber);
+/** A hash table grows by doubling: its capacity is the next power of two at or above `n`. */
+const mapTableCost = (n: number) =>
+  C.mapTable + C.mapSlot * Math.max(4, 2 ** Math.ceil(Math.log2(Math.max(1, n))));
 
 const deepMemo = new WeakMap<object, number>();
 /** Structural cost of a JSON-like value tree (provenance records). Cached per object. */
 export function deepCost(v: unknown): number {
   if (typeof v === "string") return stringCost(v);
+  if (typeof v === "number") return numberCost(v);
   if (v === null || typeof v !== "object") return 0; // inline in its slot
   const hit = deepMemo.get(v);
   if (hit !== undefined) return hit;
   let n: number;
   if (Array.isArray(v)) n = arrayCost(v.length) + v.reduce<number>((s, x) => s + deepCost(x), 0);
   else {
+    // Provenance records are structured clones: fields in a separate property array.
     const vals = Object.values(v);
-    n = objectCost(vals.length) + vals.reduce<number>((s, x) => s + deepCost(x), 0);
+    n =
+      objectCost(vals.length) +
+      C.clonedProperties +
+      C.field * vals.length +
+      vals.reduce<number>((s, x) => s + deepCost(x), 0);
   }
   deepMemo.set(v, n);
   return n;
@@ -87,7 +101,13 @@ export const nodeCost = (n: DocNode) =>
 export function nodeRecords(n: DocNode): [object, number][] {
   const out: [object, number][] = [];
   if (n.localTransform !== IDENTITY) out.push([n.localTransform, arrayCost(6)]);
-  if (n.clipRef) out.push([n.clipRef, objectCost(4)]);
+  if (n.clipRef) {
+    const r = n.clipRef;
+    out.push([
+      r,
+      objectCost(4) + [r.x, r.y, r.width, r.height].reduce((t, v) => t + numberCost(v), 0),
+    ]);
+  }
   if (n.kind === "path") out.push([n.geometry, objectCost(2)]);
   else if (n.kind === "source") {
     if (n.sourceToDocument !== IDENTITY) out.push([n.sourceToDocument, arrayCost(6)]);
@@ -112,7 +132,7 @@ export function chunkParts(m: NodeMap<unknown>): [object, number][] {
   }
   return out;
 }
-export const stateRecordCost = objectCost(7);
+export const stateRecordCost = objectCost(7) + C.stateBookkeeping;
 export const artboardCost = objectCost(3);
 export const derivedCost = (d: StateDerived | undefined) =>
   d ? objectCost(3) + mapTableCost(d.chunks.size) : 0;
@@ -124,7 +144,9 @@ export function entryParts(e: object | undefined): {
 } {
   if (!e) return { cost: 0, record: null };
   let cost = objectCost(Object.keys(e).length);
-  for (const v of Object.values(e)) if (typeof v === "string") cost += stringCost(v);
+  for (const v of Object.values(e))
+    if (typeof v === "string") cost += stringCost(v);
+    else if (typeof v === "number") cost += numberCost(v);
   const rec =
     (e as { stroke?: object | null; provenance?: object }).stroke ??
     (e as { provenance?: object }).provenance;

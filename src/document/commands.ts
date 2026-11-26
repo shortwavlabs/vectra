@@ -294,7 +294,12 @@ class Draft {
     const written = [...this.nodes.written];
     for (const k of written) {
       const v = this.nodes.get(k);
-      if (v !== undefined && base.nodesById.get(k) !== v) freezeEntry(v);
+      if (v === undefined || base.nodesById.get(k) === v) continue;
+      // A child list built here (filter, splice, push) may carry growth slack, which history
+      // would retain: publish an exact-length copy. Lists shared with the base stay shared.
+      if (isContainer(v) && !Object.isFrozen(v.orderedChildIds) && !Object.isFrozen(v))
+        (v as { orderedChildIds: readonly NodeId[] }).orderedChildIds = v.orderedChildIds.slice();
+      freezeEntry(v);
     }
     const freezeChanged = <K, V extends object>(m: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) => {
       if (m === b && isSealedMap(m)) return m;

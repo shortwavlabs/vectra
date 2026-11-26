@@ -179,7 +179,8 @@ export class NodeMap<V> implements ReadonlyMap<string, V> {
   #hint = 0;
 
   private constructor(chunks: readonly Chunk<V>[], size: number) {
-    const cs = chunks.length ? chunks : [EMPTY_CHUNK as Chunk<V>];
+    // An exact-length copy: a directory built by pushes would keep growth slack in history.
+    const cs = chunks.length ? chunks.slice() : [EMPTY_CHUNK as Chunk<V>];
     this.#chunks = cs;
     this.#firstNums = Float64Array.from(cs, (c) => (c.keys.length ? c.nums[0]! : -Infinity));
     this.#firstKeys = cs.map((c) => c.keys[0] ?? "");

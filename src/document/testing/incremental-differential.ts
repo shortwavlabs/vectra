@@ -233,6 +233,8 @@ const FORGERIES = [
   "asset-field",
   "shared-list",
   "remove-source",
+  // Added for G-DOC-R stage D (brief §5).
+  "aliased-node",
 ] as const;
 
 function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null {
@@ -545,7 +547,12 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
           [palette, "pal"],
           [assets, "ast"],
         ] as const);
-        (m as Map<string, unknown>).set(freshId(p), undefined);
+        // A new key holding undefined, or an existing key set to undefined (stage D).
+        const existing = [...(m as Map<string, unknown>).keys()];
+        (m as Map<string, unknown>).set(
+          existing.length && r.bool(0.5) ? r.pick(existing) : freshId(p),
+          undefined,
+        );
         return true;
       }
       case "asset-field": {
@@ -575,6 +582,17 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
         if (!a || !b || a === b) return false;
         const list = (nodes.get(a) as ContainerNode).orderedChildIds;
         nodes.set(b, { ...nodes.get(b)!, orderedChildIds: list } as DocNode);
+        return true;
+      }
+      case "aliased-node": {
+        // One node object under two keys (an aliased mutable object a buggy command could
+        // leave): the second key does not match the object's id.
+        const x = pick(() => true);
+        const p = pick((n) => n.kind === "group");
+        if (!x || !p) return false;
+        const k = freshId(x.slice(0, 3));
+        nodes.set(k, nodes.get(x)!);
+        setKids(p, [...kids(p), k]);
         return true;
       }
       case "remove-source": {
@@ -638,6 +656,23 @@ function episode(r: Rng): DocumentSession {
         type: "commitTrace",
         provenance: TEST_PROVENANCE,
         packet: randomPacket(r),
+      });
+    } catch (e) {
+      if (!(e instanceof DocumentError)) throw e;
+    }
+  // Stage D: one episode in eight also holds a trace of 1,100–3,000 paths, so its node map and
+  // parent index span several chunks and edits cross chunk split and merge boundaries.
+  if (r.bool(0.125))
+    try {
+      session.dispatch({
+        type: "commitTrace",
+        provenance: TEST_PROVENANCE,
+        packet: syntheticPacket({
+          paths: 1100 + r.int(1900),
+          anchorsPerPath: 2,
+          groups: 1 + r.int(3),
+          seed: r.int(2 ** 31),
+        }),
       });
     } catch (e) {
       if (!(e instanceof DocumentError)) throw e;
@@ -762,6 +797,15 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
       log,
     };
     let next = prev;
+    // Stage D: a transaction, failed or not, never changes its predecessor (shared chunks).
+    const before = [...prev.nodesById.entries()];
+    const unchanged = () => {
+      const now = [...prev.nodesById.entries()];
+      return (
+        now.length === before.length &&
+        now.every(([k, v], j) => before[j]![0] === k && before[j]![1] === v)
+      );
+    };
     try {
       for (const c of cmds) {
         const out = applyCommand(next, c, ctx);
@@ -772,8 +816,22 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
       if (!(e instanceof DocumentError)) throw e;
       out.commandRejected++;
       store.settle();
+      if (!unchanged())
+        out.disagreements.push({
+          index: i,
+          class: "command",
+          label: "failed",
+          detail: "a failed transaction changed its predecessor",
+        });
       continue;
     }
+    if (!unchanged())
+      out.disagreements.push({
+        index: i,
+        class: "command",
+        label,
+        detail: "a transaction changed its predecessor",
+      });
     if (next === prev) {
       out.noOps++;
       store.settle();
