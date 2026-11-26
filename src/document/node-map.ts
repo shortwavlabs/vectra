@@ -145,7 +145,7 @@ function split<V>(nums: number[], keys: string[], vals: V[]): Chunk<V>[] {
 }
 
 /** Iterates chunks' parallel arrays without a generator. */
-class ChunkIterator<V, T> implements MapIterator<T> {
+class ChunkIterator<V, T> implements IterableIterator<T> {
   #c = 0;
   #i = 0;
   readonly #chunks: readonly Chunk<V>[];
@@ -241,13 +241,16 @@ export class NodeMap<V> implements ReadonlyMap<string, V> {
     return indexIn(this.#chunks[this.#locate(n, k)]!, n, k) >= 0;
   }
   entries(): MapIterator<[string, V]> {
-    return new ChunkIterator(this.#chunks, (c, i) => [c.keys[i]!, c.vals[i]!] as [string, V]);
+    return new ChunkIterator(
+      this.#chunks,
+      (c, i) => [c.keys[i]!, c.vals[i]!] as [string, V],
+    ) as unknown as MapIterator<[string, V]>;
   }
   keys(): MapIterator<string> {
-    return new ChunkIterator(this.#chunks, (c, i) => c.keys[i]!);
+    return new ChunkIterator(this.#chunks, (c, i) => c.keys[i]!) as unknown as MapIterator<string>;
   }
   values(): MapIterator<V> {
-    return new ChunkIterator(this.#chunks, (c, i) => c.vals[i]!);
+    return new ChunkIterator(this.#chunks, (c, i) => c.vals[i]!) as unknown as MapIterator<V>;
   }
   [Symbol.iterator](): MapIterator<[string, V]> {
     return this.entries();

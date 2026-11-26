@@ -13,6 +13,7 @@ import {
   parents,
 } from "./commands.ts";
 import { changedKeys } from "./node-map.ts";
+import { type Delta, structureDelta } from "./structure-accounting.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
 import { checkIncremental } from "./incremental-validate.ts";
 import {
@@ -118,6 +119,8 @@ export class DocumentSession {
   readonly historyLimits: HistoryLimits;
   readonly validation: ValidationMode;
   readonly #validations = { incremental: 0, full: 0 };
+  /** AM-2: each published state's structural delta from its chain predecessor. */
+  readonly #deltas = new WeakMap<DocState, Delta>();
   #state: DocState;
   readonly #derived = new WeakMap<DocState, StateDerived>();
   #past: DocState[] = [];
@@ -244,6 +247,9 @@ export class DocumentSession {
     const ctx: CommandContext = { store, ids, commit: (p) => store.commit(p), log };
     let next = prev;
     let d: StateDerived;
+    let now = 0;
+    let coalesce = false;
+    let delta: Delta = { removed: 0, added: 0 };
     try {
       for (const c of list) {
         const out = applyCommand(next, c, ctx);
@@ -255,8 +261,18 @@ export class DocumentSession {
         return this.#revision; // a no-op is not a transaction
       }
       d = this.#validate(prev, next, log.complete ? log.keys : null);
+      now = this.#now();
+      coalesce =
+        o.coalesceKey !== undefined &&
+        this.#coalesce?.key === o.coalesceKey &&
+        now - this.#coalesce.at <= this.#coalesceWindowMs &&
+        this.#past.length > 0;
       if (!o.withoutHistory) {
-        const entry = this.#entryBytes(prev, d, next);
+        // AM-2: the step's structural delta from its chain predecessor: prev, or the entry
+        // prev coalesces into. What it removes is what the pushed entry alone would retain.
+        const pred = coalesce ? this.#past[this.#past.length - 1]! : prev;
+        delta = structureDelta(pred, next, this.#derived.get(pred), d);
+        const entry = this.#entryBytes(prev, d, next) + delta.removed;
         if (entry > this.historyLimits.maxBytes)
           throw new DocumentError(
             "history_budget",
@@ -269,12 +285,7 @@ export class DocumentSession {
     }
     // Publish: nothing below throws.
     this.#derived.set(next, d);
-    const now = this.#now();
-    const coalesce =
-      o.coalesceKey !== undefined &&
-      this.#coalesce?.key === o.coalesceKey &&
-      now - this.#coalesce.at <= this.#coalesceWindowMs &&
-      this.#past.length > 0;
+    this.#deltas.set(next, delta);
     this.#own(next, "document", 1);
     this.#own(prev, "document", -1);
     if (o.withoutHistory) this.#dropHistory();
@@ -506,9 +517,27 @@ export class DocumentSession {
     }
     return { document: doc, history: hist };
   }
-  /** History-only bytes (RFC §7 budget): chunk bytes attributed to history + history-only sources. */
+  /**
+   * AM-2 history-only document-structure bytes (accounted, not measured): the removed bytes
+   * of every step whose predecessor is retained up to the current state, plus the added bytes
+   * of every redo step. O(history entries); no state is traversed.
+   */
+  historyStructureBytes(): number {
+    const past = this.#past;
+    let n = 0;
+    for (let i = 1; i < past.length; i++) n += this.#deltas.get(past[i]!)?.removed ?? 0;
+    if (past.length) n += this.#deltas.get(this.#state)?.removed ?? 0;
+    for (const s of this.#future) n += this.#deltas.get(s)?.added ?? 0;
+    return n;
+  }
+  /** History-only bytes (RFC §7 budget, C3.2 r3): chunk bytes attributed to history, history-only
+   *  source bytes and history-only document-structure bytes. */
   historyBytes(): number {
-    return this.store.bytes().byOwnerKind.history + this.sourceByteCounts().history;
+    return (
+      this.store.bytes().byOwnerKind.history +
+      this.sourceByteCounts().history +
+      this.historyStructureBytes()
+    );
   }
 }
 

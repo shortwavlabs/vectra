@@ -378,8 +378,19 @@ describe("history budget (RFC §7)", () => {
   test("byte budget evicts the oldest history-only chunks; a change that cannot fit is rejected or confirmed", () => {
     const one = fixtureSession(["thin_strokes-halftone"]);
     const cost = one.store.cost(one.store.chunkIds()[0]!);
+    // AM-2: a replace also makes the old layer's structure history-only (S bytes, measured on
+    // an unbounded twin); the budget holds one replaced layer, not two.
+    one.dispatch({
+      type: "commitTrace",
+      provenance: TEST_PROVENANCE,
+      packet: fixturePacket("thin_strokes-halftone"),
+      replaceLayerId: layerOf(one.state).id,
+    });
+    const S = one.historyStructureBytes();
+    expect(S).toBeGreaterThan(0);
+    expect(one.historyBytes()).toBe(cost + S);
     const session = fixtureSession(["thin_strokes-halftone"], {
-      history: { maxEntries: 100, maxBytes: Math.floor(cost * 1.5) },
+      history: { maxEntries: 100, maxBytes: Math.floor((cost + S) * 1.5) },
     });
     const layer = () => layerOf(session.state).id;
     const replace = () =>
@@ -390,10 +401,12 @@ describe("history budget (RFC §7)", () => {
         replaceLayerId: layer(),
       });
     replace(); // chunk 1 becomes history-only: within budget
-    expect(session.historyBytes()).toBe(cost);
+    expect(session.historyBytes()).toBe(cost + S);
     expect(session.getSnapshot().historyTruncated).toBe(false);
     replace(); // chunk 2 becomes history-only too: over budget → oldest (chunk 1) evicted
-    expect(session.historyBytes()).toBe(cost);
+    expect(session.historyBytes()).toBe(cost + session.historyStructureBytes());
+    expect(session.historyStructureBytes()).toBeGreaterThan(0);
+    expect(session.historyBytes()).toBeLessThanOrEqual(Math.floor((cost + S) * 1.5));
     expect(session.getSnapshot().historyTruncated).toBe(true);
     expect(session.store.has("chk_1")).toBe(false);
     expect(session.store.ownerCounts("chk_2").history).toBe(1);
@@ -653,7 +666,9 @@ describe("sources", () => {
     session.dispatch({ type: "delete", ids: [id] });
     expect(session.state.sourceAssetsById.size).toBe(0);
     expect(session.sourceByteCounts()).toEqual({ document: 0, history: 64 });
-    expect(session.historyBytes()).toBe(64);
+    // AM-2: plus the deleted source node's accounted structure.
+    expect(session.historyStructureBytes()).toBeGreaterThan(0);
+    expect(session.historyBytes()).toBe(64 + session.historyStructureBytes());
     session.undo();
     expect(session.sourceBytes(asset.id)).toEqual(bytes);
   });

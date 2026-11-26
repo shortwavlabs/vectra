@@ -152,16 +152,30 @@ describe("G-DOC review regressions", () => {
       packet: syntheticPacket({ paths: 4, anchorsPerPath: 6 }),
     });
     const K = probe.store.cost("chk_1");
-    const s = emptySession({ history: { maxEntries: 100, maxBytes: SRC + K - 1 } });
-    const src = await s.attachSource(png(256, 256, SRC), { embedded: true });
-    const asset = [...s.state.sourceAssetsById.keys()][0]!;
-    s.dispatch({ type: "delete", ids: [src] });
-    s.dispatch({
-      type: "commitTrace",
-      provenance: TEST_PROVENANCE,
-      packet: syntheticPacket({ paths: 4, anchorsPerPath: 6 }),
-    });
-    s.undo(); // the chunk becomes history-only, the budget evicts the source's last owner
+    // AM-2: history bytes include document structure. The budget is derived from an unbounded
+    // twin running the same steps: it holds everything up to the undo, and the undo (which
+    // makes the chunk history-only) exceeds it.
+    const run = async (s: ReturnType<typeof emptySession>) => {
+      const src = await s.attachSource(png(256, 256, SRC), { embedded: true });
+      s.dispatch({ type: "delete", ids: [src] });
+      s.dispatch({
+        type: "commitTrace",
+        provenance: TEST_PROVENANCE,
+        packet: syntheticPacket({ paths: 4, anchorsPerPath: 6 }),
+      });
+      const before = s.historyBytes();
+      s.undo();
+      return { before, after: s.historyBytes() };
+    };
+    const twin = await run(emptySession());
+    expect(twin.after - twin.before).toBeGreaterThanOrEqual(K); // the chunk joined history
+    // Exactly the pre-undo history fits; after the undo, evicting the oldest (empty) state is
+    // not enough, so the source's last owner is evicted too.
+    const s = emptySession({ history: { maxEntries: 100, maxBytes: twin.before } });
+    await run(s);
+    expect(s.getSnapshot().historyTruncated).toBe(true);
+    expect(s.historyBytes()).toBeLessThanOrEqual(twin.before);
+    const asset = "ast_1";
     const referencing = [...s.historyStates().past, s.state, ...s.historyStates().future].filter(
       (st) => st.sourceAssetsById.has(asset),
     );
