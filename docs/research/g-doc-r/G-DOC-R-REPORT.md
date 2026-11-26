@@ -777,6 +777,7 @@ The rows below were measured on `0700087` (`BUILD_ID` `7debe2a41e0f74d5`) unless
 | Engine corpus / bundle v2 | 294/294, 72/72 (engine unchanged by G-DOC-R; runs of §3) |
 | Canonical serialization | the frozen hash (taken on stage B) is unchanged |
 | Real Safari 26.6.2 on the final build `e3cfd750f82410a6` (`2e37eba`), after a Safari restart. Screen unlocked; page visible before and after each harness. Records: `safari/g-doc-r-rerun*-e3cfd750-*` | **gui 14/14 · gr1 7/7 · gjob 10/10 · gr0 7/7 · persistence 23/23** |
+| CI (GitHub Actions) | Run 45893021136 on `2e37eba` **failed**. The randomized test in `node-map.test.ts` (3.2 s here, 12/12 pass) exceeded Vitest's 5 s default timeout on the CI runner. `4e42dbc` gives it an explicit 60 s timeout; no product code changed. CI result on that head: see the PR |
 | Real Safari on `0700087`, before the restart | gr0 7/7 and persistence 23/23 passed. gui 7/15, gjob 2/10 and gr1 6/7 (offline only) failed through the environment fault below; superseded by the re-run |
 
 **Real-Safari environment fault, diagnosed (`safari/harnesses-0700087-*`).** Every failure is a timeout waiting for a trace, for "offline ready", or for a job stage. Two diagnostic sessions showed:
