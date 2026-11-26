@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the maintainer subject to closure (PR #21, `gate/g-brand` from `main` `d7bdfcf`); closure in §10; text banners wait for the font; not merged, not deployed, not published to any account |
+| Status | Approved by the maintainer subject to closure (PR #21, `gate/g-brand` from `main` `d7bdfcf`); closure in §10, text banners in §11; not merged, not deployed, not published to any account |
 | Date | 2026-11-25 |
 | Machine | macOS (Darwin 25.6.0) arm64, shared; load averages recorded per run |
 | Tools | Node 24.22.1, pnpm 12.23.0, Rust 1.96.0, resvg/usvg 0.50.0, tiny-skia 0.12.0, png 0.18.1, Playwright 1.65.1 (Chromium, Firefox, WebKit) |
@@ -285,3 +285,55 @@ Committed on top of `47d44e4`; nothing amended or rewritten.
 | App screenshots | Byte-identical to the committed ones |
 | Playwright | Not re-run: no runtime, test or `dist` change (same build ID and SW VERSION) |
 
+
+## 11. Text banners (2026-11-26)
+The maintainer approved Inter 4.1 (SIL OFL 1.1) and chose HarfBuzz `hb-view` as the text engine. This supersedes §10's blocker and its options: no crate was added, no outliner written, and the rasteriser is unchanged.
+
+**Font.** `branding/fonts/` holds `Inter-Regular.ttf` (`40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82`) and `Inter-SemiBold.ttf` (`78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3`), unmodified from the official v4.1 release.
+- It also holds `LICENSE.txt` (OFL 1.1, `262481e8…935a`) and `SOURCE.md` (source URL, archive and per-file SHA-256, the approval). The hashes above were re-verified, and `SOURCE.md` is accurate as placed.
+- 837,491 bytes in all; no other font files.
+- The generator refuses either file unless its SHA-256 matches, next to the canonical-symbol check.
+
+**Pipeline** (`branding/generate.mjs`):
+1. **Version check.** `hb-view --version` must report HarfBuzz 15.x: found `hb-view (HarfBuzz) 15.2.0` (`/opt/homebrew/bin/hb-view`). Negative control: with `hb-view` off the `PATH`, the generator stops with "hb-view (HarfBuzz 15.x) is required for the banners: spawnSync hb-view ENOENT".
+2. **Shaping.** `hb-view --font-file=<vendored file> --font-size=1000 --margin=0 --background=none --output-format=svg --text=…` shapes the text and writes glyph outlines.
+   - The `--font-file` is the only font source, and HarfBuzz has no font fallback.
+   - It runs twice per string and the bytes must match. They do: the output has no timestamps or random ids, so no normalisation was needed.
+   - The generator also checks one glyph per character on one baseline.
+3. **Composition.** Each glyph becomes a `<path>` with a translate and scale, after the nested symbol master, in ivory; the tagline's full stop is lime.
+   - Each banner SVG is kept as `branding/social/<name>.svg` and records the HarfBuzz version in a comment.
+   - The generator fails if a banner contains `<text>`, `<style>`, `<image>`, `data:` or a font reference. Each has 0 `<text>`, at 31.7 KB.
+4. **Rasterisation** uses the unchanged resvg crate.
+
+**Layout.** A horizontal lockup on charcoal: symbol, then "vectra" (SemiBold) over "From pixels to paths." (Regular).
+- **Proportions** of the symbol's geometry height H: wordmark 0.54 H, tagline 0.168 H, gap 0.26 H, baseline-to-baseline 0.36 H.
+- **Alignment.** The text is aligned on its ink. The wordmark-top-to-tagline-baseline span is centred on the symbol.
+- **Placement,** in banner pixels, all checked by the generator:
+
+| Banner | H | Lockup box | Safe area |
+|---|---|---|---|
+| X 1500×500 | 150 | 507.5–992.5 × 175–325 | Clear of the avatar zone (x < 405, y > 300); inside a 40 px margin |
+| GitHub 1280×640 | 210 | 300.5–979.5 × 215–425 | Inside the 1.91:1 crop with a 40 px margin (69–1211 × 40–600) |
+| YouTube 2560×1440 | 250 | 875.8–1684.2 × 595–845 | Inside the centred 1546×423 area (507–2053 × 508.5–931.5) |
+
+The profile pictures and app icons are unchanged, byte for byte.
+
+**Determinism.** Two consecutive runs of `node branding/generate.mjs` gave identical SHA-256 for all 72 output files under `branding/`, `public/` and the check/intermediate folders. The two console logs were identical too.
+
+**Font isolation.**
+- The rebuilt `dist` contains no font. Build ID `69b8618a0497ded6` and SW VERSION `5441379d9f451517` are unchanged, so the runtime is byte-identical.
+- Negative control: `Inter-Regular.ttf` copied into `dist/assets/x.bin` and `Inter-SemiBold.ttf` into `dist/assets/y.ttf` both failed `check-dist`, as a font file and as branding sources (the renamed `.bin` was caught by content). After their removal the check passed.
+
+**Evidence.** `docs/research/g-brand/contact-sheet.png` is regenerated. The banners appear with their safe-area overlays: X avatar zone and margin, the GitHub 1.91:1 crop and margin, and the YouTube 1546×423 area.
+
+**Qualification:**
+
+| Check | Result | Load (1-min) |
+|---|---|---|
+| `pnpm exec vp check` | Pass: 314 files formatted; 0 warnings or errors in 174 files | — |
+| `pnpm exec vp test` | 396 passed (27 files) | — |
+| `pnpm run build` | 55 notices verified; 20 precached files; dist check passed, including the font-leak guard; build ID `69b8618a0497ded6` | — |
+| Bundle (`node docs/research/g-ui/measure-bundle.mjs`, gzip KiB) | Workspace JS 231.2 (budget 250), CSS 9.5 (budget 15), design-system JS 114.3 (budget 150); shell 16.2, workbench 114.8; unchanged since §7; all budgets met | 2.76 → 2.70 |
+| Playwright, 3 engines: `ui-shell`, `ui-document`, `privacy`, `sw-update-lifecycle`, `workspace-offline` | **150 passed, 0 failed**, 3.3 min | 0.26 → 3.08 |
+
+All Playwright runs used my own `vp preview` on port 4195, stopped afterwards; real Safari was not run.

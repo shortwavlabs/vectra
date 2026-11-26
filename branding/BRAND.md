@@ -1,8 +1,8 @@
 # Vectra brand
 
-**Status:** the symbol ("Refined Minimal: Pixel to Path") and the G-BRAND integration are approved by the maintainer, subject to closure (PR #21). The text banners wait for the approved font (see Social media). Normative UI rules stay in [DESIGN-SYSTEM](../docs/DESIGN-SYSTEM.md) and [RFC-002 §16](../docs/RFC-002.md). Report: [G-BRAND-REPORT](../docs/research/g-brand/G-BRAND-REPORT.md).
+**Status:** the symbol ("Refined Minimal: Pixel to Path") and the G-BRAND integration are approved by the maintainer, subject to closure (PR #21). Normative UI rules stay in [DESIGN-SYSTEM](../docs/DESIGN-SYSTEM.md) and [RFC-002 §16](../docs/RFC-002.md). Report: [G-BRAND-REPORT](../docs/research/g-brand/G-BRAND-REPORT.md).
 
-The symbol has no wordmark. Where the name appears next to it, as in the app's top bar ("vectra"), the name is typeset separately in the system font.
+The symbol has no wordmark. Where the name appears next to it, it is typeset separately: "vectra" in the system font in the app's top bar, and in Inter SemiBold on the social banners.
 
 ## Canonical assets
 The masters are editable vector SVGs: shapes only, with no `<image>`, raster data, text, fonts or styles. All six share the canonical geometry: the viewBox `0 13 453 343`, three pixel squares, two ribbon paths, two control handles (lines and r=11 circles) and two anchor squares. Only the colours differ.
@@ -71,21 +71,29 @@ The unit is **A**, the anchor square's side: 29 units, or 6.4 % of the 453-unit 
 - **Print:** at least **15 mm wide**, so the handle stroke is 0.17 mm. This is derived from the geometry; it has not been print-tested.
 
 ## Social media
-Files are in `social/`.
-- The profile pictures are the ivory + lime symbol on charcoal, centred, with no text. They are final.
-- None of the assets uses a gradient, illustration or claim.
+Files are in `social/`. None of them uses a gradient, illustration or claim.
 
 | File | Size | Notes |
 |---|---|---|
-| `profile-1024.png`, `profile-512.png` | square | **Primary profile picture.** The geometry is 58 % of the side, and its corners sit at 72 % of the radius of a circular crop. Checked at 32, 48 and 64 px. |
-| `x-banner-1500x500.png` | 1500×500 | Centred, so it is clear of the avatar overlap at the bottom left. |
-| `github-social-1280x640.png` | 1280×640 | Repository social preview. |
-| `youtube-banner-2560x1440.png` | 2560×1440 | The geometry is 254 px high, within the 1546×423 centred safe area. |
+| `profile-1024.png`, `profile-512.png` | square | **Primary profile picture**: the ivory + lime symbol on charcoal, centred, no text. The geometry is 58 % of the side, and its corners sit at 72 % of the radius of a circular crop. Checked at 32, 48 and 64 px. |
+| `x-banner-1500x500.png` (+ `.svg`) | 1500×500 | Lockup 507–993 × 175–325: clear of the avatar zone, inside a 40 px margin |
+| `github-social-1280x640.png` (+ `.svg`) | 1280×640 | Repository social preview. Lockup 301–980 × 215–425: inside the 1.91:1 crop with a 40 px margin |
+| `youtube-banner-2560x1440.png` (+ `.svg`) | 2560×1440 | Lockup 876–1684 × 595–845: inside the centred 1546×423 area |
 
-- **Banners: text-free now; text banners pending.** The committed X, GitHub and YouTube banners are the interim text-free versions. The approved direction replaces them: the ivory + lime symbol on charcoal with the lowercase wordmark "vectra" and the tagline "From pixels to paths.", in ivory with restrained lime accents, in a minimal horizontal symbol-and-text composition, optically aligned within each platform's safe area. The wordmark is separate from the canonical symbol.
-  - **Font:** Inter 4.1 (OFL), to be vendored under `branding/fonts/` with its licence, source, version and checksums, for offline generation only. It must never enter the runtime bundle, `public/`, `dist` or the precache; `scripts/check-dist.mjs` fails the build if a font file, or any file under `branding/`, other than the shipped icons, reaches `dist`.
-  - **Safe areas** checked by the generator, in banner pixels: X keeps clear of the avatar zone (x < 27 %, y > 60 %); GitHub stays inside its 1.91:1 crop with a 40 px margin (69–1211 × 40–600); YouTube stays inside the centred 1546×423 area.
-  - Proprietary system fonts must never be converted to outlines in distributable assets.
+**Banners.** A minimal horizontal lockup on charcoal: the ivory + lime symbol, then the lowercase wordmark "vectra" (Inter SemiBold) over the tagline "From pixels to paths." (Inter Regular), in ivory, with one restrained lime accent, the tagline's full stop.
+- **Proportions** are fractions of the symbol's geometry height H (X 150 px, GitHub 210, YouTube 250): wordmark 0.54 H, tagline 0.168 H (so the tagline runs about as wide as the wordmark), symbol-to-text gap 0.26 H, wordmark baseline to tagline baseline 0.36 H.
+- **Optical alignment:** the text starts at its ink (no side bearing), and the span from the wordmark's ink top to the tagline's baseline is centred on the symbol; descenders hang.
+- **The wordmark is separate from the canonical symbol.** It is typeset next to it, never merged into the master files.
+- **Safe areas**, checked by the generator in banner pixels:
+  - X: clear of the avatar zone (x < 27 %, y > 60 %), inside a 40 px margin;
+  - GitHub: inside the 1.91:1 crop (1222×640, centred) with a 40 px margin (69–1211 × 40–600);
+  - YouTube: inside the centred 1546×423 area.
+- **The `.svg` files** are the vector sources of the banner PNGs: the master's markup plus the glyph outlines as paths. They contain no `<text>` and no font software.
+
+**Font (generation only).** Inter 4.1, SIL OFL 1.1, © 2016 The Inter Project Authors: `fonts/Inter-Regular.ttf` and `fonts/Inter-SemiBold.ttf`, unmodified. Source, checksums and approval are in `fonts/SOURCE.md`; the licence is `fonts/LICENSE.txt`.
+- The generator checks both files byte for byte before use.
+- The fonts never enter the runtime bundle, `public/`, `dist` or the precache: `scripts/check-dist.mjs` fails the build on any font file in `dist`, and on any `dist` file whose bytes match a file under `branding/`, other than the shipped icons.
+- Proprietary system fonts must never be converted to outlines in distributable assets.
 - **Publishing.** Nothing here has been published to any account.
 
 ## Favicons and app icons
@@ -132,7 +140,7 @@ Approved, without changing behaviour:
 - **Tonal variants** as official masters (above).
 
 ## Licensing and trademark (open: public-release decision)
-The repository's MIT licence is unchanged, and no restrictive or trademark terms are added here. How the Vectra name and symbol may be used by others (logo licensing and any trademark clarification) is an open item to decide before public release.
+The repository's MIT licence is unchanged, and no restrictive or trademark terms are added here. The Inter files under `fonts/` keep their own SIL OFL 1.1 licence. How the Vectra name and symbol may be used by others (logo licensing and any trademark clarification) is an open item to decide before public release.
 
 ## Reproducible generation
 ```bash
@@ -143,12 +151,16 @@ git status --porcelain branding public         # empty after a re-run: byte-iden
 **What the script does:**
 - Verifies the canonical SHA-256 and derives the five other masters (three colour, two tonal). It checks they equal the canonical file byte for byte once each `#rrggbb` is masked, and that they are vector-only.
 - Builds each composition by nesting a master's own markup in its viewBox, so no coordinate is retyped.
+- Sets the banner text with HarfBuzz `hb-view` 15.x, given only the two vendored font files (`--font-file`; HarfBuzz has no font fallback). It shapes "vectra" and the tagline (kerning included) and writes their glyph outlines as SVG; the generator places them as paths.
+  - It fails clearly if `hb-view` is missing or is not HarfBuzz 15.x.
+  - It runs `hb-view` twice per string and fails unless the bytes match; it checks one glyph per character on one baseline.
+  - It fails if a banner SVG contains `<text>`, `<style>`, `<image>`, `data:` or a font reference. The HarfBuzz version is recorded in each banner SVG.
 - Renders with `branding/rasterize`, a standalone Rust crate on resvg 0.50.0.
   - Its lockfile resolves only to versions already in the root `Cargo.lock`.
   - It refuses any non-uniform scale and reports each output's size and the bounding box of its non-transparent pixels.
 - Checks the exact sizes, the viewBox margin of every transparent export (nothing clipped or stretched), the circular safe zones and the banner safe areas (X avatar, GitHub crop, YouTube).
 - Packs the ICO, and copies the shipped icons to `public/`.
 
-**Tools:** Node 24.22.1, Rust 1.96.0 (`rust-toolchain.toml`), resvg/usvg 0.50.0, tiny-skia 0.12.0, png 0.18.1.
+**Tools:** Node 24.22.1, Rust 1.96.0 (`rust-toolchain.toml`), resvg/usvg 0.50.0, tiny-skia 0.12.0, png 0.18.1, HarfBuzz `hb-view` 15.2.0 (Homebrew), Inter 4.1.
 
 **Evidence:** small-size checks go to `tests/output/g-brand/checks` (ignored by git). The contact sheet and app screenshots come from `docs/research/g-brand/evidence.mjs`.
