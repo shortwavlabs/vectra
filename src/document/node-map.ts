@@ -1,5 +1,6 @@
 // G-DOC-R stage D: a chunked copy-on-write map for the document's node map and parent index
-// (STAGE-D-DESIGN §1). Immutable once built, ReadonlyMap-compatible, no dependency.
+// (design note: STAGE-D-DESIGN; its hash-bucket §1 is superseded by this ID-ordered form).
+// Immutable once built, ReadonlyMap-compatible, no dependency.
 //
 // Entries are kept sorted by (key number, key): the key number is the C1 ID number for keys
 // of the form "xxx_<digits>" (every key of a valid document), and +Infinity otherwise, with

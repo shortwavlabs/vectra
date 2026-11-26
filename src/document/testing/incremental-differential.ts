@@ -35,6 +35,7 @@ import {
   type NodeId,
   rotate90Matrix,
 } from "../model.ts";
+import { NodeMap } from "../node-map.ts";
 import { DocumentSession, sameDerived, ValidationDisagreement } from "../session.ts";
 import { TEST_PROVENANCE } from "./provenance.ts";
 import { randomPacket, rng, type Rng, syntheticPacket } from "./synthetic.ts";
@@ -73,6 +74,8 @@ export interface DifferentialSummary {
   undecidedValidReasons: Record<string, number>;
   /** Command transactions validated through their Draft write log (stage C). */
   writeLogged: number;
+  /** Stage D (AM-2): single-forgery states validated as a plain Map and as a NodeMap. */
+  singleDefect: { checked: number; sameVerdict: number; messageDiffers: Record<string, number> };
   disagreements: Disagreement[];
 }
 
@@ -700,6 +703,7 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     undecidedReasons: {},
     undecidedValidReasons: {},
     writeLogged: 0,
+    singleDefect: { checked: 0, sameVerdict: 0, messageDiffers: {} },
     disagreements: [],
   };
   const count = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
@@ -724,6 +728,34 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
         out.fullErrorCodes,
         e instanceof DocumentError ? e.code : `untyped:${(e as Error).name}`,
       );
+    }
+    // AM-2: single-defect rejection semantics are equivalent under the new map order. A state
+    // with one forgery is validated again with its node map as a NodeMap: same verdict, same
+    // code; the message may differ only where it names one of two entries (duplicate number).
+    if (cls === "forged" && !label.includes("+") && !label.endsWith("~writes")) {
+      const verdict = (st: DocState) => {
+        try {
+          validateState(st, store, limits);
+          return "accepted";
+        } catch (e) {
+          return e instanceof DocumentError
+            ? `${e.code}: ${e.message}`
+            : `untyped:${(e as Error).message}`;
+        }
+      };
+      const a = verdict(next);
+      const b = verdict({ ...next, nodesById: NodeMap.from(next.nodesById) });
+      out.singleDefect.checked++;
+      const code = (v: string) => v.split(":")[0];
+      if (a === b) out.singleDefect.sameVerdict++;
+      else if (code(a) !== code(b) || label !== "dup-number")
+        out.disagreements.push({
+          index,
+          class: cls,
+          label,
+          detail: `map order changed a single-defect verdict: ${a} | ${b}`,
+        });
+      else count(out.singleDefect.messageDiffers, label);
     }
     const inc = checkIncremental(prev, session.derivedOf(prev)!, next, store, limits, writes);
     const rows = [out.byClass[cls], (out.byLabel[`${cls}:${label}`] ??= tally())];

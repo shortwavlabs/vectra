@@ -124,7 +124,13 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         preparationGate.release = null;
         r?.();
       },
-      dispatch: (c: Command | Command[]) => o.session()?.dispatch(c),
+      dispatch: (c: Command | Command[], opts?: { withoutHistory?: boolean }) =>
+        o.session()?.dispatch(c, opts),
+      /** AM-2 accounted history-only bytes (G-DOC-R memory qualification). */
+      historyBytes: () => {
+        const s = o.session();
+        return s ? { structure: s.historyStructureBytes(), total: s.historyBytes() } : null;
+      },
       undo: () => o.session()?.undo(),
       redo: () => o.session()?.redo(),
       selection: () => [...o.selection()],

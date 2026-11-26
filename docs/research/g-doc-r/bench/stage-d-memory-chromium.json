@@ -1,0 +1,42 @@
+[
+  {
+    "workload": "bark-1224",
+    "paths": 16056,
+    "scenario": "50 small edits",
+    "accountedStructure": 308000,
+    "accountedTotal": 308000,
+    "measuredHistory": 291416,
+    "growth": -1468380,
+    "ratio": 1.057
+  },
+  {
+    "workload": "bark-1224",
+    "paths": 16056,
+    "scenario": "10 structural edits (reorder a path in its group: a new sibling list each)",
+    "accountedStructure": 1346640,
+    "accountedTotal": 1346640,
+    "measuredHistory": 886732,
+    "growth": 877424,
+    "ratio": 1.519
+  },
+  {
+    "workload": "bark-2350",
+    "paths": 43621,
+    "scenario": "50 small edits",
+    "accountedStructure": 370856,
+    "accountedTotal": 370856,
+    "measuredHistory": 284472,
+    "growth": -21330460,
+    "ratio": 1.304
+  },
+  {
+    "workload": "bark-2350",
+    "paths": 43621,
+    "scenario": "10 structural edits (reorder a path in its group: a new sibling list each)",
+    "accountedStructure": 3564400,
+    "accountedTotal": 3564400,
+    "measuredHistory": 1450956,
+    "growth": 1683260,
+    "ratio": 2.457
+  }
+]

@@ -23,6 +23,10 @@ describe("incremental validator (G-DOC-R stage B; TD-PERF-007)", () => {
     // Stage C: command transactions use their (verified complete) Draft write log; forgeries
     // have none and use the identity diff, so both paths are compared with the oracle.
     expect(s.writeLogged).toBeGreaterThanOrEqual(5_000);
+    // Stage D (AM-2): single-defect verdicts are the same for a plain Map and a NodeMap; only
+    // the duplicate-ID-number message may name the other of its two entries.
+    expect(s.singleDefect.checked).toBeGreaterThanOrEqual(2_000);
+    expect(Object.keys(s.singleDefect.messageDiffers).every((l) => l === "dup-number")).toBe(true);
     for (const label of [
       "cycle",
       "second-parent",

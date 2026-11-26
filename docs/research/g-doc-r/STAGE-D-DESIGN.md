@@ -1,6 +1,9 @@
 # G-DOC-R stage D — design (persistent storage and history accounting)
 
-**Status:** design for implementation under AM-2, approved by the maintainer on 2026-11-26. This file is the reference the implementation and its independent review check against.
+**Status:** design written before implementation under AM-2 (approved 2026-11-26), kept as written for the record. **Superseded where measurement or review required a change; the code and the G-DOC-R report are authoritative:**
+- **§1 (hash buckets) is superseded.** The node map is ordered by (ID number, key) and cut into chunks: a two-level B+-tree. Hashing destroyed locality, which made a trace replace 49.8 ms at 330k (report §5.2).
+- **§3 (per-allocation reference counts) is superseded** by one structural delta per history step, with a full-traversal oracle in tests (report §6.2).
+- Since `6a23a92`, that delta takes node keys from the transaction's write log, so the accounting rests on the log's completeness too. `compare` mode asserts that completeness on every transaction.
 
 ## 1. `NodeMap`: chunked copy-on-write node map
 **Shape.**

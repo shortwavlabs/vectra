@@ -175,7 +175,8 @@ const scenarios = [
   {
     name: "large palette and provenance: 20k styles, 30k palette entries, ×5 recolour",
     paths: 43000,
-    set: "validation",
+    // Relabelled: its undercount (0.71) prompted the map-capacity and boxed-number terms.
+    set: "calibration",
     build: () => {
       const doc = buildWorkload(1000, { history: HUGE });
       doc.session.dispatch({
@@ -202,7 +203,8 @@ const scenarios = [
   {
     name: "large provenance: replace a traced layer ×3",
     paths: 43000,
-    set: "validation",
+    // Relabelled: its undercount (0.73) prompted the structured-clone property-array term.
+    set: "calibration",
     build: () => {
       const doc = buildWorkload(1000, { history: HUGE });
       doc.session.dispatch({
@@ -224,6 +226,133 @@ const scenarios = [
     },
   },
 ];
+
+/**
+ * Fresh validation (added after the constants were frozen at 6a23a92; never used to tune
+ * them): other sizes, palettes, provenance, edit mixes, eviction and disposal.
+ */
+scenarios.push(
+  {
+    name: "fresh: 120k paths, 60 mixed edits (visibility, transform, rename, reorder)",
+    paths: 120000,
+    set: "fresh-validation",
+    run: (d) => {
+      const s = d.session;
+      for (let i = 0; i < 60; i++) {
+        const c = ["setVisible", "rename"][i % 2];
+        s.dispatch(d.cmds[c]());
+        if (i % 5 === 0) s.dispatch(d.cmds.applyTransformLayer());
+      }
+    },
+  },
+  {
+    name: "fresh: 8k styles, 12k-entry provenance, ×8 palette and fill edits",
+    paths: 43000,
+    set: "fresh-validation",
+    build: () => {
+      const doc = buildWorkload(1000, { history: HUGE });
+      doc.session.dispatch({
+        type: "commitTrace",
+        provenance: bigProvenance(12_000),
+        packet: syntheticPacket({
+          paths: 8000,
+          anchorsPerPath: 4,
+          groups: 2,
+          styles: 8000,
+          seed: 11,
+        }),
+      });
+      return doc;
+    },
+    run: (d) => {
+      const st = d.session.state;
+      const layer = st.orderedRootIds.at(-1);
+      const g = st.nodesById.get(layer).orderedChildIds[0];
+      const p = st.nodesById.get(g).orderedChildIds.slice(0, 10);
+      const pal = [...st.paletteById.keys()];
+      for (let i = 0; i < 8; i++) {
+        d.session.dispatch({ type: "setPaletteColor", paletteRef: pal[i], color: i });
+        d.session.dispatch({ type: "setFill", ids: p, fill: { color: i + 1 } });
+      }
+    },
+  },
+  {
+    name: "fresh: 50k-entry provenance, replace a traced layer ×2",
+    paths: 43000,
+    set: "fresh-validation",
+    build: () => {
+      const doc = buildWorkload(1000, { history: HUGE });
+      doc.session.dispatch({
+        type: "commitTrace",
+        provenance: bigProvenance(50_000),
+        packet: syntheticPacket({ paths: 3000, anchorsPerPath: 4, seed: 12 }),
+      });
+      return doc;
+    },
+    run: (d) => {
+      const layer = d.session.state.orderedRootIds.at(-1);
+      for (let i = 0; i < 2; i++)
+        d.session.dispatch({
+          type: "commitTrace",
+          provenance: bigProvenance(50_000),
+          packet: syntheticPacket({ paths: 3000, anchorsPerPath: 4, seed: 13 + i }),
+          replaceLayerId: layer,
+        });
+    },
+  },
+  {
+    name: "fresh: 250k paths, 15 structural edits (group, duplicate, delete)",
+    paths: 250000,
+    set: "fresh-validation",
+    run: (d) => {
+      for (let i = 0; i < 5; i++) {
+        const s = d.session;
+        s.dispatch(d.cmds.group());
+        s.dispatch(d.cmds.duplicate());
+        s.dispatch({ type: "delete", ids: [`pth_${s.nextId - 1}`] });
+      }
+    },
+  },
+  {
+    name: "fresh: eviction, 60 edits at maxEntries 10 (history keeps 10)",
+    paths: 43000,
+    set: "fresh-validation",
+    build: () =>
+      buildWorkload(43000, { history: { maxEntries: 10, maxBytes: Number.MAX_SAFE_INTEGER } }),
+    run: (d) => toggle(d, 60),
+  },
+  {
+    // Added after the first fresh run (the 10-entry eviction above sits at the noise floor):
+    // the same eviction with larger retained steps.
+    name: "fresh (added): eviction, 40 reorders in an 31k-sibling group at maxEntries 10",
+    paths: 250000,
+    set: "fresh-validation",
+    build: () =>
+      buildWorkload(250000, { history: { maxEntries: 10, maxBytes: Number.MAX_SAFE_INTEGER } }),
+    run: (d) => {
+      const s = d.session;
+      const g = s.state.nodesById.get(s.state.orderedRootIds[0]).orderedChildIds[2];
+      const kids = s.state.nodesById.get(g).orderedChildIds;
+      for (let i = 0; i < 40; i++)
+        s.dispatch({ type: "reorder", id: kids[(i * 37) % kids.length], index: 0 });
+    },
+  },
+);
+
+/** Disposal: a session with history is dropped; the heap must return to its pre-build level. */
+async function disposal() {
+  await collect();
+  const before = heap();
+  let doc = buildWorkload(43000, { history: HUGE });
+  toggle(doc, 50);
+  for (let i = 0; i < 3; i++) structural(doc, "applyTransformLayer");
+  await collect();
+  const held = heap() - before;
+  const accounted = doc.session.historyBytes();
+  doc = null;
+  await collect();
+  return { held, accountedHistory: accounted, afterDropMinusBefore: heap() - before };
+}
 
 async function measure(sc) {
   const doc = sc.build ? sc.build() : buildWorkload(sc.paths, { history: HUGE });
@@ -289,6 +418,12 @@ for (const sc of scenarios) {
       `measured ${(row.measured.median / 2 ** 20).toFixed(3)} MiB ` +
       `[${(row.measured.min / 2 ** 20).toFixed(3)}, ${(row.measured.max / 2 ** 20).toFixed(3)}], ratio ${row.ratio}`,
   );
+}
+if (!ONLY || ONLY.some((o) => "disposal".includes(o))) {
+  const runs = [];
+  for (let r = 0; r < REPS; r++) runs.push(await disposal());
+  result.disposal = runs;
+  console.error(`disposal: ${JSON.stringify(runs)}`);
 }
 result.loadavgEnd = loadavg();
 const json = JSON.stringify(result, null, 2);
