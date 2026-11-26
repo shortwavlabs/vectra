@@ -227,7 +227,7 @@ Dispatch in ms (median / p95):
 | commitTrace | 8.0 / 8.7 | 5.4 / 5.6 | 42.8 / 44.7 | 17.5 / 19.0 | 27.7 / 29.1 |
 
 - **Interactive target:** every type has median ≤ 6.9 ms and p95 ≤ 7.3 ms.
-- **250k paths (756k anchors):** **every type** is under 50 ms at median and p95: medians 14–45 ms, p95 ≤ 45.7 ms.
+- **250k paths (756k anchors), in this run:** every type is under 50 ms at median and p95 (medians 14–45 ms, p95 ≤ 45.7 ms). Later runs under worse conditions put `ungroup` at the threshold (§2.4a).
 - **996k anchors:** 6 types meet ≤ 50 ms at median and p95; applyTransformLayer is the closest (46.0 / 48.0). **Six exceed it** (median 56–66 ms): setFillMany, reorder, group, ungroup, delete and duplicate.
 - The proof decided every measured transaction. Undo and redo stay ≤ 0.03 ms.
 
@@ -255,6 +255,45 @@ The copy and `parents` costs are exactly what stage D's chunked copy-on-write ma
 
 **Ceiling, recorded.** The walk is O(subtree). A degenerate document of ~1M one-anchor paths in one layer would take about 80 ms. Revisit summaries if a stress workload with realistic paths misses ≤ 50 ms after stage D.
 
+### 2.4a Final stage C head (`7799e6e`, after the review follow-ups)
+`node --expose-gc scripts/bench-g-doc-r.mjs --sizes 43000,250000,330000 --modes incremental --reps 30` → [`bench/stage-c-final-7799e6e.json`](bench/stage-c-final-7799e6e.json). No tracked changes.
+
+**Conditions** were worse than for the `fd06b5a` run, and recorded by the script itself. At the start: load 2.4, with UserEventAgent 62 %, a file-deletion service 35 %, a browser renderer 21 % and WindowServer 18 %. At the end: load 3.6. No `ngspice`.
+
+| Type | 43k | 250k | 330k (996k anchors) |
+|---|---|---|---|
+| setFill1 | 2.2 / 2.3 | 14.5 / 15.9 | 21.3 / 22.4 |
+| setFillMany | 7.1 / 7.4 | 41.0 / 43.3 | 60.5 / 62.4 |
+| setVisible | 2.2 / 2.2 | 14.8 / 15.6 | 21.1 / 22.2 |
+| rename | 2.3 / 2.4 | 14.5 / 15.6 | 21.1 / 29.5 |
+| reorder | 5.4 / 5.5 | 37.2 / 39.9 | 53.9 / 57.5 |
+| applyTransformPath | 4.1 / 4.3 | 27.2 / 28.5 | 41.8 / 44.1 |
+| applyTransformLayer | 5.0 / 5.2 | 32.1 / 33.2 | 47.3 / 50.3 |
+| group | 6.8 / 7.0 | 40.6 / 43.0 | 59.0 / 62.8 |
+| ungroup | 7.1 / 7.5 | **49.1 / 52.1** | 69.7 / 75.8 |
+| delete | 5.6 / 5.8 | 35.3 / 36.4 | 56.0 / 58.8 |
+| duplicate | 5.7 / 5.9 | 36.2 / 38.0 | 56.5 / 58.1 |
+| commitTrace | 6.2 / 6.5 | 18.0 / 19.7 | 25.6 / 26.5 |
+
+**Is the follow-up commit the cause, or the conditions?**
+- The follow-up resets the published map's prototype. To test it, an A/B ran back to back at 250k (20 repetitions each, `ungroup`, `group`, `setVisible`, `delete`; the prototype reset commented out for B; working tree restored afterwards).
+- `ungroup` median / p95:
+
+  | Round | A, with the reset | B, without |
+  |---|---|---|
+  | 1 | 48.0 / 49.8 | 47.2 / 49.8 |
+  | 2 | 51.4 / 53.6 | 49.2 / 50.7 |
+
+- The other three types differed by ≤ 1.7 ms either way.
+- **Verdict.** There is no effect beyond run-to-run noise (about ±2 ms). The slowdown against the `fd06b5a` run (`ungroup` 44.7 / 45.7) follows the machine's conditions.
+
+**Status of ≤ 50 ms at 250k paths (756k anchors).**
+- **`ungroup` is borderline.** Across 6 runs its median is 44.7–51.4 ms and its p95 45.7–53.6 ms. That is **not** reported as met.
+- Every other type is ≤ 43.3 ms p95.
+- At **996k anchors** (the designated 1M-anchor stress workload) **7 types exceed 50 ms** on this head: the six of §2.3, plus applyTransformLayer at p95 50.3.
+
+**Differential on this head:** 6 seeds, **108,362 comparisons** (forged states are now compared through both change-set paths), **0 disagreements**; 40,770 through the write log ([`bench/stage-c-differential-7799e6e.json`](bench/stage-c-differential-7799e6e.json)).
+
 ### 2.5 Stage C checkpoint
 | Requirement | Result |
 |---|---|
@@ -262,7 +301,7 @@ The copy and `parents` costs are exactly what stage D's chunked copy-on-write ma
 | Qualified command optimisations | **PASS**: `documentOrder` removed; sealed maps shared; publication only of written entries; walk without allocation. Cold `parents` remains for stage D |
 | Mutation tracking, coverage, no-ops, undo/redo, invalid commands, serialization and export | **PASS** (§2.2) |
 | Per-subtree summaries | **Investigated** (§2.4); deferred with a recorded ceiling |
-| ≤ 50 ms at the stress workloads | 250k / 756k anchors: **MET** (Node). 996k anchors: **NOT MET** for 6 of 12 types; stage D addresses this |
+| ≤ 50 ms at the stress workloads | **NOT MET.** 996k anchors (the designated workload): 6–7 of 12 types exceed it (§2.3, §2.4a). 756k anchors: 11 of 12 types meet it; `ungroup` is borderline (p95 45.7–53.6 ms across runs). Stage D addresses the remaining O(nodes) costs |
 | Defect, contradiction or regression | **None in stage C.** Every type is faster than in stage B |
 
 ## 3. Production build and browsers, on the stage C head (`758a689`)

@@ -28,7 +28,7 @@ This register separates the decisions taken within the authorised scope (impleme
 ## 3. Decisions requested from the maintainer
 | # | Decision | Options | Recommendation |
 |---|---|---|---|
-| M-1 | Accept stage B (with the F-1 fix) and stage C | Accept / request changes | Accept. Every requirement in brief §2 B and C is met, except the 1M-anchor ≤ 50 ms target (6 of 12 types), which stage D addresses |
+| M-1 | Accept stage B (with the F-1 fix) and stage C | Accept / request changes | Accept. Every requirement in brief §2 B and C is met, except ≤ 50 ms at the stress workloads: 6–7 of 12 types miss it at 996k anchors, and `ungroup` is borderline at 756k. Stage D addresses this |
 | M-2 | AM-2: the cost model for document-structure bytes | A deterministic formula calibrated against measured heap / another approach | The calibrated, conservative formula |
 | M-3 | AM-2: attribution of shared allocations | Count once at the highest-precedence owner (the chunk rule) / another rule | The chunk rule |
 | M-4 | AM-2: earlier history eviction under the unchanged 128 MiB | Approve / adjust the limits through RFC §7 | Approve; eviction stays oldest-first and visible |
