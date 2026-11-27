@@ -90,13 +90,13 @@ The amendment record is [G0-ARCHITECTURE-CONTRACTS §AM-3](../g0/G0-ARCHITECTURE
 | Registered photographic v1 containers (bark-1224, bark-2350, synthetic-many-250k, architecture-street-halftone) | load; the original v1 file's document section equals the v1 encoding of the document reloaded from its v2 save |
 
 ## 7. Large-project round trips (Node)
-*Final numbers: see the committed record (§13).*
+*Final numbers: see the committed record (§14).*
 
 ## 8. Performance
-*Final numbers: see the committed record (§13).*
+*Final numbers: see the committed record (§14).*
 
 ## 9. Memory
-*Final numbers: see the committed record (§13).*
+*Final numbers: see the committed record (§14).*
 
 ## 10. Frozen regressions and browsers
 | Check | Result |
@@ -119,10 +119,21 @@ The amendment record is [G0-ARCHITECTURE-CONTRACTS §AM-3](../g0/G0-ARCHITECTURE
 - **TD-UI-006, TD-PERF-010, TD-PERF-012:** unchanged.
 - **Total:** 48 open items, 14 High.
 
-## 13. Evidence
+## 13. Impeccable and accessibility
+- **Installed version: 4.11.1**, the maintainer's update, recorded with `impeccable --version`. No update or reinstall was run.
+- **`impeccable doctor`:** three findings, none auto-fixable. They are recorded with their dispositions in [G-PRJ-DECISIONS](../g-prj/G-PRJ-DECISIONS.md) §8, merged with PR #23:
+  - `config-build-path-unset`: not applicable here, because this tool surface has no image generation;
+  - `hook-not-installed`: **awaiting maintainer approval** to record `hook.enabled: false`;
+  - `workspace-context-inherited`: the WASM engine package has no UI.
+
+  No repository-local fix was applicable without approval. No telemetry was sent, and no hook, global setting or design record was changed.
+- **G-PRJ-0 changes no user-facing surface,** so no critique, audit or design review applies to this stage. The rejection message reaches the existing status line unchanged. G-PRJ-1 is the first user-facing stage, and the full Impeccable workflow applies there.
+- **TD-UI-008** is not touched (no UI fix bundled). It is a prerequisite for G-PRJ-2's first production destructive control.
+
+## 14. Evidence
 *Records: [`bench/`](bench/).*
 
-## 14. Not run, and limits of this evidence
+## 15. Not run, and limits of this evidence
 - **Lower-end hardware and a quiet machine:** not run. Every run is on the shared M5 Max, with its load recorded.
 - **Browser dispatch timings with the accounting:** not re-run. The accounting is the same JavaScript as the measured Node dispatch path; G-PRJ-1 measures the browser hand-off as a whole.
 - **Browser memory:** no reading for the accounting fields.
