@@ -1,0 +1,24 @@
+---
+version: 1
+slug: "prototypes-g-prj-home-index-html"
+primary_target: "prototypes/g-prj/home/index.html"
+related_targets: []
+---
+
+# Surface brief: Vectra project home (G-PRJ-R design prototype)
+
+**Scope and mode.** Operate. A full-screen start screen shown when Vectra opens with nothing to resume, plus the workspace project controls and the persistence dialogs it implies. Design prototype only (`prototypes/g-prj/home/`, dev server); production implementation waits for maintainer approval.
+
+**Audience and job.** Artists returning to work (resume, recover, open a file) or starting (new, import to trace). First launch must teach the three ways in without fictional content.
+
+**Proof and content.** Licensed fixture artwork thumbnails; synthetic demonstration project names and states, labelled as such in the evidence. Real persistence states only: saved to a file, stored in this browser only, file unavailable, recovery available, unsaved changes.
+
+**Constraints.** Existing Vectra world unchanged (DESIGN.md, docs/DESIGN-SYSTEM.md; src/ui tokens and registry components). Strict CSP in production (no inline style in shipped code). No controls for features that do not exist. Statuses in words. Lime only for the primary action and state.
+
+## Direction contract
+THESIS: The project home is a resume desk, not a dashboard: the last artwork you touched fills the first viewport with its true save and recovery state beside it, and one lime Resume says what will open. It refuses the category default of a uniform card grid behind a hero banner and analytics.
+OWN-WORLD: Vectra's charcoal shell (#191a1c, panel #212224, elevated #292a2c), artwork on ivory paper (#eee8d8) as the brightest surface, 1 px #414347 borders, system type at 11/12/13/15 px, lime #b9e87b only on Resume, focus and selected state; Lucide icons at 16 px beside words.
+STORY: The artist sees their last piece, reads in words whether it is saved, where, and whether newer unsaved changes exist; chooses Recover changes or Open last save; resumes. Otherwise starts new, opens a .vectra they own, or imports an image to trace; finds older work in the shelf or the full library; understands what lives only in this browser.
+FIRST VIEWPORT: 44 px top bar (symbol + vectra, "Projects", storage use, Open…). Left 58 %: the resume panel, a large ivory artwork preview, then name, edited time, file state, the recovery choice and the lime Resume. Right: Start, three outline actions with one-line explanations (New project, Open…, Import image…) and a two-line note on where projects live. Below, full width: Recent shelf of five tiles and "Show all projects".
+FORM: Resume hero with shelf, position 3 on my ordered list of 7 (dealt lead, chosen by the user), seed:4dea934f2c506be4. Signature interaction: the recovery choice is a radio pair that rewrites the Resume button's consequence line ("Opens the recovered changes" / "Opens great-wave.vectra as last saved") before you press it.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
