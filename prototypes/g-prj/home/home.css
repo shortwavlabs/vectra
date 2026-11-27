@@ -1,0 +1,21 @@
+/* G-PRJ-R prototype stylesheet: the product tokens and owned rules (src/ui/styles.css), plus
+   Tailwind scanning of this folder (styles.css scans only src/shell and src/ui). */
+@import "../../../src/ui/styles.css";
+@source "./";
+
+/* The resume preview's height: as large as the viewport allows while the Recent shelf still
+   starts in the first viewport (1366×768: 352 px; 1920×1080: capped at 480 px). */
+:root {
+  --hero-h: clamp(16rem, calc(100svh - 26rem), 30rem);
+}
+
+/* A tile's open button covers the whole tile (::after); its focus ring goes round the tile. */
+.tile-open:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.tile-open:focus-visible::after {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background);
+}
