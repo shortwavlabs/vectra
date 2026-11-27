@@ -98,8 +98,9 @@ try {
     }
     const rt = await safari("roundTrip", codec);
     check(
-      `${codec}: Safari round trip (clean, no undo, byte-identical resave)`,
+      `${codec}: Safari round trip (serialization not a save, clean, no undo, byte-identical resave)`,
       same(rt.after, rt.before) &&
+        rt.serializedDirty && // AM-3.4
         rt.savedClean &&
         rt.loadedClean &&
         !rt.loadedCanUndo &&

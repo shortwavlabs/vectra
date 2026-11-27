@@ -140,6 +140,18 @@ const WORKLOADS = {
     what: "330k paths, 996k anchors (bench-workload; the designated stress workload)",
     build: async () => ({ session: buildWorkload(330000).session }),
   },
+  "open-50k": {
+    what: "TD-PERF-009 workload: 50k paths × 4 anchors (P1-A open measurement)",
+    build: async () => ({
+      session: single(syntheticPacket({ paths: 50000, anchorsPerPath: 4, groups: 8, seed: 21 })),
+    }),
+  },
+  "open-250k-1m": {
+    what: "TD-PERF-009 workload: 250k paths × 4 anchors = 1M anchors (P1-A open measurement)",
+    build: async () => ({
+      session: single(syntheticPacket({ paths: 250000, anchorsPerPath: 4, groups: 8, seed: 22 })),
+    }),
+  },
   "limit-500k": {
     what: "500k paths × 2 anchors = 1M anchors (exactly the anchor cap)",
     build: async () => ({
@@ -228,19 +240,21 @@ async function qualify(name, w) {
       saves[codec].push(ms);
       bytes[codec] = b;
     }
-  const loads = [];
+  const loads = { none: [], "deflate-raw": [] };
   let loaded;
-  for (let r = 0; r < REPS; r++) {
-    gc();
-    const [ms, l] = await time(() => loadContainer(bytes["deflate-raw"], {}));
-    loads.push(ms);
-    loaded = l;
-  }
+  for (let r = 0; r < REPS; r++)
+    for (const codec of ["none", "deflate-raw"]) {
+      gc();
+      const [ms, l] = await time(() => loadContainer(bytes[codec], {}));
+      loads[codec].push(ms);
+      loaded = l;
+    }
   writeFileSync(`${CONTAINERS}/${name}.vectra`, bytes["deflate-raw"]);
   Object.assign(row, {
     saveNoneMs: med(saves.none),
     saveDeflateMs: med(saves["deflate-raw"]),
-    loadDeflateMs: med(loads),
+    loadNoneMs: med(loads.none),
+    loadDeflateMs: med(loads["deflate-raw"]),
     containerNoneBytes: bytes.none.length,
     containerDeflateBytes: bytes["deflate-raw"].length,
   });
