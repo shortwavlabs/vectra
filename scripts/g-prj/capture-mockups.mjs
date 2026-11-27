@@ -1,5 +1,7 @@
 // G-PRJ-R design prototype captures (prototypes/g-prj/home, dev server only; never built).
 //   node scripts/g-prj/capture-mockups.mjs [--only state,state] [--skip-body]
+//   (--skip-body keeps the committed composites; set EMBED_PROVENANCE_WITH=<impeccable> when they
+//   are recaptured so their origin is embedded again)
 // 1. Workspace body (the composite under the prototype's top bar): serves dist/ with `vp preview`
 //    (runs `pnpm run build` only if dist/ is missing), opens /workspace.html?debug=1, loads the
 //    renderer fixture tests/output/renderer-fixtures/multi-layer.vectra.b64 through the debug-only
@@ -152,6 +154,18 @@ try {
       if (errors.length) throw new Error(errors.join("\n"));
       const path = `${BODY_DIR}/workspace-${w}x${h - 44}${dsf === 2 ? "@2x" : ""}.png`;
       await page.screenshot({ path, clip: { x: 0, y: 44, width: w, height: h - 44 } });
+      // Origin provenance, as for every prototype raster (EMBED_PROVENANCE_WITH=<impeccable>).
+      if (process.env.EMBED_PROVENANCE_WITH)
+        execFileSync(
+          process.env.EMBED_PROVENANCE_WITH,
+          [
+            "embed-prompt",
+            path,
+            "--prompt",
+            "Origin: not generated. Screenshot of the production Vectra workspace (dist/, vp preview, /workspace.html?debug=1) with the multi-layer renderer fixture (tests/output/renderer-fixtures/multi-layer.vectra.b64) loaded through the debug-only loadContainer hook, its own 44 px top bar cropped off; captured by scripts/g-prj/capture-mockups.mjs (Playwright Chromium). The workspace body of a COMPOSITE under the G-PRJ-R prototype's top bar: it shows a different fixture than the project named in that bar.",
+          ],
+          { stdio: ["ignore", "inherit", "inherit"] },
+        );
       console.error(`wrote ${path}`);
       await ctx.close();
     }
@@ -208,7 +222,10 @@ try {
         `Date: ${new Date().toISOString()}`,
         `Commit: ${execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim()} (working tree may differ)`,
         `Browser: Playwright Chromium ${browser.version()}`,
-        "Data: project names, times, sizes and states are synthetic; thumbnails are licensed fixture traces.",
+        "Data: project names, times, sizes and states are synthetic; thumbnails are licensed fixture traces,",
+        "rendered as the artboard at its true aspect (scripts/g-prj/render-thumbs.mjs).",
+        "SYNTHETIC picture: great-wave-recovered.webp, Great Wave's 'Recovered changes' preview, is the same",
+        "Hokusai trace with one vector edit (palette fill #efe5ca replaced by #f0cfa8: the sky recoloured).",
         "Workspace states are COMPOSITES: the proposed top bar over a production-build screenshot of the",
         "real workspace showing a different fixture (the multi-layer renderer fixture), not Great Wave.",
         "@2x: 683 x 384 CSS px at deviceScaleFactor 2 (200 % zoom of a 1366 x 768 screen).",

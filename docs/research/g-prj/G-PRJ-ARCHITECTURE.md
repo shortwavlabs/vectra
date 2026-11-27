@@ -128,7 +128,13 @@ The invariant: every successful save indication refers to bytes that reopen.
 
 ## 7. Thumbnails
 - **How rendered:** by the existing render worker (OffscreenCanvas, display cache) from the committed document, after an explicit save or a recovery snapshot, at idle, never during a gesture.
-- **Format and size:** 512 px on the long edge, WebP q≈0.8 where the engine encodes it, else PNG; about 20–60 KB (measured on the mockup thumbnails: 0.8–66 KB at 480 px).
+- **Format and size:** 512 px on the long edge, WebP q≈0.8 where the engine encodes it, else PNG.
+  - Size is bounded by pixels; the cost depends on the artwork's detail.
+  - Measured on the mockups' WebP renders:
+    - 0.8–66 KB at 480 px;
+    - 3–102 KB at 960 px, the largest being the photographic halftone (Talbot);
+    - so about 1–30 KB is expected at 512 px.
+  - A hard cap (e.g. 128 KB per thumbnail, re-encoded at lower quality above it) is enforced in G-PRJ-2.
 - **Where stored:** `library/<id>/thumb.webp` and `recovery/<session>/thumb.webp`, with the document revision and digest they depict. A thumbnail older than the project's last save is drawn with a "Preview updating" state, never as current.
 - **Never** in the `.vectra` file, never in an export, never transmitted. It is a derived UI asset.
 

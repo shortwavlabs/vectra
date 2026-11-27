@@ -5,6 +5,9 @@
 // the tiles, the storage dialog and every status word, so the figures add up and the three
 // persistence tiers (file, this browser, recovery) never share a word.
 import greatWave from "../../../docs/research/g-prj/mockups/thumbs/great-wave.webp";
+// SYNTHETIC: the same trace with one palette edit (sky #efe5ca -> #f0cfa8), rendered by
+// scripts/g-prj/render-thumbs.mjs to stand for "recovered changes" (origin embedded beside it).
+import greatWaveRecovered from "../../../docs/research/g-prj/mockups/thumbs/great-wave-recovered.webp";
 import layers from "../../../docs/research/g-prj/mockups/thumbs/layers.webp";
 import library from "../../../docs/research/g-prj/mockups/thumbs/library.webp";
 import mosaic from "../../../docs/research/g-prj/mockups/thumbs/mosaic.webp";
@@ -71,9 +74,14 @@ export function projects(withRecovery: boolean): Project[] {
       backing: { kind: "file", file: GREAT_WAVE_FILE },
       stored: 3.4 * MB,
       size: "640 × 430 px · 1,613 paths · 2 layers",
-      // Only one Great Wave thumbnail exists, so both versions show it; the caption says which.
+      // The recovered changes are a synthetic edit of the same trace (the sky recoloured).
       ...(withRecovery && {
-        recovery: { when: "12 min ago", thumb: greatWave, bytes: 3.6 * MB, expires: "Dec 10" },
+        recovery: {
+          when: "12 min ago",
+          thumb: greatWaveRecovered,
+          bytes: 3.6 * MB,
+          expires: "Dec 10",
+        },
       }),
     },
     {

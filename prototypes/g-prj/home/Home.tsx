@@ -39,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../src/ui/registry/dropdown-menu";
 import { Input } from "../../../src/ui/registry/input";
+import { Tip } from "../../../src/ui/tip.tsx";
 import {
   backingWords,
   fileOf,
@@ -55,6 +56,7 @@ import {
 } from "./data.ts";
 import type { Go } from "./main.tsx";
 import {
+  Artboard,
   BackingLine,
   Brand,
   ChoiceGroup,
@@ -103,6 +105,8 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
   const sorted = [...list].sort((a, b) => a.age - b.age);
   const recent = sorted.filter((x) => !hidden.has(x.id));
   const [hero, ...shelf] = recent;
+  // Storage speaks only when something is at risk (nearly full, or Safari's 7-day rule).
+  const atRisk = STORAGE_FULL || (SAFARI && list.some((x) => x.backing.kind === "browser"));
 
   /** After a tile disappears, focus the tile that took its place (never the page body). */
   const focusNear = (id: string) => {
@@ -198,21 +202,38 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
         >
           {status}
         </p>
-        {!empty && (
-          <Button
-            variant="ghost"
-            className={`h-8 shrink-0 text-xs max-sm:px-2 ${STORAGE_FULL ? "text-warning hover:text-warning" : "text-muted-foreground"}`}
-            aria-label={`Projects and storage: ${mb(totals.total)} stored in this browser${STORAGE_FULL ? ", nearly full" : ""}`}
-            onClick={() => setStorageOpen(true)}
-          >
-            {STORAGE_FULL ? (
+        {!empty &&
+          (atRisk ? (
+            <Button
+              variant="ghost"
+              className="h-8 shrink-0 text-xs text-warning hover:text-warning max-sm:px-2"
+              aria-label={`Projects and storage · ${mb(totals.total)} in this browser · ${STORAGE_FULL ? "nearly full" : "at risk in Safari"}`}
+              onClick={() => setStorageOpen(true)}
+            >
               <TriangleAlert data-icon="inline-start" />
-            ) : (
-              <HardDrive data-icon="inline-start" />
-            )}
-            <span className="max-sm:hidden">{mb(totals.total)} stored in this browser</span>
-          </Button>
-        )}
+              <span className="max-sm:hidden">
+                {STORAGE_FULL
+                  ? `Storage nearly full · ${mb(totals.total)}`
+                  : "Projects at risk in Safari"}
+              </span>
+            </Button>
+          ) : (
+            <Tip
+              side="bottom"
+              label={`Projects and storage · ${mb(totals.total)} in this browser`}
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-foreground"
+                  aria-label={`Projects and storage · ${mb(totals.total)} in this browser`}
+                  onClick={() => setStorageOpen(true)}
+                />
+              }
+            >
+              <HardDrive />
+            </Tip>
+          ))}
         {library && (
           <>
             <Divider />
@@ -237,7 +258,7 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
         />
       ) : (
         <main className="w-full px-4 py-4 md:px-8 md:py-6">
-          <div className="grid gap-6 min-[56.25rem]:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div className="grid items-start gap-6 min-[56.25rem]:grid-cols-[minmax(0,1fr)_clamp(18rem,30%,26rem)]">
             {hero ? (
               <ResumePanel project={hero} onResume={(c) => openProject(hero, c)} />
             ) : (
@@ -369,7 +390,7 @@ function StorageLine(p: { list: Project[]; onOpen: () => void }) {
   );
   if (STORAGE_FULL || (SAFARI && onlyHere.length))
     return (
-      <p className="mt-auto flex gap-2 pt-4 text-xs text-pretty text-warning">
+      <p className="mt-5 flex gap-2 text-xs text-pretty text-warning">
         <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden="true" />
         <span>
           {STORAGE_FULL
@@ -380,7 +401,7 @@ function StorageLine(p: { list: Project[]; onOpen: () => void }) {
       </p>
     );
   return (
-    <p className="mt-auto pt-4 text-xs text-pretty text-muted-foreground">
+    <p className="mt-5 text-xs text-pretty text-muted-foreground">
       Projects are .vectra files you keep · this browser keeps copies and recovery data · nothing is
       uploaded · {link}
     </p>
@@ -484,13 +505,13 @@ function TraceSheet() {
         setOver(false);
         note("A dropped image is traced on this device.");
       }}
-      className="group grid aspect-[4/3] rounded-sm bg-paper p-4 text-background min-[56.25rem]:aspect-auto min-[56.25rem]:min-h-[var(--hero-h)]"
+      className="group grid aspect-[4/3] rounded-sm bg-paper p-4 text-background min-[56.25rem]:aspect-auto min-[56.25rem]:min-h-[max(18rem,var(--art-h))]"
     >
       <span
         className={`grid place-content-center justify-items-center gap-2.5 rounded-xs border border-dashed px-6 text-center transition-colors ${over ? "border-solid border-background bg-background/5" : "border-background/30 group-hover:border-background/60"}`}
       >
         <Upload className="size-6" aria-hidden="true" />
-        <span className="text-lg font-semibold tracking-tight">Trace an image</span>
+        <span className="text-title font-semibold">Trace an image</span>
         <span id="trace-desc" className="max-w-[24rem] text-xs text-pretty text-ink-muted">
           Drop a PNG, JPEG or WebP here, or choose one. It is traced into vectors on this device;
           nothing is uploaded.
@@ -511,14 +532,10 @@ function ResumePanel(p: { project: Project; onResume: (choice: Choice) => void }
   return (
     <section
       aria-labelledby="resume-name"
-      className="@container flex flex-col rounded-lg border border-border bg-panel p-4"
+      className="@container rounded-lg border border-border bg-panel p-4"
     >
-      <div className="grid flex-1 gap-4 @[30rem]:grid-cols-[minmax(0,1fr)_clamp(15rem,40%,22rem)] @[30rem]:gap-5">
-        <Preview
-          project={x}
-          choice={choice}
-          className="aspect-[4/3] @[30rem]:aspect-auto @[30rem]:min-h-[var(--hero-h)]"
-        />
+      <div className="grid items-start gap-4 @[30rem]:grid-cols-[minmax(0,1fr)_clamp(15rem,36%,20rem)] @[30rem]:gap-5">
+        <Preview project={x} choice={choice} />
         <div className="flex min-w-0 flex-col">
           <h2 id="resume-name" className="text-title font-semibold text-balance">
             {x.name}
@@ -529,13 +546,17 @@ function ResumePanel(p: { project: Project; onResume: (choice: Choice) => void }
             <span>
               {rec ? "Last saved to " : "Saved to "}
               <span className="text-foreground">{file ?? "this browser"}</span>
-              {rec && ` ${x.saved}`}
+              {rec && (
+                <>
+                  {" "}
+                  <span className="whitespace-nowrap">{x.saved}</span>
+                </>
+              )}
             </span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground tabular-nums">{x.size}</p>
-          {/* The decision sits together at the foot of the panel: the choice, then the Resume it
-              rewrites. */}
-          <div className="mt-auto grid gap-3 pt-4">
+          {/* One top-anchored block: the choice, then the Resume it rewrites. */}
+          <div className="mt-4 grid gap-3">
             {rec && (
               <ChoiceGroup id="resume" project={x} choice={choice} onChoice={setChoice} withNote />
             )}
@@ -642,11 +663,7 @@ function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
       </div>
     </div>
   );
-  const thumb = (
-    <div className="h-full overflow-hidden rounded-sm bg-paper">
-      <img src={x.thumb} alt="" className="size-full object-contain" />
-    </div>
-  );
+  const thumb = (cls: string) => <Artboard src={x.thumb} className={cls} />;
   const menu = (
     <ProjectMenu
       project={x}
@@ -661,7 +678,7 @@ function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
         data-tile-id={x.id}
         className="relative grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-x-4 rounded-lg px-2 py-2 transition-colors hover:bg-elevated/70 has-[.tile-open:active]:bg-elevated md:grid-cols-[4.5rem_minmax(0,3fr)_minmax(0,3fr)_5rem_auto]"
       >
-        <div className="h-12">{thumb}</div>
+        {thumb("h-12")}
         <div className="min-w-0">
           <h3 className="text-ui font-medium">{name}</h3>
           <p className="text-xs text-muted-foreground">{meta}</p>
@@ -683,7 +700,7 @@ function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
       data-tile-id={x.id}
       className="relative -m-1.5 rounded-lg p-1.5 transition-colors hover:bg-elevated/70 has-[.tile-open:active]:bg-elevated"
     >
-      <div className="aspect-[16/10]">{thumb}</div>
+      {thumb("aspect-[16/10]")}
       <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-1">
         <div className="min-w-0">
           <h3 className="text-ui font-medium">{name}</h3>

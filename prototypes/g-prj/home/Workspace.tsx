@@ -321,7 +321,7 @@ export function WorkspaceProto(p: {
                   <Button
                     ref={nameBtn}
                     variant="ghost"
-                    className="h-8 max-w-[18rem] min-w-0 shrink justify-start px-2 text-ui font-normal"
+                    className="h-8 max-w-[18rem] min-w-0 shrink justify-start px-2 text-ui font-normal max-md:max-w-[8rem]"
                     aria-label={`Rename project ${name}`}
                     aria-keyshortcuts="F2"
                     onClick={() => setRenaming(true)}
@@ -399,10 +399,10 @@ export function WorkspaceProto(p: {
             <Upload data-icon="inline-start" /> <span className="max-md:sr-only">Import</span>
           </Button>
           <Button
-            className="h-8 px-3.5 font-semibold max-md:px-2"
+            className="h-8 px-3.5 font-semibold max-md:px-2.5"
             onClick={() => note("Export opens the existing Export artwork dialog.")}
           >
-            <Download data-icon="inline-start" /> <span className="max-md:sr-only">Export</span>
+            <Download data-icon="inline-start" /> Export
           </Button>
         </div>
       </header>

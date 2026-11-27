@@ -3,10 +3,15 @@
 @import "../../../src/ui/styles.css";
 @source "./";
 
-/* The resume preview's height: as large as the viewport allows while the Recent shelf still
-   starts in the first viewport (1366×768: 352 px; 1920×1080: capped at 480 px). */
+/* The tallest the hero artboard may be: as large as the viewport allows while the Recent shelf
+   still starts in the first viewport. The artboard keeps the piece's own aspect inside it. */
 :root {
-  --hero-h: clamp(16rem, calc(100svh - 26rem), 30rem);
+  --art-h: clamp(10rem, calc(100svh - 28rem), 32rem);
+}
+
+/* An artboard on the canvas surround, as in the workspace: a soft offset shadow marks its edge. */
+.vx-artboard {
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.45);
 }
 
 /* A tile's open button covers the whole tile (::after); its focus ring goes round the tile. */

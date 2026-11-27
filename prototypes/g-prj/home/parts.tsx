@@ -208,19 +208,44 @@ export function consequence(x: Project, choice: Choice): string {
     : `Opens ${file ?? "the last save"} as last saved · your unsaved changes stay available`;
 }
 
-/** The artwork preview: it shows the version the choice opens, and says which in its caption. */
-export function Preview(p: { project: Project; choice: Choice; className?: string }) {
+/**
+ * A thumbnail as the artboard: the ivory piece at its true aspect, centred on the canvas-surround
+ * field like the workspace canvas. The field has a fixed shape (tiles, rows); the art fits inside.
+ */
+export function Artboard(p: { src: string; className?: string }) {
+  return (
+    <div className={`relative rounded-sm bg-canvas-surround ${p.className ?? ""}`}>
+      <img
+        src={p.src}
+        alt=""
+        className="vx-artboard absolute inset-0 m-auto max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)]"
+      />
+    </div>
+  );
+}
+
+/**
+ * The artwork preview: the artboard at the piece's own aspect on the surround, sized by the art
+ * (not a fixed plate). It shows the version the choice opens, and says which in its caption.
+ */
+export function Preview(p: {
+  project: Project;
+  choice: Choice;
+  className?: string;
+  /** Height cap for the art (the hero uses --art-h; the dialog a fixed one). */
+  artClass?: string;
+}) {
   const x = p.project;
   const r = x.recovery;
   const recovered = !!r && p.choice === "recover";
   const caption = r ? (recovered ? `Recovered changes · ${r.when}` : `Last save · ${x.saved}`) : "";
   return (
     <figure className={`flex min-w-0 flex-col gap-1.5 ${p.className ?? ""}`}>
-      <div className="relative min-h-0 flex-1 overflow-hidden rounded-sm bg-paper">
+      <div className="grid place-items-center rounded-sm bg-canvas-surround p-3">
         <img
           src={recovered ? r.thumb : x.thumb}
           alt={`${x.name}: ${recovered ? `the recovered changes from ${r.when}` : `as last saved${r ? `, ${x.saved}` : ""}`}`}
-          className="absolute inset-0 size-full object-contain"
+          className={`vx-artboard block h-auto w-auto max-w-full ${p.artClass ?? "max-h-[var(--art-h)]"}`}
         />
       </div>
       {r && (
@@ -251,7 +276,7 @@ export function ChoiceGroup(p: {
       role="radiogroup"
       aria-labelledby={p.withNote ? `${p.id}-note` : undefined}
       aria-label={p.withNote ? undefined : "Open"}
-      className="rounded-md bg-elevated px-3 pt-2.5 pb-1.5"
+      className={p.withNote ? "border-t border-border pt-3" : ""}
     >
       {p.withNote && (
         <p id={`${p.id}-note`} className="flex gap-2 text-xs text-foreground">
@@ -261,7 +286,7 @@ export function ChoiceGroup(p: {
           </span>
         </p>
       )}
-      <div className={p.withNote ? "mt-1 grid" : "-mt-1 grid"}>
+      <div className={p.withNote ? "mt-1.5 grid" : "grid"}>
         {(
           [
             ["recover", "Recover changes"],
@@ -270,7 +295,7 @@ export function ChoiceGroup(p: {
         ).map(([v, label]) => (
           <label
             key={v}
-            className={`-mx-1.5 flex h-7 cursor-pointer items-center gap-2 rounded-md px-1.5 text-ui transition-colors hover:bg-background/40 ${p.withNote ? "pl-[1.4rem]" : ""}`}
+            className={`-mx-1.5 flex h-7 cursor-pointer items-center gap-2 rounded-md px-1.5 text-ui transition-colors hover:bg-elevated ${p.withNote ? "pl-[1.4rem]" : ""}`}
           >
             <input
               type="radio"
@@ -309,15 +334,13 @@ export function RecoveryDialog(p: {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_14rem]">
-            <Preview
-              project={x}
-              choice={choice}
-              className="aspect-[4/3] sm:aspect-auto sm:min-h-48"
-            />
+            <Preview project={x} choice={choice} artClass="max-h-56" />
             <div className="grid content-start gap-2 text-xs">
               <p className="text-muted-foreground">
-                Last saved {x.saved} to{" "}
-                <span className="text-foreground">{fileOf(x) ?? "this browser"}</span>
+                Last saved <span className="whitespace-nowrap">{x.saved}</span> to{" "}
+                <span className="whitespace-nowrap text-foreground">
+                  {fileOf(x) ?? "this browser"}
+                </span>
               </p>
               <ChoiceGroup id="pre-open" project={x} choice={choice} onChoice={setChoice} />
               <p id="pre-open-consequence" aria-live="polite" className="text-muted-foreground">
