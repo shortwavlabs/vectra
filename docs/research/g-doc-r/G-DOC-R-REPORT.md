@@ -1110,6 +1110,7 @@ The maintainer accepted stage D as an implementation at `1a7b45f`, subject to an
     - The screen was unlocked (`CGSSessionScreenIsLocked` absent), and the page was visible with 30–32 animation frames per 500 ms before and after every harness. Load 0.91–2.07.
     - Records: [`safari/final-accept-cdced0f2-*`](safari/).
     - This replaces the invalid locked-screen gui run on `83daa2d29699dfdb`; that run's record is kept.
-  - **CI** on `b37f87c`: run 45926294978 **succeeded**. The CI result on the final head, which carries only these records, is in the merge record below.
+  - **CI** on `b37f87c`: run 45926294978 **succeeded**.
+  - **CI** on `89a3833`: run 45929935020 **failed** on a runner timeout, not a logic failure. `src/hit-test/index.test.ts`, "property: 2,000 random points…", took 5,063 ms against Vitest's 5 s default; it takes about 1.2 s here, and G-DOC-R does not change hit-test. It now has an explicit 60 s timeout (test-only), the same remedy as the NodeMap test (§11). The other tests over 1 s locally already had explicit timeouts. The CI result on the new final head is in the merge record below.
   - **F-16** stays a known failure (TD-UI-007).
 
