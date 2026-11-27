@@ -91,8 +91,51 @@ The surface is Operate mode: a project-home start screen and the workspace proje
 - storage speaks **only when at risk**;
 - **tracing is the front door** at first launch.
 
-## 5. Audit
-*Pending.*
+## 5. Audit (v1)
+**Method:** `audit.md` was followed as a delegated, read-only run.
+- Every state was measured in Chromium; the focus and trap checks also ran in Firefox and WebKit.
+- Contrast was computed against the composited background, verified against the documented 7.56:1 calibration.
+- 200 % zoom was emulated at 683 × 384 with a device scale factor of 2.
+- The detector ran on the sources (`[]`, a regex-only undercount).
+
+**Score: 13/20 (Acceptable).**
+
+| # | Dimension | v1 | Key finding |
+|---|---|---|---|
+| 1 | Accessibility | 2 | Enter in a tile rename field resumes a different project (all 3 engines). A focused control is fully hidden under the sticky header at 200 %. Destructive text is 4.43:1 |
+| 2 | Performance | 3 | Registry `transition-all` and animation classes that do nothing; no long tasks; CLS 0 |
+| 3 | Theming | 3 | Zero hex colours in the prototype; off-scale 14/16/12.8 px come from registry defaults |
+| 4 | Responsive design | 2 | At 200 % the workspace top bar overlaps itself and the save status shrinks to 0 px |
+| 5 | Implementation integrity | 3 | **Pass:** coherent and token-driven. Resume without recovery opens the wrong state; `key={save.kind}` remounts the status |
+
+**Findings:** P0 0 · P1 4 · P2 5 · P3 4.
+- **P1:**
+  1. the Enter shortcut;
+  2. the top bar at 200 % zoom (WCAG 1.4.4);
+  3. focus hidden under the sticky header (WCAG 2.4.11);
+  4. destructive text at 4.43:1, and 3.61:1 on hover (WCAG 1.4.3), in the shared registry.
+- **P2:**
+  - focus drops to `body` after actions;
+  - a remounted live region;
+  - the save-failed popover swallows the first Tab;
+  - the wrong Resume route;
+  - status text truncated to a sliver.
+- **P3:**
+  - off-scale sizes and arbitrary values;
+  - heading and landmark gaps;
+  - inert animation classes;
+  - a modal trap that relies on an asynchronous focus guard (escapes only with key presses 0 ms apart; it held at ≥ 16 ms in all engines, under load and throttling).
+
+**Reconciling with the critique's P1 "focus escapes the workspace dialogs":** the audit reproduced the escape only with synthetic Tab presses 0 ms apart. It happened equally in the home and the workspace and in all three engines, so it is a property of the shared Base UI dialog, not of the workspace. **Downgraded to P3**; the capture scripts now space key presses.
+
+**Registry-level findings** (shared `src/ui/registry`, so production too; **not fixed in G-PRJ-R**, which does not touch `src/`):
+- destructive tint contrast;
+- `shrink-0` on Button;
+- 14 and 16 px defaults;
+- `transition-all`;
+- animation classes with no keyframes.
+
+They are recorded as F-12 and TD-UI-008. The prototype overrides them locally where they affect it.
 
 ## 6. Targeted refinement
 *Pending.*

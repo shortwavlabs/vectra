@@ -29,6 +29,7 @@ This register separates three things: what this research decided within its mand
 | F-9 | Cmd/Ctrl+S and O currently reach the browser's own Save Page and Open File (`Workspace.tsx:482` passes modifiers through) | Shortcut contract (UX spec §9; D-PRJ-8) |
 | F-10 | `/` is the P0 engineering workbench, not a public landing page; the PWA `start_url` is `./workspace.html` | UX spec §11: navigation |
 | F-11 | No document title exists ("Untitled artwork" is hard-coded), and RFC-002 lists file names as not stored | The project name comes from the file or the library record (architecture §6) |
+| F-12 | **The shared registry fails WCAG AA for destructive text: 4.43:1 at rest, 3.61:1 on hover** (`src/ui/registry/button.tsx:18`, `dropdown-menu.tsx:88`). This is production code. The audit also found the Button default `shrink-0`, which breaks truncation at 200 % zoom, the 14 and 16 px defaults outside the type scale, `transition-all`, and animation classes with no keyframes | Not fixed here (no production change in G-PRJ-R). Recorded as **TD-UI-008**; the fix measured is a /12–/15 tint (≥ 4.9:1). Overridden locally in the prototype |
 
 ## 3. Maintainer decisions recorded during this research (2026-11-26)
 | # | Decision |

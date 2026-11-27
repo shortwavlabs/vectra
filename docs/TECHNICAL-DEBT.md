@@ -93,6 +93,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-005](#td-ui-005) | Palette display names: custom vs generated names are not recorded | Limitation (document model) | Medium | OPEN | before user-facing palette renaming | G-UI-R |
+| [TD-UI-008](#td-ui-008) | Registry destructive button below WCAG AA contrast (4.43:1; 3.61:1 on hover), plus Button `shrink-0` and off-scale defaults | Defect (accessibility, measured) | Medium | OPEN | next shell or design-system change; before G-PRJ-4 | G-PRJ-R (found) |
 | [TD-UI-007](#td-ui-007) | WebKit: dragging the layers split past its minimum sometimes leaves the panel expanded (F-16; known test failure on `main`) | Defect or test race (unconfirmed) | Low | OPEN (known failure; not suppressed) | before WebKit suite results are reported clean | G-DOC-R (found) |
 | [TD-UI-006](#td-ui-006) | No "commit without history" confirmation in the shell (RFC §7) | Limitation (UI) | Medium | OPEN (confirmation authorised as a G-PRJ follow-up) | G-PRJ follow-up; refusal kept until qualified | G-DOC-R |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
@@ -116,6 +117,7 @@ Counts:
   - Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and the stock-Safari keyboard check are executed. The canvas focus ring is fixed at the canvas-host level (#19).
 - **G-UI-R final acceptance (2026-11-25):** one item added, TD-UI-005 (Medium): the palette-name provenance limitation, recorded for resolution before user-facing palette renaming. **43 open items, 14 High.**
 - **G-DOC-R (2026-11-26, not yet accepted):** one item added, TD-UI-006 (Medium): there is no shell confirmation to commit without history, and AM-2 makes it reachable for very large subtrees. **44 open items, 14 High.** TD-PERF-007 and TD-PERF-011 dispositions are updated in their entries.
+- **G-PRJ-R (2026-11-26, research; no production change):** one item added, TD-UI-008 (Medium): the shared registry's destructive button fails WCAG AA contrast, found by the Impeccable audit of the G-PRJ-R prototype. **47 open items, 14 High.**
 - **G-DOC-R final acceptance (2026-11-26):** one item added, TD-UI-007 (Low): F-16, a known WebKit test failure that predates G-DOC-R (3/10 on `main` and on G-DOC-R). **46 open items, 14 High.** TD-PERF-007's WebKit stress miss is temporarily accepted, with the threshold unchanged and a subtree-summary optimisation recorded.
 - **G-DOC-R maintainer acceptance and closure (2026-11-26):** stage D accepted as an implementation, subject to the accounting closure. One item added, TD-PERF-012 (Medium): the accepted temporary renderer-path regressions, kept explicitly tracked. **45 open items, 14 High.** No item is closed: TD-PERF-007 and TD-PERF-011 stay open while the gate is PARTIAL (lower-end hardware, quiet machine). TD-UI-006: the confirmation is authorised as a G-PRJ follow-up; the refusal stays. TD-PERF-009 gains the 64 MiB document-cap finding.
 
@@ -868,6 +870,27 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - **Cancel is the safe default**;
   - the user has an opportunity to **save a project copy** before proceeding.
   **OPEN.**
+
+<a id="td-ui-008"></a>
+### TD-UI-008 — Registry destructive button below WCAG AA contrast; Button and type-scale defaults
+- **Category / severity / status:** Defect (accessibility, measured) · Medium · OPEN. Found by the Impeccable audit of the G-PRJ-R design prototype (2026-11-26); it affects production, because the shell uses the same registry components.
+- **Evidence** ([G-PRJ-R Impeccable review](research/g-prj/G-PRJ-IMPECCABLE-REVIEW.md) §5):
+  - `src/ui/registry/button.tsx:18` destructive variant (`dark:bg-destructive/20 text-destructive`): text `#ff8f85` on composited `#543f3e` is **4.43:1** at 14 px, under the 4.5:1 of WCAG 1.4.3. Hover (`/30`) is **3.61:1**.
+  - `dropdown-menu.tsx:88`: the same values for a highlighted destructive menu item.
+  - Also measured:
+    - Button's default `shrink-0 whitespace-nowrap` defeats truncation in flex rows, which caused overlap at 200 % zoom (WCAG 1.4.4);
+    - the default `text-sm` (14 px), the `sm` size at 12.8 px and DialogTitle at 16 px all sit outside the 11/12/13/15 scale;
+    - `transition-all` morphs the focus ring over 150 ms;
+    - the animation classes (`animate-in`, `fade-in-0` and others) have no keyframes installed.
+- **Proposed fix (measured):**
+  - a destructive tint of /12–/15 (4.93–5.23:1 at rest), with a hover tint that stays at or above 4.5:1;
+  - size overrides at the call site;
+  - `transition-colors`;
+  - remove or deliberately install the animations.
+
+  A registry patch needs a `PROVENANCE.json` entry.
+- **Closure criteria:** destructive text at or above 4.5:1 at rest, hover and highlight in every engine; the shell's flex truncation works at 200 % zoom; the other defaults are resolved or recorded as accepted.
+- **Owner action:** schedule with the next shell or design-system change, and no later than G-PRJ-4.
 
 <a id="td-ui-007"></a>
 ### TD-UI-007 — WebKit: the layers split dragged past its minimum sometimes stays expanded (F-16)
