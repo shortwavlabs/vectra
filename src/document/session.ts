@@ -109,6 +109,14 @@ export interface SessionOptions {
 interface SessionDerived extends StateDerived {
   readonly body: number;
 }
+/** One literal with all four fields, so every record has the same in-object layout. An object
+ *  spread here measured 40 bytes per retained state instead of 8 (calibration, G-PRJ-0 §6). */
+const withBody = (v: StateDerived, body: number): SessionDerived => ({
+  chunks: v.chunks,
+  anchors: v.anchors,
+  maxIdNumber: v.maxIdNumber,
+  body,
+});
 
 /** C7 source-section cap, enforced when a source is embedded. */
 export const MAX_EMBEDDED_SOURCE_BYTES = 20 * 2 ** 20;
@@ -171,7 +179,7 @@ export class DocumentSession {
     for (const [id, bytes] of o.sources ?? []) this.#sources.set(id, bytes.slice());
     // AM-3.3: the initial state is persistable, like every state committed after it.
     this.#persistLimits = Object.freeze({ ...(o.persistLimits ?? DEFAULT_PERSIST_LIMITS) });
-    const d: SessionDerived = { ...v, body: bodyOf(o.state) };
+    const d = withBody(v, bodyOf(o.state));
     if (this.validation === "compare" && fullBody(o.state) !== d.body)
       throw new ValidationDisagreement("persistable body: entry sum and full serialization differ");
     const problem = persistProblem(this.#sizes(o.state, d, this.#nextId), this.#persistLimits);
@@ -321,7 +329,7 @@ export class DocumentSession {
       const v = this.#validate(prev, next, writes);
       // AM-3.3: persistability, from the write log, before anything is published.
       const tp = performance.now();
-      d = { ...v, body: this.#derived.get(prev)!.body + bodyDelta(prev, next, writes) };
+      d = withBody(v, this.#derived.get(prev)!.body + bodyDelta(prev, next, writes));
       const problem = persistProblem(this.#sizes(next, d, ids.next), this.#persistLimits);
       this.lastPersistMs = performance.now() - tp; // the compare-mode oracle below is excluded
       if (this.validation === "compare") {
