@@ -13,7 +13,7 @@ import {
   parents,
 } from "./commands.ts";
 import { changedKeys } from "./node-map.ts";
-import { type Delta, structureDelta } from "./structure-accounting.ts";
+import { COSTS, type Delta, structureDelta } from "./structure-accounting.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
 import { checkIncremental } from "./incremental-validate.ts";
 import {
@@ -367,7 +367,8 @@ export class DocumentSession {
     for (const id of this.#derived.get(prev)!.chunks.keys()) {
       if (d.chunks.has(id)) continue;
       const c = this.store.ownerCounts(id);
-      if (c.snapshot === 0 && c.job === 0 && c.history === 0) n += this.store.cost(id);
+      if (c.snapshot === 0 && c.job === 0 && c.history === 0)
+        n += this.store.cost(id) + COSTS.chunkRecord;
     }
     return n;
   }
@@ -539,13 +540,28 @@ export class DocumentSession {
     for (const s of this.#future) n += this.#deltas.get(s)?.added ?? 0;
     return n;
   }
+  /**
+   * AM-2 term 3, store part: the store's record of every chunk attributed to history (owner
+   * precedence as in `bytes()`), which the C3.2 chunk ledger cost leaves out. Accounted, a
+   * fixed `COSTS.chunkRecord` per chunk; O(live chunks), like `bytes()`.
+   */
+  historyChunkRecordBytes(): number {
+    let n = 0;
+    for (const id of this.store.chunkIds()) {
+      const c = this.store.ownerCounts(id);
+      if (c.history > 0 && c.document === 0 && c.snapshot === 0 && c.job === 0) n++;
+    }
+    return n * COSTS.chunkRecord;
+  }
   /** History-only bytes (RFC §7 budget, C3.2 r3): chunk bytes attributed to history, history-only
-   *  source bytes and history-only document-structure bytes. */
+   *  source bytes and history-only document-structure bytes, including those chunks' store
+   *  records. */
   historyBytes(): number {
     return (
       this.store.bytes().byOwnerKind.history +
       this.sourceByteCounts().history +
-      this.historyStructureBytes()
+      this.historyStructureBytes() +
+      this.historyChunkRecordBytes()
     );
   }
 }

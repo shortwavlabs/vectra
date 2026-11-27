@@ -40,13 +40,20 @@ export const COSTS = Object.freeze({
   heapNumber: 16, // a number field outside the small-integer range is boxed
   array: 48, // JSArray header and FixedArray header
   element: 8,
-  typedArray: 160, // JSTypedArray, ArrayBuffer and backing-store headers
+  // JSTypedArray and JSArrayBuffer headers. Measured 198–200 off-heap and 216 (+8 payload)
+  // on-heap; was 160 until the G-DOC-R accounting closure (report §7.1).
+  typedArray: 216,
   typedElement: 8, // Float64
   string: 16, // sequential string header
   mapTable: 64, // JSMap and hash-table headers
   mapSlot: 28, // per table slot (capacity = next power of two ≥ size): 3 entry words + ½ bucket
   clonedProperties: 16, // structured-clone objects keep their fields in a property array
   stateBookkeeping: 320, // per retained state: session records (derived, delta, index entries)
+  // Per history-attributed geometry chunk: the store's record outside the C3.2 chunk ledger
+  // cost. Nine typed-array and buffer headers (1,800), accessor views and their closures, the
+  // manifest object, the owner counts. Measured 3,688–3,767 per chunk at every size from 1 to
+  // 4,000 paths (scripts/measure-chunk-overhead.mjs); the largest median rounded up to 64.
+  chunkRecord: 3_776,
 });
 
 const C = COSTS;

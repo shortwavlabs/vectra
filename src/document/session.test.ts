@@ -13,6 +13,7 @@ import {
   rotate90Matrix,
 } from "./model.ts";
 import { DocumentSession, sha256Hex } from "./session.ts";
+import { COSTS } from "./structure-accounting.ts";
 import { fixturePacket, FIXTURE_SCENES } from "./testing/fixtures.ts";
 import { emptySession, errorCode, fixtureSession } from "./testing/helpers.ts";
 import { parseColor, syntheticPacket } from "./testing/synthetic.ts";
@@ -388,9 +389,10 @@ describe("history budget (RFC §7)", () => {
     });
     const S = one.historyStructureBytes();
     expect(S).toBeGreaterThan(0);
-    expect(one.historyBytes()).toBe(cost + S);
+    const R = COSTS.chunkRecord; // the history-only chunk's store record (AM-2 closure)
+    expect(one.historyBytes()).toBe(cost + R + S);
     const session = fixtureSession(["thin_strokes-halftone"], {
-      history: { maxEntries: 100, maxBytes: Math.floor((cost + S) * 1.5) },
+      history: { maxEntries: 100, maxBytes: Math.floor((cost + R + S) * 1.5) },
     });
     const layer = () => layerOf(session.state).id;
     const replace = () =>
@@ -401,12 +403,12 @@ describe("history budget (RFC §7)", () => {
         replaceLayerId: layer(),
       });
     replace(); // chunk 1 becomes history-only: within budget
-    expect(session.historyBytes()).toBe(cost + S);
+    expect(session.historyBytes()).toBe(cost + R + S);
     expect(session.getSnapshot().historyTruncated).toBe(false);
     replace(); // chunk 2 becomes history-only too: over budget → oldest (chunk 1) evicted
-    expect(session.historyBytes()).toBe(cost + session.historyStructureBytes());
+    expect(session.historyBytes()).toBe(cost + R + session.historyStructureBytes());
     expect(session.historyStructureBytes()).toBeGreaterThan(0);
-    expect(session.historyBytes()).toBeLessThanOrEqual(Math.floor((cost + S) * 1.5));
+    expect(session.historyBytes()).toBeLessThanOrEqual(Math.floor((cost + R + S) * 1.5));
     expect(session.getSnapshot().historyTruncated).toBe(true);
     expect(session.store.has("chk_1")).toBe(false);
     expect(session.store.ownerCounts("chk_2").history).toBe(1);
@@ -433,6 +435,24 @@ describe("history budget (RFC §7)", () => {
     replaceTight({ withoutHistory: true });
     expect(tight.getSnapshot().canUndo).toBe(false);
     expect(tight.store.chunkIds()).toEqual(["chk_3"]);
+  });
+
+  test("AM-2 closure: a chunk's store record counts once, only while history is its top owner", () => {
+    const session = fixtureSession(["circle-bw", "thin_strokes-halftone"]);
+    expect(session.historyChunkRecordBytes()).toBe(0);
+    session.dispatch({ type: "delete", ids: [session.state.orderedRootIds[1]!] });
+    expect(session.historyChunkRecordBytes()).toBe(COSTS.chunkRecord);
+    const snapshot = { kind: "snapshot" } as const;
+    session.store.retain("chk_2", snapshot); // snapshot precedes history (C3.2)
+    expect(session.historyChunkRecordBytes()).toBe(0);
+    session.store.release("chk_2", snapshot);
+    session.undo(); // the document owns it again
+    expect(session.historyChunkRecordBytes()).toBe(0);
+    session.redo();
+    expect(session.historyChunkRecordBytes()).toBe(COSTS.chunkRecord);
+    expect(session.historyBytes()).toBe(
+      session.store.cost("chk_2") + COSTS.chunkRecord + session.historyStructureBytes(),
+    );
   });
 });
 

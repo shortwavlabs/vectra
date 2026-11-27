@@ -26,7 +26,7 @@ export interface LedgerSnapshot {
     readonly byOwnerKind: Readonly<Record<OwnerKind, number>>;
     readonly total: number;
   };
-  /** RFC §7 budget quantity: history-only chunk bytes plus history-only source bytes. */
+  /** RFC §7 budget quantity (C3.2 r3): `DocumentSession.historyBytes()`. */
   readonly historyBytes: number;
   readonly sources: { readonly document: number; readonly history: number };
   readonly reporters: Readonly<
@@ -62,7 +62,7 @@ export class ResourceLedger {
     }
     return {
       store,
-      historyBytes: store.byOwnerKind.history + sources.history,
+      historyBytes: this.#session.historyBytes(),
       sources,
       reporters,
       total,
