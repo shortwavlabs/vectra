@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 import { ResourceLedger } from "./ledger.ts";
-import { COSTS } from "./structure-accounting.ts";
+import { chunkRecordCost } from "./structure-accounting.ts";
 import { fixtureSession } from "./testing/helpers.ts";
 
 describe("resource ledger skeleton (RFC §11.3)", () => {
@@ -20,7 +20,9 @@ describe("resource ledger skeleton (RFC §11.3)", () => {
     expect(s.store.byOwnerKind.history).toBe(session.store.cost("chk_2"));
     expect(s.historyBytes).toBe(session.historyBytes());
     expect(s.historyBytes).toBe(
-      session.store.cost("chk_2") + COSTS.chunkRecord + session.historyStructureBytes(),
+      session.store.cost("chk_2") +
+        chunkRecordCost(session.store.view("chk_2").manifest) +
+        session.historyStructureBytes(),
     );
     const off = ledger.register({ id: "render-worker", kind: "render-worker", bytes: () => 1234 });
     expect(() =>

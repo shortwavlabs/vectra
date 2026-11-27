@@ -13,7 +13,7 @@ import {
   rotate90Matrix,
 } from "./model.ts";
 import { DocumentSession, sha256Hex } from "./session.ts";
-import { COSTS } from "./structure-accounting.ts";
+import { chunkRecordCost } from "./structure-accounting.ts";
 import { fixturePacket, FIXTURE_SCENES } from "./testing/fixtures.ts";
 import { emptySession, errorCode, fixtureSession } from "./testing/helpers.ts";
 import { parseColor, syntheticPacket } from "./testing/synthetic.ts";
@@ -389,7 +389,8 @@ describe("history budget (RFC §7)", () => {
     });
     const S = one.historyStructureBytes();
     expect(S).toBeGreaterThan(0);
-    const R = COSTS.chunkRecord; // the history-only chunk's store record (AM-2 closure)
+    // The history-only chunk's store record (AM-2 closure); the replaced chunk has this manifest.
+    const R = chunkRecordCost(one.store.view(one.store.chunkIds()[0]!).manifest);
     expect(one.historyBytes()).toBe(cost + R + S);
     const session = fixtureSession(["thin_strokes-halftone"], {
       history: { maxEntries: 100, maxBytes: Math.floor((cost + R + S) * 1.5) },
@@ -440,8 +441,10 @@ describe("history budget (RFC §7)", () => {
   test("AM-2 closure: a chunk's store record counts once, only while history is its top owner", () => {
     const session = fixtureSession(["circle-bw", "thin_strokes-halftone"]);
     expect(session.historyChunkRecordBytes()).toBe(0);
+    const R = chunkRecordCost(session.store.view("chk_2").manifest);
+    expect(R).toBeGreaterThan(3000);
     session.dispatch({ type: "delete", ids: [session.state.orderedRootIds[1]!] });
-    expect(session.historyChunkRecordBytes()).toBe(COSTS.chunkRecord);
+    expect(session.historyChunkRecordBytes()).toBe(R);
     const snapshot = { kind: "snapshot" } as const;
     session.store.retain("chk_2", snapshot); // snapshot precedes history (C3.2)
     expect(session.historyChunkRecordBytes()).toBe(0);
@@ -449,9 +452,9 @@ describe("history budget (RFC §7)", () => {
     session.undo(); // the document owns it again
     expect(session.historyChunkRecordBytes()).toBe(0);
     session.redo();
-    expect(session.historyChunkRecordBytes()).toBe(COSTS.chunkRecord);
+    expect(session.historyChunkRecordBytes()).toBe(R);
     expect(session.historyBytes()).toBe(
-      session.store.cost("chk_2") + COSTS.chunkRecord + session.historyStructureBytes(),
+      session.store.cost("chk_2") + R + session.historyStructureBytes(),
     );
   });
 });

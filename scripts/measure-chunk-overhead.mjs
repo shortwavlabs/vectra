@@ -4,8 +4,8 @@
 //   node --expose-gc scripts/measure-chunk-overhead.mjs [--n 400] [--reps 5] [--out f.json]
 // For each packet size: commit N freshly built chunks into a fresh GeometryStore, retain them
 // as history, collect, and read heapUsed + arrayBuffers. (Δheap − Σ cost) / N is the per-chunk overhead.
-// The sizes span 1 to 4,000 paths: an overhead that does not grow with the size is a fixed
-// per-chunk term (object headers, views, closures), not a payload term.
+// The sizes span 1 to 4,000 paths, and up to 4,000 styles and 256 groups: an overhead that does
+// not grow with them is a fixed per-chunk term (object headers, views, closures).
 import { execFileSync } from "node:child_process";
 import { cpus, loadavg } from "node:os";
 import { writeFileSync } from "node:fs";
@@ -39,6 +39,15 @@ const SIZES = [
   { paths: 100, anchorsPerPath: 6 },
   { paths: 1000, anchorsPerPath: 6 },
   { paths: 4000, anchorsPerPath: 3 },
+  // Large style and group tables (closure review): the store keeps a cloned manifest object,
+  // which grows with them, while the ledger charges the manifest's JSON length.
+  { paths: 1000, anchorsPerPath: 6, styles: 1000, groups: 64 },
+  { paths: 4000, anchorsPerPath: 3, styles: 4000, groups: 256 },
+  // Styles and groups separately, to give each its own per-entry term.
+  { paths: 2000, anchorsPerPath: 4, styles: 2000, groups: 4 },
+  { paths: 8000, anchorsPerPath: 3, styles: 8000, groups: 4 },
+  { paths: 2000, anchorsPerPath: 4, styles: 4, groups: 1000 },
+  { paths: 8000, anchorsPerPath: 3, styles: 4, groups: 4000 },
 ];
 const HISTORY = { kind: "history" };
 
@@ -61,7 +70,7 @@ async function chunkRep(size, r) {
   const before = heap();
   let total = 0;
   for (let i = 0; i < N; i++) {
-    const id = store.commit(syntheticPacket({ ...size, groups: 4, seed: 1000 * r + i + 1 }));
+    const id = store.commit(syntheticPacket({ groups: 4, ...size, seed: 1000 * r + i + 1 }));
     store.retain(id, HISTORY);
     total += store.cost(id);
   }

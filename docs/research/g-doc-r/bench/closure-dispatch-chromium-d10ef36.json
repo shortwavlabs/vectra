@@ -8,11 +8,7 @@
   "reps": 30,
   "warmup": 2,
   "conditionsStart": {
-    "loadavg": [
-      1.44,
-      1.16,
-      1
-    ],
+    "loadavg": [1.44, 1.16, 1],
     "top": [
       "48.0 node",
       "15.2 chrome-headless-shell",
@@ -39,11 +35,7 @@
       "anchors": 264000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.44,
-          1.16,
-          1
-        ],
+        "loadavg": [1.44, 1.16, 1],
         "top": [
           "81.1 node",
           "39.0 chrome-headless-shell",
@@ -54,11 +46,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.44,
-          1.16,
-          1
-        ],
+        "loadavg": [1.44, 1.16, 1],
         "top": [
           "59.6 chrome-headless-shell",
           "13.5 WindowServer",
@@ -304,11 +292,7 @@
       "anchors": 756000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.41,
-          1.16,
-          1
-        ],
+        "loadavg": [1.41, 1.16, 1],
         "top": [
           "95.5 chrome-headless-shell",
           "15.3 node",
@@ -319,11 +303,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.46,
-          1.17,
-          1.01
-        ],
+        "loadavg": [1.46, 1.17, 1.01],
         "top": [
           "52.0 chrome-headless-shell",
           "13.6 WindowServer",
@@ -569,11 +549,7 @@
       "anchors": 996000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.46,
-          1.17,
-          1.01
-        ],
+        "loadavg": [1.46, 1.17, 1.01],
         "top": [
           "104.4 chrome-headless-shell",
           "15.1 WindowServer",
@@ -584,11 +560,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.39,
-          1.16,
-          1.01
-        ],
+        "loadavg": [1.39, 1.16, 1.01],
         "top": [
           "54.8 chrome-headless-shell",
           "18.1 biomesyncd",

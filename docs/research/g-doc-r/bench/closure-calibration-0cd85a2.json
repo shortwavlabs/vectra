@@ -21,11 +21,7 @@
     "stateBookkeeping": 320,
     "chunkRecord": 3776
   },
-  "loadavgStart": [
-    0.9267578125,
-    1.03173828125,
-    0.88427734375
-  ],
+  "loadavgStart": [0.9267578125, 1.03173828125, 0.88427734375],
   "topStart": [
     "25.0 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
     "19.7 /Applications/Claude.app/Contents/Frameworks/Claude Helper (Renderer).app/Contents/MacOS/Claude Helper (Renderer)",
@@ -49,10 +45,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.697,
-      "ratioRange": [
-        0.166,
-        -0.31
-      ],
+      "ratioRange": [0.166, -0.31],
       "chunkHistory": 0,
       "runMs": 0.2
     },
@@ -71,10 +64,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.069,
-      "ratioRange": [
-        1.051,
-        1.073
-      ],
+      "ratioRange": [1.051, 1.073],
       "chunkHistory": 0,
       "runMs": 0.4
     },
@@ -93,10 +83,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.045,
-      "ratioRange": [
-        1.045,
-        1.057
-      ],
+      "ratioRange": [1.045, 1.057],
       "chunkHistory": 0,
       "runMs": 1.5
     },
@@ -115,10 +102,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.045,
-      "ratioRange": [
-        1.045,
-        1.045
-      ],
+      "ratioRange": [1.045, 1.045],
       "chunkHistory": 0,
       "runMs": 2.8
     },
@@ -137,10 +121,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.008,
-      "ratioRange": [
-        1.008,
-        1.008
-      ],
+      "ratioRange": [1.008, 1.008],
       "chunkHistory": 0,
       "runMs": 62.8
     },
@@ -159,10 +140,7 @@
         "chunkRecords": 37760
       },
       "ratio": 1.004,
-      "ratioRange": [
-        1.004,
-        1.01
-      ],
+      "ratioRange": [1.004, 1.01],
       "chunkHistory": 2395820,
       "runMs": 64.2
     },
@@ -181,10 +159,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.019,
-      "ratioRange": [
-        1.019,
-        1.022
-      ],
+      "ratioRange": [1.019, 1.022],
       "chunkHistory": 0,
       "runMs": 6.4
     },
@@ -203,10 +178,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.012,
-      "ratioRange": [
-        1.012,
-        1.012
-      ],
+      "ratioRange": [1.012, 1.012],
       "chunkHistory": 0,
       "runMs": 311
     },
@@ -225,10 +197,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.016,
-      "ratioRange": [
-        1.016,
-        1.016
-      ],
+      "ratioRange": [1.016, 1.016],
       "chunkHistory": 0,
       "runMs": 4.2
     },
@@ -247,10 +216,7 @@
         "chunkRecords": 3776
       },
       "ratio": 1.164,
-      "ratioRange": [
-        1.164,
-        1.164
-      ],
+      "ratioRange": [1.164, 1.164],
       "chunkHistory": 46216021,
       "runMs": 585.5
     },
@@ -269,10 +235,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.031,
-      "ratioRange": [
-        0.889,
-        1.031
-      ],
+      "ratioRange": [0.889, 1.031],
       "chunkHistory": 0,
       "runMs": 3.9
     },
@@ -291,10 +254,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.002,
-      "ratioRange": [
-        0.993,
-        1.002
-      ],
+      "ratioRange": [0.993, 1.002],
       "chunkHistory": 0,
       "runMs": 18.6
     },
@@ -313,10 +273,7 @@
         "chunkRecords": 11328
       },
       "ratio": 1.076,
-      "ratioRange": [
-        1.076,
-        1.076
-      ],
+      "ratioRange": [1.076, 1.076],
       "chunkHistory": 1036933,
       "runMs": 91.5
     },
@@ -335,10 +292,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.03,
-      "ratioRange": [
-        1.03,
-        1.03
-      ],
+      "ratioRange": [1.03, 1.03],
       "chunkHistory": 0,
       "runMs": 146.5
     },
@@ -357,10 +311,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.002,
-      "ratioRange": [
-        1.002,
-        1.002
-      ],
+      "ratioRange": [1.002, 1.002],
       "chunkHistory": 0,
       "runMs": 15.4
     },
@@ -379,10 +330,7 @@
         "chunkRecords": 7552
       },
       "ratio": 1.08,
-      "ratioRange": [
-        1.08,
-        1.08
-      ],
+      "ratioRange": [1.08, 1.08],
       "chunkHistory": 1039390,
       "runMs": 100.7
     },
@@ -401,10 +349,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.002,
-      "ratioRange": [
-        1.002,
-        1.002
-      ],
+      "ratioRange": [1.002, 1.002],
       "chunkHistory": 0,
       "runMs": 212.9
     },
@@ -423,10 +368,7 @@
         "chunkRecords": 0
       },
       "ratio": 0.694,
-      "ratioRange": [
-        0.674,
-        1.045
-      ],
+      "ratioRange": [0.674, 1.045],
       "chunkHistory": 0,
       "runMs": 1.6
     },
@@ -445,10 +387,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.001,
-      "ratioRange": [
-        1.001,
-        1.001
-      ],
+      "ratioRange": [1.001, 1.001],
       "chunkHistory": 0,
       "runMs": 568
     },
@@ -467,10 +406,7 @@
         "chunkRecords": 15104
       },
       "ratio": 1.001,
-      "ratioRange": [
-        0.997,
-        1.001
-      ],
+      "ratioRange": [0.997, 1.001],
       "chunkHistory": 4122844,
       "runMs": 123.2
     },
@@ -489,10 +425,7 @@
         "chunkRecords": 7552
       },
       "ratio": 1.072,
-      "ratioRange": [
-        1.072,
-        1.072
-      ],
+      "ratioRange": [1.072, 1.072],
       "chunkHistory": 20554836,
       "runMs": 387.1
     },
@@ -511,10 +444,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.162,
-      "ratioRange": [
-        1.162,
-        1.162
-      ],
+      "ratioRange": [1.162, 1.162],
       "chunkHistory": 0,
       "runMs": 210
     },
@@ -533,10 +463,7 @@
         "chunkRecords": 0
       },
       "ratio": 1.162,
-      "ratioRange": [
-        1.162,
-        1.162
-      ],
+      "ratioRange": [1.162, 1.162],
       "chunkHistory": 0,
       "runMs": 217.3
     },
@@ -555,10 +482,7 @@
         "chunkRecords": 151040
       },
       "ratio": 1.016,
-      "ratioRange": [
-        1.016,
-        1.016
-      ],
+      "ratioRange": [1.016, 1.016],
       "chunkHistory": 841752,
       "runMs": 10.4
     },
@@ -577,10 +501,7 @@
         "chunkRecords": 18880
       },
       "ratio": 1.059,
-      "ratioRange": [
-        1.059,
-        1.059
-      ],
+      "ratioRange": [1.059, 1.059],
       "chunkHistory": 1197910,
       "runMs": 52.8
     }
@@ -602,9 +523,5 @@
       "afterDropMinusBefore": -2088
     }
   ],
-  "loadavgEnd": [
-    1.65380859375,
-    1.19921875,
-    0.951171875
-  ]
+  "loadavgEnd": [1.65380859375, 1.19921875, 0.951171875]
 }

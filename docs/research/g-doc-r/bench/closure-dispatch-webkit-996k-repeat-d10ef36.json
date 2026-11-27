@@ -8,11 +8,7 @@
   "reps": 30,
   "warmup": 2,
   "conditionsStart": {
-    "loadavg": [
-      1.24,
-      1.2,
-      1.03
-    ],
+    "loadavg": [1.24, 1.2, 1.03],
     "top": [
       "33.5 node",
       "32.9 Playwright",
@@ -39,11 +35,7 @@
       "anchors": 996000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.24,
-          1.2,
-          1.03
-        ],
+        "loadavg": [1.24, 1.2, 1.03],
         "top": [
           "126.4 com.apple.WebKit.WebContent.Development",
           "12.5 WindowServer",
@@ -54,11 +46,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.18,
-          1.19,
-          1.03
-        ],
+        "loadavg": [1.18, 1.19, 1.03],
         "top": [
           "62.5 com.apple.WebKit.WebContent.Development",
           "13.5 WindowServer",

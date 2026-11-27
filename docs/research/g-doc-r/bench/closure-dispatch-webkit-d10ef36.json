@@ -8,11 +8,7 @@
   "reps": 30,
   "warmup": 2,
   "conditionsStart": {
-    "loadavg": [
-      1.41,
-      1.19,
-      1.02
-    ],
+    "loadavg": [1.41, 1.19, 1.02],
     "top": [
       "27.1 Playwright",
       "25.8 com.apple.WebKit.WebContent.Development",
@@ -39,11 +35,7 @@
       "anchors": 264000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.41,
-          1.19,
-          1.02
-        ],
+        "loadavg": [1.41, 1.19, 1.02],
         "top": [
           "84.8 com.apple.WebKit.WebContent.Development",
           "46.4 node",
@@ -54,11 +46,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.54,
-          1.21,
-          1.03
-        ],
+        "loadavg": [1.54, 1.21, 1.03],
         "top": [
           "93.1 mediaanalysisd",
           "55.5 com.apple.WebKit.WebContent.Development",
@@ -304,11 +292,7 @@
       "anchors": 756000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.54,
-          1.21,
-          1.03
-        ],
+        "loadavg": [1.54, 1.21, 1.03],
         "top": [
           "112.3 com.apple.WebKit.WebContent.Development",
           "100.0 mediaanalysisd",
@@ -319,11 +303,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.61,
-          1.24,
-          1.04
-        ],
+        "loadavg": [1.61, 1.24, 1.04],
         "top": [
           "100.3 mediaanalysisd",
           "55.3 com.apple.WebKit.WebContent.Development",
@@ -569,11 +549,7 @@
       "anchors": 996000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.72,
-          1.27,
-          1.05
-        ],
+        "loadavg": [1.72, 1.27, 1.05],
         "top": [
           "109.4 com.apple.WebKit.WebContent.Development",
           "41.7 mediaanalysisd",
@@ -584,11 +560,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.69,
-          1.28,
-          1.06
-        ],
+        "loadavg": [1.69, 1.28, 1.06],
         "top": [
           "60.5 com.apple.WebKit.WebContent.Development",
           "12.8 WindowServer",

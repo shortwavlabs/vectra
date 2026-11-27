@@ -28,6 +28,7 @@
 // (DocumentSession.historyStructureBytes). testing/structure-oracle.ts recomputes the same
 // quantity by full traversal.
 
+import { canonicalJsonBytes } from "../persistence/canonical-json.ts";
 import { parents } from "./commands.ts";
 import type { StateDerived } from "./invariants.ts";
 import { type DocNode, type DocState, IDENTITY } from "./model.ts";
@@ -49,11 +50,11 @@ export const COSTS = Object.freeze({
   mapSlot: 28, // per table slot (capacity = next power of two ≥ size): 3 entry words + ½ bucket
   clonedProperties: 16, // structured-clone objects keep their fields in a property array
   stateBookkeeping: 320, // per retained state: session records (derived, delta, index entries)
-  // Per history-attributed geometry chunk: the store's record outside the C3.2 chunk ledger
-  // cost. Nine typed-array and buffer headers (1,800), accessor views and their closures, the
-  // manifest object, the owner counts. Measured 3,688–3,767 per chunk at every size from 1 to
-  // 4,000 paths (scripts/measure-chunk-overhead.mjs); the largest median rounded up to 64.
-  chunkRecord: 3_776,
+  // Per history-attributed geometry chunk, the fixed part of the store's record outside the
+  // C3.2 chunk ledger cost: nine typed-array and buffer headers (1,800), accessor views and
+  // their closures, the owner counts. Measured residual at small manifests 3,041–3,099 after
+  // the manifest term below (scripts/measure-chunk-overhead.mjs); the largest rounded up to 64.
+  chunkRecord: 3_136,
 });
 
 const C = COSTS;
@@ -98,6 +99,25 @@ export function deepCost(v: unknown): number {
       vals.reduce<number>((s, x) => s + deepCost(x), 0);
   }
   deepMemo.set(v, n);
+  return n;
+}
+
+const recordMemo = new WeakMap<object, number>();
+/**
+ * The store's record of one chunk outside its C3.2 ledger cost (AM-2 term 3): the fixed part
+ * plus the manifest object's structured-clone cost beyond its JSON length, which the ledger
+ * already charges. Cached per (frozen) manifest.
+ * ponytail: deepCost over-counts these frozen manifests about 2.3–2.7× for large style and group
+ * tables (report §7.1); conservative. A tighter manifest model if history ever evicts early.
+ */
+export function chunkRecordCost(manifest: object): number {
+  let n = recordMemo.get(manifest);
+  if (n === undefined) {
+    n = checked(
+      C.chunkRecord + Math.max(0, deepCost(manifest) - canonicalJsonBytes(manifest).length),
+    );
+    recordMemo.set(manifest, n);
+  }
   return n;
 }
 

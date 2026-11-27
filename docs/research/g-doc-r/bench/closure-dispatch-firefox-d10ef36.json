@@ -8,11 +8,7 @@
   "reps": 30,
   "warmup": 2,
   "conditionsStart": {
-    "loadavg": [
-      1.39,
-      1.16,
-      1.01
-    ],
+    "loadavg": [1.39, 1.16, 1.01],
     "top": [
       "88.2 mediaanalysisd",
       "80.6 firefox",
@@ -39,11 +35,7 @@
       "anchors": 264000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.39,
-          1.16,
-          1.01
-        ],
+        "loadavg": [1.39, 1.16, 1.01],
         "top": [
           "90.2 firefox",
           "83.9 node",
@@ -54,11 +46,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.35,
-          1.16,
-          1.01
-        ],
+        "loadavg": [1.35, 1.16, 1.01],
         "top": [
           "55.1 plugin-container",
           "41.8 mediaanalysisd",
@@ -304,11 +292,7 @@
       "anchors": 756000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.35,
-          1.16,
-          1.01
-        ],
+        "loadavg": [1.35, 1.16, 1.01],
         "top": [
           "90.9 plugin-container",
           "60.7 mediaanalysisd",
@@ -319,11 +303,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.49,
-          1.19,
-          1.02
-        ],
+        "loadavg": [1.49, 1.19, 1.02],
         "top": [
           "60.0 plugin-container",
           "13.5 WindowServer",
@@ -569,11 +549,7 @@
       "anchors": 996000,
       "validation": "incremental",
       "conditionsStart": {
-        "loadavg": [
-          1.45,
-          1.19,
-          1.02
-        ],
+        "loadavg": [1.45, 1.19, 1.02],
         "top": [
           "96.1 plugin-container",
           "12.8 WindowServer",
@@ -584,11 +560,7 @@
         "ngspice": 0
       },
       "conditionsEnd": {
-        "loadavg": [
-          1.41,
-          1.19,
-          1.02
-        ],
+        "loadavg": [1.41, 1.19, 1.02],
         "top": [
           "61.5 plugin-container",
           "20.5 WindowServer",
