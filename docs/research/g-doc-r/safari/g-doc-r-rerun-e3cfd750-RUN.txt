@@ -1,0 +1,8 @@
+commit 2e37eba21b79aa4b69fb51a6cd91feb42c2edfaf
+build e3cfd750f82410a6
+label g-doc-r-rerun
+started Thu Nov 26 14:55:15 CST 2026
+== gui: PASS 14 PARTIAL 0 FAIL 0 of 14 (Safari 26.6.2); findings 0 | before: page visible | after: page visible
+== gr1: 7/7 passed, 0 NOT RUN (Safari 26.6.2; page visible) | before: page visible | after: page visible
+== gjob: 10/10 passed (Safari 26.6.2) | before: page visible | after: page visible
+finished Thu Nov 26 14:56:34 CST 2026

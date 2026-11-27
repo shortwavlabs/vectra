@@ -1,0 +1,66 @@
+{
+  "script": "scripts/measure-chunk-overhead.mjs",
+  "commit": "1a7b45f1caea8f06490653f79908773d07a29a8e",
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "loadavgStart": [1.2802734375, 0.97607421875, 0.8173828125],
+  "chunksPerRep": 400,
+  "sizes": [
+    {
+      "paths": 1,
+      "anchorsPerPath": 4,
+      "costPerChunk": 657,
+      "overheadPerChunk": {
+        "median": 3767,
+        "min": 3753,
+        "max": 4644
+      }
+    },
+    {
+      "paths": 10,
+      "anchorsPerPath": 6,
+      "costPerChunk": 2877,
+      "overheadPerChunk": {
+        "median": 3727,
+        "min": 3712,
+        "max": 3785
+      }
+    },
+    {
+      "paths": 100,
+      "anchorsPerPath": 6,
+      "costPerChunk": 24388,
+      "overheadPerChunk": {
+        "median": 3695,
+        "min": 3691,
+        "max": 3702
+      }
+    },
+    {
+      "paths": 1000,
+      "anchorsPerPath": 6,
+      "costPerChunk": 239495,
+      "overheadPerChunk": {
+        "median": 3688,
+        "min": -8117,
+        "max": 3747
+      }
+    },
+    {
+      "paths": 4000,
+      "anchorsPerPath": 3,
+      "costPerChunk": 560488,
+      "overheadPerChunk": {
+        "median": 3688,
+        "min": 3640,
+        "max": 3746
+      }
+    }
+  ],
+  "typedArrayHeadersPerChunk": {
+    "median": 1800,
+    "min": 1800,
+    "max": 1818
+  },
+  "loadavgEnd": [1.2578125, 0.97607421875, 0.818359375]
+}

@@ -1,5 +1,6 @@
-// TEST-ONLY differential harness (TD-PERF-007): the prototype incremental validator against
-// the full validateState on seeded random transactions. Shared by
+// TEST-ONLY differential harness (TD-PERF-007, G-DOC-R stage B): the incremental validator
+// against the full validateState on seeded random transactions. Every episode's session runs
+// in `compare` mode, so each real dispatch is also checked inside the integrated session. Shared by
 // src/document/incremental-validate.test.ts (asserts) and scripts/bench-td-perf-007.mjs
 // (--differential, writes the record). Node-importable: no import.meta.glob.
 //
@@ -13,7 +14,7 @@
 // A disagreement is an acceptance of a state the full validator rejects, or an acceptance with
 // different derived data. `undecided` on a valid state is only a missed fast path.
 
-import { applyCommand, type Command } from "../commands.ts";
+import { applyCommand, type Command, DraftLog } from "../commands.ts";
 import { GeometryStore } from "../geometry-store.ts";
 import { checkIncremental } from "../incremental-validate.ts";
 import {
@@ -23,6 +24,7 @@ import {
   validateState,
 } from "../invariants.ts";
 import {
+  type ContainerNode,
   createDocument,
   type DocNode,
   type DocState,
@@ -33,7 +35,8 @@ import {
   type NodeId,
   rotate90Matrix,
 } from "../model.ts";
-import { DocumentSession } from "../session.ts";
+import { NodeMap } from "../node-map.ts";
+import { DocumentSession, sameDerived, ValidationDisagreement } from "../session.ts";
 import { TEST_PROVENANCE } from "./provenance.ts";
 import { randomPacket, rng, type Rng, syntheticPacket } from "./synthetic.ts";
 
@@ -69,6 +72,10 @@ export interface DifferentialSummary {
   undecidedReasons: Record<string, number>;
   /** Reasons for `undecided` on states the full validator accepts (missed fast paths). */
   undecidedValidReasons: Record<string, number>;
+  /** Command transactions validated through their Draft write log (stage C). */
+  writeLogged: number;
+  /** Stage D (AM-2): single-forgery states validated as a plain Map and as a NodeMap. */
+  singleDefect: { checked: number; sameVerdict: number; messageDiffers: Record<string, number> };
   disagreements: Disagreement[];
 }
 
@@ -224,6 +231,13 @@ const FORGERIES = [
   "bad-local",
   "artboard",
   "document-id",
+  // Added after the stage B independent review (G-DOC-R report §1.6).
+  "undefined-entry",
+  "asset-field",
+  "shared-list",
+  "remove-source",
+  // Added for G-DOC-R stage D (brief §5).
+  "aliased-node",
 ] as const;
 
 function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null {
@@ -250,7 +264,8 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
     return undefined;
   };
   const pick = (pred: (n: DocNode) => boolean): NodeId | null => {
-    const xs = [...nodes].filter(([, n]) => pred(n)).map(([k]) => k);
+    // Skips keys holding `undefined` (the undefined-entry forgery).
+    const xs = [...nodes].filter(([, n]) => n !== undefined && pred(n)).map(([k]) => k);
     return xs.length ? r.pick(xs) : null;
   };
   const containers = () => pick((n) => isContainer(n));
@@ -520,6 +535,80 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
       case "document-id":
         documentId = r.pick(["bad id!", "fine-id"]);
         return true;
+      case "undefined-entry": {
+        // A key holding `undefined` (review C1), sometimes hiding a removal from size checks.
+        if (r.bool(0.3)) {
+          const y = path();
+          if (y) {
+            detach(y);
+            nodes.delete(y);
+          }
+        }
+        const [m, p] = r.pick([
+          [nodes, "pth"],
+          [styles, "sty"],
+          [palette, "pal"],
+          [assets, "ast"],
+        ] as const);
+        // A new key holding undefined, or an existing key set to undefined (stage D).
+        const existing = [...(m as Map<string, unknown>).keys()];
+        (m as Map<string, unknown>).set(
+          existing.length && r.bool(0.5) ? r.pick(existing) : freshId(p),
+          undefined,
+        );
+        return true;
+      }
+      case "asset-field": {
+        const k = [...assets].filter(([, a]) => a !== undefined).map(([id]) => id);
+        if (!k.length) return false;
+        const id = r.pick(k);
+        const a = assets.get(id)!;
+        assets.set(id, {
+          ...a,
+          ...r.pick<Record<string, unknown>>([
+            { mime: "image/gif" },
+            { width: 0 },
+            { height: 20_000 },
+            { embedded: "no" },
+            { decodePolicy: "x" },
+            { provenance: { kind: "bogus" } },
+            { digest: "AB".repeat(32) },
+            { width: a.width }, // valid: a new object with the same fields
+          ]),
+        });
+        return true;
+      }
+      case "shared-list": {
+        // Two containers share one child array (same reference).
+        const a = containers();
+        const b = containers();
+        if (!a || !b || a === b) return false;
+        const list = (nodes.get(a) as ContainerNode).orderedChildIds;
+        nodes.set(b, { ...nodes.get(b)!, orderedChildIds: list } as DocNode);
+        return true;
+      }
+      case "aliased-node": {
+        // One node object under two keys (an aliased mutable object a buggy command could
+        // leave): the second key does not match the object's id.
+        const x = pick(() => true);
+        const p = pick((n) => n.kind === "group");
+        if (!x || !p) return false;
+        const k = freshId(x.slice(0, 3));
+        nodes.set(k, nodes.get(x)!);
+        setKids(p, [...kids(p), k]);
+        return true;
+      }
+      case "remove-source": {
+        // Valid: a root source node and, with its last reference, its asset.
+        const x = r.pick(roots.filter((id) => nodes.get(id)?.kind === "source"));
+        if (!x) return false;
+        const asset = (nodes.get(x) as { assetId: string }).assetId;
+        roots = roots.filter((id) => id !== x);
+        nodes.delete(x);
+        if (![...nodes.values()].some((n) => n?.kind === "source" && n.assetId === asset))
+          assets.delete(asset);
+        return true;
+      }
     }
   };
 
@@ -542,12 +631,14 @@ function forge(r: Rng, prev: DocState): { label: string; next: DocState } | null
 }
 
 // --- harness --------------------------------------------------------------------------------------
-const sameDerived = (a: StateDerived, b: StateDerived) =>
-  a.anchors === b.anchors &&
-  a.maxIdNumber === b.maxIdNumber &&
-  a.chunks.size === b.chunks.size &&
-  [...a.chunks].every(([k, v]) => b.chunks.get(k) === v);
-
+/** Keys whose node entries differ between two states (the identity diff). */
+function changedKeys(a: DocState, b: DocState): Set<NodeId> {
+  const out = new Set<NodeId>();
+  // `has`, not only `get`: a new key holding `undefined` is a change (review C1).
+  for (const [k, v] of b.nodesById) if (a.nodesById.get(k) !== v || !a.nodesById.has(k)) out.add(k);
+  for (const k of a.nodesById.keys()) if (!b.nodesById.has(k)) out.add(k);
+  return out;
+}
 function episode(r: Rng): DocumentSession {
   const limits: DocLimits = {
     ...DEFAULT_DOC_LIMITS,
@@ -560,6 +651,7 @@ function episode(r: Rng): DocumentSession {
     state: createDocument({ documentId: "diff", width: 512, height: 512 }),
     limits,
     history: { maxEntries: 2 + r.int(20), maxBytes: 128 * 2 ** 20 },
+    validation: "compare",
   });
   for (let i = 1 + r.int(3); i > 0; i--)
     try {
@@ -567,6 +659,23 @@ function episode(r: Rng): DocumentSession {
         type: "commitTrace",
         provenance: TEST_PROVENANCE,
         packet: randomPacket(r),
+      });
+    } catch (e) {
+      if (!(e instanceof DocumentError)) throw e;
+    }
+  // Stage D: one episode in eight also holds a trace of 1,100–3,000 paths, so its node map and
+  // parent index span several chunks and edits cross chunk split and merge boundaries.
+  if (r.bool(0.125))
+    try {
+      session.dispatch({
+        type: "commitTrace",
+        provenance: TEST_PROVENANCE,
+        packet: syntheticPacket({
+          paths: 1100 + r.int(1900),
+          anchorsPerPath: 2,
+          groups: 1 + r.int(3),
+          seed: r.int(2 ** 31),
+        }),
       });
     } catch (e) {
       if (!(e instanceof DocumentError)) throw e;
@@ -593,6 +702,8 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     fullErrorCodes: {},
     undecidedReasons: {},
     undecidedValidReasons: {},
+    writeLogged: 0,
+    singleDefect: { checked: 0, sameVerdict: 0, messageDiffers: {} },
     disagreements: [],
   };
   const count = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
@@ -606,6 +717,7 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     label: string,
     prev: DocState,
     next: DocState,
+    writes: ReadonlySet<NodeId> | null = null,
   ) => {
     const { store, limits } = session;
     let full: StateDerived | null = null;
@@ -617,7 +729,35 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
         e instanceof DocumentError ? e.code : `untyped:${(e as Error).name}`,
       );
     }
-    const inc = checkIncremental(prev, session.derivedOf(prev)!, next, store, limits);
+    // AM-2: single-defect rejection semantics are equivalent under the new map order. A state
+    // with one forgery is validated again with its node map as a NodeMap: same verdict, same
+    // code; the message may differ only where it names one of two entries (duplicate number).
+    if (cls === "forged" && !label.includes("+") && !label.endsWith("~writes")) {
+      const verdict = (st: DocState) => {
+        try {
+          validateState(st, store, limits);
+          return "accepted";
+        } catch (e) {
+          return e instanceof DocumentError
+            ? `${e.code}: ${e.message}`
+            : `untyped:${(e as Error).message}`;
+        }
+      };
+      const a = verdict(next);
+      const b = verdict({ ...next, nodesById: NodeMap.from(next.nodesById) });
+      out.singleDefect.checked++;
+      const code = (v: string) => v.split(":")[0];
+      if (a === b) out.singleDefect.sameVerdict++;
+      else if (code(a) !== code(b) || label !== "dup-number")
+        out.disagreements.push({
+          index,
+          class: cls,
+          label,
+          detail: `map order changed a single-defect verdict: ${a} | ${b}`,
+        });
+      else count(out.singleDefect.messageDiffers, label);
+    }
+    const inc = checkIncremental(prev, session.derivedOf(prev)!, next, store, limits, writes);
     const rows = [out.byClass[cls], (out.byLabel[`${cls}:${label}`] ??= tally())];
     out.compared++;
     for (const t of rows) t.compared++;
@@ -660,7 +800,16 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
         out.noOps++;
         continue;
       }
+      // Both change-set paths: the identity diff, and an exact write set (as a complete Draft
+      // log would give), so the log path's diffKeys also meets every forgery.
       compare(i, "forged", f.label, prev, f.next);
+      // A strict superset as well: unchanged keys and a key absent from both states.
+      const writes = changedKeys(prev, f.next);
+      if (r.bool(0.5)) {
+        for (const k of [...prev.nodesById.keys()].slice(0, 3)) writes.add(k);
+        writes.add("pth_987654321");
+      }
+      compare(i, "forged", `${f.label}~writes`, prev, f.next, writes);
       continue;
     }
 
@@ -672,26 +821,65 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
     };
     const cmds = build();
     const label = cmds.map((c) => c.type).join("+");
+    const log = new DraftLog();
     const ctx = {
       store,
       ids: new IdAllocator(session.nextId),
       commit: (p: Parameters<typeof store.commit>[0]) => store.commit(p),
+      log,
     };
     let next = prev;
+    // Stage D: a transaction, failed or not, never changes its predecessor (shared chunks).
+    const before = [...prev.nodesById.entries()];
+    const unchanged = () => {
+      const now = [...prev.nodesById.entries()];
+      return (
+        now.length === before.length &&
+        now.every(([k, v], j) => before[j]![0] === k && before[j]![1] === v)
+      );
+    };
     try {
-      for (const c of cmds) next = applyCommand(next, c, ctx);
+      for (const c of cmds) {
+        const out = applyCommand(next, c, ctx);
+        log.step(next, out);
+        next = out;
+      }
     } catch (e) {
       if (!(e instanceof DocumentError)) throw e;
       out.commandRejected++;
       store.settle();
+      if (!unchanged())
+        out.disagreements.push({
+          index: i,
+          class: "command",
+          label: "failed",
+          detail: "a failed transaction changed its predecessor",
+        });
       continue;
     }
+    if (!unchanged())
+      out.disagreements.push({
+        index: i,
+        class: "command",
+        label,
+        detail: "a transaction changed its predecessor",
+      });
     if (next === prev) {
       out.noOps++;
       store.settle();
       continue;
     }
-    const fullOk = compare(i, "command", label, prev, next);
+    // Stage C: every command transaction's log must be complete and cover the true change set.
+    const missed = [...changedKeys(prev, next)].filter((k) => !log.keys.has(k));
+    if (!log.complete || missed.length)
+      out.disagreements.push({
+        index: i,
+        class: "command",
+        label,
+        detail: `write log incomplete (flag ${log.complete}; missed ${missed.slice(0, 5).join(",")})`,
+      });
+    else out.writeLogged++;
+    const fullOk = compare(i, "command", label, prev, next, log.complete ? log.keys : null);
     store.settle();
     // Advance through the real dispatch, which must reach the same verdict.
     try {
@@ -704,6 +892,10 @@ export function runDifferential(o: { seed: number; transactions: number }): Diff
           detail: "dispatch accepted a state validateState rejects",
         });
     } catch (e) {
+      if (e instanceof ValidationDisagreement) {
+        out.disagreements.push({ index: i, class: "command", label, detail: e.message });
+        continue;
+      }
       if (!(e instanceof DocumentError)) throw e;
       if (fullOk && e.code !== "history_budget")
         out.disagreements.push({

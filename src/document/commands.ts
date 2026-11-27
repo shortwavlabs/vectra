@@ -1,4 +1,8 @@
 // RFC-002 §7 commands as pure functions: (state, command, context) → new immutable state.
+// Rule (AM-2 accounting, G-DOC-R stage D): a command builds its result only from objects of
+// its input state and freshly allocated (or copied) values. It never stores a caller-supplied
+// object uncopied, and never re-inserts an object from an older state: history accounting
+// (structure-accounting.ts) relies on each allocation living in one contiguous run of states.
 // They throw a typed DocumentError on bad input; the session then discards the draft, so the
 // document is unchanged. Structural commands never touch geometry (C2 rule 9): only
 // commitTrace and bake call ctx.commit, which is the store's C2 commit.
@@ -23,13 +27,14 @@ import {
   type PathNode,
   type Rect,
   rotate90Matrix,
-  SealedMap,
+  isSealedMap,
   sealMap,
   freezeEntry,
   type SourceAsset,
   type Style,
   type StyleId,
 } from "./model.ts";
+import { DELETED, NodeMap, NodeMapDraft } from "./node-map.ts";
 import type { IncomingPacket } from "./packet-port.ts";
 import {
   checkTraceProvenance,
@@ -84,6 +89,36 @@ export interface CommandContext {
   readonly ids: IdAllocator;
   /** GeometryStore.commit, tracked by the session for end-of-transaction freeing. */
   commit(packet: IncomingPacket): ChunkId;
+  /** Records the node keys this transaction's Drafts write (G-DOC-R stage C). */
+  readonly log?: DraftLog;
+}
+
+/**
+ * The node keys written by one transaction's Drafts: a superset of the keys whose entries
+ * differ between the transaction's input and its result, so the incremental validator can
+ * skip the whole-map identity diff. Transaction-local: nothing is retained with a state.
+ * `step` checks, after each command, that its result is its input or the last Draft result
+ * built on that input; otherwise the log is marked incomplete and must not be used.
+ */
+export class DraftLog {
+  readonly keys = new Set<NodeId>();
+  #complete = true;
+  #last: DocState | null = null;
+  #lastBase: DocState | null = null;
+  /** Draft.finish: `out` was built on `base` with these node writes. */
+  record(base: DocState, out: DocState, written: Iterable<NodeId>): void {
+    for (const k of written) this.keys.add(k);
+    this.#last = out;
+    this.#lastBase = base;
+  }
+  /** After each command of the transaction: `input` → `output`. */
+  step(input: DocState, output: DocState): void {
+    if (output !== input && !(output === this.#last && this.#lastBase === input))
+      this.#complete = false;
+  }
+  get complete(): boolean {
+    return this.#complete;
+  }
 }
 
 const invalid = (message: string): never => {
@@ -93,58 +128,134 @@ const U32_MAX = 2 ** 32 - 1;
 const isU32 = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= U32_MAX;
 
 // --- tree helpers -------------------------------------------------------------------------------
-const parentCache = new WeakMap<DocState, ReadonlyMap<NodeId, NodeId | null>>();
-/** Parent of every node (null = root), cached per immutable state. */
-export function parents(s: DocState): ReadonlyMap<NodeId, NodeId | null> {
-  let p = parentCache.get(s);
-  if (!p) {
-    const m = new Map<NodeId, NodeId | null>();
-    for (const id of s.orderedRootIds) m.set(id, null);
-    for (const n of s.nodesById.values())
-      if (isContainer(n)) for (const c of n.orderedChildIds) m.set(c, n.id);
-    parentCache.set(s, (p = m));
-  }
+/**
+ * Persistent parent index (G-DOC-R stage D): the parent of every node (null = root) as a
+ * NodeMap per immutable state. Draft.finish derives a published state's index from its base's
+ * index in O(changed child lists), sharing untouched buckets. A state without one (loaded, or
+ * built by hand) gets one from a full traversal, once. The index references no state, so the
+ * WeakMap retains no ancestry.
+ */
+const parentIndex = new WeakMap<DocState, NodeMap<NodeId | null>>();
+export function parents(s: DocState): NodeMap<NodeId | null> {
+  let p = parentIndex.get(s);
+  if (!p) parentIndex.set(s, (p = NodeMap.from(parentMap(s))));
   return p;
+}
+/** True when the state's parent index equals a full tree traversal (verification). */
+export function parentIndexMatches(s: DocState): boolean {
+  const index = parents(s);
+  const full = parentMap(s);
+  if (index.size !== full.size) return false;
+  for (const [k, p] of full) if (index.get(k) !== p || !index.has(k)) return false;
+  return true;
+}
+/** The index of `next`, derived from `base`'s through the Draft's written keys. */
+function deriveParents(
+  base: DocState,
+  next: DocState,
+  written: readonly NodeId[],
+): NodeMap<NodeId | null> {
+  const upd = new Map<NodeId, NodeId | null | typeof DELETED>();
+  const lost: NodeId[] = [];
+  for (const k of written) {
+    const o = base.nodesById.get(k);
+    const n = next.nodesById.get(k);
+    const oc = isContainer(o) ? o.orderedChildIds : null;
+    const nc = isContainer(n) ? n.orderedChildIds : null;
+    if (oc !== nc) {
+      if (oc) for (const c of oc) lost.push(c);
+      if (nc) for (const c of nc) upd.set(c, k);
+    }
+    if (!next.nodesById.has(k)) lost.push(k);
+  }
+  const br = base.orderedRootIds;
+  const nr = next.orderedRootIds;
+  if (br !== nr && (br.length !== nr.length || br.some((id, i) => nr[i] !== id))) {
+    for (const r of br) lost.push(r);
+    for (const r of nr) upd.set(r, null);
+  }
+  // A node that lost its parent and is listed nowhere new was deleted or orphaned (the
+  // validator rejects an orphan). `with` skips writes that change nothing.
+  for (const c of lost) if (!upd.has(c)) upd.set(c, DELETED);
+  return parents(base).with(upd);
+}
+function parentMap(s: DocState): Map<NodeId, NodeId | null> {
+  const m = new Map<NodeId, NodeId | null>();
+  for (const id of s.orderedRootIds) m.set(id, null);
+  for (const n of s.nodesById.values())
+    if (isContainer(n)) for (const c of n.orderedChildIds) m.set(c, n.id);
+  return m;
 }
 const getNode = (s: DocState, id: NodeId): DocNode =>
   s.nodesById.get(id) ?? invalid(`no node ${String(id)}`);
 
-/** Pre-order document position of every node (for deterministic processing order). */
-function documentOrder(s: DocState): Map<NodeId, number> {
-  const order = new Map<NodeId, number>();
-  const walk = (id: NodeId) => {
-    order.set(id, order.size);
-    const n = s.nodesById.get(id);
-    if (isContainer(n)) n.orderedChildIds.forEach(walk);
+/**
+ * Distinct existing nodes sorted in document pre-order (deterministic processing order), by
+ * comparing their root-to-node child-index chains, built from the child lists of the targets'
+ * ancestors (G-DOC-R stage C; formerly a whole-tree walk). The parent map is the state's
+ * cached one when it exists; otherwise one is built for this call and not cached, so it is not
+ * retained with a history state. Requires a valid tree (inputs are validated states).
+ * Exported for tests.
+ */
+export function inDocumentOrder(s: DocState, ids: readonly NodeId[]): NodeId[] {
+  if (ids.length < 2) return [...ids];
+  const par = parents(s);
+  const positions = new Map<NodeId | null, Map<NodeId, number>>();
+  const position = (parent: NodeId | null, id: NodeId): number => {
+    let m = positions.get(parent);
+    if (!m) {
+      m = new Map();
+      const list =
+        parent === null
+          ? s.orderedRootIds
+          : (s.nodesById.get(parent) as ContainerNode).orderedChildIds;
+      list.forEach((c, i) => m!.set(c, i));
+      positions.set(parent, m);
+    }
+    return m.get(id)!;
   };
-  s.orderedRootIds.forEach(walk);
-  return order;
+  const chain = (id: NodeId): number[] => {
+    const out: number[] = [];
+    for (let x: NodeId | null = id; x !== null; x = par.get(x) ?? null)
+      out.push(position(par.get(x) ?? null, x));
+    return out.reverse();
+  };
+  const key = new Map(ids.map((id) => [id, chain(id)]));
+  return [...ids].sort((a, b) => {
+    const A = key.get(a)!;
+    const B = key.get(b)!;
+    for (let i = 0; i < A.length && i < B.length; i++) if (A[i] !== B[i]) return A[i]! - B[i]!;
+    return A.length - B.length; // an ancestor precedes its descendants
+  });
 }
 
 /** Distinct targets without a selected ancestor, in document order. */
 function topLevel(s: DocState, ids: readonly NodeId[]): NodeId[] {
   const set = new Set(ids);
   for (const id of set) getNode(s, id);
+  if (set.size === 1) return [...set];
   const par = parents(s);
-  const order = documentOrder(s);
-  return [...set]
-    .filter((id) => {
+  return inDocumentOrder(
+    s,
+    [...set].filter((id) => {
       for (let p = par.get(id) ?? null; p !== null; p = par.get(p) ?? null)
         if (set.has(p)) return false;
       return true;
-    })
-    .sort((a, b) => order.get(a)! - order.get(b)!);
+    }),
+  );
 }
 
-/** Copy-on-write draft of the node map and root list. */
+/** Copy-on-write draft of the node map (an overlay over the base's NodeMap) and root list. */
 class Draft {
   readonly base: DocState;
-  readonly nodes: Map<NodeId, DocNode>;
+  readonly nodes: NodeMapDraft<DocNode>;
+  readonly #log: DraftLog | undefined;
   roots: NodeId[];
-  constructor(base: DocState) {
+  constructor(base: DocState, ctx: Pick<CommandContext, "log">) {
     this.base = base;
-    this.nodes = new SealedMap(base.nodesById);
+    this.nodes = new NodeMapDraft(base.nodesById);
     this.roots = [...base.orderedRootIds];
+    this.#log = ctx.log;
   }
   get(id: NodeId): DocNode {
     return this.nodes.get(id) ?? invalid(`no node ${id}`);
@@ -177,25 +288,44 @@ class Draft {
     if (isContainer(n)) for (const c of n.orderedChildIds) this.removeSubtree(c);
     this.nodes.delete(id);
   }
-  /** Freezes new or changed entries (not the whole state) and seals the maps (G-DOC review 3). */
+  /** Freezes new or changed entries (not the whole state) and seals the maps (G-DOC review 3).
+   *  Node entries: only the written keys can differ from the base; the node map is published
+   *  as a NodeMap sharing untouched buckets, and its parent index is derived (stage D). An
+   *  unchanged sealed map is shared with the base. The written keys go to the transaction's
+   *  log and are not retained with the state. */
   finish(extra: Partial<DocState> = {}): DocState {
-    const freezeChanged = <K, V extends object>(m: ReadonlyMap<K, V>, base: ReadonlyMap<K, V>) => {
-      for (const [k, v] of m) if (base.get(k) !== v) freezeEntry(v);
+    const base = this.base;
+    const written = [...this.nodes.written];
+    for (const k of written) {
+      const v = this.nodes.get(k);
+      if (v === undefined || base.nodesById.get(k) === v) continue;
+      // A child list built here (filter, splice, push) may carry growth slack, which history
+      // would retain: publish an exact-length copy. Lists shared with the base stay shared.
+      if (isContainer(v) && !Object.isFrozen(v.orderedChildIds) && !Object.isFrozen(v))
+        (v as { orderedChildIds: readonly NodeId[] }).orderedChildIds = v.orderedChildIds.slice();
+      freezeEntry(v);
+    }
+    const freezeChanged = <K, V extends object>(m: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) => {
+      if (m === b && isSealedMap(m)) return m;
+      for (const [k, v] of m) if (b.get(k) !== v) freezeEntry(v);
       return sealMap(m);
     };
     const out: DocState = {
-      ...this.base,
+      ...base,
       ...extra,
       orderedRootIds: Object.freeze([...this.roots]),
-      nodesById: freezeChanged(this.nodes, this.base.nodesById),
+      nodesById: this.nodes.publish(),
     };
-    return Object.freeze({
+    const state: DocState = Object.freeze({
       ...out,
       artboard: freezeEntry({ ...out.artboard }),
-      stylesById: freezeChanged(out.stylesById, this.base.stylesById),
-      paletteById: freezeChanged(out.paletteById, this.base.paletteById),
-      sourceAssetsById: freezeChanged(out.sourceAssetsById, this.base.sourceAssetsById),
+      stylesById: freezeChanged(out.stylesById, base.stylesById),
+      paletteById: freezeChanged(out.paletteById, base.paletteById),
+      sourceAssetsById: freezeChanged(out.sourceAssetsById, base.sourceAssetsById),
     });
+    parentIndex.set(state, deriveParents(base, state, written));
+    this.#log?.record(base, state, written);
+    return state;
   }
 }
 
@@ -220,7 +350,7 @@ function commitTrace(
   const traceProvenance = deepFreeze({ ...record, chunkId }) as TraceProvenance;
   const view = ctx.store.view(chunkId);
   const m = view.manifest;
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   const ids = ctx.ids;
   // C3.1 mapping, IDs allocated deterministically: layer, palette entries, styles, then each
   // group followed by its paths in paint order.
@@ -326,7 +456,7 @@ function attachSource(
     decodePolicy: a.decodePolicy,
     ...(a.provenance === undefined ? {} : { provenance: { kind: a.provenance.kind } }),
   };
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   d.nodes.set(nodeId, {
     kind: "source",
     id: nodeId,
@@ -341,8 +471,8 @@ function attachSource(
   return d.finish({ sourceAssetsById: new Map(s.sourceAssetsById).set(assetId, asset) });
 }
 
-function remove(s: DocState, ids: readonly NodeId[]): DocState {
-  const d = new Draft(s);
+function remove(s: DocState, ids: readonly NodeId[], ctx: CommandContext): DocState {
+  const d = new Draft(s, ctx);
   const par = parents(s);
   const removedAssets = new Set<AssetId>();
   const targets = topLevel(s, ids);
@@ -361,7 +491,7 @@ function remove(s: DocState, ids: readonly NodeId[]): DocState {
 }
 
 function duplicate(s: DocState, ids: readonly NodeId[], ctx: CommandContext): DocState {
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   const par = parents(s);
   const clone = (id: NodeId): NodeId => {
     const n = s.nodesById.get(id)!;
@@ -386,10 +516,10 @@ function duplicate(s: DocState, ids: readonly NodeId[], ctx: CommandContext): Do
   return d.finish();
 }
 
-function reorder(s: DocState, id: NodeId, index: number): DocState {
+function reorder(s: DocState, id: NodeId, index: number, ctx: CommandContext): DocState {
   getNode(s, id);
   const parent = parents(s).get(id) ?? null;
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   const siblings = d.children(parent).filter((x) => x !== id);
   if (!(Number.isInteger(index) && index >= 0 && index <= siblings.length))
     invalid(`index ${index} out of range`);
@@ -403,6 +533,7 @@ function reparent(
   ids: readonly NodeId[],
   parentId: NodeId | null,
   index: number,
+  ctx: CommandContext,
 ): DocState {
   const targets = topLevel(s, ids);
   const par = parents(s);
@@ -417,7 +548,7 @@ function reparent(
     const ok = parentId === null ? k === "layer" || k === "source" : k === "group" || k === "path";
     if (!ok) invalid(`${k} ${id} cannot move to ${parentId ?? "the root"}`);
   }
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   d.detach(targets, par);
   const dest = d.children(parentId);
   if (!(Number.isInteger(index) && index >= 0 && index <= dest.length))
@@ -431,8 +562,9 @@ function patchAll(
   s: DocState,
   ids: readonly NodeId[],
   patch: (n: DocNode) => Partial<DocNode>,
+  ctx: CommandContext,
 ): DocState {
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   for (const id of new Set(ids)) d.update(id, patch(getNode(s, id)));
   return d.finish();
 }
@@ -446,12 +578,14 @@ function setFill(
   if (f !== null && "color" in f && !isU32(f.color)) invalid("fill colour must be RGBA8888");
   if (f !== null && "paletteRef" in f && !s.paletteById.has(f.paletteRef))
     invalid(`no palette entry ${f.paletteRef}`);
-  const order = documentOrder(s);
-  const targets = pathTargets(s, c.ids).sort((a, b) => order.get(a.id)! - order.get(b.id)!);
+  const targets = inDocumentOrder(
+    s,
+    pathTargets(s, c.ids).map((p) => p.id),
+  ).map((id) => s.nodesById.get(id) as PathNode);
   // One new style per distinct original style, so recolouring never affects other objects.
   const styles = new Map(s.stylesById);
   const replacement = new Map<StyleId, StyleId>();
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   for (const p of targets) {
     let id = replacement.get(p.styleRef);
     if (!id) {
@@ -482,7 +616,7 @@ function group(
   const parent = par.get(targets[0]!) ?? null;
   if (parent === null || targets.some((id) => (par.get(id) ?? null) !== parent))
     invalid("grouped nodes must share one Layer or Group parent");
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   const siblings = d.children(parent);
   const selected = new Set(targets);
   let last = -1;
@@ -506,12 +640,12 @@ function group(
   return d.finish();
 }
 
-function ungroup(s: DocState, id: NodeId): DocState {
+function ungroup(s: DocState, id: NodeId, ctx: CommandContext): DocState {
   const g = getNode(s, id);
   if (g.kind !== "group") invalid(`${id} is not a Group`);
   if (g.clipRef) invalid(`${id} has a clip; release it before ungrouping`);
   const parent = parents(s).get(id) ?? null;
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   const kids = (g as ContainerNode).orderedChildIds;
   // Children keep their appearance: composed transform and effective visibility/lock unchanged.
   for (const c of kids) {
@@ -538,7 +672,7 @@ function bake(s: DocState, c: Extract<Command, { type: "bake" }>, ctx: CommandCo
   const chunkId = ctx.commit(c.packet); // one new chunk with only the affected paths (C2 rule 10)
   if (ctx.store.view(chunkId).pathCount !== targets.length)
     invalid("bake result must contain exactly one path per target");
-  const d = new Draft(s);
+  const d = new Draft(s, ctx);
   targets.forEach((p, i) =>
     d.update<PathNode>(p.id, { geometry: { chunkId, pathIndex: i }, localTransform: IDENTITY }),
   );
@@ -552,58 +686,73 @@ export function applyCommand(s: DocState, c: Command, ctx: CommandContext): DocS
     case "commitTrace":
       return commitTrace(s, c, ctx);
     case "delete":
-      return remove(s, c.ids);
+      return remove(s, c.ids, ctx);
     case "duplicate":
       return duplicate(s, c.ids, ctx);
     case "reorder":
-      return reorder(s, c.id, c.index);
+      return reorder(s, c.id, c.index, ctx);
     case "reparent":
-      return reparent(s, c.ids, c.parentId, c.index);
+      return reparent(s, c.ids, c.parentId, c.index, ctx);
     case "setVisible":
-      return patchAll(s, c.ids, () => ({ visible: c.visible === true }));
+      return patchAll(s, c.ids, () => ({ visible: c.visible === true }), ctx);
     case "setLocked":
-      return patchAll(s, c.ids, () => ({ locked: c.locked === true }));
+      return patchAll(s, c.ids, () => ({ locked: c.locked === true }), ctx);
     case "rename":
-      return patchAll(s, [c.id], () => ({ name: String(c.name) }));
+      return patchAll(s, [c.id], () => ({ name: String(c.name) }), ctx);
     case "setTransform":
-      return patchAll(s, [c.id], () => ({ localTransform: [...c.matrix] as unknown as Matrix }));
+      return patchAll(
+        s,
+        [c.id],
+        () => ({ localTransform: [...c.matrix] as unknown as Matrix }),
+        ctx,
+      );
     case "applyTransform":
-      return patchAll(s, c.ids, (n) => ({ localTransform: multiply(c.matrix, n.localTransform) }));
+      return patchAll(
+        s,
+        c.ids,
+        (n) => ({ localTransform: multiply(c.matrix, n.localTransform) }),
+        ctx,
+      );
     case "rotate90": {
       const r = rotate90Matrix(c.turns, c.pivot?.x ?? 0, c.pivot?.y ?? 0);
-      return patchAll(s, c.ids, (n) => ({ localTransform: multiply(r, n.localTransform) }));
+      return patchAll(s, c.ids, (n) => ({ localTransform: multiply(r, n.localTransform) }), ctx);
     }
     case "setFill":
       return setFill(s, c, ctx);
     case "setPaletteColor": {
       const e = s.paletteById.get(c.paletteRef) ?? invalid(`no palette entry ${c.paletteRef}`);
       if (!isU32(c.color)) invalid("colour must be RGBA8888");
-      return new Draft(s).finish({
+      return new Draft(s, ctx).finish({
         paletteById: new Map(s.paletteById).set(e.id, { ...e, color: c.color }),
       });
     }
     case "group":
       return group(s, c.ids, c.name, ctx);
     case "ungroup":
-      return ungroup(s, c.id);
+      return ungroup(s, c.id, ctx);
     case "setClip": {
       const n = getNode(s, c.id);
       if (!isContainer(n))
         throw new DocumentError("clip_unsupported", `${c.id}: clips are Layer/Group only`);
-      return patchAll(s, [c.id], () => ({
-        clipRef: { x: c.rect.x, y: c.rect.y, width: c.rect.width, height: c.rect.height },
-      }));
+      return patchAll(
+        s,
+        [c.id],
+        () => ({
+          clipRef: { x: c.rect.x, y: c.rect.y, width: c.rect.width, height: c.rect.height },
+        }),
+        ctx,
+      );
     }
     case "releaseClip": {
       const n = getNode(s, c.id);
       if (!n.clipRef) return s;
-      const d = new Draft(s);
+      const d = new Draft(s, ctx);
       const { clipRef: _released, ...rest } = n;
       d.nodes.set(c.id, rest as DocNode);
       return d.finish();
     }
     case "setArtboard":
-      return new Draft(s).finish({
+      return new Draft(s, ctx).finish({
         artboard: {
           width: c.width,
           height: c.height,

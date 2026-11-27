@@ -312,3 +312,147 @@ Record of execution:
 - Both CI checks are verified, and the applicable browser suites, stress tests, real-Safari harnesses and bundle measurements are re-run.
 - The three PRs (#18, #19, #20) stay independently reviewable. None is merged automatically.
 - Not started: production CMYK, Precision v2, new creative tools, deployment. R-COLOR (#18) receives a separate research review.
+
+## 11. G-DOC-R stage B/C acceptance and AM-2 authorisation (maintainer, 2026-11-26)
+**Dispositions.**
+- G-BRAND integration is accepted (#21, merged as `0e95737`).
+- G-DOC-R stages B and C are accepted as **implementation checkpoints** at `9ae294f`, including the validator correction in `fd06b5a`.
+- The G-DOC-R gate as a whole remains open and unqualified.
+- The interactive dispatch improvement is accepted. The 756k-anchor borderline result and the 996k-anchor stress misses stay recorded.
+- No qualification threshold is relaxed.
+
+**AM-2 is approved** (recorded in [G0-ARCHITECTURE-CONTRACTS §AM-2](G0-ARCHITECTURE-CONTRACTS.md)):
+- **AM-2.1.** C3 r2 → r3: document-structure accounting covers every materially retained structural allocation. It uses deterministic, checked integer costs, reported as accounted bytes distinct from measured heap, with no double counting of geometry or source bytes.
+- **AM-2.2.** RFC-002 §7 is amended. The limits are kept (100 transactions; 128 / 64 MiB). Earlier oldest-first eviction is authorised, the visible truncation is kept, and serialized versions are unchanged.
+- **Shared allocations:** the highest-precedence ownership rule. Ownership transitions are to be verified for:
+  - an edit;
+  - a state entering history;
+  - undo and redo;
+  - discarded redo;
+  - eviction;
+  - a replaced or closed document.
+- **Map ordering:** deterministic bucket iteration, with no insertion-order index. Persistence, export, rendering, layer order and user-visible behaviour stay unchanged. A different first error for a document with several defects is acceptable; single-defect rejections must be equivalent.
+
+**Stage D is authorised** under these requirements:
+- calibration of the cost model against the integrated implementation, with separate validation workloads;
+- an expanded adversarial corpus;
+- a reference accounting oracle;
+- an independent adversarial review;
+- palette and renderer measurements against the verified G-BRAND `main` baseline;
+- final qualification at all three workloads.
+
+No new dependency, serialized-format change, unrelated UI change, vectorization change or colour-management work is authorised. R-COLOR is left untouched. Do not merge without maintainer acceptance.
+
+## 12. G-DOC-R maintainer acceptance and final closure (maintainer, 2026-11-26)
+**Disposition.** Stage D is accepted **as an implementation, subject to the final accounting closure**. Reviewed head `1a7b45f1caea8f06490653f79908773d07a29a8e`; CI run 45895279690 independently verified. The overall G-DOC-R disposition remains **PARTIAL**.
+
+**Accepted:**
+- the ID-ordered chunked persistent NodeMap, replacing hash buckets;
+- the persistent parent index;
+- the AM-2 deterministic accounting architecture;
+- the history delta ledger and the reference oracle;
+- the documented conservative over-counts;
+- review fixes C1, C2 and C4, and the recorded C3 and C5 limitations;
+- the deterministic test-infrastructure fixes;
+- Node dispatch qualification at all three workloads;
+- the existing privacy exclusions and reduced regression counts.
+
+The temporary renderer performance regressions are accepted and must stay explicitly tracked (TD-PERF-012). No threshold is relaxed.
+
+**Final accounting closure required:**
+- investigate the 0.987 residual (the suspected geometry typed-array header overhead);
+- correct the term through the appropriate contract procedure, or justify a conservative deterministic margin;
+- do not conceal the original result or change the 128 / 64 MiB budgets;
+- preserve the GeometryStore contract unless an amendment is required, and avoid double counting;
+- freeze constants before a fresh validation that includes traced-layer replacement and large structural deletions;
+- report uncertainty, and do not tune against the inconclusive small eviction case;
+- claim no universal conservative browser heap accounting from Chromium alone;
+- re-qualify the accounting, ownership, eviction and retention tests.
+
+**Browser dispatch:** measure production session dispatch in Chromium, Firefox and WebKit, separately from renderer scheduling, on the incremental path, for all 12 types (median and p95), or report the precise blocker and stay PARTIAL.
+
+**M-7.** Stage D implementation accepted, subject to the accounting closure.
+
+**M-8 (TD-UI-006).** A future explicit commit-without-history confirmation is authorised but not implemented in G-DOC-R. The existing refusal stays until that UI is qualified. Requirements:
+- the confirmation discloses that the current implementation clears the existing undo and redo history;
+- Cancel is the safe default;
+- users can save a project copy before proceeding.
+
+It is recorded as a follow-up associated with G-PRJ.
+
+**M-9.** Incremental `paletteLabels()` with Recolor virtualisation is approved for a separate G-COLOR-UI gate, not this PR. Strict provenance and palette semantics are preserved, and retained usage indexes are accounted under AM-2.
+
+**G-PRJ, the next product milestone** (recorded in [ROADMAP](../../ROADMAP.md)):
+- **Scope:**
+  - Save, Save As and Open for portable `.vectra` projects;
+  - complete artwork and editable-document restoration;
+  - unsaved-change tracking;
+  - local autosave and crash recovery;
+  - recent projects;
+  - browser storage quotas and eviction;
+  - safe atomic writes where supported;
+  - a download/upload fallback;
+  - version compatibility and malformed-file rejection;
+  - project replacement and save-failure recovery;
+  - integration with the oversized-edit confirmation.
+- **Constraints:** the existing `.vectra` format is the starting point; local-first, offline and no-account use are preserved; autosave is not a substitute for portable files.
+- **Not begun.**
+
+**Not started:** G-PRJ, G-COLOR-UI, Precision v2, production CMYK, deployment. R-COLOR is left untouched. PR #22 stays unmerged until the final closure is reviewed.
+
+**Closure outcome** ([G-DOC-R report §7.1, §11.1, §13](../g-doc-r/G-DOC-R-REPORT.md)):
+- **Accounting.**
+  - The residual was the store's per-chunk record: a fixed part of about 3.1 KB (1.8 KB of typed-array headers), plus the manifest's style and group tables beyond their JSON length.
+  - It is now accounted under term 3, with C3.2's chunk cost and C2 unchanged; M-10 asks for confirmation.
+  - The first, fixed-size correction was superseded after review found it under-counted chunks with many styles.
+  - Fresh validation with the re-frozen model: 1.001–1.252 at the median.
+- **Browser dispatch.**
+  - Met in all three engines at the interactive target and at 756k anchors.
+  - Met in Chromium and Firefox at 996k anchors.
+  - Missed in Playwright WebKit at 996k for applyTransformLayer (59 / 68 ms; reproduced).
+  - The gate stays PARTIAL.
+
+## 13. G-DOC-R final acceptance (maintainer, 2026-11-26)
+**M-10: approved.** The geometry store's per-chunk record is counted under AM-2 term 3 as an additional retained structural resource. **No C3 r4 amendment is required.**
+
+The model frozen at `729e63a` is accepted:
+- the fixed 3,136-byte record cost;
+- the manifest's structural cost beyond its already-accounted JSON length;
+- the typed-array header cost of 216 bytes;
+- the existing C3.2 owner precedence;
+- no duplicate charging of chunk payloads or manifest JSON bytes.
+
+The original calibration results, the superseded flat-cost correction and the fresh validations stay recorded. The small eviction measurement remains inconclusive. No further cost-model tuning is requested.
+
+**Implementation acceptance.** G-DOC-R is accepted as an implementation suitable for downstream integration, with its historical PARTIAL disposition retained.
+- Reviewed head: `06fd71361e35a4f451709fadc774aba677307887`; CI run 45924593291 independently verified.
+- **The WebKit stress miss is temporarily accepted:** 996k anchors, applyTransformLayer 58–59 ms. The 50 ms stress threshold is unchanged.
+- A potential future subtree-summary optimisation is recorded against TD-PERF-007.
+- The renderer regressions stay tracked under TD-PERF-012.
+- No further architectural redesign is authorised.
+
+**Final integration checks, before merging:**
+- record M-10 as approved here and in the AM-2 explanatory note;
+- run the outstanding real-Safari gui, G-R1, G-JOB and G-R0 harnesses on the final application build, with the screen unlocked and visibility verified;
+- keep the passing persistence result on that same build;
+- record F-16 as a known WebKit test failure that predates G-DOC-R. Its reproduction on the baseline supports the temporary exception. The assertion is not suppressed, and the failed run is not reported as clean;
+- verify the required CI on the exact final head.
+
+Then merge PR #22 with a merge commit, and verify main CI, ancestry and the resulting tree. Follow the evidence-preservation policy before removing worktrees.
+
+**Open; none blocks internal integration:**
+- real Safari dispatch;
+- lower-end hardware;
+- quiet-machine qualification;
+- heap evidence from engines other than Chromium;
+- the owner accessibility checks.
+
+**G-PRJ** stays the next product milestone, followed by G-COLOR-UI. Its roadmap entry now carries the persistence limit found here, which the 330k-path, 996k-anchor workload exceeds (C7's 64 MiB document-section cap), and the requirements that follow from it ([ROADMAP](../../ROADMAP.md)). Any C7 amendment requires explicit change control. G-PRJ implementation is not begun.
+
+**Integration checks run (2026-11-26):**
+- real Safari 26.6.2 on the final application build `cdced0f2b2791fd7`, with the screen unlocked and the page visible before and after each harness: gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23;
+- CI run 45926294978 succeeded on `b37f87c`;
+- F-16 recorded as TD-UI-007.
+
+R-COLOR is left untouched. No deployment or release tag.
+

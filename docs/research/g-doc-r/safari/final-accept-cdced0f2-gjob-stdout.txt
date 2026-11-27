@@ -1,0 +1,12 @@
+PASS handshake-startup (708 ms)
+PASS churn-online-offline (2708 ms)
+PASS cancel-ui-ack (1559 ms)
+PASS offline-reload-and-recreation (1853 ms)
+PASS single-build-update (4309 ms)
+PASS template-only-update (2928 ms)
+PASS interrupted-install (2171 ms)
+PASS cache-eviction-recovery (2064 ms)
+PASS frozen-export-and-integrity (4223 ms)
+PASS build-mismatch-refused (687 ms)
+10/10 passed (Safari 26.6.2)
+exit 0

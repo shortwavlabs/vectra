@@ -1,0 +1,6 @@
+start 19:17:46
+load { 1.13 1.70 1.45 }
+screen <true/>
+end 19:24:56
+load { 1.52 1.28 1.30 }
+screen <true/>

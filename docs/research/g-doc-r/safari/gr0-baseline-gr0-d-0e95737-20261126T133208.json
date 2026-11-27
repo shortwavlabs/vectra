@@ -1,0 +1,104 @@
+{
+  "commit": "0e957372b4badbd0ba82ec807b752c57a84cc654",
+  "started": "2026-11-26T19:32:10.173Z",
+  "loadavgStart": [2.15380859375, 2.16796875, 1.9541015625],
+  "results": [
+    {
+      "name": "offscreen-canvas-support",
+      "details": {
+        "features": {
+          "transfer": true,
+          "offscreen": true,
+          "offscreen2d": true
+        },
+        "host": "worker"
+      },
+      "pass": true,
+      "ms": 721
+    },
+    {
+      "name": "correctness-worker",
+      "pass": false,
+      "error": "Error: spawnSync /Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/target/release/examples/render_compare ENOENT\n    at Object.spawnSync (node:internal/child_process:1191:20)\n    at spawnSync (node:child_process:929:24)\n    at execFileSync (node:child_process:972:15)\n    at resvgReference (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/browser/renderer/compare.ts:84:5)\n    at presented (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:85:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async correctness (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:306:15)\n    at async file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:335:17",
+      "ms": 791
+    },
+    {
+      "name": "correctness-main-thread",
+      "pass": false,
+      "error": "Error: spawnSync /Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/target/release/examples/render_compare ENOENT\n    at Object.spawnSync (node:internal/child_process:1191:20)\n    at spawnSync (node:child_process:929:24)\n    at execFileSync (node:child_process:972:15)\n    at resvgReference (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/browser/renderer/compare.ts:84:5)\n    at presented (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:85:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async correctness (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:306:15)\n    at async file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:335:17",
+      "ms": 760
+    },
+    {
+      "name": "first-frame-latency",
+      "pass": false,
+      "error": "Error: spawnSync /Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/target/release/examples/render_compare ENOENT\n    at Object.spawnSync (node:internal/child_process:1191:20)\n    at spawnSync (node:child_process:929:24)\n    at execFileSync (node:child_process:972:15)\n    at resvgReference (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/browser/renderer/compare.ts:84:5)\n    at presented (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:85:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async first-frame-latency (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:210:17)\n    at async file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:335:17",
+      "ms": 758
+    },
+    {
+      "name": "recovery",
+      "pass": false,
+      "error": "Error: spawnSync /Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/target/release/examples/render_compare ENOENT\n    at Object.spawnSync (node:internal/child_process:1191:20)\n    at spawnSync (node:child_process:929:24)\n    at execFileSync (node:child_process:972:15)\n    at resvgReference (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/browser/renderer/compare.ts:84:5)\n    at presented (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:85:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.recovery (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:224:19)\n    at async file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:335:17",
+      "ms": 762
+    },
+    {
+      "name": "pan-zoom-responsiveness",
+      "details": {
+        "interactive": {
+          "loadMs": 2719,
+          "firstFrameMs": 68.00000000000045,
+          "exactFrameMs": 107,
+          "exactDrawWorkerMs": 71,
+          "prepareMs": 8,
+          "copyMs": 0,
+          "pan": {
+            "exactSettleMs": 43,
+            "p50": 17,
+            "p95": 18,
+            "max": 18
+          },
+          "zoom": {
+            "exactSettleMs": 21,
+            "p50": 17,
+            "p95": 18,
+            "max": 20
+          },
+          "host": "worker"
+        },
+        "stress": {
+          "loadMs": 10968,
+          "firstFrameMs": 110,
+          "exactFrameMs": 335,
+          "exactDrawWorkerMs": 238.99999999999818,
+          "prepareMs": 24,
+          "copyMs": 2,
+          "pan": {
+            "exactSettleMs": 85,
+            "p50": 17,
+            "p95": 17,
+            "max": 18
+          },
+          "zoom": {
+            "exactSettleMs": 85,
+            "p50": 17,
+            "p95": 18,
+            "max": 18
+          },
+          "host": "worker"
+        }
+      },
+      "pass": true,
+      "ms": 18584
+    },
+    {
+      "name": "main-thread-fallback",
+      "pass": false,
+      "error": "Error: spawnSync /Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/target/release/examples/render_compare ENOENT\n    at Object.spawnSync (node:internal/child_process:1191:20)\n    at spawnSync (node:child_process:929:24)\n    at execFileSync (node:child_process:972:15)\n    at resvgReference (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/browser/renderer/compare.ts:84:5)\n    at presented (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:85:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async main-thread-fallback (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:294:15)\n    at async file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/gbrand-baseline/tests/safari/gr0.mjs:335:17",
+      "ms": 820
+    }
+  ],
+  "safari": {
+    "version": "26.6.2",
+    "platform": "macOS 26.6.2 (25G83)"
+  },
+  "loadavgEnd": [1.98828125, 2.13525390625, 1.9482421875]
+}

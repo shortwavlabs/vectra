@@ -13,6 +13,7 @@ import {
   rotate90Matrix,
 } from "./model.ts";
 import { DocumentSession, sha256Hex } from "./session.ts";
+import { chunkRecordCost } from "./structure-accounting.ts";
 import { fixturePacket, FIXTURE_SCENES } from "./testing/fixtures.ts";
 import { emptySession, errorCode, fixtureSession } from "./testing/helpers.ts";
 import { parseColor, syntheticPacket } from "./testing/synthetic.ts";
@@ -378,8 +379,21 @@ describe("history budget (RFC §7)", () => {
   test("byte budget evicts the oldest history-only chunks; a change that cannot fit is rejected or confirmed", () => {
     const one = fixtureSession(["thin_strokes-halftone"]);
     const cost = one.store.cost(one.store.chunkIds()[0]!);
+    // AM-2: a replace also makes the old layer's structure history-only (S bytes, measured on
+    // an unbounded twin); the budget holds one replaced layer, not two.
+    one.dispatch({
+      type: "commitTrace",
+      provenance: TEST_PROVENANCE,
+      packet: fixturePacket("thin_strokes-halftone"),
+      replaceLayerId: layerOf(one.state).id,
+    });
+    const S = one.historyStructureBytes();
+    expect(S).toBeGreaterThan(0);
+    // The history-only chunk's store record (AM-2 closure); the replaced chunk has this manifest.
+    const R = chunkRecordCost(one.store.view(one.store.chunkIds()[0]!).manifest);
+    expect(one.historyBytes()).toBe(cost + R + S);
     const session = fixtureSession(["thin_strokes-halftone"], {
-      history: { maxEntries: 100, maxBytes: Math.floor(cost * 1.5) },
+      history: { maxEntries: 100, maxBytes: Math.floor((cost + R + S) * 1.5) },
     });
     const layer = () => layerOf(session.state).id;
     const replace = () =>
@@ -390,10 +404,12 @@ describe("history budget (RFC §7)", () => {
         replaceLayerId: layer(),
       });
     replace(); // chunk 1 becomes history-only: within budget
-    expect(session.historyBytes()).toBe(cost);
+    expect(session.historyBytes()).toBe(cost + R + S);
     expect(session.getSnapshot().historyTruncated).toBe(false);
     replace(); // chunk 2 becomes history-only too: over budget → oldest (chunk 1) evicted
-    expect(session.historyBytes()).toBe(cost);
+    expect(session.historyBytes()).toBe(cost + R + session.historyStructureBytes());
+    expect(session.historyStructureBytes()).toBeGreaterThan(0);
+    expect(session.historyBytes()).toBeLessThanOrEqual(Math.floor((cost + R + S) * 1.5));
     expect(session.getSnapshot().historyTruncated).toBe(true);
     expect(session.store.has("chk_1")).toBe(false);
     expect(session.store.ownerCounts("chk_2").history).toBe(1);
@@ -420,6 +436,26 @@ describe("history budget (RFC §7)", () => {
     replaceTight({ withoutHistory: true });
     expect(tight.getSnapshot().canUndo).toBe(false);
     expect(tight.store.chunkIds()).toEqual(["chk_3"]);
+  });
+
+  test("AM-2 closure: a chunk's store record counts once, only while history is its top owner", () => {
+    const session = fixtureSession(["circle-bw", "thin_strokes-halftone"]);
+    expect(session.historyChunkRecordBytes()).toBe(0);
+    const R = chunkRecordCost(session.store.view("chk_2").manifest);
+    expect(R).toBeGreaterThan(3000);
+    session.dispatch({ type: "delete", ids: [session.state.orderedRootIds[1]!] });
+    expect(session.historyChunkRecordBytes()).toBe(R);
+    const snapshot = { kind: "snapshot" } as const;
+    session.store.retain("chk_2", snapshot); // snapshot precedes history (C3.2)
+    expect(session.historyChunkRecordBytes()).toBe(0);
+    session.store.release("chk_2", snapshot);
+    session.undo(); // the document owns it again
+    expect(session.historyChunkRecordBytes()).toBe(0);
+    session.redo();
+    expect(session.historyChunkRecordBytes()).toBe(R);
+    expect(session.historyBytes()).toBe(
+      session.store.cost("chk_2") + R + session.historyStructureBytes(),
+    );
   });
 });
 
@@ -653,7 +689,9 @@ describe("sources", () => {
     session.dispatch({ type: "delete", ids: [id] });
     expect(session.state.sourceAssetsById.size).toBe(0);
     expect(session.sourceByteCounts()).toEqual({ document: 0, history: 64 });
-    expect(session.historyBytes()).toBe(64);
+    // AM-2: plus the deleted source node's accounted structure.
+    expect(session.historyStructureBytes()).toBeGreaterThan(0);
+    expect(session.historyBytes()).toBe(64 + session.historyStructureBytes());
     session.undo();
     expect(session.sourceBytes(asset.id)).toEqual(bytes);
   });

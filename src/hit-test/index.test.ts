@@ -240,7 +240,7 @@ test("property: 2,000 random points agree with the brute-force reference (bounda
     expect(h.hit(x, y), `(${x}, ${y})`).toBe(ref === null ? null : nodes[ref]);
   }
   expect(checked).toBeGreaterThan(1900);
-});
+}, 60_000); // ~1.2 s on the reference machine; the CI runner took 5.06 s (5 s default)
 
 describe("bounded incremental build (G-R1)", () => {
   // A mixed scene: the correctness shapes plus a 300-subpath compound path and a 5,000-point

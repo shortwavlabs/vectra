@@ -1,0 +1,10 @@
+PASS offscreen-canvas-support (728 ms)
+PASS correctness-worker (1520 ms)
+PASS correctness-main-thread (1409 ms)
+PASS first-frame-latency (935 ms)
+PASS recovery (1040 ms)
+FAIL pan-zoom-responsiveness (300834 ms)
+  Error: timed out waiting for workload traced (last: false)
+PASS main-thread-fallback (795 ms)
+6/7 passed (Safari 26.6.2)
+exit 1

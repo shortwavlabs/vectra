@@ -1,0 +1,148 @@
+{
+  "script": "scripts/profile-accounting.mjs",
+  "commit": "2cd3c3b3e73b60be36d1b5fc96555aafce318438",
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "loadavgStart": [2.34033203125, 1.755859375, 1.478515625],
+  "sizes": [
+    {
+      "paths": 43000,
+      "delta": {
+        "setFill1": {
+          "withWriteLog": 0.011,
+          "structuralDiff": 0.014
+        },
+        "setFillMany": {
+          "withWriteLog": 0.477,
+          "structuralDiff": 0.73
+        },
+        "setVisible": {
+          "withWriteLog": 0.004,
+          "structuralDiff": 0.006
+        },
+        "rename": {
+          "withWriteLog": 0.007,
+          "structuralDiff": 0.007
+        },
+        "reorder": {
+          "withWriteLog": 0.005,
+          "structuralDiff": 0.007
+        },
+        "applyTransformPath": {
+          "withWriteLog": 0.004,
+          "structuralDiff": 0.007
+        },
+        "applyTransformLayer": {
+          "withWriteLog": 0.004,
+          "structuralDiff": 0.006
+        },
+        "group": {
+          "withWriteLog": 0.013,
+          "structuralDiff": 0.23
+        },
+        "ungroup": {
+          "withWriteLog": 0.019,
+          "structuralDiff": 0.24
+        },
+        "delete": {
+          "withWriteLog": 0.01,
+          "structuralDiff": 0.228
+        },
+        "duplicate": {
+          "withWriteLog": 0.012,
+          "structuralDiff": 0.23
+        },
+        "commitTrace": {
+          "withWriteLog": 0.544,
+          "structuralDiff": 0.877
+        }
+      },
+      "sums": {
+        "entries": 103,
+        "historyStructureBytes": 0,
+        "historyBytes": 0.002
+      },
+      "eviction": {
+        "maxEntries 1000": {
+          "dispatchMedian": 0.025,
+          "truncated": false
+        },
+        "maxEntries 10": {
+          "dispatchMedian": 0.024,
+          "truncated": true
+        },
+        "costPerEdit": -0.001
+      }
+    },
+    {
+      "paths": 330000,
+      "delta": {
+        "setFill1": {
+          "withWriteLog": 0.016,
+          "structuralDiff": 0.016
+        },
+        "setFillMany": {
+          "withWriteLog": 0.869,
+          "structuralDiff": 3.109
+        },
+        "setVisible": {
+          "withWriteLog": 0.011,
+          "structuralDiff": 0.014
+        },
+        "rename": {
+          "withWriteLog": 0.01,
+          "structuralDiff": 0.013
+        },
+        "reorder": {
+          "withWriteLog": 0.01,
+          "structuralDiff": 0.013
+        },
+        "applyTransformPath": {
+          "withWriteLog": 0.01,
+          "structuralDiff": 0.014
+        },
+        "applyTransformLayer": {
+          "withWriteLog": 0.01,
+          "structuralDiff": 0.013
+        },
+        "group": {
+          "withWriteLog": 0.017,
+          "structuralDiff": 0.237
+        },
+        "ungroup": {
+          "withWriteLog": 0.027,
+          "structuralDiff": 0.239
+        },
+        "delete": {
+          "withWriteLog": 0.015,
+          "structuralDiff": 0.226
+        },
+        "duplicate": {
+          "withWriteLog": 0.016,
+          "structuralDiff": 0.223
+        },
+        "commitTrace": {
+          "withWriteLog": 0.591,
+          "structuralDiff": 1.041
+        }
+      },
+      "sums": {
+        "entries": 103,
+        "historyStructureBytes": 0.001,
+        "historyBytes": 0.001
+      },
+      "eviction": {
+        "maxEntries 1000": {
+          "dispatchMedian": 0.066,
+          "truncated": false
+        },
+        "maxEntries 10": {
+          "dispatchMedian": 0.064,
+          "truncated": true
+        },
+        "costPerEdit": -0.002
+      }
+    }
+  ],
+  "loadavgEnd": [2.52783203125, 1.8134765625, 1.501953125]
+}

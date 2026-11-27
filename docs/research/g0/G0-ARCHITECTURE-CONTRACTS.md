@@ -1,6 +1,10 @@
 # G-0 — Architecture contracts (frozen for G-ENG and G-DOC)
 
-**Status:** FROZEN at G-0 closure, then amended once through change control: **amendment set AM-1** (P1-A corrective review, maintainer-approved, 2026-11-25). AM-1 is integrated below and recorded in §AM-1 and in [G0-DECISION-REGISTER §6](G0-DECISION-REGISTER.md).
+**Status:** FROZEN at G-0 closure, then amended twice through change control:
+- **amendment set AM-1** (P1-A corrective review, maintainer-approved, 2026-11-25), recorded in §AM-1 and in [G0-DECISION-REGISTER §6](G0-DECISION-REGISTER.md);
+- **amendment AM-2** (G-DOC-R history accounting, maintainer-approved, 2026-11-26), recorded in §AM-2 and in [G0-DECISION-REGISTER §11](G0-DECISION-REGISTER.md).
+
+Both are integrated below.
 
 This file holds the **byte-level and API details** that RFC-002 defers to. Architecture, rationale and evidence stay in [RFC-002](../../RFC-002.md); this file does not restate them.
 
@@ -17,7 +21,7 @@ Additive fields are allowed only where a contract says so. A gate that needs a c
 |---|---|---|---|---|---|
 | C1 | Identifiers and revisions | r1 | — | yes | RFC §5.1 |
 | C2 | GeometryStore ownership and lifetime | **r2** (AM-1: A1) | — | yes | RFC §5.2 |
-| C3 | GeometryPacket and resource accounting | **r2** (AM-1: AR-1, AR-3) | `packetVersion` 1 (unchanged) | yes | RFC §6 |
+| C3 | GeometryPacket and resource accounting | **r3** (AM-1: AR-1, AR-3; AM-2: history accounting) | `packetVersion` 1 (unchanged) | yes | RFC §6, §7 |
 | C4 | Engine API (Rust and WASM) | **r2** (AM-1: finalised signatures) | — | yes | RFC §6, §11.2 |
 | C5 | Worker protocol | **r2** (AM-1: AR-2) | `protocolVersion` 2 (unchanged) | yes | RFC §10 |
 | C6 | Geometry and algorithm versions | **r2** (AM-1: version table) | — | yes | RFC §12.2 |
@@ -200,7 +204,13 @@ This corrects the earlier declared-bytes formula, `verbCount + 8·coordCount + 1
 **Store aggregation** (C2 `bytes()`).
 - `total` is the sum of chunk ledger costs over live chunks, **each chunk counted once** (deduplicated storage).
 - `byOwnerKind` attributes each live chunk to exactly one kind: its highest-precedence current owner, in the order document > snapshot > job > history. Hence `Σ byOwnerKind = total`.
-- "History-only bytes" (the RFC §7 budget) are `byOwnerKind.history`.
+- **(r3, AM-2) The RFC §7 history byte budget** is the sum of three terms. Each counts an allocation only when no higher-precedence owner holds it, and counts it once:
+  1. **chunk bytes:** `byOwnerKind.history` (unchanged; this paragraph's store rules);
+  2. **history-only source bytes:** source assets that only history states reference;
+  3. **document-structure bytes:** the *accounted* bytes of every structural allocation that history states retain and the current document does not. These include node-map roots, bucket directories, buckets and entries; persistent parent-index structures; node objects and child lists; style, palette and asset maps and entries; retained provenance; derived indexes and summaries kept for historical states; and any other retained structural resource.
+- **Exclusions.** Chunk bytes and source bytes are never counted again in term 3.
+- **Shared allocations.** An allocation shared with the current document is not history-only. One shared only among several history states is counted once.
+- **Cost model.** Document-structure bytes come from a deterministic integer cost model, with `Number.isSafeInteger` checked. They are **accounted bytes, not a measurement** of JavaScript heap consumption. The model and its calibration against measured retained heap are documented in the G-DOC-R report.
 - Copies (`jobCopy`, `renderCopy`, `copyIncoming`) are separate allocations and are **not** in the store `total`. Job copies are charged to the job's ledger entry until settle; render copies are charged to the render-worker entry (RFC §8.8, §11.3).
 
 **Anchor accounting with shared geometry.**
@@ -577,3 +587,19 @@ Approved by the maintainer on 2026-11-25. These revisions are shared by the G-EN
 | Tolerance | G-DOC | C10: transform entries `|v| ≤ 1e9`, condition number ≤ 1e8 | none |
 | C4 | G-ENG | C4 r2: finalised signatures, `sceneToPacket`, `exportDrawListScene` | none |
 
+## AM-2 — Amendment record (G-DOC-R history accounting)
+Approved by the maintainer on 2026-11-26 ("G-DOC-R Stage B/C Acceptance and AM-2 Authorization"; [decision register §11](G0-DECISION-REGISTER.md); draft: [AM-2-DRAFT](../g-doc-r/AM-2-DRAFT.md)).
+
+| Item | Contract | Change | Wire impact |
+|---|---|---|---|
+| AM-2.1 | **C3 r2 → r3** (C3.2, store aggregation) | The history byte budget adds document-structure bytes (term 3 above), from a deterministic, checked integer cost model. Accounted bytes are distinguished from measured heap | none |
+| AM-2.2 | **RFC-002 §7** (history budget) | Bytes are counted by chunk, source and document-structure owner. Limits retained: 100 transactions, 128 MiB standard, 64 MiB constrained. Earlier oldest-first eviction is authorised; the visible truncation behaviour is kept | none |
+| Attribution | C3.2 | The highest-precedence ownership rule (document > history) applies to structural allocations; shared allocations are counted once | none |
+| Ordering | RFC §5.1 (in-memory `nodesById`; not persisted) | Deterministic bucket iteration replaces insertion order. No insertion-order index is kept. Canonical persistence, export, rendering, layer order and user-visible behaviour are unchanged. For a document with several defects, the full validator may name a different defect first; single-defect rejections are equivalent | none |
+| — | C2, C7, C10 | **Unchanged.** GeometryStore ownership, the container and the document schema keep their texts and serialized versions | none |
+
+**AM-2 accounting closure (2026-11-26). Explanatory note only: no normative text, specification revision or serialized version changed. Approved by the maintainer on 2026-11-26 (G-DOC-R M-10; [decision register §13](G0-DECISION-REGISTER.md)); no C3 r4 amendment is required.**
+- **The store's per-chunk record is counted in term 3.** It covers the typed-array and buffer headers, accessor views, and the manifest object beyond its JSON length (a fixed part of about 3.1 KB, plus the style and group tables; measured). All of it lies outside the C3.2 chunk ledger cost. G-DOC-R counts it as a retained structural resource under term 3, for chunks attributed to history by the C3.2 precedence.
+- **No double counting.** The chunk ledger cost (`M_mem + manifestBytes + D`), `bytes()` by owner and C2 are unchanged.
+- **The accepted model** (frozen at `729e63a`): per history-attributed chunk, `3,136 + max(0, deepCost(manifest) − manifestBytes)`, with the C3.2 owner precedence. Typed-array headers are costed at 216 bytes in the structure model.
+- **Evidence:** [G-DOC-R report §7.1](../g-doc-r/G-DOC-R-REPORT.md).

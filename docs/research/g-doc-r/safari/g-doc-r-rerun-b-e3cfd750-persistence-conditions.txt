@@ -1,0 +1,6 @@
+start 14:57:12
+load { 1.84 1.25 1.09 }
+screen unlocked (CGSSessionScreenIsLocked absent)
+end 14:57:19
+load { 1.71 1.25 1.08 }
+screen unlocked (CGSSessionScreenIsLocked absent)

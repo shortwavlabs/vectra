@@ -4,8 +4,18 @@
 
 import type { DecodePolicy } from "./provenance.ts";
 import { sniffImage } from "../vectorization/intake.ts";
-import { applyCommand, type Command, type CommandContext } from "./commands.ts";
+import {
+  applyCommand,
+  type Command,
+  type CommandContext,
+  DraftLog,
+  parentIndexMatches,
+  parents,
+} from "./commands.ts";
+import { changedKeys } from "./node-map.ts";
+import { chunkRecordCost, type Delta, structureDelta } from "./structure-accounting.ts";
 import type { GeometryStore, OwnerKind } from "./geometry-store.ts";
+import { checkIncremental } from "./incremental-validate.ts";
 import {
   DEFAULT_DOC_LIMITS,
   type DocLimits,
@@ -18,6 +28,7 @@ import {
   type DocState,
   DocumentError,
   IdAllocator,
+  idNumber,
   type NodeId,
   type SourceMime,
 } from "./model.ts";
@@ -31,6 +42,26 @@ export const DEFAULT_HISTORY_LIMITS: Readonly<HistoryLimits> = Object.freeze({
   maxEntries: 100,
   maxBytes: 128 * 2 ** 20,
 });
+
+/**
+ * How `dispatch` validates a transaction's result (G-DOC-R stage B). The full `validateState`
+ * is the oracle in every mode, and the constructor (and therefore loading) always runs it.
+ * - `incremental`: the incremental proof against the validated predecessor; when it cannot
+ *   decide, the full pass runs and accepts or throws the canonical error.
+ * - `compare`: as `incremental`, and every decided transaction is also checked by the full
+ *   pass; a disagreement throws `ValidationDisagreement` and the document is unchanged.
+ * - `full`: the full pass only (the pre-G-DOC-R behaviour).
+ */
+export type ValidationMode = "incremental" | "compare" | "full";
+/** `compare` in development and test builds, `incremental` in production (and in Node). */
+export const DEFAULT_VALIDATION_MODE: ValidationMode = import.meta.env?.DEV
+  ? "compare"
+  : "incremental";
+
+/** The incremental and full validators disagreed (a defect, never a user error). */
+export class ValidationDisagreement extends Error {
+  override readonly name = "ValidationDisagreement";
+}
 
 export interface SessionSnapshot {
   readonly state: DocState;
@@ -57,6 +88,8 @@ export interface SessionOptions {
   sources?: ReadonlyMap<AssetId, Uint8Array>;
   /** Receives errors thrown by subscribers (default: rethrown asynchronously). */
   onListenerError?: (error: unknown) => void;
+  /** Transaction validation (default `DEFAULT_VALIDATION_MODE`). */
+  validation?: ValidationMode;
 }
 
 /** C7 source-section cap, enforced when a source is embedded. */
@@ -84,6 +117,10 @@ export class DocumentSession {
   readonly store: GeometryStore;
   readonly limits: DocLimits;
   readonly historyLimits: HistoryLimits;
+  readonly validation: ValidationMode;
+  readonly #validations = { incremental: 0, full: 0 };
+  /** AM-2: each published state's structural delta from its chain predecessor. */
+  readonly #deltas = new WeakMap<DocState, Delta>();
   #state: DocState;
   readonly #derived = new WeakMap<DocState, StateDerived>();
   #past: DocState[] = [];
@@ -105,6 +142,7 @@ export class DocumentSession {
     this.store = store;
     this.limits = o.limits ?? DEFAULT_DOC_LIMITS;
     this.historyLimits = o.history ?? DEFAULT_HISTORY_LIMITS;
+    this.validation = o.validation ?? DEFAULT_VALIDATION_MODE;
     this.#coalesceWindowMs = o.coalesceWindowMs ?? 1000;
     this.#now = o.now ?? (() => performance.now());
     const d = validateState(o.state, store, this.limits);
@@ -119,6 +157,7 @@ export class DocumentSession {
           throw e;
         }));
     this.#derived.set(o.state, d);
+    parents(o.state); // seeds the persistent parent index (stage D), O(n) once at load
     this.#state = o.state;
     this.#saved = o.state;
     this.#own(o.state, "document", 1);
@@ -133,6 +172,11 @@ export class DocumentSession {
   };
   getSnapshot = (): SessionSnapshot => this.#snapshot;
 
+  /** Accepted transactions by the path that decided them: the incremental proof, or the full
+   *  pass (an undecided fallback, or `full` mode). */
+  get validations(): { readonly incremental: number; readonly full: number } {
+    return { ...this.#validations };
+  }
   get nextId(): number {
     return this.#nextId;
   }
@@ -199,18 +243,38 @@ export class DocumentSession {
     const prev = this.#state;
     const ids = new IdAllocator(this.#nextId);
     const store = this.store;
-    const ctx: CommandContext = { store, ids, commit: (p) => store.commit(p) };
+    const log = new DraftLog();
+    const ctx: CommandContext = { store, ids, commit: (p) => store.commit(p), log };
     let next = prev;
     let d: StateDerived;
+    let now = 0;
+    let coalesce = false;
+    let delta: Delta = { removed: 0, added: 0 };
     try {
-      for (const c of list) next = applyCommand(next, c, ctx);
+      for (const c of list) {
+        const out = applyCommand(next, c, ctx);
+        log.step(next, out);
+        next = out;
+      }
       if (next === prev) {
         store.settle();
         return this.#revision; // a no-op is not a transaction
       }
-      d = validateState(next, store, this.limits);
+      d = this.#validate(prev, next, log.complete ? log.keys : null);
+      now = this.#now();
+      coalesce =
+        o.coalesceKey !== undefined &&
+        this.#coalesce?.key === o.coalesceKey &&
+        now - this.#coalesce.at <= this.#coalesceWindowMs &&
+        this.#past.length > 0;
       if (!o.withoutHistory) {
-        const entry = this.#entryBytes(prev, d, next);
+        // AM-2: the step's structural delta from its chain predecessor: prev, or the entry
+        // prev coalesces into. What it removes is what the pushed entry alone would retain.
+        const pred = coalesce ? this.#past[this.#past.length - 1]! : prev;
+        // The write log is relative to prev: usable only when prev is the predecessor.
+        const writes = !coalesce && log.complete ? log.keys : null;
+        delta = structureDelta(pred, next, this.#derived.get(pred), d, writes);
+        const entry = this.#entryBytes(prev, d, next) + delta.removed;
         if (entry > this.historyLimits.maxBytes)
           throw new DocumentError(
             "history_budget",
@@ -223,12 +287,7 @@ export class DocumentSession {
     }
     // Publish: nothing below throws.
     this.#derived.set(next, d);
-    const now = this.#now();
-    const coalesce =
-      o.coalesceKey !== undefined &&
-      this.#coalesce?.key === o.coalesceKey &&
-      now - this.#coalesce.at <= this.#coalesceWindowMs &&
-      this.#past.length > 0;
+    this.#deltas.set(next, delta);
     this.#own(next, "document", 1);
     this.#own(prev, "document", -1);
     if (o.withoutHistory) this.#dropHistory();
@@ -248,6 +307,51 @@ export class DocumentSession {
     return this.#revision;
   }
 
+  /** Validates `next` against the validated `prev` (see ValidationMode). `writes` is the
+   *  transaction's complete Draft write log, or null (identity diff). Throws the full pass's
+   *  error on an invalid state; counts only accepted transactions. */
+  #validate(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): StateDerived {
+    const { store, limits } = this;
+    if (this.validation !== "full") {
+      const inc = checkIncremental(prev, this.#derived.get(prev)!, next, store, limits, writes);
+      if (inc.derived) {
+        if (this.validation === "compare") {
+          this.#compareInvariants(prev, next, writes);
+          let full: StateDerived;
+          try {
+            full = validateState(next, store, limits);
+          } catch (e) {
+            throw new ValidationDisagreement(
+              `the incremental validator accepted a state the full validator rejects: ${String(e)}`,
+              { cause: e },
+            );
+          }
+          if (!sameDerived(full, inc.derived))
+            throw new ValidationDisagreement("incremental and full derived data differ");
+        }
+        this.#validations.incremental++;
+        return inc.derived;
+      }
+    }
+    const full = validateState(next, store, limits);
+    // Compare mode checks the stage C/D invariants on the full-pass path too (review C4).
+    if (this.validation === "compare") this.#compareInvariants(prev, next, writes);
+    this.#validations.full++;
+    return full;
+  }
+
+  /** Compare mode: the write log covers every changed node key, and the parent index of
+   *  `next` equals a full traversal (only meaningful for a valid `next`; called after the
+   *  incremental proof decided it, or after the full pass accepted it). */
+  #compareInvariants(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): void {
+    if (writes)
+      for (const k of changedKeys(prev.nodesById, next.nodesById))
+        if (!writes.has(k))
+          throw new ValidationDisagreement(`the write log misses changed node ${k}`);
+    if (!parentIndexMatches(next))
+      throw new ValidationDisagreement("the parent index disagrees with the tree");
+  }
+
   /** Bytes the pushed entry alone would hold as history-only (RFC §7 "cannot fit"): chunks and
    *  source bytes that `prev` holds and nothing else would (G-DOC review 4). */
   #entryBytes(prev: DocState, d: StateDerived, next: DocState): number {
@@ -263,7 +367,8 @@ export class DocumentSession {
     for (const id of this.#derived.get(prev)!.chunks.keys()) {
       if (d.chunks.has(id)) continue;
       const c = this.store.ownerCounts(id);
-      if (c.snapshot === 0 && c.job === 0 && c.history === 0) n += this.store.cost(id);
+      if (c.snapshot === 0 && c.job === 0 && c.history === 0)
+        n += this.store.cost(id) + chunkRecordCost(this.store.view(id).manifest);
     }
     return n;
   }
@@ -422,17 +527,60 @@ export class DocumentSession {
     }
     return { document: doc, history: hist };
   }
-  /** History-only bytes (RFC §7 budget): chunk bytes attributed to history + history-only sources. */
+  /**
+   * AM-2 history-only document-structure bytes (accounted, not measured): the removed bytes
+   * of every step whose predecessor is retained up to the current state, plus the added bytes
+   * of every redo step. O(history entries); no state is traversed.
+   */
+  historyStructureBytes(): number {
+    const past = this.#past;
+    let n = 0;
+    for (let i = 1; i < past.length; i++) n += this.#deltas.get(past[i]!)?.removed ?? 0;
+    if (past.length) n += this.#deltas.get(this.#state)?.removed ?? 0;
+    for (const s of this.#future) n += this.#deltas.get(s)?.added ?? 0;
+    return n;
+  }
+  /**
+   * AM-2 term 3, store part: the store's record of every chunk attributed to history (owner
+   * precedence as in `bytes()`), which the C3.2 chunk ledger cost leaves out. Accounted
+   * (`chunkRecordCost`, cached per manifest); O(live chunks), like `bytes()`.
+   */
+  historyChunkRecordBytes(): number {
+    let n = 0;
+    for (const id of this.store.chunkIds()) {
+      const c = this.store.ownerCounts(id);
+      if (c.history > 0 && c.document === 0 && c.snapshot === 0 && c.job === 0)
+        n += chunkRecordCost(this.store.view(id).manifest);
+    }
+    return n;
+  }
+  /** History-only bytes (RFC §7 budget, C3.2 r3): chunk bytes attributed to history, history-only
+   *  source bytes and history-only document-structure bytes, including those chunks' store
+   *  records. */
   historyBytes(): number {
-    return this.store.bytes().byOwnerKind.history + this.sourceByteCounts().history;
+    return (
+      this.store.bytes().byOwnerKind.history +
+      this.sourceByteCounts().history +
+      this.historyStructureBytes() +
+      this.historyChunkRecordBytes()
+    );
   }
 }
+
+/** Equal derived data: chunk reference counts compared as a set. */
+export const sameDerived = (a: StateDerived, b: StateDerived): boolean =>
+  a.anchors === b.anchors &&
+  a.maxIdNumber === b.maxIdNumber &&
+  a.chunks.size === b.chunks.size &&
+  [...a.chunks].every(([k, v]) => b.chunks.get(k) === v);
 
 // --- narrow selectors (stable references over immutable state) ---------------------------------
 export const selectState = (s: SessionSnapshot) => s.state;
 export const selectNode = (s: SessionSnapshot, id: NodeId) => s.state.nodesById.get(id);
 export const selectRootIds = (s: SessionSnapshot) => s.state.orderedRootIds;
 export const selectDirty = (s: SessionSnapshot) => s.dirty;
-export const selectChunkIds = (session: DocumentSession): ChunkId[] => [
-  ...(session.derivedOf(session.state)?.chunks.keys() ?? []),
-];
+/** Chunk IDs of the current state, by chunk number (independent of which validator ran). */
+export const selectChunkIds = (session: DocumentSession): ChunkId[] =>
+  [...(session.derivedOf(session.state)?.chunks.keys() ?? [])].sort(
+    (a, b) => idNumber(a) - idNumber(b),
+  );

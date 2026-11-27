@@ -2,6 +2,7 @@
 // One DocState per committed transaction; undo/redo restore states by reference (C7 dirty
 // tracking). High-water marks (nextId, nextChunkId) and the revision live outside DocState.
 
+import { NodeMap } from "./node-map.ts";
 import type { PacketErrorCode } from "./packet-port.ts";
 
 import type { DecodePolicy, SourceProvenance, TraceProvenance } from "./provenance.ts";
@@ -161,9 +162,13 @@ export class SealedMap<K, V> extends Map<K, V> {
     super.clear();
   }
 }
-/** Seals `m` (copying it first unless it is an unsealed SealedMap owned by the caller). */
+/** True for a sealed (immutable, shareable) document map. */
+export const isSealedMap = (m: ReadonlyMap<unknown, unknown>): boolean => SEALED.has(m);
+/** Seals `m`: an already sealed map is returned as is (immutable, so shareable); an unsealed
+ *  SealedMap owned by the caller is sealed in place; anything else is copied first. */
 export function sealMap<K, V>(m: ReadonlyMap<K, V>): ReadonlyMap<K, V> {
-  const out = m instanceof SealedMap && !SEALED.has(m) ? m : new SealedMap(m);
+  if (SEALED.has(m)) return m;
+  const out = m instanceof SealedMap ? m : new SealedMap(m);
   SEALED.add(out);
   return out;
 }
@@ -187,7 +192,7 @@ export function createDocument(o: {
     documentId: o.documentId ?? crypto.randomUUID(),
     artboard: Object.freeze({ width: o.width, height: o.height, background: o.background ?? null }),
     orderedRootIds: Object.freeze([]) as readonly NodeId[],
-    nodesById: sealMap(new Map()),
+    nodesById: NodeMap.empty<DocNode>(),
     stylesById: sealMap(new Map()),
     paletteById: sealMap(new Map()),
     sourceAssetsById: sealMap(new Map()),

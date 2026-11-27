@@ -4,7 +4,7 @@
 // Interaction (cached) frames are never used as evidence: frames are taken after an exact frame
 // for the current view and revision.
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { expect, type Page, test } from "@playwright/test";
 import { writeOutput } from "./helpers.ts";
@@ -19,15 +19,7 @@ test.beforeAll(() => {
   execFileSync("node", [join(ROOT, "tests/browser/renderer/make-fixtures.ts"), FIX], {
     stdio: "pipe",
   });
-  if (!existsSync(join(ROOT, "target/release/examples/render_compare")))
-    execFileSync(
-      "cargo",
-      ["build", "--release", "--locked", "-p", "vector-engine", "--example", "render_compare"],
-      {
-        cwd: ROOT,
-        stdio: "pipe",
-      },
-    );
+  // render_compare is built by tests/browser/global-setup.ts.
   manifest = JSON.parse(readFileSync(join(FIX, "fixtures.json"), "utf8")) as Manifest;
 });
 

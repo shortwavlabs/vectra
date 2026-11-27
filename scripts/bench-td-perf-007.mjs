@@ -19,13 +19,10 @@ import { execFileSync } from "node:child_process";
 import { cpus, loadavg, totalmem } from "node:os";
 import { writeFileSync } from "node:fs";
 import { applyCommand, parents } from "../src/document/commands.ts";
-import { GeometryStore } from "../src/document/geometry-store.ts";
 import { checkIncremental } from "../src/document/incremental-validate.ts";
 import { validateState } from "../src/document/invariants.ts";
-import { createDocument, IdAllocator, isContainer, SealedMap } from "../src/document/model.ts";
-import { DocumentSession } from "../src/document/session.ts";
-import { TEST_PROVENANCE } from "../src/document/testing/provenance.ts";
-import { syntheticPacket } from "../src/document/testing/synthetic.ts";
+import { IdAllocator, isContainer, SealedMap } from "../src/document/model.ts";
+import { buildWorkload } from "../src/document/testing/bench-workload.ts";
 
 const arg = (name, dflt) => {
   const i = process.argv.indexOf(name);
@@ -66,84 +63,10 @@ function documentOrder(s) {
   return order;
 }
 
-function buildDocument(paths) {
-  const anchorsPerPath = paths >= 100_000 ? 3 : 6; // 250k × 3 = 750k: room under the 1M cap
-  const replacePaths = Math.min(1000, Math.round(paths / 10));
-  const store = new GeometryStore();
-  const session = new DocumentSession(store, {
-    state: createDocument({ documentId: "td-perf-007", width: 1000, height: 1000 }),
-  });
-  session.dispatch({
-    type: "commitTrace",
-    provenance: TEST_PROVENANCE,
-    packet: syntheticPacket({ paths, anchorsPerPath, groups: 8, seed: 42 }),
-    name: "main",
-  });
-  const main = session.state.orderedRootIds[0];
-  const replacePacket = () =>
-    syntheticPacket({ paths: replacePaths, anchorsPerPath: 6, groups: 1, seed: 7 });
-  session.dispatch({
-    type: "commitTrace",
-    provenance: TEST_PROVENANCE,
-    packet: replacePacket(),
-    name: "replace",
-  });
-  const replaceLayer = session.state.orderedRootIds[1];
-  const s0 = session.state;
-  const groups = s0.nodesById.get(main).orderedChildIds;
-  const kids = (g) => s0.nodesById.get(groups[g]).orderedChildIds;
-  // A pre-made group of 10 paths (in g0) for `ungroup`.
-  session.dispatch({ type: "group", ids: kids(0).slice(10, 20), name: "pre" });
-  const s = session.state;
-  const ungroupId = [...s.nodesById.get(groups[0]).orderedChildIds].find(
-    (id) => s.nodesById.get(id).kind === "group",
-  );
-  const allPaths = groups.flatMap((_, g) => kids(g)).filter((id) => s.nodesById.has(id));
-  const step = Math.max(1, Math.floor(allPaths.length / 1000));
-  const many = allPaths.filter((_, i) => i % step === 0).slice(0, 1000);
-  const pA = kids(3)[5];
-  const pC = kids(5)[7];
-  const cmds = {
-    setFill1: () => ({ type: "setFill", ids: [pA], fill: { color: 0x336699ff } }),
-    setFillMany: () => ({ type: "setFill", ids: many, fill: { color: 0x993366ff } }),
-    setVisible: () => ({ type: "setVisible", ids: [pA], visible: false }),
-    rename: () => ({ type: "rename", id: pA, name: "renamed" }),
-    reorder: () => ({ type: "reorder", id: kids(2)[9], index: 0 }),
-    applyTransformPath: () => ({ type: "applyTransform", ids: [pA], matrix: [1, 0, 0, 1, 3, 4] }),
-    applyTransformLayer: () => ({
-      type: "applyTransform",
-      ids: [main],
-      matrix: [1, 0, 0, 1, 3, 4],
-    }),
-    group: () => ({ type: "group", ids: kids(1).slice(20, 30), name: "g" }),
-    ungroup: () => ({ type: "ungroup", id: ungroupId }),
-    delete: () => ({ type: "delete", ids: [pC] }),
-    duplicate: () => ({ type: "duplicate", ids: [pC] }),
-    commitTrace: () => ({
-      type: "commitTrace",
-      provenance: TEST_PROVENANCE,
-      packet: replacePacket(),
-      replaceLayerId: replaceLayer,
-    }),
-  };
-  const kinds = { path: 0, group: 0, layer: 0, source: 0 };
-  for (const n of s.nodesById.values()) kinds[n.kind]++;
-  return {
-    session,
-    store,
-    cmds,
-    info: {
-      paths,
-      anchorsPerPath,
-      pathsPerGroup: paths / 8,
-      replaceLayerPaths: replacePaths,
-      setFillManyPaths: many.length,
-      nodes: s.nodesById.size,
-      nodeKinds: kinds,
-      anchors: session.getSnapshot().anchors,
-    },
-  };
-}
+// The workload is shared with scripts/bench-g-doc-r.mjs. This profile keeps the pre-G-DOC-R
+// meaning: the session runs the full pass in dispatch (validation "full"), so the residual
+// formula below still holds.
+const buildDocument = (paths) => buildWorkload(paths, { validation: "full" });
 
 function profile(doc, name) {
   const { session, store } = doc;

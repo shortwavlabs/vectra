@@ -76,8 +76,19 @@ describe("unedited documents reproduce the frozen P0 exports", () => {
 const commitInput = ({ chunkId: _chunk, ...rest }: NonNullable<LayerNode["traceProvenance"]>) =>
   rest;
 const pick = <T>(xs: Iterable<T>, f: (x: T) => boolean) => [...xs].find(f)!;
-const paths = (s: ReturnType<typeof documentFromScene>) =>
-  [...s.state.nodesById.values()].filter((n): n is PathNode => n.kind === "path");
+/** Paths in paint (document) order; the node map's iteration order is not paint order
+ *  (G-DOC-R stage D: deterministic bucket order). */
+const paths = (s: ReturnType<typeof documentFromScene>): PathNode[] => {
+  const st = s.state;
+  const out: PathNode[] = [];
+  const walk = (id: string) => {
+    const n = st.nodesById.get(id)!;
+    if (n.kind === "path") out.push(n);
+    else if (n.kind === "layer" || n.kind === "group") n.orderedChildIds.forEach(walk);
+  };
+  st.orderedRootIds.forEach(walk);
+  return out;
+};
 const layerOf = (s: ReturnType<typeof documentFromScene>) =>
   s.state.nodesById.get(s.state.orderedRootIds[0]!) as LayerNode;
 type SceneJson = {

@@ -3,7 +3,7 @@ import { GeometryStore } from "../geometry-store.ts";
 import type { DocLimits } from "../invariants.ts";
 import { createDocument, DocumentError } from "../model.ts";
 import type { PacketLimits } from "../packet-port.ts";
-import { DocumentSession, type HistoryLimits } from "../session.ts";
+import { DocumentSession, type HistoryLimits, type ValidationMode } from "../session.ts";
 import { FIXTURE_SCENES, fixturePacket } from "./fixtures.ts";
 import { parseColor } from "./synthetic.ts";
 import { sceneProvenance } from "./provenance.ts";
@@ -20,6 +20,7 @@ export interface TestSessionOptions {
   packetLimits?: PacketLimits;
   now?: () => number;
   coalesceWindowMs?: number;
+  validation?: ValidationMode;
 }
 
 export function emptySession(o: TestSessionOptions = {}, width = 256, height = 256) {

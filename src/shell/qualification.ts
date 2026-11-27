@@ -34,6 +34,7 @@ interface TreeNode {
 }
 
 export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
+  let detached: DocumentSession | null = null;
   const api = {
     canvas: {
       diag: () => {
@@ -105,6 +106,29 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         o.adopt(session);
         return { fetchMs: t1 - t0, loadValidateMs: t2 - t1, loadedAt: t2 };
       },
+      /** Builds a session that is not shown (no subscribers, no renderer) by dispatching
+       *  `commands` in order on an empty document; a command's `packetUrl` is fetched as its
+       *  C3.1 geometry record. G-DOC-R browser dispatch timing: the production session,
+       *  commands and validation mode (the 996k-anchor workload exceeds the container's 64 MiB
+       *  document cap, so the loader cannot open it). Replaces the previous detached session. */
+      buildDetached: async (o: {
+        width: number;
+        height: number;
+        commands: (Record<string, unknown> & { packetUrl?: string })[];
+      }) => {
+        const { decodeRecord } = await import("../geometry/packet/codec.ts");
+        detached = null;
+        const s = new DocumentSession(new GeometryStore(), {
+          state: createDocument({ width: o.width, height: o.height }),
+        });
+        for (const { packetUrl, ...c } of o.commands) {
+          const bytes = packetUrl && new Uint8Array(await (await fetch(packetUrl)).arrayBuffer());
+          s.dispatch((bytes ? { ...c, packet: decodeRecord(bytes) } : c) as unknown as Command);
+        }
+        detached = s;
+        return { validation: s.validation, nodes: s.state.nodesById.size };
+      },
+      detached: () => detached,
       loadContainer: async (b64: string) => {
         const { loadContainer } = await import("../persistence/container.ts");
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
@@ -124,7 +148,13 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         preparationGate.release = null;
         r?.();
       },
-      dispatch: (c: Command | Command[]) => o.session()?.dispatch(c),
+      dispatch: (c: Command | Command[], opts?: { withoutHistory?: boolean }) =>
+        o.session()?.dispatch(c, opts),
+      /** AM-2 accounted history-only bytes (G-DOC-R memory qualification). */
+      historyBytes: () => {
+        const s = o.session();
+        return s ? { structure: s.historyStructureBytes(), total: s.historyBytes() } : null;
+      },
       undo: () => o.session()?.undo(),
       redo: () => o.session()?.redo(),
       selection: () => [...o.selection()],

@@ -1,25 +1,33 @@
-// TD-PERF-007 prototype (G-R1 investigation): a fast-accept incremental check of a
-// transaction's result against its validated predecessor. NOT wired into DocumentSession:
-// the session constructor, and therefore loadContainer, always run the full validateState,
-// which also stays the oracle this module is tested against.
+// G-DOC-R stage B: the incremental validator. `DocumentSession.dispatch` runs it on every
+// transaction (ValidationMode). The session constructor, and therefore loadContainer, always
+// run the full validateState, which stays the oracle this module is tested against
+// (incremental-validate.test.ts: seeded differential, >= 10,000 comparisons).
 //
-// It either proves `next` valid and returns exactly the StateDerived that validateState would
-// return (chunk entries compared as a set), or returns `undecided` with a reason. On
-// `undecided` a caller runs validateState, which accepts or throws the canonical error; so
-// rejected transactions report the full pass's first error by construction.
+// It is fast-accept: it either proves `next` valid and returns exactly the StateDerived that
+// validateState would return (chunk entries compared as a set), or returns `undecided` with a
+// reason. On `undecided` the caller runs validateState, which accepts or throws the canonical
+// error; so rejected transactions report the full pass's first error by construction.
 //
-// Preconditions: `prev` passed validateState with the same store and limits and `prevDerived`
-// is that result; every chunk `prev` references is still live (true inside dispatch, where
-// prev stays owned as `document` until publication).
+// Preconditions: `prev` passed validateState (or this proof) with the same store and limits
+// and `prevDerived` is that result; every chunk `prev` references is still live (true inside
+// dispatch, where prev stays owned as `document` until publication).
 //
-// Cost: the change set comes from an identity diff of the node map, O(nodes). Adoption would
-// have the Draft record the keys it writes (SealedMap is the only write path) and keep a
-// persistent parent index, removing both O(nodes) passes; see the TD-PERF-007 report.
+// Rule: every rule of invariants.ts is applied here to each changed entry, and every
+// cross-entry rule is re-established from the change set. A change to invariants.ts adds the
+// rule here and a forgery to testing/incremental-differential.ts in the same change.
+//
+// Cost: the node change set comes from the transaction's Draft write log when the session has
+// a complete one (G-DOC-R stage C), O(written keys); otherwise from an identity diff of the
+// node map, O(nodes). The log is a superset of the changed keys; unchanged keys are skipped.
 
 import { parents } from "./commands.ts";
 import {
   DEFAULT_DOC_LIMITS,
+  DIGEST_RE,
   type DocLimits,
+  isU32,
+  LONE_SURROGATE,
+  MIMES,
   rectProblem,
   type StateDerived,
 } from "./invariants.ts";
@@ -55,13 +63,6 @@ export type IncrementalResult =
   | { readonly derived: StateDerived; readonly timing: IncrementalTiming }
   | { readonly derived: null; readonly reason: string; readonly timing: IncrementalTiming };
 
-// Copies of the full validator's private rules (invariants.ts is deliberately left unchanged).
-const U32_MAX = 2 ** 32 - 1;
-const isU32 = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= U32_MAX;
-const DIGEST_RE = /^[0-9a-f]{64}$/;
-const MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
-const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
-
 class Undecided {
   readonly reason: string;
   constructor(reason: string) {
@@ -80,6 +81,26 @@ const ok = (f: () => unknown) => {
   }
 };
 
+/** `diff` restricted to `keys`, a superset of the keys whose entries differ. */
+function diffKeys<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>, keys: ReadonlySet<K>) {
+  const changed: [K, V, V | undefined][] = [];
+  const removed: [K, V][] = [];
+  let added = 0;
+  for (const k of keys) {
+    const old = a.get(k);
+    const v = b.get(k);
+    const isNew = !a.has(k);
+    if (!b.has(k)) {
+      if (!isNew) removed.push([k, old as V]);
+    } else if (old !== v || isNew) {
+      // A present key with an `undefined` value is a change too (G-DOC-R review C1).
+      changed.push([k, v as V, old]);
+      if (isNew) added++;
+    }
+  }
+  return { changed, removed, added };
+}
+
 /** Added or updated entries of `b` (in `b`'s order), and entries of `a` missing from `b`. */
 function diff<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) {
   const changed: [K, V, V | undefined][] = [];
@@ -88,7 +109,9 @@ function diff<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) {
   let added = 0;
   for (const [k, v] of b) {
     const old = a.get(k);
-    if (old !== v) {
+    // `old === v` with both undefined is a new key holding `undefined`: still a change, and
+    // counted as added, or the removal scan below could be skipped (G-DOC-R review C1).
+    if (old !== v || (old === undefined && !a.has(k))) {
       changed.push([k, v, old]);
       if (old === undefined) added++;
     }
@@ -97,17 +120,44 @@ function diff<K, V>(a: ReadonlyMap<K, V>, b: ReadonlyMap<K, V>) {
   return { changed, removed, added };
 }
 
+/** `multiply(m1, m2).every(Number.isFinite)` without the allocation (same expressions; the
+ *  `+ 0` that normalises −0 in `multiply` cannot change finiteness). */
+function finiteProduct(m1: Matrix, m2: Matrix): boolean {
+  const a = m1[0],
+    b = m1[1],
+    c = m1[2],
+    d = m1[3],
+    e = m1[4],
+    f = m1[5];
+  const A = m2[0],
+    B = m2[1],
+    C = m2[2],
+    D = m2[3],
+    E = m2[4],
+    F = m2[5];
+  return (
+    Number.isFinite(a * A + c * B) &&
+    Number.isFinite(b * A + d * B) &&
+    Number.isFinite(a * C + c * D) &&
+    Number.isFinite(b * C + d * D) &&
+    Number.isFinite(a * E + c * F + e) &&
+    Number.isFinite(b * E + d * F + f)
+  );
+}
+
 export function checkIncremental(
   prev: DocState,
   prevDerived: StateDerived,
   next: DocState,
   store: ChunkLookup,
   limits: DocLimits = DEFAULT_DOC_LIMITS,
+  /** Node keys that may differ (a superset), from a complete Draft write log; else null. */
+  writes: ReadonlySet<NodeId> | null = null,
 ): IncrementalResult {
   const t0 = performance.now();
   const timing: IncrementalTiming = { diffMs: 0, parentsMs: 0, checksMs: 0 };
   try {
-    const derived = run(prev, prevDerived, next, store, limits, timing);
+    const derived = run(prev, prevDerived, next, store, limits, timing, writes);
     timing.checksMs = performance.now() - t0 - timing.diffMs - timing.parentsMs;
     return { derived, timing };
   } catch (e) {
@@ -126,6 +176,7 @@ function run(
   store: ChunkLookup,
   limits: DocLimits,
   timing: IncrementalTiming,
+  writes: ReadonlySet<NodeId> | null,
 ): StateDerived {
   const prevMax = prevDerived.maxIdNumber;
   if (next.documentId !== prev.documentId && !SCENE_ID_RE.test(next.documentId)) no("documentId");
@@ -186,7 +237,14 @@ function run(
 
   if (next.nodesById.size > limits.maxNodes) no("maxNodes");
   const tDiff = performance.now();
-  const nodes = diff(prev.nodesById, next.nodesById);
+  const nodes = writes
+    ? diffKeys(prev.nodesById, next.nodesById, writes)
+    : diff(prev.nodesById, next.nodesById);
+  // Soundness of the log path rests on DraftNodes being the only write path to a Draft's node
+  // map (and on log.step). This size check is only defence in depth: it catches a log that
+  // missed an unbalanced number of additions or removals, not a missed update.
+  if (writes && prev.nodesById.size + nodes.added - nodes.removed.length !== next.nodesById.size)
+    no("write log inconsistent with the map sizes");
   timing.diffMs = performance.now() - tDiff;
 
   // --- per-node checks, chunk and anchor deltas, child-reference delta ---
@@ -325,15 +383,20 @@ function run(
     placed.set(id, out);
     return out;
   };
+  // Containers already walked (walk roots may overlap). Leaves are checked without allocating
+  // their composed matrix: `finiteProduct` evaluates exactly `multiply`'s expressions.
   const walked = new Set<NodeId>();
   const walk = (id: NodeId, m: Matrix, depth: number): void => {
-    if (walked.has(id)) return;
-    walked.add(id);
     if (depth > limits.maxDepth) no("depth");
     const n = next.nodesById.get(id)!;
+    if (!isContainer(n)) {
+      if (!finiteProduct(m, n.localTransform)) no("composed transform");
+      return;
+    }
+    if (walked.has(id)) return;
+    walked.add(id);
     const composed = multiply(m, n.localTransform);
     if (!composed.every(Number.isFinite)) no("composed transform");
-    if (!isContainer(n)) return;
     if (n.clipRef !== undefined && !isAxisPreserving(composed)) no("clip transform");
     for (const c of n.orderedChildIds) walk(c, composed, depth + 1);
   };

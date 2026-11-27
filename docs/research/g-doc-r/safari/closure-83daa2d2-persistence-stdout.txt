@@ -1,0 +1,25 @@
+PASS none: Safari save → Node strict load is semantically equal
+PASS none: Safari bytes are identical to Node's
+PASS none: Node save → Safari load
+PASS none: chromium save → Safari load
+PASS none: Safari save → chromium load
+PASS none: firefox save → Safari load
+PASS none: Safari save → firefox load
+PASS none: webkit save → Safari load
+PASS none: Safari save → webkit load
+PASS none: Safari round trip (clean, no undo, byte-identical resave)
+PASS none: malformed input fails atomically with typed errors in Safari (8 cases)
+PASS none: limits input fails atomically with typed errors in Safari (5 cases)
+PASS deflate-raw: Safari save → Node strict load is semantically equal
+PASS deflate-raw: Node save → Safari load
+PASS deflate-raw: chromium save → Safari load
+PASS deflate-raw: Safari save → chromium load
+PASS deflate-raw: firefox save → Safari load
+PASS deflate-raw: Safari save → firefox load
+PASS deflate-raw: webkit save → Safari load
+PASS deflate-raw: Safari save → webkit load
+PASS deflate-raw: Safari round trip (clean, no undo, byte-identical resave)
+PASS deflate-raw: malformed input fails atomically with typed errors in Safari (7 cases)
+PASS deflate-raw: limits input fails atomically with typed errors in Safari (5 cases)
+23/23 checks passed (Safari 26.6.2)
+exit 0
