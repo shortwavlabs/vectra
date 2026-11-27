@@ -16,10 +16,11 @@ export function buildWorkload(paths: number, options: Partial<SessionOptions> = 
     state: createDocument({ documentId: "td-perf-007", width: 1000, height: 1000 }),
     ...options,
   });
+  const mainPacket = () => syntheticPacket({ paths, anchorsPerPath, groups: 8, seed: 42 });
   session.dispatch({
     type: "commitTrace",
     provenance: TEST_PROVENANCE,
-    packet: syntheticPacket({ paths, anchorsPerPath, groups: 8, seed: 42 }),
+    packet: mainPacket(),
     name: "main",
   });
   const main = session.state.orderedRootIds[0]!;
@@ -37,7 +38,8 @@ export function buildWorkload(paths: number, options: Partial<SessionOptions> = 
   const groups = children(main);
   const kids = (g: number) => children(groups[g]!);
   // A pre-made group of 10 paths (in g0) for `ungroup`.
-  session.dispatch({ type: "group", ids: kids(0).slice(10, 20), name: "pre" });
+  const preIds = kids(0).slice(10, 20);
+  session.dispatch({ type: "group", ids: preIds, name: "pre" });
   const s = session.state;
   const ungroupId = (s.nodesById.get(groups[0]!) as ContainerNode).orderedChildIds.find(
     (id) => s.nodesById.get(id)!.kind === "group",
@@ -72,10 +74,18 @@ export function buildWorkload(paths: number, options: Partial<SessionOptions> = 
   };
   const kinds = { path: 0, group: 0, layer: 0, source: 0 };
   for (const n of s.nodesById.values()) kinds[n.kind]++;
+  /** The build's own commands, with fresh packets: replayed in order on an empty document of
+   *  the same size, they rebuild this workload with the same IDs (browser dispatch spec). */
+  const setup = (): Command[] => [
+    { type: "commitTrace", provenance: TEST_PROVENANCE, packet: mainPacket(), name: "main" },
+    { type: "commitTrace", provenance: TEST_PROVENANCE, packet: replacePacket(), name: "replace" },
+    { type: "group", ids: preIds, name: "pre" },
+  ];
   return {
     session,
     store,
     cmds,
+    setup,
     info: {
       paths,
       anchorsPerPath,

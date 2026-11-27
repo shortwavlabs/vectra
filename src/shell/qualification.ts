@@ -106,14 +106,27 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         o.adopt(session);
         return { fetchMs: t1 - t0, loadValidateMs: t2 - t1, loadedAt: t2 };
       },
-      /** Loads a `.vectra` from a same-origin URL into a session that is not shown: no
-       *  subscribers, no renderer (G-DOC-R browser dispatch timing on the production loader,
-       *  session and validation mode). Replaces the previous detached session. */
-      loadDetached: async (url: string) => {
-        const { loadContainer } = await import("../persistence/container.ts");
+      /** Builds a session that is not shown (no subscribers, no renderer) by dispatching
+       *  `commands` in order on an empty document; a command's `packetUrl` is fetched as its
+       *  C3.1 geometry record. G-DOC-R browser dispatch timing: the production session,
+       *  commands and validation mode (the 250k-path workload exceeds the container's 64 MiB
+       *  document cap, so the loader cannot be used). Replaces the previous detached session. */
+      buildDetached: async (o: {
+        width: number;
+        height: number;
+        commands: (Record<string, unknown> & { packetUrl?: string })[];
+      }) => {
+        const { decodeRecord } = await import("../geometry/packet/codec.ts");
         detached = null;
-        detached = await loadContainer(new Uint8Array(await (await fetch(url)).arrayBuffer()), {});
-        return { validation: detached.validation, nodes: detached.state.nodesById.size };
+        const s = new DocumentSession(new GeometryStore(), {
+          state: createDocument({ width: o.width, height: o.height }),
+        });
+        for (const { packetUrl, ...c } of o.commands) {
+          const bytes = packetUrl && new Uint8Array(await (await fetch(packetUrl)).arrayBuffer());
+          s.dispatch((bytes ? { ...c, packet: decodeRecord(bytes) } : c) as unknown as Command);
+        }
+        detached = s;
+        return { validation: s.validation, nodes: s.state.nodesById.size };
       },
       detached: () => detached,
       loadContainer: async (b64: string) => {

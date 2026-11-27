@@ -2,9 +2,11 @@
 //   G_DOC_R_DISPATCH=1 pnpm exec playwright test tests/browser/g-doc-r-dispatch.spec.ts
 //   (optional: G_DOC_R_DISPATCH_SIZES=43000,250000,330000  G_DOC_R_DISPATCH_REPS=30)
 // The Node benchmark's three workloads (src/document/testing/bench-workload.ts: 43k, 250k and
-// 330k paths) are built here, saved as `.vectra` and loaded by the production loader into a
-// session that is not shown (qualification `loadDetached`): no subscribers and no renderer, so
-// only dispatch is timed, on the production validation path (`incremental`, asserted).
+// 330k paths) are rebuilt in the page by replaying the workload's own commands, with each packet
+// served as a C3.1 geometry record, into a session that is not shown (qualification
+// `buildDetached`): no subscribers and no renderer, so only dispatch is timed, on the production
+// validation path (`incremental`, asserted). The container loader cannot be used: the 250k-path
+// workload's document section (72.7 MB) exceeds C7's 64 MiB document cap.
 // Per transaction type, the Node procedure (scripts/bench-g-doc-r.mjs): an untimed `setArtboard`
 // gives a fresh state S; `dispatch(cmd)` on S is timed; undo and redo are timed; an untimed undo
 // returns to S. Differences from Node, recorded with the results:
@@ -22,7 +24,7 @@ import { expect, test } from "@playwright/test";
 import type { Command } from "../../src/document/commands.ts";
 import { SECTION_KEYS } from "../../src/document/packet-port.ts";
 import { buildWorkload } from "../../src/document/testing/bench-workload.ts";
-import { saveContainer } from "../../src/persistence/container.ts";
+import { encodeRecord } from "../../src/geometry/packet/codec.ts";
 import { writeOutput } from "./helpers.ts";
 
 test.skip(!process.env.G_DOC_R_DISPATCH, "set G_DOC_R_DISPATCH=1 (opt-in; minutes per engine)");
@@ -86,7 +88,14 @@ test("production session dispatch: 12 transaction types at the three workloads",
   await expect.poll(() => page.evaluate(() => "__vectra" in window)).toBe(true);
   for (const paths of SIZES) {
     let doc: ReturnType<typeof buildWorkload> | null = buildWorkload(paths);
-    const bytes = await saveContainer(doc.session, { codec: "none" });
+    // The build's commands, each packet replaced by the URL of its geometry record.
+    const records: Buffer[] = [];
+    const setup = doc.setup().map((c) => {
+      if (c.type !== "commitTrace") return c;
+      const { packet, ...rest } = c;
+      records.push(Buffer.from(encodeRecord(packet)));
+      return { ...rest, packetUrl: `/__dispatch/${paths}-${records.length - 1}.rec` };
+    });
     const names = Object.keys(doc.cmds);
     const cmds = Object.fromEntries(
       names.filter((n) => n !== "commitTrace").map((n) => [n, doc!.cmds[n]!()]),
@@ -112,19 +121,26 @@ test("production session dispatch: 12 transaction types at the three workloads",
     };
     const info = doc.info;
     doc = null;
-    const url = `/__dispatch/${paths}.vectra`;
-    await page.route(`**${url}`, (r) =>
-      r.fulfill({ body: Buffer.from(bytes), contentType: "application/octet-stream" }),
+    await page.route(`**/__dispatch/${paths}-*.rec`, (r) =>
+      r.fulfill({
+        body: records[Number(/-(\d+)\.rec$/.exec(r.request().url())![1])],
+        contentType: "application/octet-stream",
+      }),
     );
     const loaded = await page.evaluate(
-      (u) =>
+      (o) =>
         (
           window as unknown as {
-            __vectra: { workspace: { loadDetached(u: string): Promise<{ validation: string }> } };
+            __vectra: {
+              workspace: {
+                buildDetached(o: unknown): Promise<{ validation: string; nodes: number }>;
+              };
+            };
           }
-        ).__vectra.workspace.loadDetached(u),
-      url,
+        ).__vectra.workspace.buildDetached(o),
+      { width: 1000, height: 1000, commands: setup },
     );
+    expect(loaded.nodes, "the replayed workload matches the Node build").toBe(info.nodes);
     expect(loaded.validation, "the production validation path").toBe("incremental");
     const before = conditions();
     const run: Run = await page.evaluate(async (spec: Spec) => {
@@ -210,7 +226,7 @@ test("production session dispatch: 12 transaction types at the three workloads",
       }
       return { resolutionMs, anchors: s.getSnapshot().anchors, commands };
     }, spec);
-    await page.unroute(`**${url}`);
+    await page.unroute(`**/__dispatch/${paths}-*.rec`);
     result.workloads.push({
       ...info,
       validation: loaded.validation,
