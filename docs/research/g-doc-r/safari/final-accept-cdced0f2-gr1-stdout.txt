@@ -1,0 +1,9 @@
+PASS render: interactive target and halftone through the worker; presentation
+PASS drag: drag frames equal exact frames (RFC §8.4 cases)
+PASS gestures: pan and zoom frame intervals with the display cache; exact settle
+PASS keyboard: select a single path from the canvas; announcements
+PASS focus ring: drawn above every canvas layer on keyboard focus, not on a click
+PASS crash fallback: repeated render-worker crashes fall back to the main thread, disclosed and settled
+PASS offline: workspace reload, import and both workers recreated from the cache
+7/7 passed, 0 NOT RUN (Safari 26.6.2; page visible)
+exit 0

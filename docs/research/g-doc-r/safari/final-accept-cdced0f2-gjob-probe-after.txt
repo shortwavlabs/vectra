@@ -1,0 +1,1 @@
+{"page":{"visibility":"visible","rafsIn500ms":30},"safari":{"version":"26.6.2","platform":"macOS 26.6.2"}}

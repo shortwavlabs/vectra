@@ -449,5 +449,10 @@ Then merge PR #22 with a merge commit, and verify main CI, ancestry and the resu
 
 **G-PRJ** stays the next product milestone, followed by G-COLOR-UI. Its roadmap entry now carries the persistence limit found here, which the 330k-path, 996k-anchor workload exceeds (C7's 64 MiB document-section cap), and the requirements that follow from it ([ROADMAP](../../ROADMAP.md)). Any C7 amendment requires explicit change control. G-PRJ implementation is not begun.
 
+**Integration checks run (2026-11-26):**
+- real Safari 26.6.2 on the final application build `cdced0f2b2791fd7`, with the screen unlocked and the page visible before and after each harness: gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23;
+- CI run 45926294978 succeeded on `b37f87c`;
+- F-16 recorded as TD-UI-007.
+
 R-COLOR is left untouched. No deployment or release tag.
 

@@ -1,0 +1,10 @@
+commit b37f87c91cefb229c9a15f9f032549707d4139da
+build cdced0f2b2791fd7
+label final-accept
+started Thu Nov 26 20:40:20 CST 2026
+== gui: PASS 14 PARTIAL 0 FAIL 0 of 14 (Safari 26.6.2); findings 0 | before: page visible | after: page visible
+== gr1: 7/7 passed, 0 NOT RUN (Safari 26.6.2; page visible) | before: page visible | after: page visible
+== gjob: 10/10 passed (Safari 26.6.2) | before: page visible | after: page visible
+== gr0: 7/7 passed (Safari 26.6.2) | before: page visible | after: page visible
+== persistence: 23/23 checks passed (Safari 26.6.2) | before: page visible | after: page visible
+finished Thu Nov 26 20:42:16 CST 2026

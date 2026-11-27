@@ -1104,5 +1104,12 @@ The maintainer accepted stage D as an implementation at `1a7b45f`, subject to an
   - The renderer regressions stay under TD-PERF-012.
 - **F-16** is recorded as TD-UI-007: a known WebKit test failure that predates G-DOC-R, not suppressed. §11's final suite run is reported as 374 passed and **1 failed**.
 - **G-PRJ** carries the persistence limit found here and its requirements ([ROADMAP](../../ROADMAP.md)).
-- **Final integration checks:** below, as they are run.
+- **Final integration checks:**
+  - **Real Safari 26.6.2 on the final application build `cdced0f2b2791fd7`.** Run 20:40–20:42 on 2026-11-26, from head `b37f87c`; the commits since `0b593b7` are documentation only, and a rebuild reproduces the same `BUILD_ID`.
+    - Results: **gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23**.
+    - The screen was unlocked (`CGSSessionScreenIsLocked` absent), and the page was visible with 30–32 animation frames per 500 ms before and after every harness. Load 0.91–2.07.
+    - Records: [`safari/final-accept-cdced0f2-*`](safari/).
+    - This replaces the invalid locked-screen gui run on `83daa2d29699dfdb`; that run's record is kept.
+  - **CI** on `b37f87c`: run 45926294978 **succeeded**. The CI result on the final head, which carries only these records, is in the merge record below.
+  - **F-16** stays a known failure (TD-UI-007).
 

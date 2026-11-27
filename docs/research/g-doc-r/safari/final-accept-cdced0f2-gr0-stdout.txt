@@ -1,0 +1,9 @@
+PASS offscreen-canvas-support (725 ms)
+PASS correctness-worker (1588 ms)
+PASS correctness-main-thread (1452 ms)
+PASS first-frame-latency (963 ms)
+PASS recovery (1082 ms)
+PASS pan-zoom-responsiveness (18554 ms)
+PASS main-thread-fallback (797 ms)
+7/7 passed (Safari 26.6.2)
+exit 0

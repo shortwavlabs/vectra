@@ -1,0 +1,16 @@
+PASS CSP: the shell loads clean; the detector fires on an injected <style>
+PASS positive control: without CSPProvider, Base UI's inline <style> is blocked
+PASS tool rail: names, pressed state, keyboard and tooltips
+PASS shortcuts dialog: key and button, focus trap, inert shortcuts, focus return
+PASS global shortcuts: fire on the page, not in form controls
+PASS resizable panels: both splitters by keyboard and pointer, Layers collapse, canvas edges
+PASS tokens: contrast from the running build; dual focus ring
+PASS import: file input, local trace, same-origin requests only
+PASS slider (Scale): keyboard steps coalesce into one undo entry
+PASS numeric field: Enter commits, Escape reverts, arrow steps coalesce
+PASS colour picker: keyboard area, hue, hex draft, Apply once, Escape cancels
+PASS layers: visibility, lock, rename, keyboard reorder with live region
+PASS export dialog: keyboard open, focus trap, Escape returns focus
+PASS reduced motion and colour scheme as Safari reports them
+PASS 14 PARTIAL 0 FAIL 0 of 14 (Safari 26.6.2); findings 0
+exit 0
