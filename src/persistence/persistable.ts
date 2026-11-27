@@ -12,7 +12,7 @@
 // proof). In particular every node, style, palette and asset key, and every child and root id,
 // is a C1 id: plain ASCII that canonical JSON writes as the string in quotes.
 
-import type { ChunkId, DocNode, DocState, SourceAsset } from "../document/model.ts";
+import type { ChunkId, DocNode, DocState, PathNode, SourceAsset } from "../document/model.ts";
 import { changedKeys } from "../document/node-map.ts";
 import { DEFAULT_PACKET_LIMITS } from "../document/packet-port.ts";
 import { MAX_MANIFEST_BYTES } from "../geometry/packet/types.ts";
@@ -23,6 +23,7 @@ import {
   encodeNode,
   encodePalette,
   encodeStyle,
+  isIdentity,
 } from "./document-json.ts";
 import { CONTAINER_LIMITS, MANIFEST } from "./limits.ts";
 
@@ -74,9 +75,50 @@ function provenanceLength(p: object): number {
   return n;
 }
 
+const member = (k: string) => canonicalStringLength(k) + 1; // "key":
+const M = {
+  fillRule: member("fillRule"),
+  geometry: member("geometry"),
+  chunkId: member("chunkId"),
+  pathIndex: member("pathIndex"),
+  styleRef: member("styleRef"),
+  name: member("name"),
+  visible: member("visible"),
+  locked: member("locked"),
+  localTransform: member("localTransform"),
+};
+/**
+ * A path's v2 value without building it: paths are most of every document, and a trace commit
+ * or a recolour writes thousands at once. Mirrors encodeNode's omission rules for a valid path
+ * (C1 ids for chunkId and styleRef, an integer pathIndex, no clip); the compare-mode oracle and
+ * the persistability differential check it against the encoder itself.
+ */
+function pathLength(n: PathNode): number {
+  if (n.clipRef !== undefined) return canonicalLength(encodeNode(n)); // never valid on a path
+  const g = n.geometry;
+  let len =
+    2 + // braces; the three required members and their two commas follow
+    M.fillRule +
+    canonicalStringLength(n.fillRule) +
+    1 +
+    M.geometry +
+    (2 + M.chunkId + g.chunkId.length + 2 + 1 + M.pathIndex + String(g.pathIndex).length) +
+    1 +
+    M.styleRef +
+    n.styleRef.length +
+    2;
+  if (n.name !== "") len += 1 + M.name + canonicalStringLength(n.name);
+  if (n.visible !== true) len += 1 + M.visible + canonicalLength(n.visible);
+  if (n.locked !== false) len += 1 + M.locked + canonicalLength(n.locked);
+  if (!isIdentity(n.localTransform))
+    len += 1 + M.localTransform + canonicalLength(n.localTransform);
+  return len;
+}
+
 /** The length of a node's v2 value. A container's child list and provenance are measured
  *  apart from the rest: one without regular expressions, the other once per record. */
 export function nodeLength(n: DocNode): number {
+  if (n.kind === "path") return pathLength(n);
   const o = encodeNode(n);
   if (n.kind !== "layer" && n.kind !== "group") return canonicalLength(o);
   let len = canonicalLength({ ...o, orderedChildIds: undefined, traceProvenance: undefined });

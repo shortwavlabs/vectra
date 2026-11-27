@@ -92,7 +92,7 @@ const rect = (v: unknown, where: string): Rect => {
   };
 };
 /** Identity by value: `-0` cannot occur in canonical text, and equals 0 here anyway. */
-const isIdentity = (m: Matrix) =>
+export const isIdentity = (m: Matrix) =>
   m === IDENTITY ||
   (m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0);
 
