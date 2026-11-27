@@ -45,11 +45,24 @@ Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Li
   - The existing `.vectra` format is the starting point, not a reason to invent another format.
   - Local-first operation, offline support and no-account-required use are preserved.
   - Autosave is not a substitute for portable project files.
+- **Persistence limits** (maintainer, G-DOC-R final acceptance, 2026-11-26). The 330k-path, 996k-anchor G-DOC-R workload exceeds C7's 64 MiB document-section cap (72.7 MB), so it cannot be saved today. G-PRJ investigates how these relate to each other:
+  - supported document complexity;
+  - canonical serialization size;
+  - container section limits;
+  - compressed and uncompressed project size;
+  - browser memory requirements;
+  - save and restore reliability;
+  - security limits for untrusted files.
+- **Requirements:**
+  - every successfully saved project must be reopenable;
+  - users must never get a successful-save indication for an invalid or unreopenable project.
+  - Compact serialization, including the previously identified default-valued node encoding (TD-PERF-009), is investigated **before** higher limits or format changes are proposed.
+  - Any C7 amendment requires explicit change control.
 - **Inputs found so far:**
   - TD-PERF-009 (open ≤ 1 s) and its approved compact Document v1 serialization follow-up;
   - TD-PERF-010 (responsive opening);
   - the G-DOC-R finding that the 330k-path (996k-anchor) benchmark workload's document section (72.7 MB) exceeds C7's 64 MiB document cap, so that workload cannot be saved. It depends on serialized size per node, not path count alone: the 250k-path workload saves ([G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §11.1).
 
-**Approved later gate: G-COLOR-UI** (maintainer, 2026-11-26, M-9). Incremental `paletteLabels()` together with Recolor virtualisation. Strict provenance and palette semantics are preserved, and any retained usage index is accounted under AM-2 (C3.2 r3). Not started; not part of G-DOC-R.
+**Approved later gate: G-COLOR-UI** (maintainer, 2026-11-26, M-9). It follows G-PRJ. Incremental `paletteLabels()` together with Recolor virtualisation. Strict provenance and palette semantics are preserved, and any retained usage index is accounted under AM-2 (C3.2 r3). Not started; not part of G-DOC-R.
 
 P0 may use a disposable harness; no polished UI before engine proof. Each gate has its own report and reviewable commit. Stop and report if a dependency fails instead of silently substituting it. Scope changes require RFC update. After P0, pick a release version and actual browser support from evidence.

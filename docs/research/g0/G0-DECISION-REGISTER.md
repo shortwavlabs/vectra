@@ -412,3 +412,42 @@ It is recorded as a follow-up associated with G-PRJ.
   - Missed in Playwright WebKit at 996k for applyTransformLayer (59 / 68 ms; reproduced).
   - The gate stays PARTIAL.
 
+## 13. G-DOC-R final acceptance (maintainer, 2026-11-26)
+**M-10: approved.** The geometry store's per-chunk record is counted under AM-2 term 3 as an additional retained structural resource. **No C3 r4 amendment is required.**
+
+The model frozen at `729e63a` is accepted:
+- the fixed 3,136-byte record cost;
+- the manifest's structural cost beyond its already-accounted JSON length;
+- the typed-array header cost of 216 bytes;
+- the existing C3.2 owner precedence;
+- no duplicate charging of chunk payloads or manifest JSON bytes.
+
+The original calibration results, the superseded flat-cost correction and the fresh validations stay recorded. The small eviction measurement remains inconclusive. No further cost-model tuning is requested.
+
+**Implementation acceptance.** G-DOC-R is accepted as an implementation suitable for downstream integration, with its historical PARTIAL disposition retained.
+- Reviewed head: `06fd71361e35a4f451709fadc774aba677307887`; CI run 45924593291 independently verified.
+- **The WebKit stress miss is temporarily accepted:** 996k anchors, applyTransformLayer 58–59 ms. The 50 ms stress threshold is unchanged.
+- A potential future subtree-summary optimisation is recorded against TD-PERF-007.
+- The renderer regressions stay tracked under TD-PERF-012.
+- No further architectural redesign is authorised.
+
+**Final integration checks, before merging:**
+- record M-10 as approved here and in the AM-2 explanatory note;
+- run the outstanding real-Safari gui, G-R1, G-JOB and G-R0 harnesses on the final application build, with the screen unlocked and visibility verified;
+- keep the passing persistence result on that same build;
+- record F-16 as a known WebKit test failure that predates G-DOC-R. Its reproduction on the baseline supports the temporary exception. The assertion is not suppressed, and the failed run is not reported as clean;
+- verify the required CI on the exact final head.
+
+Then merge PR #22 with a merge commit, and verify main CI, ancestry and the resulting tree. Follow the evidence-preservation policy before removing worktrees.
+
+**Open; none blocks internal integration:**
+- real Safari dispatch;
+- lower-end hardware;
+- quiet-machine qualification;
+- heap evidence from engines other than Chromium;
+- the owner accessibility checks.
+
+**G-PRJ** stays the next product milestone, followed by G-COLOR-UI. Its roadmap entry now carries the persistence limit found here, which the 330k-path, 996k-anchor workload exceeds (C7's 64 MiB document-section cap), and the requirements that follow from it ([ROADMAP](../../ROADMAP.md)). Any C7 amendment requires explicit change control. G-PRJ implementation is not begun.
+
+R-COLOR is left untouched. No deployment or release tag.
+

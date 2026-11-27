@@ -1,6 +1,6 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: PARTIAL. Stage D is accepted as an implementation (maintainer, 2026-11-26), subject to the accounting closure, which this revision delivers (§7.1, §11.1, §13). The gate stays open: Playwright WebKit misses ≤ 50 ms at 996k anchors for one transaction type, and lower-end hardware and a designated quiet machine are not run.**
+**Status: PARTIAL (historical disposition, retained). Accepted on 2026-11-26 as an implementation suitable for downstream integration (§14).** M-10 is approved. The WebKit 996k-anchor stress miss is temporarily accepted, and the 50 ms threshold is unchanged. Lower-end hardware, a designated quiet machine and real Safari dispatch remain open, and do not block integration.
 - Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11). Stage D acceptance and the closure brief: decision register §12.
 - **Accounting closure (§7.1).**
   - The 0.987 calibration residual (kept on record) was the geometry store's per-chunk record. It is a fixed part of about 3.1 KB (1.8 KB of typed-array headers) plus the manifest's style and group tables beyond their JSON length.
@@ -1091,3 +1091,18 @@ The maintainer accepted stage D as an implementation at `1a7b45f`, subject to an
 - VoiceOver and the stock-Safari keyboard check (owner).
 
 **Overall: PARTIAL.** No threshold is relaxed. PR #22 stays unmerged until the maintainer reviews this closure.
+
+## 14. Final acceptance (maintainer, 2026-11-26)
+[Decision register §13](../g0/G0-DECISION-REGISTER.md).
+- **M-10 approved.** The per-chunk record is counted under AM-2 term 3, with no C3 r4 amendment.
+  - The model frozen at `729e63a` is accepted: 3,136 bytes fixed, the manifest beyond its JSON length, typed-array headers at 216, C3.2 owner precedence, no duplicate charging.
+  - §7, §7.1 and every calibration record stay as written.
+  - The small eviction case stays inconclusive. No further tuning is requested.
+- **Implementation accepted** for downstream integration at `06fd71361e35a4f451709fadc774aba677307887` (CI run 45924593291), with PARTIAL retained.
+  - The WebKit stress miss is temporarily accepted (§11.1), with the 50 ms threshold unchanged.
+  - A subtree-summary optimisation is recorded against TD-PERF-007.
+  - The renderer regressions stay under TD-PERF-012.
+- **F-16** is recorded as TD-UI-007: a known WebKit test failure that predates G-DOC-R, not suppressed. §11's final suite run is reported as 374 passed and **1 failed**.
+- **G-PRJ** carries the persistence limit found here and its requirements ([ROADMAP](../../ROADMAP.md)).
+- **Final integration checks:** below, as they are run.
+

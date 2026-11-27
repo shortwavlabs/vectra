@@ -93,6 +93,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-005](#td-ui-005) | Palette display names: custom vs generated names are not recorded | Limitation (document model) | Medium | OPEN | before user-facing palette renaming | G-UI-R |
+| [TD-UI-007](#td-ui-007) | WebKit: dragging the layers split past its minimum sometimes leaves the panel expanded (F-16; known test failure on `main`) | Defect or test race (unconfirmed) | Low | OPEN (known failure; not suppressed) | before WebKit suite results are reported clean | G-DOC-R (found) |
 | [TD-UI-006](#td-ui-006) | No "commit without history" confirmation in the shell (RFC §7) | Limitation (UI) | Medium | OPEN (confirmation authorised as a G-PRJ follow-up) | G-PRJ follow-up; refusal kept until qualified | G-DOC-R |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
 | [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
@@ -115,6 +116,7 @@ Counts:
   - Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and the stock-Safari keyboard check are executed. The canvas focus ring is fixed at the canvas-host level (#19).
 - **G-UI-R final acceptance (2026-11-25):** one item added, TD-UI-005 (Medium): the palette-name provenance limitation, recorded for resolution before user-facing palette renaming. **43 open items, 14 High.**
 - **G-DOC-R (2026-11-26, not yet accepted):** one item added, TD-UI-006 (Medium): there is no shell confirmation to commit without history, and AM-2 makes it reachable for very large subtrees. **44 open items, 14 High.** TD-PERF-007 and TD-PERF-011 dispositions are updated in their entries.
+- **G-DOC-R final acceptance (2026-11-26):** one item added, TD-UI-007 (Low): F-16, a known WebKit test failure that predates G-DOC-R (3/10 on `main` and on G-DOC-R). **46 open items, 14 High.** TD-PERF-007's WebKit stress miss is temporarily accepted, with the threshold unchanged and a subtree-summary optimisation recorded.
 - **G-DOC-R maintainer acceptance and closure (2026-11-26):** stage D accepted as an implementation, subject to the accounting closure. One item added, TD-PERF-012 (Medium): the accepted temporary renderer-path regressions, kept explicitly tracked. **45 open items, 14 High.** No item is closed: TD-PERF-007 and TD-PERF-011 stay open while the gate is PARTIAL (lower-end hardware, quiet machine). TD-UI-006: the confirmation is authorised as a G-PRJ follow-up; the refusal stays. TD-PERF-009 gains the 64 MiB document-cap finding.
 
 ---
@@ -867,6 +869,20 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - the user has an opportunity to **save a project copy** before proceeding.
   **OPEN.**
 
+<a id="td-ui-007"></a>
+### TD-UI-007 — WebKit: the layers split dragged past its minimum sometimes stays expanded (F-16)
+- **Category / severity / status:** Defect or test race (unconfirmed) · Low · OPEN (known failure; not suppressed). Found during G-DOC-R final qualification; it predates G-DOC-R.
+- **Description.** `tests/browser/ui-document.spec.ts:828` ("layers: an explicit collapse control at 1024×640, 1280×720 and 1366×768") intermittently fails in Playwright WebKit at line 886. After a pointer drag of the "Resize layers" separator past the panel's minimum, `aria-expanded` stays `"true"`.
+- **Evidence.** `pnpm exec playwright test tests/browser/ui-document.spec.ts:828 --project=webkit --repeat-each=10`:
+  - **3 of 10 fail on `main`** (`0e95737`, `BUILD_ID` `69b8618a0497ded6`);
+  - **3 of 10 fail on G-DOC-R** (`cdced0f2b2791fd7`), with the same assertion;
+  - Chromium and Firefox pass.
+
+  G-DOC-R changes no panel code and not this test. The final full suite on `cdced0f2b2791fd7` reports it: 374 passed, 1 failed ([G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §11).
+- **Maintainer disposition (2026-11-26):** recorded as a known WebKit test failure that predates G-DOC-R. Its reproduction on the baseline supports a temporary exception. The assertion is not suppressed, and a run containing it is not reported as clean.
+- **Closure criteria:** the cause identified (product collapse logic or test timing) and fixed without sleeps or retries; 20/20 in WebKit with `--repeat-each=20`.
+- **Owner action:** none now; a follow-up outside G-DOC-R.
+
 <a id="td-geo-010"></a>
 ### TD-GEO-010 — Sliver metric and junction criterion restatement
 - **Review ID:** RISK-R04-METRIC.
@@ -955,6 +971,10 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
     - the WebKit 996k-anchor miss;
     - a quiet-machine run;
     - lower-end hardware.
+- **Final acceptance (2026-11-26).** G-DOC-R is accepted for downstream integration with its PARTIAL disposition retained.
+  - **The WebKit stress miss is temporarily accepted:** 996k anchors, applyTransformLayer 58–59 ms in Playwright WebKit 27.2. The **50 ms stress threshold is unchanged**.
+  - **Recorded future optimisation:** per-subtree summaries for walk-heavy transactions (applyTransformLayer, ungroup, setFillMany, reorder), as noted at stage C (decision G-8). They would bound these transactions by the touched subtree rather than by the walk. No redesign is authorised now.
+  - **Status: OPEN** until the stress miss, a quiet-machine run and lower-end hardware are resolved.
 
 <a id="td-perf-008"></a>
 ### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms

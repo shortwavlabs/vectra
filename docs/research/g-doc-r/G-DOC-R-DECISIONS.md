@@ -101,3 +101,8 @@ This register separates the decisions taken within the authorised scope (impleme
 |---|---|---|
 | M-10 | Confirm that the per-chunk store record is counted under AM-2 term 3 ("any other retained structural resource"), with the C3.2 chunk ledger cost and C2 unchanged, or require a C3 r4 amendment that adds it to the chunk ledger cost instead. **The code already implements term 3 (re-frozen at `729e63a`), ahead of this confirmation** | Confirm term 3: only an explanatory note in the AM-2 record; no normative text, revision or serialized version changes, and store bytes by owner stay as specified |
 
+**Decided 2026-11-26** (G-DOC-R final acceptance; [decision register §13](../g0/G0-DECISION-REGISTER.md)):
+- **M-10: approved.** The per-chunk record is counted under AM-2 term 3, and no C3 r4 amendment is required. The model frozen at `729e63a` is accepted. The original calibration, the superseded flat cost and the fresh validations stay recorded; no further tuning is requested.
+- **Implementation accepted** for downstream integration at `06fd713`, PARTIAL retained. The WebKit 996k stress miss is temporarily accepted, with the 50 ms threshold unchanged; a future subtree-summary optimisation is recorded against TD-PERF-007.
+- **F-16** is recorded as a known WebKit test failure that predates G-DOC-R (TD-UI-007). It is not suppressed, and a run containing it is not reported as clean.
+
