@@ -1,0 +1,21 @@
+PASS CSP: the shell loads clean; the detector fires on an injected <style>
+PASS positive control: without CSPProvider, Base UI's inline <style> is blocked
+FAIL tool rail: names, pressed state, keyboard and tooltips: timed out waiting for tooltip on focus (last: null)
+FAIL shortcuts dialog: key and button, focus trap, inert shortcuts, focus return: timed out waiting for dialog closed (last: false)
+FAIL global shortcuts: fire on the page, not in form controls: r selects Recolor: undefined
+FAIL resizable panels: both splitters by keyboard and pointer, Layers collapse, canvas edges: inspector splitter: pointer widens within bounds: {"wk":288,"wp":288}
+FAIL tokens: contrast from the running build; dual focus ring: focus-visible: {"offset":"0px","shadow":"none","shadowSrgb":[],"outlineSrgb":[169,171,173],"outlineColour":"rgb(169, 171, 173)","outline":"none 3px","focusVisible":false,"name":"Trace"}
+PASS import: file input, local trace, same-origin requests only
+FAIL slider (Scale): keyboard steps coalesce into one undo entry: one undo restores 100: "105"
+FAIL numeric field: Enter commits, Escape reverts, arrow steps coalesce: one undo for the arrow steps: "23"
+FAIL colour picker: keyboard area, hue, hex draft, Apply once, Escape cancels: no path under any probe point
+FAIL layers: visibility, lock, rename, keyboard reorder with live region: timed out waiting for hidden (last: false)
+FAIL export dialog: keyboard open, focus trap, Escape returns focus: timed out waiting for focus inside (last: false)
+PASS reduced motion and colour scheme as Safari reports them
+FAIL harness: Error: WebDriver POST /session/0249F8D6-88D6-4765-9564-5D86C20C68FB/execute/async: timeout: 
+    at #raw (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/g-doc-r/tests/safari/webdriver.mjs:44:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Safari.execAsync (file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/g-doc-r/tests/safari/webdriver.mjs:63:15)
+    at async file:///Users/shortwavlabs/Workspace/shortwavlabs/vectra/.claude/worktrees/g-doc-r/tests/safari/gui.mjs:935:5
+PASS 4 PARTIAL 0 FAIL 11 of 15 (Safari 26.6.2); findings 0
+exit 1

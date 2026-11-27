@@ -5,8 +5,9 @@
 // 330k paths) are rebuilt in the page by replaying the workload's own commands, with each packet
 // served as a C3.1 geometry record, into a session that is not shown (qualification
 // `buildDetached`): no subscribers and no renderer, so only dispatch is timed, on the production
-// validation path (`incremental`, asserted). The container loader cannot be used: the 250k-path
-// workload's document section (72.7 MB) exceeds C7's 64 MiB document cap.
+// validation path (`incremental`, asserted). The container loader cannot open the 330k-path
+// (996k-anchor) workload: its document section (72.7 MB) exceeds C7's 64 MiB document cap. All
+// three workloads are rebuilt the same way, for one method.
 // Per transaction type, the Node procedure (scripts/bench-g-doc-r.mjs): an untimed `setArtboard`
 // gives a fresh state S; `dispatch(cmd)` on S is timed; undo and redo are timed; an untimed undo
 // returns to S. Differences from Node, recorded with the results:

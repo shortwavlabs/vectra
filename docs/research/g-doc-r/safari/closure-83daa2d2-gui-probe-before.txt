@@ -1,0 +1,2 @@
+0/0 passed, 0 NOT RUN (Safari 26.6.2; page hidden)
+{"page":{"visibility":"hidden","rafsIn500ms":0},"safari":{"version":"26.6.2","platform":"macOS 26.6.2"}}

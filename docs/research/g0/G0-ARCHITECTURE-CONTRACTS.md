@@ -598,7 +598,7 @@ Approved by the maintainer on 2026-11-26 ("G-DOC-R Stage B/C Acceptance and AM-2
 | Ordering | RFC §5.1 (in-memory `nodesById`; not persisted) | Deterministic bucket iteration replaces insertion order. No insertion-order index is kept. Canonical persistence, export, rendering, layer order and user-visible behaviour are unchanged. For a document with several defects, the full validator may name a different defect first; single-defect rejections are equivalent | none |
 | — | C2, C7, C10 | **Unchanged.** GeometryStore ownership, the container and the document schema keep their texts and serialized versions | none |
 
-**AM-2 accounting closure (2026-11-26; no contract text or serialized version changed; maintainer confirmation requested, G-DOC-R M-10).**
-- **The store's per-chunk record is counted in term 3.** Its typed-array and buffer headers, accessor views and manifest object (about 3.7 KB per chunk, measured) lie outside the C3.2 chunk ledger cost. G-DOC-R counts them as a retained structural resource under term 3, for chunks attributed to history by the C3.2 precedence.
+**AM-2 accounting closure (2026-11-26). Explanatory note only: no normative text, specification revision or serialized version changed. Maintainer confirmation requested (G-DOC-R M-10).**
+- **The store's per-chunk record is counted in term 3.** It covers the typed-array and buffer headers, accessor views, and the manifest object beyond its JSON length (a fixed part of about 3.1 KB, plus the style and group tables; measured). All of it lies outside the C3.2 chunk ledger cost. G-DOC-R counts it as a retained structural resource under term 3, for chunks attributed to history by the C3.2 precedence.
 - **No double counting.** The chunk ledger cost (`M_mem + manifestBytes + D`), `bytes()` by owner and C2 are unchanged.
 - **Evidence:** [G-DOC-R report §7.1](../g-doc-r/G-DOC-R-REPORT.md).

@@ -401,7 +401,11 @@ It is recorded as a follow-up associated with G-PRJ.
 **Not started:** G-PRJ, G-COLOR-UI, Precision v2, production CMYK, deployment. R-COLOR is left untouched. PR #22 stays unmerged until the final closure is reviewed.
 
 **Closure outcome** ([G-DOC-R report §7.1, §11.1, §13](../g-doc-r/G-DOC-R-REPORT.md)):
-- **Accounting.** The residual was the store's per-chunk record: 3.7 KB per chunk, half of it typed-array headers. It is now accounted under term 3, with C3.2's chunk cost and C2 unchanged (M-10 asks for confirmation). Fresh validation with frozen constants: 1.001–1.162 at the median.
+- **Accounting.**
+  - The residual was the store's per-chunk record: a fixed part of about 3.1 KB (1.8 KB of typed-array headers), plus the manifest's style and group tables beyond their JSON length.
+  - It is now accounted under term 3, with C3.2's chunk cost and C2 unchanged; M-10 asks for confirmation.
+  - The first, fixed-size correction was superseded after review found it under-counted chunks with many styles.
+  - Fresh validation with the re-frozen model: 1.001–1.252 at the median.
 - **Browser dispatch.**
   - Met in all three engines at the interactive target and at 756k anchors.
   - Met in Chromium and Firefox at 996k anchors.

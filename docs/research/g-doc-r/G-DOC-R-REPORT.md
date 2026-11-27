@@ -3,9 +3,10 @@
 **Status: PARTIAL. Stage D is accepted as an implementation (maintainer, 2026-11-26), subject to the accounting closure, which this revision delivers (§7.1, §11.1, §13). The gate stays open: Playwright WebKit misses ≤ 50 ms at 996k anchors for one transaction type, and lower-end hardware and a designated quiet machine are not run.**
 - Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11). Stage D acceptance and the closure brief: decision register §12.
 - **Accounting closure (§7.1).**
-  - The 0.987 calibration residual (kept on record) was the geometry store's per-chunk record: 3.7 KB per chunk, half of it typed-array headers.
-  - It is now accounted under AM-2 term 3; the C3.2 chunk cost and GeometryStore are unchanged (M-10 asks the maintainer to confirm).
-  - With the constants frozen first, every scenario above the noise floor has a median ratio ≥ 1.001, including six fresh scenarios of traced-layer replacement and large deletion.
+  - The 0.987 calibration residual (kept on record) was the geometry store's per-chunk record. It is a fixed part of about 3.1 KB (1.8 KB of typed-array headers) plus the manifest's style and group tables beyond their JSON length.
+  - A first, fixed-size correction was superseded when review showed it under-counted chunks with many styles.
+  - It is now accounted under AM-2 term 3; the C3.2 chunk cost and GeometryStore are unchanged (M-10 asks the maintainer to confirm; the code implements it already).
+  - With the model frozen before each fresh run, every scenario above the noise floor has a median ratio ≥ 1.001. That includes traced-layer replacement, large deletion and many-style layers (1.001–1.252).
 - **Browser dispatch in the production build (§11.1).**
   - All 12 types are ≤ 50 ms at the interactive target and at 756k anchors in Chromium, Firefox and Playwright WebKit, and at 996k anchors in Chromium and Firefox.
   - **WebKit at 996k: applyTransformLayer 59 / 68 ms** (reproduced).
@@ -678,92 +679,120 @@ Each transition the maintainer listed is tested against the oracle and against t
 **Limits.** The cost functions are shared with the oracle, so the oracle checks the incremental bookkeeping, not the model. The model is checked only by this calibration.
 
 ### 7.1 Accounting closure (maintainer closure brief §2, 2026-11-26)
-**The original result stands on record.** The table above, the 0.987 replace scenario included, is the calibration on `629cec6` and is not edited. What follows is the closure investigation and the re-run with corrected constants.
+**The original result stands on record.** The table above, the 0.987 replace scenario included, is the calibration on `629cec6` and is not edited. What follows is the closure investigation, a first correction that review showed to be incomplete, and the re-frozen model with its validation.
 
 **Investigation: what the 0.987 residual is.**
-- **Measured separately from every calibration scenario.** `node --expose-gc scripts/measure-chunk-overhead.mjs --n 400 --reps 7` → [`bench/closure-chunk-overhead-1a7b45f.json`](bench/closure-chunk-overhead-1a7b45f.json).
-- **Method.** 400 freshly built chunks are committed into a bare GeometryStore and retained as history, then the heap is read (`heapUsed + arrayBuffers`). The per-chunk overhead is `(Δheap − Σ chunk ledger cost) / 400`. Each repetition runs in its own function, so nothing from it stays reachable.
-- **Result.** Retained heap beyond the C3.2 chunk ledger cost:
+- **Measured separately from every calibration scenario.** `node --expose-gc scripts/measure-chunk-overhead.mjs` → [`bench/closure-chunk-overhead-1a7b45f.json`](bench/closure-chunk-overhead-1a7b45f.json), [`bench/closure-chunk-overhead-styles-101f36b.json`](bench/closure-chunk-overhead-styles-101f36b.json) and [`bench/closure-chunk-overhead-split-101f36b.json`](bench/closure-chunk-overhead-split-101f36b.json).
+- **Method.** 200 or 400 freshly built chunks are committed into a bare GeometryStore and retained as history, then the heap is read (`heapUsed + arrayBuffers`). The per-chunk overhead is `(Δheap − Σ chunk ledger cost) / N`. Each repetition runs in its own function, so nothing from it stays reachable.
+- **Result.** Retained heap beyond the C3.2 chunk ledger cost (medians; 5–7 repetitions):
 
-| Chunk size | Ledger cost per chunk | Overhead per chunk: median [min, max] (bytes) |
+| Chunk | Ledger cost per chunk | Overhead per chunk (bytes) |
 |---|---|---|
-| 1 path | 657 | 3,767 [3,753, 4,644] |
-| 10 paths | 2,877 | 3,727 [3,712, 3,785] |
-| 100 paths | 24,388 | 3,695 [3,691, 3,702] |
-| 1,000 paths | 239,495 | 3,688 [−8,117, 3,747] (one negative outlier: a buffer release landing between readings) |
-| 4,000 paths | 560,488 | 3,688 [3,640, 3,746] |
+| 1 path (4 styles, 4 groups) | 657 | 3,767 [3,753, 4,644] |
+| 10 paths | 2,877 | 3,727 |
+| 100 paths | 24,388 | 3,695 |
+| 1,000 paths | 239,495 | 3,688 (one negative outlier: a buffer release landing between readings) |
+| 4,000 paths | 560,488 | 3,688 |
+| 1,000 paths, **1,000 styles, 64 groups** | 309,069 | **31,148** |
+| 4,000 paths, **4,000 styles, 256 groups** | 841,720 | **112,385** |
+| 2,000 paths, 2,000 styles, 4 groups | 483,563 | 50,528 |
+| 8,000 paths, 8,000 styles, 4 groups | 1,671,052 | 189,127 |
+| 2,000 paths, 4 styles, 1,000 groups | 372,376 | 65,759 |
+| 8,000 paths, 4 styles, 4,000 groups | 1,227,465 | 248,759 |
 
-- **The suspected typed-array headers: confirmed, as about half of it.** A chunk holds nine typed arrays, each over its own buffer: six sections, moved into new views at commit, and three derived arrays. Their headers alone measure **1,800 bytes per chunk** (200 per array). The other ~1.9 KB is the store's record: frozen accessor views and their closures, the manifest object, the owner counts and the map entry.
-- **A fixed term, not a payload term.** The overhead does not grow with the chunk's size, from 1 path to 4,000. The C3.2 chunk ledger cost (`M_mem + manifestBytes + D`) counts payload exactly and leaves this out.
-- **Consistency with the residual.** The replace scenario retires one chunk per entry. Its shortfall was 30 KB over 10 entries, about 3.0 KB per chunk, inside the measured 3.7 KB.
-- **The same header under-count in the structure model.** A typed array with its own buffer measures 198–200 bytes off-heap at any length (128 to 1,024 elements), and 216 bytes plus payload on-heap. The model used 160 for every node-map chunk's ID array.
+- **Typed-array headers: confirmed, as part of it.** A chunk holds nine typed arrays, each over its own buffer: six sections, moved into new views at commit, and three derived arrays. Their headers alone measure **1,800 bytes per chunk** (200 per array).
+- **Two further parts:**
+  - a **fixed part:** frozen accessor views, closures, owner counts, the map entry;
+  - a **part that grows with the manifest's style and group tables:** about 23 bytes per style and 62 per group beyond the manifest's JSON length. The ledger charges that JSON length (`manifestBytes`), but the store keeps a deep-frozen structured clone.
+- **The first conclusion was incomplete.** The first measurement varied only the path count, with 4 styles and 4 groups. It concluded the overhead was fixed per chunk. The closure review asked for large tables; the measurement disproved the fixed-term reading (rows 6–11).
+- **Consistency with the residual.** The replace scenario retires one 4-style chunk per entry. Its shortfall was 30 KB over 10 entries, about 3.0 KB per chunk.
+- **The structure model's typed-array header was also low.** A typed array with its own buffer measures 198–200 bytes off-heap at any length (128 to 1,024 elements), and 216 bytes plus payload on-heap. The model used 160 for every node-map chunk's ID array.
 
-**Correction** (`4899605`; decisions G-21 to G-25):
-- **`COSTS.chunkRecord` = 3,776 bytes** per chunk attributed to history. That is the largest per-size median, rounded up to 64.
-  - It follows the C3.2 owner precedence: a chunk also held by the document, a snapshot or a job is not counted.
-  - It is counted in `historyBytes()` (`historyChunkRecordBytes()`) and in the RFC §7 entry-fit check.
-- **`COSTS.typedArray` 160 → 216.**
-- **Contract procedure.**
-  - AM-2's term 3 (C3.2 r3) already covers "any other retained structural resource". It excludes only the chunk ledger cost, and this record is outside that cost.
-  - So there is **no double counting**, and the **C3.2 chunk ledger cost, store bytes by owner and GeometryStore (C2) are unchanged**.
-  - No contract text or serialized version changes. The maintainer is asked to confirm this reading (M-10); the alternative is a C3 r4 amendment of the chunk ledger cost.
-- **`ResourceLedger.snapshot().historyBytes`** now reports `session.historyBytes()`. It is documented as the RFC §7 budget quantity, and had omitted term 3 since AM-2.
-- **Budgets unchanged:** 100 entries; 128 MiB standard, 64 MiB constrained.
-- **Constants frozen** at `4899605` before any fresh run. The small eviction case was not used.
+**Correction, in two steps.**
+1. **`4899605` (superseded).** A fixed `COSTS.chunkRecord` = 3,776 per history-attributed chunk, plus `COSTS.typedArray` 160 → 216. Its validation run (`0cd85a2`, [`bench/closure-calibration-0cd85a2.json`](bench/closure-calibration-0cd85a2.json), kept) passed every scenario it contained, but none of them retired a chunk with large tables. Re-computed from the re-freeze run's records, this model would have under-counted the two many-style scenarios below: **0.989 and 0.868**.
+2. **`729e63a` (re-frozen, current).** The record of each history-attributed chunk is `chunkRecordCost(manifest)` = `COSTS.chunkRecord` + max(0, `deepCost(manifest)` − the manifest's JSON length).
+   - `COSTS.chunkRecord` is now the **fixed part, 3,136**: the largest residual at the small sizes after the manifest term (3,041–3,099), rounded up to 64.
+   - `deepCost` is the existing structured-clone model used for provenance. For these frozen manifests it over-counts the table part **2.3–2.7×**: conservative, and kept rather than fitting a new constant to synthetic manifests. A compact object model under-counted them (0.66–0.76×).
+   - The JSON length is subtracted because the C3.2 ledger cost already charges it: no double counting.
+   - The cost is cached per frozen manifest.
+   - `COSTS.typedArray` stays 216.
 
-**Re-run with the frozen constants** (`node --expose-gc scripts/calibrate-structure-accounting.mjs --reps 3` on `0cd85a2`, clean tree; load 0.93–1.65; no `ngspice` → [`bench/closure-calibration-0cd85a2.json`](bench/closure-calibration-0cd85a2.json)).
-- **Accounted** = structure + chunk records, reported separately.
-- **Ratio range** = accounted ÷ the largest and smallest measured repetition.
+**Where it is counted.**
+- In `historyBytes()` (`historyChunkRecordBytes()`) and in the RFC §7 entry-fit check.
+- It follows the C3.2 owner precedence: a chunk also held by the document, a snapshot or a job is not counted.
 
-| Set | Scenario | Accounted (MiB) | of which chunk records | Measured median (MiB) | Ratio [range] | Structure only (before the record term) |
+**Contract procedure.**
+- AM-2's term 3 (C3.2 r3) covers "any other retained structural resource" and excludes only the chunk ledger cost; this record is outside that cost.
+- The **C3.2 chunk ledger cost, `bytes()` by owner and GeometryStore (C2) are unchanged**, and so are the budgets: 100 entries; 128 MiB standard, 64 MiB constrained.
+- An explanatory note is added to the AM-2 record. No normative contract text, specification revision or serialized version changes, and RFC-002 §7 ("structural allocations that history states retain") is consistent with it.
+- The maintainer is asked to confirm this reading (M-10). The alternative is a C3 r4 amendment of the chunk ledger cost. **The code implements the term-3 reading ahead of that confirmation.**
+
+**Ledger.** `ResourceLedger.snapshot().historyBytes` now reports `session.historyBytes()`. It is documented as the RFC §7 budget quantity, and had omitted term 3 since AM-2.
+
+**Small eviction case.** Not used for any constant.
+
+**Re-run with the re-frozen model.**
+- **Command:** `node --expose-gc scripts/calibrate-structure-accounting.mjs --reps 3` on `2cd3c3b` → [`bench/closure-calibration-2cd3c3b.json`](bench/closure-calibration-2cd3c3b.json).
+- **Conditions:** load 1.41–2.43; no `ngspice`. The record flags tracked changes at run time: comment and documentation edits for F-15, none in the measured code (`structure-accounting.ts`, `session.ts` and the script were committed).
+- **Sets:**
+  - `closure-fresh` scenarios were written after the first freeze (`4899605`);
+  - `refreeze-fresh` scenarios after the re-freeze (`729e63a`), each before it first ran.
+- **Accounted** = structure + chunk records. **Ratio range** = accounted ÷ the largest and smallest measured repetition.
+
+| Set | Scenario | Accounted (MiB) | of which chunk records (B) | Measured median [min, max] (MiB) | Ratio [range] | Structure only |
 |---|---|---|---|---|---|---|
-| calibration | 43k: 10 small edits | 0.072 | 0 | 0.067 | 1.069 [1.051, 1.073] | 1.069 |
-| calibration | 43k: 100 small edits | 0.717 | 0 | 0.686 | 1.045 [1.045, 1.045] | 1.045 |
-| calibration | 43k: 20 structural edits | 0.994 | 0 | 0.987 | 1.008 | 1.008 |
-| calibration | **43k: replace the 1k-path layer ×10** (was **0.987**) | 2.268 | 37,760 B | 2.258 | **1.004** [1.004, 1.010] | 0.988 |
-| calibration | large palette and provenance, ×5 recolour | 4.436 | 0 | 4.427 | 1.002 [0.993, 1.002] | 1.002 |
-| calibration | large provenance: replace a traced layer ×3 | 10.887 | 11,328 B | 10.122 | 1.076 | 1.075 |
-| validation | 250k: 100 small edits | 1.642 | 0 | 1.611 | 1.019 | 1.019 |
-| validation | 250k: 20 structural edits | 13.840 | 0 | 13.681 | 1.012 | 1.012 |
-| validation | 330k: 50 small edits | 1.001 | 0 | 0.985 | 1.016 | 1.016 |
-| validation | 330k: delete the whole main layer | 70.923 | 3,776 B | 60.909 | 1.164 | 1.164 |
-| validation | 43k: undo/redo and a branch | 0.218 | 0 | 0.211 | 1.031 [0.889, 1.031] | 1.031 |
-| fresh | 120k: 60 mixed edits | 0.765 | 0 | 0.742 | 1.030 | 1.030 |
-| fresh | 8k styles: ×8 palette and fill edits | 2.685 | 0 | 2.679 | 1.002 | 1.002 |
-| fresh | 50k-entry provenance: replace ×2 | 11.945 | 7,552 B | 11.063 | 1.080 | 1.079 |
-| fresh | 250k: 15 structural edits | 3.407 | 0 | 3.402 | 1.002 | 1.002 |
-| fresh | eviction: 60 small edits at maxEntries 10 | 0.072 | 0 | 0.103 [0.069, 0.106] | 0.694 [0.674, 1.045] (**noise floor; inconclusive**) | 0.694 |
-| fresh | eviction: 40 reorders at maxEntries 10 | 2.549 | 0 | 2.546 | 1.001 | 1.001 |
-| **closure-fresh** | 200k paths: replace a 5k-path traced layer ×4 | 4.405 | 15,104 B | 4.401 [4.399, 4.418] | **1.001** [0.997, 1.001] | 0.998 |
-| **closure-fresh** | 43k: replace the whole 43k-path main layer ×2 | 18.511 | 7,552 B | 17.269 | **1.072** | 1.072 |
-| **closure-fresh** | 250k: delete 4 of the main layer's 8 groups at once | 26.843 | 0 | 23.097 | **1.162** | 1.162 |
-| **closure-fresh** | 330k (996k anchors): delete 3 groups one at a time | 26.664 | 0 | 22.955 | **1.162** | 1.162 |
-| **closure-fresh** | 40 traced 100-path layers, each deleted (40 history-only chunks) | 1.957 | 151,040 B | 1.926 | **1.016** | **0.941** |
-| **closure-fresh** | 43k: replace the 1k layer ×5, delete 2 groups, undo 3 (redo kept) | 2.291 | 18,880 B | 2.163 | **1.059** | 1.051 |
+| calibration | 43k: 10 small edits | 0.072 | 0 | 0.067 [0.067, 0.068] | 1.069 [1.051, 1.073] | 1.069 |
+| calibration | 43k: 50 small edits | 0.359 | 0 | 0.343 [0.339, 0.343] | 1.045 [1.045, 1.057] | 1.045 |
+| calibration | 43k: 100 small edits | 0.717 | 0 | 0.686 [0.686, 0.686] | 1.045 [1.045, 1.045] | 1.045 |
+| calibration | 43k: 20 structural edits | 0.994 | 0 | 0.987 [0.987, 0.987] | 1.008 [1.008, 1.008] | 1.008 |
+| calibration | 43k: replace the 1k-path layer ×10 | 2.266 | 35,860 | 2.258 [2.245, 2.258] | 1.003 [1.003, 1.009] | 0.988 |
+| validation | 250k: 100 small edits | 1.642 | 0 | 1.611 [1.607, 1.611] | 1.019 [1.019, 1.022] | 1.019 |
+| validation | 250k: 20 structural edits | 13.840 | 0 | 13.681 [13.681, 13.681] | 1.012 [1.012, 1.012] | 1.012 |
+| validation | 330k (996k anchors): 50 small edits | 1.001 | 0 | 0.985 [0.985, 0.985] | 1.016 [1.016, 1.016] | 1.016 |
+| validation | 330k: delete the whole main layer | 70.924 | 4,139 | 60.909 [60.905, 60.909] | 1.164 [1.164, 1.165] | 1.164 |
+| validation | 43k: undo/redo and a branch | 0.218 | 0 | 0.211 [0.211, 0.249] | 1.031 [0.875, 1.031] | 1.031 |
+| calibration | large palette and provenance: 20k styles, 30k palette entries, ×5 recolour | 4.436 | 0 | 4.427 [4.427, 4.427] | 1.002 [1.002, 1.002] | 1.002 |
+| calibration | large provenance: replace a traced layer ×3 | 10.886 | 10,755 | 10.122 [10.122, 10.122] | 1.076 [1.076, 1.076] | 1.075 |
+| fresh | 120k paths, 60 mixed edits (visibility, transform, rename, reorder) | 0.765 | 0 | 0.742 [0.742, 0.742] | 1.030 [1.03, 1.03] | 1.030 |
+| fresh | 8k styles, 12k-entry provenance, ×8 palette and fill edits | 2.685 | 0 | 2.679 [2.679, 2.679] | 1.002 [1.002, 1.002] | 1.002 |
+| fresh | 50k-entry provenance, replace a traced layer ×2 | 11.945 | 7,170 | 11.063 [11.063, 11.063] | 1.080 [1.08, 1.08] | 1.079 |
+| fresh | 250k paths, 15 structural edits (group, duplicate, delete) | 3.407 | 0 | 3.402 [3.402, 3.402] | 1.002 [1.002, 1.002] | 1.002 |
+| fresh | eviction, 60 edits at maxEntries 10 (history keeps 10) | 0.072 | 0 | 0.103 [0.069, 0.106] | 0.694 (noise floor; inconclusive) [0.674, 1.045] | 0.694 |
+| fresh | eviction, 40 reorders in an 31k-sibling group at maxEntries 10 | 2.549 | 0 | 2.546 [2.546, 2.546] | 1.001 [1.001, 1.001] | 1.001 |
+| **closure-fresh** | 200k paths, replace a 5k-path traced layer ×4 | 4.405 | 14,340 | 4.401 [4.398, 4.418] | **1.001** [0.997, 1.002] | 0.998 |
+| **closure-fresh** | 43k paths, replace the whole 43k-path main layer ×2 | 18.512 | 8,284 | 17.269 [17.269, 17.269] | **1.072** [1.072, 1.072] | 1.072 |
+| **closure-fresh** | 250k paths, delete 4 of the main layer's 8 groups at once | 26.843 | 0 | 23.097 [23.097, 23.097] | **1.162** [1.162, 1.162] | 1.162 |
+| **closure-fresh** | 330k paths (996k anchors), delete 3 groups one at a time | 26.664 | 0 | 22.955 [22.955, 22.955] | **1.162** [1.162, 1.162] | 1.162 |
+| **closure-fresh** | 40 traced 100-path layers, each deleted (40 history-only chunks) | 1.949 | 143,560 | 1.926 [1.926, 1.926] | **1.012** [1.012, 1.012] | 0.941 |
+| **closure-fresh** | 43k, replace the 1k layer ×5 and delete 2 groups, undo 3 (redo kept) | 2.291 | 17,930 | 2.163 [2.163, 2.163] | **1.059** [1.059, 1.059] | 1.051 |
+| **refreeze-fresh** | replace a 4k-path traced layer with 4k styles and 256 groups ×3 | 4.685 | 828,483 | 3.948 [3.948, 4.063] | **1.187** [1.153, 1.187] | 0.987 |
+| **refreeze-fresh** | delete 6 traced 1k-path layers with 2k styles and 500 groups each | 3.088 | 1,014,354 | 2.468 [2.468, 2.468] | **1.252** [1.252, 1.252] | 0.860 |
 
 (The 1-small-edit row is below the noise floor, as before.)
 
-**Disposal:** after dropping the session and collecting, the heap is within **−2.1 to +4.5 KB** of its pre-build level (3 repetitions).
+**Disposal:** after dropping the session and collecting, the heap is within **−9.6 to +3.3 KB** of its pre-build level (3 repetitions).
 
 **Reading.**
-- **Medians.** Every scenario above the noise floor has a median ratio of at least **1.001**, in every set. That includes all six closure-fresh scenarios: traced-layer replacement, large structural deletions, and many history-only chunks.
-- **Why the correction was needed.** Without the record term, three closure-fresh scenarios would under-count: 0.998, and **0.941** for 40 history-only chunks.
+- **Medians.** Every scenario above the noise floor has a median ratio of at least **1.001**, in every set. That includes:
+  - the six closure-fresh scenarios (1.001–1.162);
+  - the two refreeze-fresh scenarios with large style and group tables (**1.187** and **1.252**). Their over-count is the manifest term's conservative `deepCost`.
+- **Why each correction was needed.** Without any record term, two closure-fresh scenarios under-count (0.998 and 0.941 for 40 history-only chunks), as does the original replace scenario (0.988). With the superseded fixed term, the two many-style scenarios under-count (0.989 and 0.868).
 - **Uncertainty.**
-  - Repetition spread is within **±30–40 KB**, as before: the largest outlier is one repetition 34 KB high in the undo/redo case.
-  - Individual repetitions dip below 1 only inside that band: 0.997 (200k replace), 0.993 (palette), 0.889 (the undo/redo outlier).
+  - Repetition spread is within **±30–40 KB**. The largest outlier is one repetition 38 KB high in the undo/redo case.
+  - Individual repetitions dip below 1 only inside that band: 0.997 (200k replace), 0.875 (the undo/redo outlier).
   - A ratio is meaningful only where the retained bytes are well above that band.
-- **Eviction.** The 10-entry eviction case is unchanged and **inconclusive**. Its retention (about 70 KB) is inside the noise band; no constant was tuned against it. The larger eviction case is 1.001.
+- **Eviction.** The 10-entry eviction case is unchanged and **inconclusive**: its retention (about 70 KB) is inside the noise band, and no constant was tuned against it. The larger eviction case is 1.001.
 - **Large deletions over-count by 16 %.** That is the per-key scoping of small records and strings (G-15), and it is conservative.
 - **Engines.** Browser heap evidence is still Chromium only (above). Nothing here extends to Firefox or WebKit.
 
-**Re-qualified** on `4899605` and later heads:
+**Re-qualified** on `729e63a` and later heads:
 - `vp test`: **465 passed**, including:
-  - the ledger and session budget tests, re-derived for the new term;
-  - a new owner-precedence test: a snapshot holding a history chunk removes its record from history, and undo and redo move it back and forth;
-  - the ledger-against-oracle fuzz and the ownership-transition tests;
-  - the retention test.
+  - the ledger and session budget tests, re-derived for `chunkRecordCost`;
+  - an owner-precedence test: a snapshot holding a history chunk removes its record from history, and undo and redo move it back and forth;
+  - the ledger-against-oracle fuzz, the ownership-transition tests and the retention test.
+- `vp check` (repo-wide): clean.
 - `node --expose-gc scripts/check-retention.mjs`: **PASS**.
-- Accounting cost (`scripts/profile-accounting.mjs` → [`bench/closure-profile-accounting-0cd85a2.json`](bench/closure-profile-accounting-0cd85a2.json)): `historyBytes()` takes 0.001–0.002 ms with a 103-entry history, and eviction is still not measurable (−0.002 ms per edit).
+- Accounting cost (`scripts/profile-accounting.mjs` → [`bench/closure-profile-accounting-2cd3c3b.json`](bench/closure-profile-accounting-2cd3c3b.json)): `historyBytes()` takes 0.001–0.002 ms with a 103-entry history, and eviction is still not measurable.
 
 ## 8. Test infrastructure (brief §7)
 **`render_compare`.**
@@ -906,7 +935,7 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 ### 11.1 Browser dispatch in the production build (maintainer closure brief §3, 2026-11-26)
 **Can the existing harness do it?**
 - **Partly.** The debug qualification API already dispatched on the shown session. That session has subscribers (React, the render host), and the container loader cannot open the stress workloads.
-- **The loader limit.** The 250k-path workload's document section is **72.7 MB**, over C7's 64 MiB document cap, so `saveContainer` refuses it (F-15; recorded for G-PRJ under TD-PERF-009).
+- **The loader limit.** The 330k-path (996k-anchor) workload's document section is **72.7 MB**, over C7's 64 MiB document cap, so `saveContainer` refuses it. The 250k-path workload saves: an 80.2 MB container. (F-15; recorded for G-PRJ under TD-PERF-009. An earlier revision of this section named the 250k-path workload; corrected.)
 - **So a debug-only hook was added: `buildDetached`.** It replays the workload's own commands into a production `DocumentSession` that is not shown: no subscribers, no renderer.
   - The commands come from `bench-workload.ts` `setup()`: the two traces and the pre-made group.
   - Each packet is served as its C3.1 geometry record and decoded by the production codec.
@@ -990,7 +1019,7 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
   - **MISSED in Playwright WebKit by one type: applyTransformLayer 59 / 68 ms**, reproduced at 58 / 58 ms. ungroup is the next highest at 45 / 47 ms. The other ten types are ≤ 40 / 41 ms.
   - WebKit runs this engine's walk-heavy transactions about 1.7× slower than V8 and SpiderMonkey.
 - **Undo and redo** are ≤ 1 ms everywhere (timer resolution).
-- **Real Safari dispatch: NOT RUN.** The safaridriver harnesses have no packet routing; Playwright WebKit stands in, and the 996k miss may or may not hold in Safari 26.
+- **Real Safari dispatch: not attempted.** It would need a safaridriver harness that serves the workload's geometry records from the preview origin (Playwright's request routing is not available there) and drives `buildDetached` through WebDriver. Playwright WebKit stands in; whether the 996k miss holds in Safari 26 is unknown.
 
 **Consequence.** Browser dispatch is qualified at the interactive target and at 756k in three engines. At 996k anchors it is qualified in Chromium and Firefox only. **The WebKit 996k miss keeps TD-PERF-007 open and the gate PARTIAL**, together with lower-end hardware and the quiet machine.
 
@@ -1023,15 +1052,15 @@ The maintainer accepted stage D as an implementation at `1a7b45f`, subject to an
 
 | Closure item | Result |
 |---|---|
-| 0.987 residual investigated | **Done** (§7.1). The geometry store's per-chunk record: 3,688–3,767 bytes per chunk at every size; the nine typed-array and buffer headers are 1,800 of it. The structure model's typed-array header was also low (160 vs 198–200 measured) |
-| Correction | `COSTS.chunkRecord` 3,776 per history-attributed chunk (C3.2 precedence) and `COSTS.typedArray` 216, frozen at `4899605`. Counted under AM-2 term 3: the C3.2 chunk ledger cost, `bytes()` and C2 are unchanged, and the budgets are unchanged. **M-10:** the maintainer is asked to confirm this reading, or require a C3 r4 amendment instead |
+| 0.987 residual investigated | **Done** (§7.1). It is the geometry store's per-chunk record, outside the C3.2 chunk ledger cost. A fixed part (about 3.1 KB, of which the nine typed-array and buffer headers are 1,800) plus the manifest's style and group tables beyond their JSON length (about 23 bytes per style and 62 per group). The structure model's typed-array header was also low (160 vs 198–200 measured) |
+| Correction | Re-frozen at `729e63a`: `chunkRecordCost(manifest)` = 3,136 + max(0, `deepCost(manifest)` − JSON length) per history-attributed chunk (C3.2 precedence); `COSTS.typedArray` 216. The first correction (`4899605`, a fixed 3,776) is superseded: review showed it under-counts chunks with large style and group tables (0.989, 0.868). Counted under AM-2 term 3: the C3.2 chunk ledger cost, `bytes()`, C2 and the budgets are unchanged. **M-10:** the maintainer is asked to confirm this reading, or require a C3 r4 amendment instead; the code implements it already |
 | Original result | Kept: §7 table (`629cec6`) and [`bench/stage-d-calibration-final-629cec6.json`](bench/stage-d-calibration-final-629cec6.json) |
-| Fresh validation, constants frozen | Six closure-fresh scenarios: **1.001–1.162** at the median. Without the record term, three would under-count (0.998, 0.941). Repetitions dip to 0.997 only inside the ±30–40 KB noise band |
+| Fresh validation, constants frozen | Six closure-fresh scenarios (**1.001–1.162**) and two refreeze-fresh scenarios with large style and group tables (**1.187**, **1.252**) at the median. Without any record term, two closure-fresh scenarios under-count (0.998, 0.941), as does the original replace scenario (0.988). Repetitions dip below 1 only inside the ±30–40 KB noise band |
 | Small eviction case | Inconclusive (0.694, at the noise floor); nothing tuned against it |
 | Browser heap claims | Chromium only. Wording corrected (§7): no conservative claim for Firefox or WebKit, no universal guarantee |
-| Re-qualification | `vp test` 465 passed (ledger, budget, owner precedence, oracle fuzz, transitions, retention); `check-retention.mjs` PASS; accounting cost unchanged (§7.1) |
+| Re-qualification | `vp test` 465 passed (ledger, budget, owner precedence, oracle fuzz, transitions, retention); repo-wide `vp check` clean; `check-retention.mjs` PASS; accounting cost unchanged (§7.1) |
 | Browser dispatch | Production build `83daa2d29699dfdb`, a session that is not shown, the incremental path, 12 types, median and p95 (§11.1). **Met:** interactive target and 756k anchors in Chromium, Firefox and WebKit; 996k anchors in Chromium and Firefox. **Missed: WebKit at 996k anchors, applyTransformLayer 59 / 68 ms** (repeat 58 / 58). Real Safari dispatch NOT RUN |
-| Blocker found on the way | The container loader cannot open the 250k-path workload: its 72.7 MB document section is over C7's 64 MiB cap (F-15; TD-PERF-009, G-PRJ input) |
+| Blocker found on the way | The container loader cannot open the 330k-path (996k-anchor) workload: its 72.7 MB document section is over C7's 64 MiB cap; the 250k-path workload saves (F-15; TD-PERF-009, G-PRJ input) |
 | Debt | TD-PERF-012 added (renderer regressions, accepted and tracked); TD-UI-006: confirmation authorised as a G-PRJ follow-up, refusal kept; TD-PERF-007 and TD-PERF-011 stay OPEN; TD-PERF-009 gains F-15. **45 open items, 14 High** |
 | Decisions | M-7, M-8 and M-9 recorded as decided (decisions §6, decision register §12). G-PRJ and G-COLOR-UI recorded in the roadmap; neither is started |
 | Reconciled | F-14 (the preview regression is +7 / +12 ms, not "unchanged"); the PR summary's calibration range (0.987–1.074, not 1.061), disposal (within 4 KB) and eviction ratio (0.689); opt-in skip counts (§11) |

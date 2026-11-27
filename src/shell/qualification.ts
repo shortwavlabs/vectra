@@ -109,8 +109,8 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
       /** Builds a session that is not shown (no subscribers, no renderer) by dispatching
        *  `commands` in order on an empty document; a command's `packetUrl` is fetched as its
        *  C3.1 geometry record. G-DOC-R browser dispatch timing: the production session,
-       *  commands and validation mode (the 250k-path workload exceeds the container's 64 MiB
-       *  document cap, so the loader cannot be used). Replaces the previous detached session. */
+       *  commands and validation mode (the 996k-anchor workload exceeds the container's 64 MiB
+       *  document cap, so the loader cannot open it). Replaces the previous detached session. */
       buildDetached: async (o: {
         width: number;
         height: number;

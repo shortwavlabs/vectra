@@ -48,7 +48,7 @@ Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Li
 - **Inputs found so far:**
   - TD-PERF-009 (open ≤ 1 s) and its approved compact Document v1 serialization follow-up;
   - TD-PERF-010 (responsive opening);
-  - the G-DOC-R finding that the 250k-path benchmark workload's document section (72.7 MB) exceeds C7's 64 MiB document cap, so such documents cannot be saved today ([G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §11.1).
+  - the G-DOC-R finding that the 330k-path (996k-anchor) benchmark workload's document section (72.7 MB) exceeds C7's 64 MiB document cap, so that workload cannot be saved. It depends on serialized size per node, not path count alone: the 250k-path workload saves ([G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §11.1).
 
 **Approved later gate: G-COLOR-UI** (maintainer, 2026-11-26, M-9). Incremental `paletteLabels()` together with Recolor virtualisation. Strict provenance and palette semantics are preserved, and any retained usage index is accounted under AM-2 (C3.2 r3). Not started; not part of G-DOC-R.
 
