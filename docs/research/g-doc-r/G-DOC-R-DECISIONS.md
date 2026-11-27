@@ -66,7 +66,7 @@ This register separates the decisions taken within the authorised scope (impleme
 | F-11 | Stage D review C4: compare mode skipped checks on the fallback | Fixed (`8229927`) |
 | F-12 | Stage D review C3 (aliasing in hand-built states, over-count) and C5 (duplicate-ID message names the other entry) | Recorded; unreachable or permitted by AM-2 |
 | F-13 | AM-2 makes `history_budget` reachable for single subtrees of about 450k paths or more; the shell has no "commit without history" confirmation | TD-UI-006 (Medium); decision for the maintainer |
-| F-14 | Snapshot preparation of the 43k-path stress trace (bark-2350) is about 5 ms slower in real Safari (24 → 28–31 ms); load and validation of the interactive target are about 16 ms slower in Chromium (123–126 → 142–143 ms) | Recorded (report §10); the preview and exact frame are unchanged within noise |
+| F-14 | Renderer path against the G-BRAND baseline (report §10): load and validation +15–16 ms in Chromium (interactive 123 → 142.5 ms); complete preview +7 ms (interactive, 149 → 156) and +12 ms (bark-2350, 305 → 317) in Chromium; snapshot preparation +0.6–1.5 ms in Chromium and +2–5 ms in real Safari (bark-2350 23–24 → 28–31 ms); gestures unchanged; drag settle 12–28 ms faster | Recorded. **Accepted as temporary regressions** (maintainer, closure brief §1), tracked as TD-PERF-012. *Corrected in the closure: this row earlier said the preview was unchanged within noise; §10 measures +7–12 ms* |
 
 ## 6. Decisions requested from the maintainer (stage D)
 | # | Decision | Recommendation |
@@ -76,3 +76,26 @@ This register separates the decisions taken within the authorised scope (impleme
 | M-9 | `paletteLabels()` incrementalisation timing | With Recolor virtualisation |
 
 **Safari environment (2026-11-26).** After the maintainer restarted Safari, all five harnesses pass on the final build `e3cfd750f82410a6`: gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23. The earlier failures on `0700087` were the Safari environment fault diagnosed in report §11.
+
+**Decided 2026-11-26** (maintainer acceptance and final closure brief; [decision register §12](../g0/G0-DECISION-REGISTER.md)):
+- **M-7:** stage D is accepted as an implementation, subject to the accounting closure (§7 below). Reviewed head `1a7b45f`; CI run 45895279690 verified. The gate stays PARTIAL.
+- **M-8 (TD-UI-006):** a future explicit commit-without-history confirmation is authorised, **not** implemented in G-DOC-R. The refusal stays until that UI is qualified. The confirmation must disclose that the current implementation clears existing undo and redo history; Cancel is the safe default; users get a chance to save a project copy first. A follow-up of G-PRJ.
+- **M-9:** incremental `paletteLabels()` with Recolor virtualisation, in a separate **G-COLOR-UI** gate, not in this PR. Strict provenance and palette semantics are preserved; retained usage indexes are accounted under AM-2.
+
+## 7. Accounting closure (2026-11-26)
+| # | Decision | Alternatives considered | Why | Where |
+|---|---|---|---|---|
+| G-21 | The 0.987 residual is the geometry store's per-chunk record, measured separately from the calibration scenarios: 3,688–3,767 bytes per chunk at every size from 1 to 4,000 paths. The nine typed-array and buffer headers are 1,800 of it; accessor views, closures and the manifest object are the rest | Fitting a margin to the 0.987 scenario | A direct measurement does not tune against noise; the term is fixed per chunk, not proportional to payload | Report §7.1 |
+| G-22 | Account it as `COSTS.chunkRecord` = 3,776 (the largest per-size median, rounded up to 64) per chunk attributed to history, with the C3.2 owner precedence, in `historyBytes()` and the entry-fit check. **The C3.2 chunk ledger cost and GeometryStore (C2) are unchanged** | Amending the C3.2 chunk ledger cost (`M_mem + manifestBytes + D + K`): a C3 r4 amendment that changes every owner's store bytes; a conservative per-entry margin | AM-2's term 3 already covers "any other retained structural resource" and excludes only the chunk ledger cost, which this record is outside of; so no double count and no GeometryStore change. **Maintainer to confirm the reading (M-10)** | §7.1 |
+| G-23 | `COSTS.typedArray` 160 → 216 | Keeping 160 | Measured 198–200 bytes off-heap (any length) and 216 + payload on-heap: the model under-counted every node-map chunk by about 40 bytes | §7.1 |
+| G-24 | Constants frozen at `4899605`; six closure-fresh scenarios written afterwards and run once | Re-using earlier scenarios | Brief §2: freeze before fresh validation, including traced-layer replacement and large structural deletions | §7.1 |
+| G-25 | `ResourceLedger.snapshot().historyBytes` reports `session.historyBytes()` | Leaving chunk + source only | It is documented as the RFC §7 budget quantity, and had omitted term 3 since AM-2 | §7.1 |
+
+| # | Finding | Disposition |
+|---|---|---|
+| F-15 | The container loader cannot open the 250k-path (756k-anchor) or 330k-path workload: the document section is 72.7 MB at 250k, over C7's 64 MiB document cap | Recorded for G-PRJ and the approved compact Document v1 serialization follow-up (TECHNICAL-DEBT); the browser dispatch harness replays the workload's commands instead (report §11.1) |
+
+| # | Decision requested | Recommendation |
+|---|---|---|
+| M-10 | Confirm that the per-chunk store record is counted under AM-2 term 3 ("any other retained structural resource"), with the C3.2 chunk ledger cost and C2 unchanged, or require a C3 r4 amendment that adds it to the chunk ledger cost instead | Confirm term 3: no contract text or serialized version changes, and store bytes by owner stay as specified |
+

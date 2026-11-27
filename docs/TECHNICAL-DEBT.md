@@ -71,6 +71,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PERF-009](#td-perf-009) | Document v1 open above 1 s at 250k paths | Limitation (measured; accepted exception) | Medium | OPEN | before G-PRJ and public Document v1 | compact Document v1 follow-up |
 | [TD-PERF-010](#td-perf-010) | Job handling blocks the main thread above 50 ms | Defect (budget not met, measured; accepted temporary exception) | **High** | OPEN | G-R1, G-TRACE, G-EXP, G-PRJ | G-TRACE/G-EXP/G-PRJ |
 | [TD-PERF-011](#td-perf-011) | History retains a full node-map table per entry | Limitation (measured) | **High** | OPEN (authorised: G-DOC-R) | G-DOC-R | G-DOC-R |
+| [TD-PERF-012](#td-perf-012) | G-DOC-R renderer-path regressions (load, preview, Safari snapshot preparation) | Limitation (measured; accepted temporary regression) | Medium | OPEN | walk-lookup optimisation; before TD-PERF-001 closure | G-DOC-R |
 | [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
 | [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
 | [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
@@ -92,7 +93,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-005](#td-ui-005) | Palette display names: custom vs generated names are not recorded | Limitation (document model) | Medium | OPEN | before user-facing palette renaming | G-UI-R |
-| [TD-UI-006](#td-ui-006) | No "commit without history" confirmation in the shell (RFC §7) | Limitation (UI) | Medium | OPEN | before documents above ~450k paths per subtree are supported | G-DOC-R |
+| [TD-UI-006](#td-ui-006) | No "commit without history" confirmation in the shell (RFC §7) | Limitation (UI) | Medium | OPEN (confirmation authorised as a G-PRJ follow-up) | G-PRJ follow-up; refusal kept until qualified | G-DOC-R |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
 | [TD-PLATFORM-006](#td-platform-006) | Service-worker version skew (network-first navigation) | Defect (source inspection) | Medium | OPEN | G-JOB | G-JOB |
 | [TD-PLATFORM-007](#td-platform-007) | Native and WASM Artistic output differ on some inputs (found at G-ENG) | Defect (determinism) | Medium | OPEN | before cross-target reproducibility claims | — |
@@ -114,6 +115,7 @@ Counts:
   - Accessibility debt (TD-UI-002, TD-UI-003) stays open until VoiceOver and the stock-Safari keyboard check are executed. The canvas focus ring is fixed at the canvas-host level (#19).
 - **G-UI-R final acceptance (2026-11-25):** one item added, TD-UI-005 (Medium): the palette-name provenance limitation, recorded for resolution before user-facing palette renaming. **43 open items, 14 High.**
 - **G-DOC-R (2026-11-26, not yet accepted):** one item added, TD-UI-006 (Medium): there is no shell confirmation to commit without history, and AM-2 makes it reachable for very large subtrees. **44 open items, 14 High.** TD-PERF-007 and TD-PERF-011 dispositions are updated in their entries.
+- **G-DOC-R maintainer acceptance and closure (2026-11-26):** stage D accepted as an implementation, subject to the accounting closure. One item added, TD-PERF-012 (Medium): the accepted temporary renderer-path regressions, kept explicitly tracked. **45 open items, 14 High.** No item is closed: TD-PERF-007 and TD-PERF-011 stay open while the gate is PARTIAL (lower-end hardware, quiet machine). TD-UI-006: the confirmation is authorised as a G-PRJ follow-up; the refusal stays. TD-PERF-009 gains the 64 MiB document-cap finding.
 
 ---
 
@@ -858,7 +860,12 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Why it matters now.** AM-2 (C3.2 r3) adds document-structure bytes to the history budget. A single deleted or replaced subtree of roughly 450k paths or more can now exceed the standard 128 MiB on its own. The designated 996k-anchor workload's whole-layer delete is 114.9 MiB, which still fits. The constrained 64 MiB profile, which the shell does not configure today, would reject it.
 - **Evidence:** [G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §6.4; calibration record (§7).
 - **Closure criteria:** a confirmation flow that commits without history, or a recorded maintainer decision to keep rejection, before documents of that size are supported, or before the constrained profile is enabled.
-- **Owner action:** decide the UI path (no UI change was authorised in G-DOC-R).
+- **Owner action:** decide the UI path (no UI change was authorised in G-DOC-R). *Decided 2026-11-26 (M-8).*
+- **Maintainer disposition (2026-11-26, M-8).** A future explicit commit-without-history confirmation is **authorised but not implemented in G-DOC-R**; it is a follow-up associated with **G-PRJ**. Until that UI is qualified, the existing refusal (`history_budget`, "Edit rejected") stays. Requirements for the confirmation:
+  - it discloses that the current implementation **clears the existing undo and redo history**;
+  - **Cancel is the safe default**;
+  - the user has an opportunity to **save a project copy** before proceeding.
+  **OPEN.**
 
 <a id="td-geo-010"></a>
 ### TD-GEO-010 — Sliver metric and junction criterion restatement
@@ -936,6 +943,18 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - **Closure criteria met in Node on the reference machine.** Still required by the approved criteria: a quiet-machine run, and the production build in a browser for dispatch timing. In-browser renderer stages were measured against the G-BRAND baseline (report §10), but not dispatch itself.
   - Lower-end hardware is NOT RUN.
   - **Status: OPEN, proposed for closure after those runs.**
+- **Maintainer acceptance and closure (2026-11-26).** Stage D accepted as an implementation, subject to the accounting closure (M-7).
+  - **Browser dispatch in the production build** (report §11.1).
+    - **Setup:** `BUILD_ID` `83daa2d29699dfdb`; a production session that is not shown; the incremental path, which decided every transaction. Engines: Chromium 159, Firefox 159, Playwright WebKit 27.2.
+    - **Results, worst type, median / p95:**
+      - interactive target: 5.9 / 7.9 ms (Chromium), 6 / 8 ms (Firefox), 9 / 11 ms (WebKit);
+      - 756k anchors: 25.9 / 26.7, 26 / 27 and 43 / 44 ms;
+      - 996k anchors: 34.3 / 34.6 ms (Chromium) and 33 / 34 ms (Firefox), **met**; **Playwright WebKit misses with applyTransformLayer at 59 / 68 ms** (reproduced at 58 / 58 ms). Every other WebKit type is ≤ 45 / 47 ms.
+    - **Not run:** real Safari dispatch.
+  - **Status: OPEN.** Still required:
+    - the WebKit 996k-anchor miss;
+    - a quiet-machine run;
+    - lower-end hardware.
 
 <a id="td-perf-008"></a>
 ### TD-PERF-008 — WASM copy-out at 1M anchors above 2 ms
@@ -953,6 +972,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Evidence** ([P1A-INTEGRATION-REPORT §7.2](research/p1a-integration/P1A-INTEGRATION-REPORT.md)): open at 50k paths 179 ms (`none`) / 300 ms (`deflate-raw`); at 250k paths and 1M anchors **1,048 ms / 1,108 ms**. A single-pass phase profile totals 823 ms at 250k; the gap to the repeated end-to-end median is unexplained.
 - **Approved follow-up (bounded compact Document v1 serialization, before G-PRJ qualification and public Document v1 release; independent of G-JOB):** omit canonical default-valued node properties without changing the in-memory model; pre-registered workloads with the original representation as a control; unambiguous canonical defaults; strict schema validation, deterministic canonical sections, integrity checks and decompression limits, project semantics, export hashes, provenance and ID high-water marks preserved; cross-browser interchange; explicit compatibility with development fixtures; frozen-contract amendment for an adopted schema change; no binary format or new dependency without approval. Explain the profile vs end-to-end gap (allocation, GC, warm-up, instrumentation boundaries). The earlier scratch experiment (−32 % bytes, −21 % parse) is preliminary only: its artefacts were not retained.
 - **Closure criteria:** open ≤ 1 s at 50k and 250k paths at 1M anchors, measured as above, with every preservation requirement verified.
+- **G-DOC-R closure finding (2026-11-26).** The G-DOC-R benchmark workload at 250k paths (756k anchors; `bench-workload.ts`) serializes to a **72.7 MB document section, over C7's 64 MiB document cap**, so `saveContainer` refuses it and no `.vectra` of it can exist; the 330k-path workload is larger. Serialization is unchanged by G-DOC-R (frozen hash), so this is not a G-DOC-R regression. Input for the compact serialization follow-up above and for G-PRJ (report §11.1).
 
 <a id="td-perf-010"></a>
 ### TD-PERF-010 — Job handling blocks the main thread above 50 ms
@@ -1003,8 +1023,27 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **G-DOC-R stage D (2026-11-26; awaiting acceptance).**
   - **What changed:** history states share node-map and parent-index chunks. A one-node edit retains about 7 KB of accounted structure per step at 43k paths and about 20 KB at 330k; measured retention is within the calibration below. Before stage D it was about 7 MiB per state at 251k.
   - **Counted in the budget:** AM-2 (C3.2 r3) adds document-structure bytes to the RFC §7 history budget.
-  - **Calibration:** the model against measured V8 retained heap (Node) gives 0.987–1.074 on the calibration set. On validation and fresh validation it gives 1.001–1.163 above the noise floor. A 10-entry eviction case sits at the noise floor and is inconclusive (0.69, range to 0.97); the larger eviction case is 1.001. Disposal returns the heap within 4 KB. Chromium heap evidence is 1.06–2.46, conservative (report §7).
+  - **Calibration:** the model against measured V8 retained heap (Node) gives 0.987–1.074 on the calibration set. On validation and fresh validation it gives 1.001–1.163 above the noise floor. A 10-entry eviction case sits at the noise floor and is inconclusive (0.69, range to 0.97); the larger eviction case is 1.001. Disposal returns the heap within 4 KB. Chromium heap evidence is 1.06–2.46, an over-count in Chromium only (report §7). *Superseded by the accounting closure below.*
   - **Closure criteria met** ("history memory bounded and counted in the budget, with the full validator still the oracle"). **Proposed for closure**; the maintainer to confirm. Browser-engine heap evidence is not available (report §7, limits).
+- **Accounting closure (2026-11-26).**
+  - The 0.987 calibration residual (kept on record) was the geometry store's per-chunk record, outside the C3.2 chunk ledger cost: measured **3,688–3,767 bytes per chunk** at every size, 1,800 of it typed-array and buffer headers. It is now accounted under AM-2 term 3 as `COSTS.chunkRecord` = 3,776 per history-attributed chunk (C3.2 chunk cost and GeometryStore unchanged; M-10). `COSTS.typedArray` is corrected 160 → 216 (measured 198–200 off-heap, 216 + payload on-heap).
+  - With the constants frozen at `4899605`: the replace scenario is **1.004** (was 0.987); every scenario above the noise floor has a median ratio ≥ 1.001; six **closure-fresh** scenarios (traced-layer replacement at 200k and of a whole 43k-path layer, deletion of half a 250k layer, 3 group deletions at 996k anchors, 40 history-only chunks, a mixed replace/delete/undo history) give **1.001–1.162**. Individual repetitions dip to 0.997 (200k replace) and 0.889 (one 34 KB outlier in the undo/redo case), inside the ±30–40 KB noise floor. The 10-entry eviction case stays inconclusive (0.694; not tuned against).
+  - Browser evidence remains **Chromium only** (1.06–2.46). No conservative-accounting claim is made for Firefox or WebKit, whose heaps cannot be read comparably.
+  - Status: **OPEN** while the gate is PARTIAL; closure proposed with the gate.
+
+<a id="td-perf-012"></a>
+### TD-PERF-012 — G-DOC-R renderer-path regressions (load, preview, Safari snapshot preparation)
+- **Source:** G-DOC-R stage D, measured against the verified G-BRAND `main` baseline (`BUILD_ID` `69b8618a0497ded6`).
+- **Category / severity / status:** Limitation (measured; accepted temporary regression) · Medium · OPEN.
+- **Evidence** ([G-DOC-R report §10](research/g-doc-r/G-DOC-R-REPORT.md)), medians, Chromium 159, 8 interleaved runs; real Safari gr0 pairs:
+  - container load and validation +15–16 ms (interactive 123 → 142.5 ms; bark-2350 289 → 304 ms);
+  - complete preview **+7 ms** (interactive, 149 → 156 ms) and **+12 ms** (bark-2350, 305 → 317 ms);
+  - snapshot preparation +0.6–1.5 ms in Chromium; **+2–5 ms in real Safari** (bark-2350 23–24 → 28–31 ms);
+  - gestures unchanged; drag release settles 12–28 ms sooner.
+- **Cause:** tree walks call `NodeMap.get`, slower than `Map.get` for their access pattern; loading builds the ID-ordered map and seeds the parent index.
+- **Maintainer disposition (2026-11-26):** accepted as temporary regressions, to remain explicitly tracked. No threshold is relaxed; the preview target (≤ 100 ms at the interactive target) was already missed (TD-PERF-001) and stays under its temporary exception.
+- **Closure criteria:** the measured stages back at or below the G-BRAND baseline on the matched setup, or a maintainer decision recorded against the preview target's closure (TD-PERF-001).
+- **Owner action:** none now; schedule a walk-lookup optimisation (for example per-walk chunk cursors) before TD-PERF-001 closure.
 
 <a id="td-platform-007"></a>
 ### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs

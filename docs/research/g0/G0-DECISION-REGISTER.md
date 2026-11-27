@@ -342,3 +342,69 @@ Record of execution:
 - final qualification at all three workloads.
 
 No new dependency, serialized-format change, unrelated UI change, vectorization change or colour-management work is authorised. R-COLOR is left untouched. Do not merge without maintainer acceptance.
+
+## 12. G-DOC-R maintainer acceptance and final closure (maintainer, 2026-11-26)
+**Disposition.** Stage D is accepted **as an implementation, subject to the final accounting closure**. Reviewed head `1a7b45f1caea8f06490653f79908773d07a29a8e`; CI run 45895279690 independently verified. The overall G-DOC-R disposition remains **PARTIAL**.
+
+**Accepted:**
+- the ID-ordered chunked persistent NodeMap, replacing hash buckets;
+- the persistent parent index;
+- the AM-2 deterministic accounting architecture;
+- the history delta ledger and the reference oracle;
+- the documented conservative over-counts;
+- review fixes C1, C2 and C4, and the recorded C3 and C5 limitations;
+- the deterministic test-infrastructure fixes;
+- Node dispatch qualification at all three workloads;
+- the existing privacy exclusions and reduced regression counts.
+
+The temporary renderer performance regressions are accepted and must stay explicitly tracked (TD-PERF-012). No threshold is relaxed.
+
+**Final accounting closure required:**
+- investigate the 0.987 residual (the suspected geometry typed-array header overhead);
+- correct the term through the appropriate contract procedure, or justify a conservative deterministic margin;
+- do not conceal the original result or change the 128 / 64 MiB budgets;
+- preserve the GeometryStore contract unless an amendment is required, and avoid double counting;
+- freeze constants before a fresh validation that includes traced-layer replacement and large structural deletions;
+- report uncertainty, and do not tune against the inconclusive small eviction case;
+- claim no universal conservative browser heap accounting from Chromium alone;
+- re-qualify the accounting, ownership, eviction and retention tests.
+
+**Browser dispatch:** measure production session dispatch in Chromium, Firefox and WebKit, separately from renderer scheduling, on the incremental path, for all 12 types (median and p95), or report the precise blocker and stay PARTIAL.
+
+**M-7.** Stage D implementation accepted, subject to the accounting closure.
+
+**M-8 (TD-UI-006).** A future explicit commit-without-history confirmation is authorised but not implemented in G-DOC-R. The existing refusal stays until that UI is qualified. Requirements:
+- the confirmation discloses that the current implementation clears the existing undo and redo history;
+- Cancel is the safe default;
+- users can save a project copy before proceeding.
+
+It is recorded as a follow-up associated with G-PRJ.
+
+**M-9.** Incremental `paletteLabels()` with Recolor virtualisation is approved for a separate G-COLOR-UI gate, not this PR. Strict provenance and palette semantics are preserved, and retained usage indexes are accounted under AM-2.
+
+**G-PRJ, the next product milestone** (recorded in [ROADMAP](../../ROADMAP.md)):
+- **Scope:**
+  - Save, Save As and Open for portable `.vectra` projects;
+  - complete artwork and editable-document restoration;
+  - unsaved-change tracking;
+  - local autosave and crash recovery;
+  - recent projects;
+  - browser storage quotas and eviction;
+  - safe atomic writes where supported;
+  - a download/upload fallback;
+  - version compatibility and malformed-file rejection;
+  - project replacement and save-failure recovery;
+  - integration with the oversized-edit confirmation.
+- **Constraints:** the existing `.vectra` format is the starting point; local-first, offline and no-account use are preserved; autosave is not a substitute for portable files.
+- **Not begun.**
+
+**Not started:** G-PRJ, G-COLOR-UI, Precision v2, production CMYK, deployment. R-COLOR is left untouched. PR #22 stays unmerged until the final closure is reviewed.
+
+**Closure outcome** ([G-DOC-R report §7.1, §11.1, §13](../g-doc-r/G-DOC-R-REPORT.md)):
+- **Accounting.** The residual was the store's per-chunk record: 3.7 KB per chunk, half of it typed-array headers. It is now accounted under term 3, with C3.2's chunk cost and C2 unchanged (M-10 asks for confirmation). Fresh validation with frozen constants: 1.001–1.162 at the median.
+- **Browser dispatch.**
+  - Met in all three engines at the interactive target and at 756k anchors.
+  - Met in Chromium and Firefox at 996k anchors.
+  - Missed in Playwright WebKit at 996k for applyTransformLayer (59 / 68 ms; reproduced).
+  - The gate stays PARTIAL.
+

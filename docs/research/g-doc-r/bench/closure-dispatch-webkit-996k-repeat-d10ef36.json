@@ -1,0 +1,292 @@
+{
+  "spec": "tests/browser/g-doc-r-dispatch.spec.ts",
+  "commit": "d10ef364955a7dd74de5519503d1929965ec030f",
+  "buildId": "83daa2d29699dfdb",
+  "version": "6cdbae7e5bb8ad3f",
+  "engine": "webkit",
+  "browserVersion": "27.2",
+  "reps": 30,
+  "warmup": 2,
+  "conditionsStart": {
+    "loadavg": [
+      1.24,
+      1.2,
+      1.03
+    ],
+    "top": [
+      "33.5 node",
+      "32.9 Playwright",
+      "16.9 WindowServer",
+      "12.7 com.apple.WebKit.Networking.Development",
+      "9.9 node"
+    ],
+    "ngspice": 0
+  },
+  "workloads": [
+    {
+      "paths": 330000,
+      "anchorsPerPath": 3,
+      "pathsPerGroup": 41250,
+      "replaceLayerPaths": 1000,
+      "setFillManyPaths": 1000,
+      "nodes": 331012,
+      "nodeKinds": {
+        "path": 331000,
+        "group": 10,
+        "layer": 2,
+        "source": 0
+      },
+      "anchors": 996000,
+      "validation": "incremental",
+      "conditionsStart": {
+        "loadavg": [
+          1.24,
+          1.2,
+          1.03
+        ],
+        "top": [
+          "126.4 com.apple.WebKit.WebContent.Development",
+          "12.5 WindowServer",
+          "5.4 coresymbolicationd",
+          "2.0 Claude Helper",
+          "1.6 Claude Helper (Renderer)"
+        ],
+        "ngspice": 0
+      },
+      "conditionsEnd": {
+        "loadavg": [
+          1.18,
+          1.19,
+          1.03
+        ],
+        "top": [
+          "62.5 com.apple.WebKit.WebContent.Development",
+          "13.5 WindowServer",
+          "2.0 Claude Helper",
+          "1.7 Claude Helper (Renderer)",
+          "0.7 Claude"
+        ],
+        "ngspice": 0
+      },
+      "resolutionMs": 1,
+      "commands": {
+        "setFill1": {
+          "dispatch": {
+            "p50": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "setFillMany": {
+          "dispatch": {
+            "p50": 39,
+            "p95": 41,
+            "max": 42
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 1
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "setVisible": {
+          "dispatch": {
+            "p50": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "rename": {
+          "dispatch": {
+            "p50": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "reorder": {
+          "dispatch": {
+            "p50": 31,
+            "p95": 32,
+            "max": 33
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 1
+          },
+          "incrementalDecided": 1
+        },
+        "applyTransformPath": {
+          "dispatch": {
+            "p50": 0,
+            "p95": 1,
+            "max": 1
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 1
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "applyTransformLayer": {
+          "dispatch": {
+            "p50": 58,
+            "p95": 58,
+            "max": 59
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "group": {
+          "dispatch": {
+            "p50": 33,
+            "p95": 34,
+            "max": 35
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "ungroup": {
+          "dispatch": {
+            "p50": 44,
+            "p95": 44,
+            "max": 56
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "delete": {
+          "dispatch": {
+            "p50": 31,
+            "p95": 31,
+            "max": 31
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "duplicate": {
+          "dispatch": {
+            "p50": 31,
+            "p95": 34,
+            "max": 35
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        },
+        "commitTrace": {
+          "dispatch": {
+            "p50": 7,
+            "p95": 8,
+            "max": 8
+          },
+          "undo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "redo": {
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "incrementalDecided": 1
+        }
+      }
+    }
+  ]
+}

@@ -7,7 +7,7 @@ Documentation review precedes implementation.
 1. **G-0** — approved (closes on merge). Then **P-CI**, the minimal required CI job.
 2. **P1-A** — G-ENG (engine API, GeometryPacket) ‖ G-DOC (document, GeometryStore, history, `.vectra` serializer); then G-JOB (scheduler, worker lifecycle) and G-R0 (minimal renderer).
 3. **P1-B** — G-UI (design-system shell) and G-R1 (production rendering; lower-end and real Safari qualification).
-4. **P1-C** — G-TRACE (Artistic and Precision tracing; P1 core presets B&W, Full Colour, Limited Palette, Grayscale, Silhouette), G-EDIT, G-EXP, G-PRJ (Save/Open), G-GEO, G-SB (may defer to P2).
+4. **P1-C** — G-TRACE (Artistic and Precision tracing; P1 core presets B&W, Full Colour, Limited Palette, Grayscale, Silhouette), G-EDIT, G-EXP, G-PRJ (project management and persistence; **the next product milestone after G-DOC-R**, see below), G-GEO, G-SB (may defer to P2).
 5. **P2-A** — Line Art and advanced geometry. **P2-B** — effects. **P2-C** — Old Print, DIY Underground, Virtual Printing Press, initial Variation Lab. Later phases per [CREATIVE-LAB](CREATIVE-LAB.md).
 
 P1 has not started.
@@ -27,5 +27,29 @@ Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Li
 | P3 | woodcut, engraving, blueprint, stencil, batch, full PWA qualification | per-feature qualification, no silent raster fallback |
 
 **PWA scope (maintainer, 2026-11-26).** G-BRAND ships **basic installability** early: a web app manifest (`display: standalone`, local icons) on top of the existing build-aware offline service worker, so Chromium-based browsers may offer to install Vectra. This is not the P3 PWA deliverable. **Full P3 PWA qualification stays open:** install, update and uninstall across browsers and platforms, offline-first behaviour, file handling, and mobile and touch. P3 is not complete.
+
+**Next product milestone: G-PRJ — Project Management and Persistence** (maintainer, 2026-11-26, G-DOC-R closure brief §5). The next user-facing gate after G-DOC-R. **Not started**; no implementation begins in G-DOC-R.
+- **Scope:**
+  - Save, Save As and Open for portable `.vectra` projects;
+  - complete restoration of the artwork and the editable document;
+  - unsaved-change tracking;
+  - local autosave and crash recovery;
+  - recent projects;
+  - browser storage quotas and eviction handling;
+  - safe, atomic file writes where the platform supports them;
+  - a download/upload fallback for browsers without direct filesystem access;
+  - version compatibility and rejection of malformed files;
+  - project replacement and recovery from a failed save;
+  - integration with the oversized-edit confirmation (TD-UI-006, M-8: authorised; it discloses that committing without history clears the existing undo and redo history, Cancel is the safe default, and the user may save a project copy first).
+- **Constraints:**
+  - The existing `.vectra` format is the starting point, not a reason to invent another format.
+  - Local-first operation, offline support and no-account-required use are preserved.
+  - Autosave is not a substitute for portable project files.
+- **Inputs found so far:**
+  - TD-PERF-009 (open ≤ 1 s) and its approved compact Document v1 serialization follow-up;
+  - TD-PERF-010 (responsive opening);
+  - the G-DOC-R finding that the 250k-path benchmark workload's document section (72.7 MB) exceeds C7's 64 MiB document cap, so such documents cannot be saved today ([G-DOC-R report](research/g-doc-r/G-DOC-R-REPORT.md) §11.1).
+
+**Approved later gate: G-COLOR-UI** (maintainer, 2026-11-26, M-9). Incremental `paletteLabels()` together with Recolor virtualisation. Strict provenance and palette semantics are preserved, and any retained usage index is accounted under AM-2 (C3.2 r3). Not started; not part of G-DOC-R.
 
 P0 may use a disposable harness; no polished UI before engine proof. Each gate has its own report and reviewable commit. Stop and report if a dependency fails instead of silently substituting it. Scope changes require RFC update. After P0, pick a release version and actual browser support from evidence.

@@ -1,11 +1,17 @@
 # G-DOC-R — Document-store performance (report)
 
-**Status: PARTIAL. Stages B, C and D are implemented and qualified on the reference machine: Node, Playwright in 3 engines, and all five real-Safari harnesses. Awaiting maintainer acceptance. The gate remains open only for runs not done: lower-end hardware, a designated quiet machine, and in-browser dispatch timing.**
-- Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11).
-- Stage D (§5–§7) meets ≤ 50 ms in Node for all 12 transaction types at the 996k-anchor stress workload, and the interactive targets.
+**Status: PARTIAL. Stage D is accepted as an implementation (maintainer, 2026-11-26), subject to the accounting closure, which this revision delivers (§7.1, §11.1, §13). The gate stays open: Playwright WebKit misses ≤ 50 ms at 996k anchors for one transaction type, and lower-end hardware and a designated quiet machine are not run.**
+- Stages B and C were accepted as checkpoints on 2026-11-26. AM-2 is approved and recorded (C3 r3, RFC-002 §7, decision register §11). Stage D acceptance and the closure brief: decision register §12.
+- **Accounting closure (§7.1).**
+  - The 0.987 calibration residual (kept on record) was the geometry store's per-chunk record: 3.7 KB per chunk, half of it typed-array headers.
+  - It is now accounted under AM-2 term 3; the C3.2 chunk cost and GeometryStore are unchanged (M-10 asks the maintainer to confirm).
+  - With the constants frozen first, every scenario above the noise floor has a median ratio ≥ 1.001, including six fresh scenarios of traced-layer replacement and large deletion.
+- **Browser dispatch in the production build (§11.1).**
+  - All 12 types are ≤ 50 ms at the interactive target and at 756k anchors in Chromium, Firefox and Playwright WebKit, and at 996k anchors in Chromium and Firefox.
+  - **WebKit at 996k: applyTransformLayer 59 / 68 ms** (reproduced).
+- **Node** meets ≤ 50 ms for all 12 types at all three workloads (§5.5).
 - Three independent reviews ran (§1.6, §2.4b, §5.6). Every confirmed defect that breaks a stated claim is fixed and re-qualified. Two low-severity findings are recorded, not fixed (§5.6 C3, an over-count in hand-built states; C5, an error message).
-- **Real Safari:** after the maintainer restarted Safari, all five harnesses pass on the final build `e3cfd750f82410a6`: gui 14/14, gr1 7/7, gjob 10/10, gr0 7/7, persistence 23/23 (§11). The earlier failures were Safari's environment, as diagnosed.
-- Final head: §11. Renderer against the G-BRAND baseline: §10.
+- **Real Safari:** all five harnesses pass on build `e3cfd750f82410a6` (§11). Real Safari dispatch is not run.
 - Nothing is merged. Decisions: [G-DOC-R-DECISIONS](G-DOC-R-DECISIONS.md).
 
 | | |
@@ -666,10 +672,98 @@ Each transition the maintainer listed is tested against the oracle and against t
 | bark-2350 | 50 small edits | 370,856 B | 284,472 B | 1.304 |
 | bark-2350 | 10 reorders | 3,564,400 B | 1,450,956 B | 2.457 |
 
-- **Chrome over-counts, conservatively.** Chrome's V8 uses pointer compression (4-byte pointers), while the model is calibrated on Node's 64-bit layout (8-byte pointers). Pointer arrays, such as child lists, cost about half the modelled bytes in Chrome. So Chrome may evict history earlier than strictly necessary, never later.
-- **Other engines:** Firefox and WebKit expose no comparable heap reading. No universal heap guarantee is claimed.
+- **Chromium over-counts in these four scenarios.** Chromium's V8 uses pointer compression (4-byte pointers), while the model is calibrated on Node's 64-bit layout (8-byte pointers). Pointer arrays, such as child lists, cost about half the modelled bytes there. In the measured scenarios, Chromium would therefore evict history earlier than strictly necessary. This is evidence about Chromium only, not a guarantee.
+- **Other engines:** Firefox and WebKit expose no comparable heap reading. **No conservative-accounting claim is made for them, nor any universal browser heap guarantee.** The accounted bytes are a deterministic model calibrated on V8 (Node); they are not a browser measurement.
 
 **Limits.** The cost functions are shared with the oracle, so the oracle checks the incremental bookkeeping, not the model. The model is checked only by this calibration.
+
+### 7.1 Accounting closure (maintainer closure brief §2, 2026-11-26)
+**The original result stands on record.** The table above, the 0.987 replace scenario included, is the calibration on `629cec6` and is not edited. What follows is the closure investigation and the re-run with corrected constants.
+
+**Investigation: what the 0.987 residual is.**
+- **Measured separately from every calibration scenario.** `node --expose-gc scripts/measure-chunk-overhead.mjs --n 400 --reps 7` → [`bench/closure-chunk-overhead-1a7b45f.json`](bench/closure-chunk-overhead-1a7b45f.json).
+- **Method.** 400 freshly built chunks are committed into a bare GeometryStore and retained as history, then the heap is read (`heapUsed + arrayBuffers`). The per-chunk overhead is `(Δheap − Σ chunk ledger cost) / 400`. Each repetition runs in its own function, so nothing from it stays reachable.
+- **Result.** Retained heap beyond the C3.2 chunk ledger cost:
+
+| Chunk size | Ledger cost per chunk | Overhead per chunk: median [min, max] (bytes) |
+|---|---|---|
+| 1 path | 657 | 3,767 [3,753, 4,644] |
+| 10 paths | 2,877 | 3,727 [3,712, 3,785] |
+| 100 paths | 24,388 | 3,695 [3,691, 3,702] |
+| 1,000 paths | 239,495 | 3,688 [−8,117, 3,747] (one negative outlier: a buffer release landing between readings) |
+| 4,000 paths | 560,488 | 3,688 [3,640, 3,746] |
+
+- **The suspected typed-array headers: confirmed, as about half of it.** A chunk holds nine typed arrays, each over its own buffer: six sections, moved into new views at commit, and three derived arrays. Their headers alone measure **1,800 bytes per chunk** (200 per array). The other ~1.9 KB is the store's record: frozen accessor views and their closures, the manifest object, the owner counts and the map entry.
+- **A fixed term, not a payload term.** The overhead does not grow with the chunk's size, from 1 path to 4,000. The C3.2 chunk ledger cost (`M_mem + manifestBytes + D`) counts payload exactly and leaves this out.
+- **Consistency with the residual.** The replace scenario retires one chunk per entry. Its shortfall was 30 KB over 10 entries, about 3.0 KB per chunk, inside the measured 3.7 KB.
+- **The same header under-count in the structure model.** A typed array with its own buffer measures 198–200 bytes off-heap at any length (128 to 1,024 elements), and 216 bytes plus payload on-heap. The model used 160 for every node-map chunk's ID array.
+
+**Correction** (`4899605`; decisions G-21 to G-25):
+- **`COSTS.chunkRecord` = 3,776 bytes** per chunk attributed to history. That is the largest per-size median, rounded up to 64.
+  - It follows the C3.2 owner precedence: a chunk also held by the document, a snapshot or a job is not counted.
+  - It is counted in `historyBytes()` (`historyChunkRecordBytes()`) and in the RFC §7 entry-fit check.
+- **`COSTS.typedArray` 160 → 216.**
+- **Contract procedure.**
+  - AM-2's term 3 (C3.2 r3) already covers "any other retained structural resource". It excludes only the chunk ledger cost, and this record is outside that cost.
+  - So there is **no double counting**, and the **C3.2 chunk ledger cost, store bytes by owner and GeometryStore (C2) are unchanged**.
+  - No contract text or serialized version changes. The maintainer is asked to confirm this reading (M-10); the alternative is a C3 r4 amendment of the chunk ledger cost.
+- **`ResourceLedger.snapshot().historyBytes`** now reports `session.historyBytes()`. It is documented as the RFC §7 budget quantity, and had omitted term 3 since AM-2.
+- **Budgets unchanged:** 100 entries; 128 MiB standard, 64 MiB constrained.
+- **Constants frozen** at `4899605` before any fresh run. The small eviction case was not used.
+
+**Re-run with the frozen constants** (`node --expose-gc scripts/calibrate-structure-accounting.mjs --reps 3` on `0cd85a2`, clean tree; load 0.93–1.65; no `ngspice` → [`bench/closure-calibration-0cd85a2.json`](bench/closure-calibration-0cd85a2.json)).
+- **Accounted** = structure + chunk records, reported separately.
+- **Ratio range** = accounted ÷ the largest and smallest measured repetition.
+
+| Set | Scenario | Accounted (MiB) | of which chunk records | Measured median (MiB) | Ratio [range] | Structure only (before the record term) |
+|---|---|---|---|---|---|---|
+| calibration | 43k: 10 small edits | 0.072 | 0 | 0.067 | 1.069 [1.051, 1.073] | 1.069 |
+| calibration | 43k: 100 small edits | 0.717 | 0 | 0.686 | 1.045 [1.045, 1.045] | 1.045 |
+| calibration | 43k: 20 structural edits | 0.994 | 0 | 0.987 | 1.008 | 1.008 |
+| calibration | **43k: replace the 1k-path layer ×10** (was **0.987**) | 2.268 | 37,760 B | 2.258 | **1.004** [1.004, 1.010] | 0.988 |
+| calibration | large palette and provenance, ×5 recolour | 4.436 | 0 | 4.427 | 1.002 [0.993, 1.002] | 1.002 |
+| calibration | large provenance: replace a traced layer ×3 | 10.887 | 11,328 B | 10.122 | 1.076 | 1.075 |
+| validation | 250k: 100 small edits | 1.642 | 0 | 1.611 | 1.019 | 1.019 |
+| validation | 250k: 20 structural edits | 13.840 | 0 | 13.681 | 1.012 | 1.012 |
+| validation | 330k: 50 small edits | 1.001 | 0 | 0.985 | 1.016 | 1.016 |
+| validation | 330k: delete the whole main layer | 70.923 | 3,776 B | 60.909 | 1.164 | 1.164 |
+| validation | 43k: undo/redo and a branch | 0.218 | 0 | 0.211 | 1.031 [0.889, 1.031] | 1.031 |
+| fresh | 120k: 60 mixed edits | 0.765 | 0 | 0.742 | 1.030 | 1.030 |
+| fresh | 8k styles: ×8 palette and fill edits | 2.685 | 0 | 2.679 | 1.002 | 1.002 |
+| fresh | 50k-entry provenance: replace ×2 | 11.945 | 7,552 B | 11.063 | 1.080 | 1.079 |
+| fresh | 250k: 15 structural edits | 3.407 | 0 | 3.402 | 1.002 | 1.002 |
+| fresh | eviction: 60 small edits at maxEntries 10 | 0.072 | 0 | 0.103 [0.069, 0.106] | 0.694 [0.674, 1.045] (**noise floor; inconclusive**) | 0.694 |
+| fresh | eviction: 40 reorders at maxEntries 10 | 2.549 | 0 | 2.546 | 1.001 | 1.001 |
+| **closure-fresh** | 200k paths: replace a 5k-path traced layer ×4 | 4.405 | 15,104 B | 4.401 [4.399, 4.418] | **1.001** [0.997, 1.001] | 0.998 |
+| **closure-fresh** | 43k: replace the whole 43k-path main layer ×2 | 18.511 | 7,552 B | 17.269 | **1.072** | 1.072 |
+| **closure-fresh** | 250k: delete 4 of the main layer's 8 groups at once | 26.843 | 0 | 23.097 | **1.162** | 1.162 |
+| **closure-fresh** | 330k (996k anchors): delete 3 groups one at a time | 26.664 | 0 | 22.955 | **1.162** | 1.162 |
+| **closure-fresh** | 40 traced 100-path layers, each deleted (40 history-only chunks) | 1.957 | 151,040 B | 1.926 | **1.016** | **0.941** |
+| **closure-fresh** | 43k: replace the 1k layer ×5, delete 2 groups, undo 3 (redo kept) | 2.291 | 18,880 B | 2.163 | **1.059** | 1.051 |
+
+(The 1-small-edit row is below the noise floor, as before.)
+
+**Disposal:** after dropping the session and collecting, the heap is within **−2.1 to +4.5 KB** of its pre-build level (3 repetitions).
+
+**Reading.**
+- **Medians.** Every scenario above the noise floor has a median ratio of at least **1.001**, in every set. That includes all six closure-fresh scenarios: traced-layer replacement, large structural deletions, and many history-only chunks.
+- **Why the correction was needed.** Without the record term, three closure-fresh scenarios would under-count: 0.998, and **0.941** for 40 history-only chunks.
+- **Uncertainty.**
+  - Repetition spread is within **±30–40 KB**, as before: the largest outlier is one repetition 34 KB high in the undo/redo case.
+  - Individual repetitions dip below 1 only inside that band: 0.997 (200k replace), 0.993 (palette), 0.889 (the undo/redo outlier).
+  - A ratio is meaningful only where the retained bytes are well above that band.
+- **Eviction.** The 10-entry eviction case is unchanged and **inconclusive**. Its retention (about 70 KB) is inside the noise band; no constant was tuned against it. The larger eviction case is 1.001.
+- **Large deletions over-count by 16 %.** That is the per-key scoping of small records and strings (G-15), and it is conservative.
+- **Engines.** Browser heap evidence is still Chromium only (above). Nothing here extends to Firefox or WebKit.
+
+**Re-qualified** on `4899605` and later heads:
+- `vp test`: **465 passed**, including:
+  - the ledger and session budget tests, re-derived for the new term;
+  - a new owner-precedence test: a snapshot holding a history chunk removes its record from history, and undo and redo move it back and forth;
+  - the ledger-against-oracle fuzz and the ownership-transition tests;
+  - the retention test.
+- `node --expose-gc scripts/check-retention.mjs`: **PASS**.
+- Accounting cost (`scripts/profile-accounting.mjs` → [`bench/closure-profile-accounting-0cd85a2.json`](bench/closure-profile-accounting-0cd85a2.json)): `historyBytes()` takes 0.001–0.002 ms with a 103-entry history, and eviction is still not measurable (−0.002 ms per edit).
 
 ## 8. Test infrastructure (brief §7)
 **`render_compare`.**
@@ -758,6 +852,17 @@ The preview target (≤ 100 ms at the interactive target) was already missed bef
 - the full Playwright suite: **375 passed, 0 failed, 39 skipped** (36 opt-in, plus the new opt-in memory spec in 3 engines);
 - `vp test`: 464 passed.
 
+**Closure head** (`d10ef36`, `VERSION` `6cdbae7e5bb8ad3f`, `BUILD_ID` `83daa2d29699dfdb`; the later commits are documentation and records only):
+- the full Playwright suite: **375 passed, 0 failed, 42 skipped**. The 42 are the 36 earlier opt-in skips, plus the opt-in memory spec and the new opt-in dispatch spec, each in 3 engines. Load was 1.24–1.82 and the run took 9.0 minutes;
+- `vp test`: **465 passed**;
+- `vp check`: clean on the changed sources;
+- bundle (gzip KiB): design-system JS 114.3, CSS 9.5, workspace JS **237.8** (+0.3 for the debug hook; budgets 150 / 15 / 250).
+
+**Opt-in skip counts, reconciled:**
+- 36 on `0700087`: the earlier opt-in specs;
+- 39 on `748e820`: plus the memory spec in 3 engines;
+- 42 on `d10ef36`: plus the dispatch spec in 3 engines.
+
 The rows below were measured on `0700087` (`BUILD_ID` `7debe2a41e0f74d5`) unless stated.
 | Check | Result |
 |---|---|
@@ -798,6 +903,97 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 - browser-engine heap evidence;
 - VoiceOver and the stock-Safari keyboard check.
 
+### 11.1 Browser dispatch in the production build (maintainer closure brief §3, 2026-11-26)
+**Can the existing harness do it?**
+- **Partly.** The debug qualification API already dispatched on the shown session. That session has subscribers (React, the render host), and the container loader cannot open the stress workloads.
+- **The loader limit.** The 250k-path workload's document section is **72.7 MB**, over C7's 64 MiB document cap, so `saveContainer` refuses it (F-15; recorded for G-PRJ under TD-PERF-009).
+- **So a debug-only hook was added: `buildDetached`.** It replays the workload's own commands into a production `DocumentSession` that is not shown: no subscribers, no renderer.
+  - The commands come from `bench-workload.ts` `setup()`: the two traces and the pre-made group.
+  - Each packet is served as its C3.1 geometry record and decoded by the production codec.
+  - The replayed document has the Node build's node count (asserted), so every command's IDs match.
+- **What is timed.** Only `session.dispatch`, on the **production validation path** (`incremental`, asserted; every measured transaction was decided incrementally: 1.000 for all 12 types, every workload and every engine). Renderer scheduling is outside the measurement; it is measured separately in §10.
+
+**Run.**
+- **Command:** `G_DOC_R_DISPATCH=1 pnpm exec playwright test tests/browser/g-doc-r-dispatch.spec.ts` (one worker, engines in sequence).
+- **Build:** commit `d10ef36`, `VERSION` `6cdbae7e5bb8ad3f`, **`BUILD_ID` `83daa2d29699dfdb`**.
+- **Engines:** Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2.
+- **Conditions:** load 1.35–1.72; no `ngspice`; shared machine, not a designated quiet run.
+- **Records:** [`bench/closure-dispatch-{chromium,firefox,webkit}-d10ef36.json`](bench/), plus a WebKit 996k repeat ([`bench/closure-dispatch-webkit-996k-repeat-d10ef36.json`](bench/closure-dispatch-webkit-996k-repeat-d10ef36.json)).
+
+**Procedure.** Identical to Node (`scripts/bench-g-doc-r.mjs`): 2 warm-up and 30 measured repetitions. Each repetition:
+1. an untimed `setArtboard` gives a fresh state S;
+2. `dispatch(cmd)` on S is timed;
+3. undo and redo are timed;
+4. an untimed undo returns to S.
+
+**Differences from Node,** all recorded:
+- **Commands are built before the timed section.** Node builds them inside it, which for commitTrace includes synthesising the packet; so the browser commitTrace numbers are lower.
+- **No forced collection.** Pages cannot force one in Firefox or WebKit, so none was used in any engine. A 5 ms yield between repetitions lets scheduled collection run outside the timed sections, but p95 may include GC pauses.
+- **Timer resolution.** The page is not cross-origin isolated, so `performance.now()` resolution is **0.1 ms in Chromium and 1 ms in Firefox and WebKit**. Sub-millisecond types therefore read 0 / 1 there.
+
+**Interactive target: 43k paths, 264k anchors** (median / p95, ms)
+
+| Type | Node (§5.5) | Chromium 159 | Firefox 159 | WebKit 27.2 |
+|---|---|---|---|---|
+| setFill1 | 0.072 / 0.123 | 0.1 / 0.2 | 0 / 1 | 0 / 1 |
+| setFillMany | 6.277 / 6.682 | 5.9 / 6.8 | 6 / 7 | 9 / 11 |
+| setVisible | 0.059 / 0.079 | 0.1 / 0.2 | 0 / 1 | 0 / 1 |
+| rename | 0.062 / 0.086 | 0.1 / 0.2 | 0 / 1 | 0 / 1 |
+| reorder | 2.683 / 2.754 | 2.9 / 4 | 3 / 5 | 5 / 7 |
+| applyTransformPath | 0.058 / 0.086 | 0.1 / 0.2 | 0 / 1 | 0 / 1 |
+| applyTransformLayer | 4.955 / 5.337 | 5.9 / 7.9 | 6 / 8 | 8 / 10 |
+| group | 3.329 / 3.401 | 3.3 / 3.3 | 3 / 4 | 5 / 5 |
+| ungroup | 5.146 / 5.367 | 3.3 / 4.1 | 5 / 6 | 7 / 7 |
+| delete | 2.883 / 2.968 | 2.8 / 3.2 | 3 / 4 | 5 / 5 |
+| duplicate | 2.875 / 2.972 | 2.5 / 3 | 3 / 4 | 5 / 6 |
+| commitTrace | 6.875 / 7.47 | 4.6 / 4.9 | 5 / 6 | 7 / 8 |
+
+**250k paths, 756k anchors** (median / p95, ms)
+
+| Type | Node (§5.5) | Chromium 159 | Firefox 159 | WebKit 27.2 |
+|---|---|---|---|---|
+| setFill1 | 0.14 / 0.169 | 0.1 / 0.4 | 0 / 0 | 0 / 1 |
+| setFillMany | 19.658 / 20.076 | 14.6 / 17 | 12 / 15 | 29 / 30 |
+| setVisible | 0.124 / 0.148 | 0.1 / 0.2 | 0 / 1 | 0 / 1 |
+| rename | 0.131 / 0.166 | 0.2 / 0.4 | 0 / 1 | 0 / 1 |
+| reorder | 14.902 / 15.198 | 11.1 / 13.6 | 13 / 15 | 23 / 25 |
+| applyTransformPath | 0.125 / 0.146 | 0.1 / 0.2 | 0 / 1 | 0 / 1 |
+| applyTransformLayer | 26.17 / 26.498 | 25.9 / 26.7 | 26 / 27 | 43 / 44 |
+| group | 17.613 / 18.173 | 12.2 / 12.7 | 14 / 16 | 24 / 25 |
+| ungroup | 25.169 / 25.773 | 14.7 / 15 | 20 / 21 | 33 / 34 |
+| delete | 15.508 / 16.308 | 10.9 / 11.2 | 13 / 13 | 23 / 24 |
+| duplicate | 15.959 / 16.384 | 11.2 / 11.3 | 13 / 14 | 23 / 24 |
+| commitTrace | 6.085 / 7.095 | 4.7 / 4.9 | 5 / 6 | 7 / 8 |
+
+**996k anchors: 330k paths** (median / p95, ms)
+
+| Type | Node (§5.5) | Chromium 159 | Firefox 159 | WebKit 27.2 | WebKit repeat |
+|---|---|---|---|---|---|
+| setFill1 | 0.165 / 0.198 | 0.1 / 0.2 | 0 / 1 | 0 / 1 | 0 / 1 |
+| setFillMany | 26.123 / 26.829 | 19.7 / 21.5 | 14 / 16 | 39 / 40 | 39 / 41 |
+| setVisible | 0.149 / 0.17 | 0.1 / 0.2 | 0 / 1 | 0 / 1 | 0 / 1 |
+| rename | 0.154 / 0.166 | 0.3 / 0.5 | 0 / 1 | 1 / 1 | 0 / 1 |
+| reorder | 20.016 / 20.315 | 13.9 / 16 | 17 / 20 | 31 / 32 | 31 / 32 |
+| applyTransformPath | 0.153 / 0.184 | 0.1 / 0.3 | 0 / 1 | 0 / 1 | 0 / 1 |
+| applyTransformLayer | 34.363 / 34.723 | 34.3 / 34.6 | 33 / 34 | **59 / 68** | **58 / 58** |
+| group | 23.197 / 23.709 | 16 / 17.2 | 20 / 23 | 33 / 35 | 33 / 34 |
+| ungroup | 33.178 / 34.954 | 19.1 / 19.9 | 25 / 27 | 45 / 47 | 44 / 44 |
+| delete | 20.01 / 21.199 | 13.5 / 14 | 17 / 18 | 32 / 32 | 31 / 31 |
+| duplicate | 20.655 / 20.897 | 13.6 / 14.1 | 17 / 19 | 32 / 33 | 31 / 34 |
+| commitTrace | 5.82 / 6.264 | 4.7 / 5 | 5 / 6 | 7 / 8 | 7 / 8 |
+
+**Reading** (≤ 50 ms dispatch target; interactive targets median ≤ 16.7 ms and p95 ≤ 33 ms; no threshold relaxed):
+- **Interactive target:** **MET in all three engines.** The worst type is 5.9 / 7.9 ms in Chromium, 6 / 8 ms in Firefox and 9 / 11 ms in WebKit.
+- **756k anchors:** **MET in all three engines.** The worst type is applyTransformLayer at 25.9 / 26.7 ms in Chromium, 26 / 27 ms in Firefox and 43 / 44 ms in WebKit.
+- **996k anchors:**
+  - **MET in Chromium** (34.3 / 34.6 ms) **and in Firefox** (33 / 34 ms).
+  - **MISSED in Playwright WebKit by one type: applyTransformLayer 59 / 68 ms**, reproduced at 58 / 58 ms. ungroup is the next highest at 45 / 47 ms. The other ten types are ≤ 40 / 41 ms.
+  - WebKit runs this engine's walk-heavy transactions about 1.7× slower than V8 and SpiderMonkey.
+- **Undo and redo** are ≤ 1 ms everywhere (timer resolution).
+- **Real Safari dispatch: NOT RUN.** The safaridriver harnesses have no packet routing; Playwright WebKit stands in, and the 996k miss may or may not hold in Safari 26.
+
+**Consequence.** Browser dispatch is qualified at the interactive target and at 756k in three engines. At 996k anchors it is qualified in Chromium and Firefox only. **The WebKit 996k miss keeps TD-PERF-007 open and the gate PARTIAL**, together with lower-end hardware and the quiet machine.
+
 ## 12. Disposition
 | Brief item | Result |
 |---|---|
@@ -814,10 +1010,38 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 | `render_compare` deterministic setup; canvas-edge race | **Done** (§8) |
 | Exact omitted fixture set | `concert-small-venue.png`, `concert-small-venue-1280.png`, `concert-stage-light.png` (and every output derived from them): 32 of the 326 engine-corpus hashes and 60 of the 636 export hashes |
 
-**Overall: PARTIAL.**
+**Overall: PARTIAL.** *(As first written; superseded by §13.)*
 - Stage D and the G-DOC-R implementation are ready for maintainer review.
 - The gate stays **open and unqualified** until the remaining runs are done:
   - lower-end hardware;
   - a quiet machine;
   - in-browser dispatch timing.
 - No threshold has been relaxed.
+
+## 13. Maintainer acceptance and final closure (2026-11-26)
+The maintainer accepted stage D as an implementation at `1a7b45f`, subject to an accounting closure, and asked for browser dispatch qualification ([decision register §12](../g0/G0-DECISION-REGISTER.md)).
+
+| Closure item | Result |
+|---|---|
+| 0.987 residual investigated | **Done** (§7.1). The geometry store's per-chunk record: 3,688–3,767 bytes per chunk at every size; the nine typed-array and buffer headers are 1,800 of it. The structure model's typed-array header was also low (160 vs 198–200 measured) |
+| Correction | `COSTS.chunkRecord` 3,776 per history-attributed chunk (C3.2 precedence) and `COSTS.typedArray` 216, frozen at `4899605`. Counted under AM-2 term 3: the C3.2 chunk ledger cost, `bytes()` and C2 are unchanged, and the budgets are unchanged. **M-10:** the maintainer is asked to confirm this reading, or require a C3 r4 amendment instead |
+| Original result | Kept: §7 table (`629cec6`) and [`bench/stage-d-calibration-final-629cec6.json`](bench/stage-d-calibration-final-629cec6.json) |
+| Fresh validation, constants frozen | Six closure-fresh scenarios: **1.001–1.162** at the median. Without the record term, three would under-count (0.998, 0.941). Repetitions dip to 0.997 only inside the ±30–40 KB noise band |
+| Small eviction case | Inconclusive (0.694, at the noise floor); nothing tuned against it |
+| Browser heap claims | Chromium only. Wording corrected (§7): no conservative claim for Firefox or WebKit, no universal guarantee |
+| Re-qualification | `vp test` 465 passed (ledger, budget, owner precedence, oracle fuzz, transitions, retention); `check-retention.mjs` PASS; accounting cost unchanged (§7.1) |
+| Browser dispatch | Production build `83daa2d29699dfdb`, a session that is not shown, the incremental path, 12 types, median and p95 (§11.1). **Met:** interactive target and 756k anchors in Chromium, Firefox and WebKit; 996k anchors in Chromium and Firefox. **Missed: WebKit at 996k anchors, applyTransformLayer 59 / 68 ms** (repeat 58 / 58). Real Safari dispatch NOT RUN |
+| Blocker found on the way | The container loader cannot open the 250k-path workload: its 72.7 MB document section is over C7's 64 MiB cap (F-15; TD-PERF-009, G-PRJ input) |
+| Debt | TD-PERF-012 added (renderer regressions, accepted and tracked); TD-UI-006: confirmation authorised as a G-PRJ follow-up, refusal kept; TD-PERF-007 and TD-PERF-011 stay OPEN; TD-PERF-009 gains F-15. **45 open items, 14 High** |
+| Decisions | M-7, M-8 and M-9 recorded as decided (decisions §6, decision register §12). G-PRJ and G-COLOR-UI recorded in the roadmap; neither is started |
+| Reconciled | F-14 (the preview regression is +7 / +12 ms, not "unchanged"); the PR summary's calibration range (0.987–1.074, not 1.061), disposal (within 4 KB) and eviction ratio (0.689); opt-in skip counts (§11) |
+
+**Remaining open qualifications:**
+- Playwright WebKit dispatch at 996k anchors (applyTransformLayer);
+- real Safari dispatch;
+- lower-end hardware;
+- a designated quiet-machine run;
+- heap evidence from engines other than Chromium;
+- VoiceOver and the stock-Safari keyboard check (owner).
+
+**Overall: PARTIAL.** No threshold is relaxed. PR #22 stays unmerged until the maintainer reviews this closure.
