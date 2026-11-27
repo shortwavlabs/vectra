@@ -28,7 +28,7 @@ Historical status before acceptance. P0 (2026-11-23): G0 PARTIAL (macOS PASS; Li
 
 **PWA scope (maintainer, 2026-11-26).** G-BRAND ships **basic installability** early: a web app manifest (`display: standalone`, local icons) on top of the existing build-aware offline service worker, so Chromium-based browsers may offer to install Vectra. This is not the P3 PWA deliverable. **Full P3 PWA qualification stays open:** install, update and uninstall across browsers and platforms, offline-first behaviour, file handling, and mobile and touch. P3 is not complete.
 
-**Next product milestone: G-PRJ — Project Management and Persistence** (maintainer, 2026-11-26, G-DOC-R closure brief §5). The next user-facing gate after G-DOC-R. **Not started**; no implementation begins in G-DOC-R.
+**Next product milestone: G-PRJ — Project Management and Persistence** (maintainer, 2026-11-26, G-DOC-R closure brief §5). The next user-facing gate after G-DOC-R. **G-PRJ-R (research and design) accepted on 2026-11-27**, with AM-3.1–3.5 approved and AM-3.6 deferred ([G-PRJ-DECISIONS](research/g-prj/G-PRJ-DECISIONS.md)); **G-PRJ-0 (persistence foundations) authorized**; later stages follow the approved sequence, each after acceptance of the one before ([implementation plan](research/g-prj/G-PRJ-IMPLEMENTATION-PLAN.md)).
 - **Scope:**
   - Save, Save As and Open for portable `.vectra` projects;
   - complete restoration of the artwork and the editable document;

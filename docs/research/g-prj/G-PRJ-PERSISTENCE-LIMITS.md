@@ -1,6 +1,6 @@
 # G-PRJ-R — Persistence limits (TD-PERF-009, the C7 64 MiB document-section cap)
 
-**Status:** research. No canonical encoding, C7, C10 or serialized version is changed. Every proposal below needs the frozen-contract amendment procedure (proposed as AM-3, [G-PRJ-DECISIONS](G-PRJ-DECISIONS.md)).
+**Status:** research, **accepted (maintainer, 2026-11-27)**. AM-3.2 (compact C10 v2) and AM-3.3 (exact persistable-size enforcement) are approved; AM-3.6 is deferred and the 64 MiB document-section cap is retained ([decisions](G-PRJ-DECISIONS.md) §4). The refinement that the invariant covers the complete container (decisions §7.5) is reconciled in §9. No canonical encoding, C7, C10 or serialized version is changed in this research; the amendments go through change control in G-PRJ-0.
 
 ## 1. The problem
 - C7 caps a `.vectra` document section at **64 MiB** uncompressed (`CONTAINER_LIMITS.maxDocumentBytes`, `src/persistence/container.ts:26-33`, checked before parsing in `checkLimits`). Source sections are capped at 20 MiB, and the declared total at 512 MiB.
@@ -110,7 +110,7 @@ Sizes in MiB. "Per node" is canonical bytes ÷ nodes. Save is codec none / defla
    - Default-valued node fields are omitted, and `id` is implied by its key. Readers accept v1 and v2; writers write v2.
    - The canonical form stays RFC 8785. The same document then has one canonical v2 byte string.
    - The frozen document-export hashes are unaffected (exports never read the section), but the frozen canonical-serialization hash is re-baselined under change control.
-2. **Make persistability a document limit (the invariant):**
+2. **Make persistability a document limit (the invariant)**, over the **complete container**, not only the document section (§9):
    - Account the **exact** compact document-section size incrementally, at transaction time.
    - Nodes are written through the transaction log, and a node's canonical bytes are a pure function of the node, so the delta is computed per written key: the AM-2 delta pattern, with no whole-document pass.
    - Enforce it like the anchor cap: a command whose result would exceed the section limit is **rejected before commit** with an actionable error ("This change would make the project too large to save as one file"), and imports and trace commits are pre-flighted.
@@ -126,7 +126,7 @@ Sizes in MiB. "Per node" is canonical bytes ÷ nodes. Save is codec none / defla
 
 ## 7. User-facing resolution of an unpersistable state
 - **Before commit (the default):** the command is refused with the size limit named, in the status bar's error region. Nothing changes and history is untouched. The message suggests splitting the artwork, removing hidden layers, or simplifying the trace.
-- **Warning band:** at about 85 % of the section limit, the save-status control shows "Large project: n % of the maximum file size". It is a word and a number, not a colour alone, and it is shown only near the limit.
+- **Warning band:** at about 85 % of the document-section limit, the save-status control shows **"Complex document: n % of the document capacity"** (or of the section capacity it is near, §9). It is a word and a number, not a colour alone, and it is shown only near the limit. It never speaks of a "maximum file size": the limit is on document complexity in one section, and a project's total file size can be far larger, or far smaller after compression (refinement 7.5).
 - **Legacy documents already over the limit** (none can be saved today, so none exists on disk): a session that reaches this state through a pre-v2 build is offered **Export SVG / PDF** and **Save a copy with hidden layers removed**, never a silent truncation.
 
 ## 8. Not measured
@@ -134,3 +134,21 @@ Sizes in MiB. "Per node" is canonical bytes ÷ nodes. Save is codec none / defla
 - Real Safari load timing: the Safari harness serves `dist/` without request routing; it is planned for G-PRJ-Q.
 - Firefox/WebKit memory, which has no comparable reading.
 - Compressed-stream (DecompressionStream) memory in browsers.
+
+## 9. Complete-container persistability (refinement 7.5, approved 2026-11-27)
+The persistence invariant covers **every limit the strict loader applies**, not only the document section. Each limit is either enforced at transaction time (a command whose result would exceed it is rejected before commit) or implied by one that is. The figures are C7's (`CONTAINER_LIMITS`) and C3's (`DEFAULT_PACKET_LIMITS`).
+
+| Loader limit | Value | How the invariant holds it |
+|---|---|---|
+| **Document section** (uncompressed) | ≤ 64 MiB | **Enforced per transaction** by exact incremental accounting of the v2 canonical bytes (G-PRJ-0) |
+| **Manifest section** | ≤ 1 MiB | A constant: the fixed four-member manifest, under 100 bytes |
+| **Geometry section** (one per referenced chunk) | ≤ the C3.0 record cap: packet `maxBytes` (512 MiB) + manifest cap (16 MiB) + 24 | Implied: every chunk is validated against the packet limits when it is committed (C2), so its record fits. G-PRJ-0 confirms this with the store's exact record length |
+| **Source section** (one per embedded asset) | ≤ 20 MiB | Enforced when a source is embedded (`attachSource`); D-PRJ-10's oversized-source resolution happens before that point (§6.6 of the decisions) |
+| **Section count** | ≤ 4,096 | **Enforced per transaction**: 2 + referenced chunks + embedded sources. Today it is checked only at save |
+| **Header** | ≤ 1 MiB | **Implied by the section count.** The worst-case header, 4,096 entries with every number at the 16-digit safe-integer maximum and the longest ids, is 962,592 bytes (computed in this research) |
+| **Total declared uncompressed bytes** | ≤ the profile session budget (default 512 MiB) | **Enforced per transaction**: manifest + document + every referenced geometry record + every embedded source. Today it is checked only at save |
+| **Compression** | Caps apply to uncompressed lengths; inflation is bounded by the declared length (bomb guard) | Deflate output can exceed its input only by its stored-block overhead (5 bytes per 65,535); no limit is defined on compressed lengths, so compression cannot make a persistable document unpersistable. Codec `none` stores the uncompressed bytes |
+
+**No new arbitrary limit.** No independent path-count limit is introduced. The document limits that already exist (1M anchors, 2M nodes, depth 64) are unchanged.
+
+**Profiles.** A file is persistable under the writing profile's session budget. A file written under the standard profile (512 MiB) can exceed a constrained profile's budget; the constrained reader refuses it with `limit`, never a partial load. G-PRJ-1 discloses this when a constrained profile exists.

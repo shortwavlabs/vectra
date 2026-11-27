@@ -1,6 +1,6 @@
 # G-PRJ-R — UX specification: project home and workspace project controls
 
-**Status:** design proposal for maintainer acceptance (D-PRJ-13).
+**Status:** **accepted (maintainer, 2026-11-27; D-PRJ-13).** Direction A, "Resume hero with shelf", is the approved target for G-PRJ-4, and the compact list design stays the basis for the Show all projects view (§5). The research prototypes are **not** production-qualified interfaces: G-PRJ-4 rebuilds the surface in production code and runs its own critique, audit, refinement and final review. The wording below is reconciled with the maintainer's qualifications ([decisions](G-PRJ-DECISIONS.md) §6–§7).
 
 **Visual authority:** unchanged. `DESIGN.md` and `docs/DESIGN-SYSTEM.md` (§4, §8, §9, §13 normative), with tokens in `src/ui/styles.css`.
 
@@ -53,7 +53,8 @@ One quiet line follows: "Projects are .vectra files you keep · this browser kee
 - **The ivory sheet is the Import target:** "Trace an image". Drop a PNG, JPEG or WebP, or choose one. It is one focusable control, with click and keyboard support, a drag-over state, and the lime **"Choose an image…"** label outlined in dark ink so lime on paper passes non-text contrast.
 - **Other ways to start** are quiet secondary actions with no lime: **New project** ("Start from an empty artboard") and **Open…** ("Open a .vectra file from this device").
 - **One sentence explains the format:** "A .vectra file is a whole Vectra project: the artwork, its layers and palette, in one file you keep and can move to another device. This browser also keeps copies and recovery data on this device; nothing is uploaded."
-- **When storage access fails** (for example, private browsing without OPFS), the line says what is unavailable ("This browser won't keep projects between visits. Save your work as a file.") and the library sections are not shown.
+- **When storage access fails** (for example, private browsing without OPFS), the line says what is unavailable ("This browser won't keep projects between visits. Save your work as a file.") and the library sections are not shown. A project started then is an explicitly disclosed **temporary session** (D-PRJ-5): the status reads "Not stored anywhere yet · Download a copy".
+- **New projects** are stored in this browser from their first edit, labelled "Stored in this browser · No file copy yet". An untouched new project leaves nothing behind (D-PRJ-5).
 
 ## 4. Recovery in the home (the signature interaction)
 - **When:** a recovery snapshot exists that is newer than the project's last explicit save.
@@ -105,8 +106,12 @@ One quiet line follows: "Projects are .vectra files you keep · this browser kee
 | Saved to a file | "Saved to great-wave.vectra · 2 min ago" |
 | Saved in the library | "Saved in this browser · 2 min ago" |
 | Dirty | "Unsaved changes · Save" |
-| Download flavour (Firefox, Safari) | "Downloaded a copy (great-wave.vectra) · Mark as saved?" (D-PRJ-4) |
-| Failure | "Couldn't save · Details". It stays until resolved and is announced once as an alert. Details opens the reason with **Try again** (says it asks the browser for permission again), **Save As…** and **Download a copy**. Popovers never open by themselves, so no key press is lost |
+| Download requested (Firefox, Safari, and Download a copy everywhere) | "Download requested (great-wave.vectra) · Mark as saved?" (D-PRJ-4). A download request is not shown as a save |
+| Marked as saved after download | "Marked as saved after download · 2 min ago": the downloaded state only. Any later edit returns the status to "Unsaved changes", and the wording never becomes "Saved to …" |
+| Temporary session (storage unavailable) | "Not stored anywhere yet · Download a copy" (D-PRJ-5) |
+| Failure | "Couldn't save · Details". It stays until resolved and is announced once as an alert. Details opens the reason with **Try again** (says it asks the browser for permission again), **Save As…** and **Download a copy**. Popovers never open by themselves, so no key press is lost. The reason distinguishes "was not replaced" from "was replaced but couldn't be verified; the file may be damaged" ([architecture](G-PRJ-ARCHITECTURE.md) §5.4) |
+| Near the document capacity | "Complex document · 88 % of capacity", shown only above about 85 %. It speaks of document complexity or section capacity, never of a maximum file size ([limits](G-PRJ-PERSISTENCE-LIMITS.md) §7) |
+| Recovery behind | "Recovery is behind" while the newest snapshot is more than 30 s behind continuous editing ([recovery](G-PRJ-RECOVERY-CONTRACT.md) §7) |
 | Recovery paused | "Recovery paused: browser storage is full · Manage" |
 | Recovery kept | "Recovery from 12 min ago kept · Review"; compact: a "Recovery kept" button (§4) |
 | Healthy autosave | Nothing: never shown |
@@ -124,15 +129,20 @@ All follow the existing dialog pattern: title, one-sentence description, a foote
 | **Delete from this browser** | "Delete Rings study from this browser? A file copy elsewhere isn't affected. This can't be undone." | **Cancel** |
 | **TD-UI-006: commit without history** | "This change is too large to keep in undo history." "Continuing clears all undo and redo steps for this project, and can't be undone. You can save a copy first." Save a copy first (Download a copy), Continue without undo (outline, never lime), Cancel | **Cancel** |
 
+| **Source image too large to embed** (D-PRJ-10) | "This image is too large to store in the project (over 20 MB). The traced artwork is unaffected." Use a smaller copy…, Continue without the source image, Cancel. Never a silent omission | **Cancel** |
+| **Remove source image** (D-PRJ-10; a deliberate action from the source's menu) | "Remove the source image from Great Wave? The vector artwork stays. You can relink the image later if you still have it." Remove (outline, not lime), Cancel | **Cancel** |
+
 TD-UI-006 details: `withoutHistory` is never invoked automatically. After confirmation, the document revision is re-validated before commit; a stale confirmation is discarded with "The project changed; try again".
+
+**Destructive controls and TD-UI-008.** Delete from this browser, Discard recovery, Remove source image, Clear recent list and Overwrite use the shared design system's destructive styling. **TD-UI-008 is corrected before any of them ships**, with destructive text contrast qualified at rest, hover, focus and disabled (maintainer, 2026-11-27).
 
 ## 8. Projects and storage (dialog)
 **Sections:**
 - **Where your projects are:** files you keep (portable, safe from browser clearing); this browser (convenient, on this device only).
 - **List:** each project with size, location, and whether a file copy exists.
-- **Recovery data:** its size; the retention ("kept 14 days", D-PRJ-6).
-- **Storage:** use against the estimated quota; persistent storage status, with **Keep data in this browser** (requests `persist()`; Firefox prompts).
-- **Consequences:** "Clearing this browser's data removes projects stored only here. Save them as files to keep them." In Safari tabs: "Safari may remove data kept only in this browser after 7 days without use."
+- **Recovery data:** its size; the retention ("kept 14 days", D-PRJ-6). A snapshot that is the only copy of unsaved artwork is listed as "Only copy · kept until you decide" and never expires automatically.
+- **Storage:** use against the estimated quota; persistent storage status. `persist()` is requested after the first successful library save, where supported (D-PRJ-7); a denial changes nothing else. **Keep data in this browser** asks again on request (Firefox prompts).
+- **Consequences:** "Clearing this browser's data removes projects and recovery data stored only here. Save them as files to keep them." Persistent storage is described as protecting against the browser's automatic clean-up only, never against clearing site data. In Safari tabs: "Safari may remove data kept only in this browser after 7 days without use."
 
 **Separate actions**, each with its own confirmation:
 - Clear recent list (never deletes artwork);

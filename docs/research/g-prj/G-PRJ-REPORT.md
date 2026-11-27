@@ -1,6 +1,25 @@
 # G-PRJ-R — Project management and persistence: research and design report
 
-**Status: research and design complete for maintainer review. Nothing is implemented in production.** Every implementation stage waits for approval of this phase ([decisions](G-PRJ-DECISIONS.md) §4–§5).
+**Status: accepted by the maintainer (2026-11-27), subject to contract refinements now reconciled in these documents. Nothing is implemented in production.** AM-3.1–3.5 and D-PRJ-1–13 are approved (several with qualifications), AM-3.6 is deferred, the 64 MiB cap is retained, and **G-PRJ-0 alone is authorized** ([decisions](G-PRJ-DECISIONS.md) §4–§8; [G0 decision register §14](../g0/G0-DECISION-REGISTER.md)).
+
+## Maintainer disposition (2026-11-27)
+- **Accepted:** the research and design, reviewed at `7ddadb3` (CI run `45948216117`, independently verified).
+- **Design:** direction A is the approved target for G-PRJ-4; the compact list design stays the basis for Show all projects; the prototypes are not production-qualified.
+- **Qualifications** ([decisions](G-PRJ-DECISIONS.md) §6):
+  - a download request is not a save: "Download requested", with confirmation marking only the downloaded state;
+  - new projects live in the library from their first edit, or in a disclosed temporary session;
+  - 14-day retention, except that an only known copy never expires automatically;
+  - `persist()` after the first library save;
+  - stages measured separately; zero unreopenable successful saves;
+  - sources embedded by default, never silently omitted.
+- **Contract refinements, reconciled** (decisions §7):
+  - a saved-version identity covering geometry and sources ([architecture](G-PRJ-ARCHITECTURE.md) §5.2);
+  - portable-write failures classified by when they happened (§5.4);
+  - generations, failure cases and a safe orphan sweep for local publication ([recovery](G-PRJ-RECOVERY-CONTRACT.md) §4);
+  - acquire-before-act locking ([concurrency](G-PRJ-CONCURRENCY-CONTRACT.md) §1.1);
+  - complete-container persistability ([limits](G-PRJ-PERSISTENCE-LIMITS.md) §9);
+  - persistence-worker boundaries (architecture §4.1).
+- **Impeccable:** 4.11.1 installed; doctor findings recorded in decisions §8, with one approval request (the hook setting).
 
 | | |
 |---|---|
@@ -97,7 +116,7 @@ In summary ([storage](G-PRJ-STORAGE-COMPARISON.md) §1):
 G-PRJ-0 (limits and contracts) → 1 (portable Save/Open) → 2 (library) → 3 (recovery) → 4 (project home) → 5 (safeguards, TD-UI-006) → Q ([plan](G-PRJ-IMPLEMENTATION-PLAN.md)).
 
 ## 7. Qualification criteria
-The [qualification plan](G-PRJ-QUALIFICATION-PLAN.md) holds the matrix. Its proposed thresholds are not approved:
+The [qualification plan](G-PRJ-QUALIFICATION-PLAN.md) holds the matrix. Its thresholds were approved on 2026-11-27 (D-PRJ-9), with each stage measured separately:
 - open of the interactive target ≤ 1 s with ≤ 50 ms blocking;
 - explicit save ≤ 1 s to verified completion;
 - snapshot ≤ 16 ms of main thread;

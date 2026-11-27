@@ -1,6 +1,6 @@
 # G-PRJ-R — Persistence architecture (proposal)
 
-**Status:** proposal for maintainer approval. It is research and design only; nothing here is implemented.
+**Status:** **accepted by the maintainer (2026-11-27)** with the contract refinements of [decisions](G-PRJ-DECISIONS.md) §7, reconciled below (§4.1, §5, §6). It is research and design only; nothing here is implemented.
 - **Inputs:**
   - the persistence audit (§1);
   - [persistence limits](G-PRJ-PERSISTENCE-LIMITS.md);
@@ -81,40 +81,94 @@ Detected at runtime with no user-agent sniffing. The probe evidence is real Safa
   - name;
   - last explicit save: time, revision, content digest, location;
   - lock state.
-- **Persistence worker** (new dedicated worker, same build): serialization finishing, deflate, hashing, OPFS writes through sync access handles, and **verify-by-reload** (§5). It takes transferred bytes and returns digests. No document state lives there.
+- **Persistence worker** (new dedicated worker, same build; AM-3.5): serialization finishing, deflate, hashing, OPFS writes through sync access handles, and **verify-by-reload** (§5). It takes transferred bytes and returns digests. No document state lives there (§4.1).
 - **`RecoveryWriter`**: subscribes to committed transactions and debounces (recovery contract §3). It writes snapshots through the worker and never touches the saved mark.
 - **`LibraryIndex`** (IndexedDB `vectra-library` v1): records for projects, recents (with persisted file handles in Chromium) and recovery entries. It is advisory: every list entry is re-validated against OPFS or the handle before it is offered.
 - **`Thumbnailer`**: asks the existing render worker for a bounded raster (§7) at idle after an explicit save or a snapshot.
 
+### 4.1 Persistence-worker boundaries (refinement 7.6)
+The worker is **never a second authoritative document engine.**
+
+| Boundary | Rule |
+|---|---|
+| **Ownership** | The main-thread `DocumentSession` owns the only authoritative document: states, history, the saved mark, the geometry store. The worker holds no `DocState`, no session and no history. It holds a container's bytes only for the duration of one job, then releases them |
+| **Save direction** | The main thread produces the canonical sections from one immutable state (synchronously, so later edits cannot change them) and **transfers** them. The worker hashes, compresses, assembles, writes and verifies. It returns digests, sizes and a result code, never document data |
+| **Open direction** | The worker reads and inflates the file, checks hashes, parses the canonical JSON and runs the **structural schema checks**. It transfers back the parsed sections in a form the main thread adopts **without re-parsing**: geometry records as transferred buffers, and the document as the parsed value. The main thread then runs `validateState` **once**, the existing trust boundary, and builds the session. The worker's checks never replace that validation |
+| **Validation** | Exactly one full semantic validation per open (main thread) and one verify-by-reload per save (worker, on the written bytes). No repeated full validation of the same bytes on either side |
+| **Publication** | Only the main thread publishes: it marks a state saved after the worker reports a verified write (§5.4), and only it flips an IndexedDB pointer for a library or recovery write it requested |
+| **Failure** | A worker crash or error fails the job; the session is unchanged and stays dirty. The worker never retries a publication by itself |
+
+**Measured as a whole.** Moving parsing into the worker must not just move equivalent blocking work into main-thread reconstruction. G-PRJ-1 measures the entire hand-off: transfer, structured-clone deserialization of the parsed document on the main thread, store commits, `validateState` and session construction, with the main-thread blocking budget applied to the sum ([qualification](G-PRJ-QUALIFICATION-PLAN.md) §1). If the reconstruction alone exceeds the budget, the stage stops and reports, rather than claiming the worker solved it.
+
 ## 5. The save transaction (the invariant, enforced)
-The invariant: every successful save indication refers to bytes that reopen.
+The invariant: **every successful save indication refers to bytes that reopen.** Zero unreopenable successful saves is mandatory (D-PRJ-9).
 
-1. **Pre-flight.** The document is already within the persistable-size limit, by construction ([limits](G-PRJ-PERSISTENCE-LIMITS.md) §6.2). The save re-checks the exact size before serializing.
-2. **Serialize.**
-   - On the main thread, a per-node canonical-fragment cache makes this O(changed nodes): nodes are frozen and shared across states, so their canonical bytes are memoised.
-   - The fragments and the geometry records go to the persistence worker, as transferred buffers.
+**Order of a save:**
+1. **Pre-flight** (§5.1). The **complete container** is already within every persistence limit, by construction ([limits](G-PRJ-PERSISTENCE-LIMITS.md) §9). The save re-checks the exact sizes **before** any expensive serialization, hashing or compression.
+2. **Serialize** on the main thread, synchronously, from one immutable state.
+   - A per-node canonical-fragment cache (G-PRJ-1) makes this O(changed nodes): nodes are frozen and shared across states, so their canonical bytes can be memoised. Any retained cache is accounted under AM-2 and never retains predecessor states.
+   - The sections go to the persistence worker as transferred buffers (§4.1).
    - Measured: a full canonical pass is 479–798 ms at 330k nodes, too long for the main thread; the cache removes it.
-3. **Write without destroying the previous version.**
-   - **Library (OPFS):**
-     - write a **new uniquely named file** (`project-<rev>.vectra`);
-     - verify it (step 4);
-     - flip the project's "current file" pointer in one IndexedDB `readwrite` transaction (all-or-nothing by spec);
-     - then delete the previous file.
-
-     This is the same pointer-flip as recovery (recovery contract §4). It relies on neither `move()` (not in the spec, engine-specific signatures) nor fsync, which `close()` does not promise.
-   - **Portable file (Chromium):** `createWritable()` writes into a swap file that replaces the target on `close()`. An `abort()` or crash leaves the committed file intact (probed in Chromium, Firefox and real Safari). That is best-effort per the spec, so the step-4 re-read is what certifies the result.
-   - **Downloads:** the browser owns the write, and the app cannot observe it (§5.1).
-4. **Verify.** The worker re-reads what it wrote, from the OPFS file or the File System Access handle, and runs the full `loadContainer` validation, then compares the document digest with the saved state's.
+3. **Write without destroying the last verified version** (§5.3 library, §5.4 portable file, §5.5 download).
+4. **Verify by reload.** The worker re-reads what it wrote, from the OPFS file or the File System Access handle, runs the complete loader on it, including semantic validation, on a throwaway session that is then discarded, and compares the **saved-version identity** (§5.2) with the one computed at serialization.
 5. **Only then** does the session's `markSaved(state)` run, and the status say "Saved to `name.vectra`" or "Saved in this browser", with the time.
-   - **Changed from today:** `saveContainer` must stop calling `markSaved` itself (audit §1.9).
-6. **On failure** (quota, permission, verification mismatch, a crash mid-write): the previous committed file is untouched; the session stays dirty; the error names the cause and offers **Download a copy** as the always-available fallback.
+   - **Changed from today (AM-3.4):** `saveContainer` serializes only. It never calls `markSaved` (F-1).
+6. **On failure:** the session stays dirty, the error names the cause, and a safe alternative save path is offered (§5.4). What the app says about the previous version depends on when the failure happened; it never claims more than it knows.
 
-### 5.1 Downloads (Firefox, Safari)
-- A download can't be verified after the browser takes it. So the worker verifies the **bytes** by reload before handing them over, and the status says "Downloaded a copy (`name.vectra`)" rather than "Saved".
-- The project stays marked as **having unsaved changes in this browser** until either:
-  - the user confirms the download ("Did the file save? Keep editing / Mark as saved"), or
-  - a library copy is saved.
-- This is the honest reading of RFC-002 §14: "each save is a new download". The maintainer decides whether a confirmed download clears the dirty mark (D-PRJ-4).
+### 5.1 Pre-flight
+- The persistable-size accounting (G-PRJ-0) keeps every committed state within the complete-container limits, so a save never discovers an over-limit document after serializing it.
+- The save still recomputes the exact section sizes and counts from the state it is about to write, before serialization, hashing and compression. A disagreement with the accounting is a defect: the save fails with the error, nothing is written, and the state stays dirty.
+
+### 5.2 Saved-version identity (refinement 7.1)
+A saved version is identified by **all of its authoritative content**, not by the document section alone. A canonical document-section digest alone never certifies that two versions are equal: the geometry or source bytes it references could differ.
+
+- **Definition.** `versionDigest` = SHA-256 of the canonical JSON (RFC 8785) of:
+  ```text
+  { formatVersion, sections: [ { id, kind, uncompressedLength, sha256 } ... ] }
+  ```
+  - Every section is listed in the container's fixed order: manifest, document, geometry by chunk number, embedded source by asset number.
+  - `sha256` is the section's existing digest over its **uncompressed** canonical bytes (C7).
+  - It is the header minus the codec-dependent fields (`codec`, `offset`, `length`). So it costs one small hash, and is **independent of compression**: the same state saved with `none` and with `deflate-raw` has one identity.
+- **What it covers:**
+  - the document section: tree, styles, palette, provenance, artboard, asset records, and the high-water marks;
+  - every geometry record the state references;
+  - every embedded source's bytes;
+  - a non-embedded source is covered by its asset record (its digest), because its bytes are by definition not part of the project.
+- **What it is for:** "unchanged since save", base tracking for recovery, external-change detection, and confirming that a verify-by-reload read back the version that was written.
+- **What it is not:** an edit-time dirty test. Dirty state stays state identity (C7).
+- **Encoding changes identity.** The same document written by the v1 and the v2 encoder has two identities. A v1 file re-saved by a v2 build is a new version: a migration, not a silent equality.
+
+### 5.3 Local library publication (refinement 7.3)
+Write-new, verify, then transactionally flip the IndexedDB pointer. **OPFS and IndexedDB are not one atomic transaction**, so the design keeps a verified previous generation and specifies recovery for each gap.
+- **Generations.** A library project's IndexedDB record holds `current` and `previous`: file name, `versionDigest`, revision, time. A save writes `gen-<n>.vectra` (never overwriting), verifies it (step 4), then in one `readwrite` transaction sets `previous = current` and `current = gen-<n>`. Only after that commits is the file older than `previous` deleted.
+- So **two verified generations exist at all times** after the second save. A damaged or missing `current` falls back to `previous`, with disclosure.
+- The full protocol and its failure cases (a pointer to a missing or corrupted file, a pointer that survives when its file does not, interrupted cleanup, another tab writing a candidate, an older build meeting a newer record, orphan cleanup) are specified once, for library and recovery alike, in the [recovery contract](G-PRJ-RECOVERY-CONTRACT.md) §4.
+- It relies on neither `move()` (not in the spec, engine-specific signatures) nor fsync, which `close()` does not promise.
+
+### 5.4 Portable file writes and their failures (Chromium; refinement 7.2)
+`createWritable()` writes into a swap file that replaces the target on `close()`. An `abort()` or crash before `close()` leaves the committed file intact (probed in Chromium, Firefox and real Safari). That is best-effort per the spec, so the verify-by-reload is what certifies the result.
+
+**Failures are classified by when they happened**, and after any ambiguous failure the worker re-reads the target to find out:
+
+| When | Examples | What is known | What the app says and does |
+|---|---|---|---|
+| **Before replacement** | `createWritable` or a `write()` rejects; quota; permission lost; the writer is aborted | `close()` never resolved, so the browser did not commit the swap file. The previous file is expected to be intact (best-effort per spec) | "Couldn't save. `great-wave.vectra` was not replaced." Stays dirty; offers **Try again**, **Save As…** and **Download a copy** |
+| **After replacement, verification failed** | `close()` resolved, then the re-read is unreadable, truncated, fails validation or has the wrong `versionDigest` | The target was replaced by bytes that do not verify. **The previous file is not claimed untouched**: it is gone from that path | "Couldn't verify `great-wave.vectra` after saving. The file may be damaged." Stays dirty; offers **Save As…** (a new file) and **Download a copy**, plus the library copy where one exists. Never retries overwriting the same file automatically |
+| **Unknown** | `close()` rejects, or the tab is interrupted during `close()` | Either outcome is possible | The re-read decides: the new `versionDigest` → saved; the base's `versionDigest` → "not replaced"; anything else → treated as **after replacement, verification failed** |
+
+- In every failure case the project **stays dirty**, the failure is disclosed until resolved, and a safe alternative path (Save As to a new file, Download a copy) is always available.
+- External changes made between the base and this save are checked before writing ([concurrency](G-PRJ-CONCURRENCY-CONTRACT.md) §2), with the remaining race acknowledged there.
+
+### 5.5 Downloads (Firefox, Safari, and Download a copy everywhere; D-PRJ-4)
+- **A download request is not proof that the file reached the filesystem.** The browser owns that write, and the app cannot observe it.
+- **Before hand-off,** the worker validates the generated container by reload (step 4), so the bytes handed over are known to reopen.
+- **The status reads "Download requested (`name.vectra`)"**, never "Saved".
+- **Confirmation is per revision.** The status offers "Did the file save? Mark as saved". A confirmation:
+  - marks **the state that was downloaded** as saved (C7 state identity), never the current state as such. If the artist has edited since, the newer state stays dirty; undoing back to the downloaded state shows it clean;
+  - is recorded as `confirmed-download`, distinct from a `verified-write`, in the session's save record and in the wording ("Marked as saved after download", not "Saved to …");
+  - is never asked again for the same download, and never during ordinary editing.
+- **A library save** (verified) also clears the dirty state, as "Saved in this browser".
+- This is the honest reading of RFC-002 §14, "each save is a new download".
 
 ## 6. What a project is
 - **Project id:** a new UUID in the library index. It is **not** stored in the document, so no schema change is needed.
@@ -125,6 +179,11 @@ The invariant: every successful save indication refers to bytes that reopen.
   - renaming a library project changes its record; renaming a file-backed project is Save As.
   - RFC-002 lists file names as not stored in the document, and that stays true.
 - **Not in the project file:** undo history (by default, §8), selection, camera, panel layout. Camera and the last tool may live in the library record as **workspace preferences**, so they never alter the artwork's bytes.
+
+### 6.1 New projects (D-PRJ-5)
+- **A new project lives in the local library by default.** It is labelled as **stored in this browser, with no portable file copy yet** ("Stored in this browser · No file copy yet").
+- **No abandoned empty projects.** A new project is written to the library at its first committed edit, not when it is created. Closing an untouched new project leaves nothing behind.
+- **Local storage unavailable** (OPFS or IndexedDB fails, a private window refuses storage, quota is exhausted): the project opens as an explicitly disclosed **temporary session**. "This project is not stored anywhere yet. Download a copy to keep it." Download a copy and Export work normally; nothing claims the project is stored.
 
 ## 7. Thumbnails
 - **How rendered:** by the existing render worker (OffscreenCanvas, display cache) from the committed document, after an explicit save or a recovery snapshot, at idle, never during a gesture.
@@ -147,15 +206,17 @@ The invariant: every successful save indication refers to bytes that reopen.
 - **Evaluated alternative, not recommended for P1:** persisting the last N transactions as structural deltas in a separate optional section. It needs a C7/C10 amendment, a delta format, and validation of every intermediate state on load.
 - **Recovery snapshots** likewise restore the document only. The recovery dialog says that undo history is not restored.
 
-## 9. Contract changes required (AM-3, for approval)
-| Item | Contract | Change |
-|---|---|---|
-| AM-3.1 | **RFC-002 §14, D08, VS-12, the G-0 plan's exclusions** | Lift the P1 exclusion of autosave, project library, recent files and OPFS/IndexedDB persistence, under the tier rules of §2. Explicit saves only ever overwrite in place through a granted File System Access handle; elsewhere a save is a download |
-| AM-3.2 | **C10 v2** | Compact canonical encoding (defaults and the implied `id` omitted; `kind` optional) with a v1 reader; re-baseline the frozen canonical hash |
-| AM-3.3 | **C3/C10 document limit** | A persistable document-section size, enforced at transaction time like the anchor cap |
-| AM-3.4 | **`saveContainer` semantics** | Serialization no longer marks the session saved; the store marks it only after a verified write |
-| AM-3.5 | **C5 / service worker** | A persistence worker added to the build's worker set, inside the same build-isolation rules |
-| AM-3.6 (optional, later) | **C7 r3** | Sectioned document and worker-side streaming, only if limits above the compact ceiling are required |
+## 9. Contract changes (AM-3; dispositions 2026-11-27)
+| Item | Contract | Change | Disposition |
+|---|---|---|---|
+| AM-3.1 | **RFC-002 §14, D08, VS-12, the G-0 plan's exclusions** | Lift the P1 exclusion of autosave, project library, recent files and OPFS/IndexedDB persistence, under the tier rules of §2. Explicit saves only ever overwrite in place through a granted File System Access handle; elsewhere a save is a download | **Approved** |
+| AM-3.2 | **C10 v2** | Compact canonical encoding (defaults and the implied `id` omitted; `kind` optional) with a v1 reader; re-baseline the frozen canonical hash | **Approved**; v1 stays readable; historical v1 fixtures and hashes preserved; v2 hashes re-baselined explicitly |
+| AM-3.3 | **C3/C10 document limit** | A persistable document-section size, enforced at transaction time like the anchor cap | **Approved** as exact enforcement over the complete container ([limits](G-PRJ-PERSISTENCE-LIMITS.md) §9) |
+| AM-3.4 | **`saveContainer` semantics** | Serialization no longer marks the session saved; the store marks it only after a verified write | **Approved** |
+| AM-3.5 | **C5 / service worker** | A persistence worker added to the build's worker set, inside the same build-isolation rules | **Approved**, with the boundaries of §4.1 |
+| AM-3.6 (optional, later) | **C7 r3** | Sectioned document and worker-side streaming, only if limits above the compact ceiling are required | **Deferred**; the 64 MiB document-section cap is retained |
+
+Formal change control (revision bumps, the RFC-002 amendment) happens in G-PRJ-0 with the implementation ([decisions](G-PRJ-DECISIONS.md) §4).
 
 ## 10. Security and privacy
 - **Nothing leaves the device:** no network calls, telemetry or remote thumbnails.

@@ -47,8 +47,8 @@ Vectra becomes a studio where artists can invest hours in a piece with confidenc
 - iOS qualification.
 - G-COLOR-UI, R-COLOR, CMYK, Precision v2, deployment.
 
-## 6. Success measures (proposed thresholds in the [qualification plan](G-PRJ-QUALIFICATION-PLAN.md) §2)
-- **Integrity:** zero saved projects that fail to reopen, across the qualification matrix, every workload and every engine.
-- **Honesty:** zero "Saved" indications without a verified write; zero recovery snapshots presented as saves.
-- **Speed:** open of the interactive target ≤ 1 s with ≤ 50 ms main-thread blocking; an explicit save ≤ 1 s to verified completion (proposed).
-- **Recovery:** after a forced kill, the work lost is at most the debounce window (2 s idle, 30 s maximum, proposed).
+## 6. Success measures (thresholds approved 2026-11-27 in the [qualification plan](G-PRJ-QUALIFICATION-PLAN.md) §2)
+- **Integrity:** zero saved projects that fail to reopen, across the qualification matrix, every workload and every engine (mandatory).
+- **Honesty:** zero "Saved" indications without a verified write; zero recovery snapshots presented as saves; a download shown as "Download requested" until the user confirms it.
+- **Speed:** open of the interactive target ≤ 1 s with ≤ 50 ms main-thread blocking; an explicit save ≤ 1 s to verified completion; each stage measured separately.
+- **Recovery:** after a forced kill, the work lost is at most the debounce window (2 s idle, 30 s maximum) under healthy operating conditions, and the app says so when recovery cannot keep up.
