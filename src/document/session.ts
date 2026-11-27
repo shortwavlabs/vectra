@@ -234,12 +234,14 @@ export class DocumentSession {
   get persistLimits(): Readonly<PersistLimits> {
     return this.#persistLimits;
   }
-  /** Changes the limits (a profile change, or a test). Refused when the current state would not
-   *  satisfy them; states in history were checked against the limits of their own commit. */
+  /** Changes the limits (a profile change, or a test). Refused when any state undo or redo can
+   *  reach would not satisfy them, so every reachable state stays persistable. */
   setPersistLimits(limits: PersistLimits): void {
     const next = Object.freeze({ ...limits });
-    const problem = persistProblem(this.persistInfo(), next);
-    if (problem) throw new DocumentError("persist_limit", problem);
+    for (const s of [this.#state, ...this.#past, ...this.#future]) {
+      const problem = persistProblem(this.#sizes(s, this.#derived.get(s)!, this.#nextId), next);
+      if (problem) throw new DocumentError("persist_limit", problem);
+    }
     this.#persistLimits = next;
   }
   /** Exact sizes of the container the current state would write (C7 r3; AM-3.3). */

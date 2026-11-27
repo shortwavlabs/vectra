@@ -216,6 +216,17 @@ describe("transactional enforcement: the first transaction past any limit is ref
     expect(code(() => s.setPersistLimits(tight))).toBe("persist_limit");
   });
 
+  test("limits cannot be tightened below a state reachable by undo or redo", () => {
+    const s = fixtureSession(["circle-bw"]);
+    const big = s.persistInfo().documentBound;
+    s.dispatch({ type: "delete", ids: [s.state.orderedRootIds[0]!] }); // smaller current state
+    expect(s.persistInfo().documentBound).toBeLessThan(big);
+    const tight = { ...DEFAULT_PERSIST_LIMITS, maxDocumentBytes: big - 1 };
+    expect(code(() => s.setPersistLimits(tight))).toBe("persist_limit"); // undo would reach `big`
+    s.undo();
+    expect(code(() => s.setPersistLimits(tight))).toBe("persist_limit"); // redo would reach it too
+  });
+
   test("the error names the limit, the size and the cap", () => {
     const s = fixtureSession(["circle-bw"]);
     const id = unnamedPath(s);
