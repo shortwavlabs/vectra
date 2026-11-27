@@ -265,8 +265,10 @@ async function qualify(name, w) {
   checks.v1EncodingEqual = (await hash(v1Bytes(loaded))) === (await hash(v1doc));
   checks.persistInfoEqual = JSON.stringify(loaded.persistInfo()) === JSON.stringify(info);
   checks.geometryRecordsEqual = (() => {
-    const a = [...s.derivedOf(s.state).chunks.keys()].sort();
-    const b = [...loaded.derivedOf(loaded.state).chunks.keys()].sort();
+    const a = [...s.derivedOf(s.state).chunks.keys()].sort((x, y) => (x < y ? -1 : x > y ? 1 : 0));
+    const b = [...loaded.derivedOf(loaded.state).chunks.keys()].sort((x, y) =>
+      x < y ? -1 : x > y ? 1 : 0,
+    );
     if (a.join() !== b.join()) return false;
     return a.every(
       (id) =>
