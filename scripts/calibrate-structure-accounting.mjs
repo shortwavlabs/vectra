@@ -8,10 +8,11 @@
 // heap before clearing minus after. Chunk bytes retired into history (replace) are reported
 // separately and subtracted (their own ledger term). Repetitions give min / median / max.
 // Accounted = history-only structure bytes + the store records of history-attributed chunks
-// (COSTS.chunkRecord, AM-2 closure; reported separately).
+// (chunkRecordCost: a fixed part plus the manifest beyond its JSON length; AM-2 closure;
+// reported separately).
 // Scenarios marked `set: "calibration"` chose the COSTS constants; the others validate them.
 // `closure-fresh` scenarios were written after the closure constants were frozen (4899605)
-// and before any of them ran.
+// and before any of them ran; `refreeze-fresh` after the record model was re-frozen (729e63a).
 import { execFileSync } from "node:child_process";
 import { cpus, loadavg, totalmem } from "node:os";
 import { writeFileSync } from "node:fs";
@@ -441,6 +442,72 @@ scenarios.push(
         }
       }
       for (let i = 0; i < 3; i++) d.session.undo();
+    },
+  },
+);
+
+/** Re-freeze fresh validation (closure review): written after the chunk-record model was
+ *  re-frozen at 729e63a and run once. Traced layers with large style and group tables. */
+scenarios.push(
+  {
+    name: "refreeze-fresh: replace a 4k-path traced layer with 4k styles and 256 groups ×3",
+    paths: 1000,
+    set: "refreeze-fresh",
+    build: () => {
+      const doc = buildWorkload(1000, { history: HUGE });
+      doc.session.dispatch({
+        type: "commitTrace",
+        provenance: TEST_PROVENANCE,
+        packet: syntheticPacket({
+          paths: 4000,
+          anchorsPerPath: 3,
+          styles: 4000,
+          groups: 256,
+          seed: 41,
+        }),
+      });
+      return doc;
+    },
+    run: (d) => {
+      const layer = d.session.state.orderedRootIds.at(-1);
+      for (let i = 0; i < 3; i++)
+        d.session.dispatch({
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: syntheticPacket({
+            paths: 4000,
+            anchorsPerPath: 3,
+            styles: 4000,
+            groups: 256,
+            seed: 42 + i,
+          }),
+          replaceLayerId: layer,
+        });
+    },
+  },
+  {
+    name: "refreeze-fresh: delete 6 traced 1k-path layers with 2k styles and 500 groups each",
+    paths: 1000,
+    set: "refreeze-fresh",
+    build: () => {
+      const doc = buildWorkload(1000, { history: HUGE });
+      for (let i = 0; i < 6; i++)
+        doc.session.dispatch({
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: syntheticPacket({
+            paths: 1000,
+            anchorsPerPath: 4,
+            styles: 2000,
+            groups: 500,
+            seed: 50 + i,
+          }),
+        });
+      return doc;
+    },
+    run: (d) => {
+      for (const id of d.session.state.orderedRootIds.slice(-6))
+        d.session.dispatch({ type: "delete", ids: [id] });
     },
   },
 );
