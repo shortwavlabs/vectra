@@ -128,8 +128,37 @@ export function nodeLength(n: DocNode): number {
   return len;
 }
 
-/** `body` by full encoding: the v2 document section of `s`, minus the marks' digits. */
+/** `body` by full encoding: the v2 document section of `s`, minus the marks' digits. The
+ *  oracle (compare mode, tests): it builds the whole document value. */
 export const fullBody = (s: DocState): number => canonicalLength(documentJson(s, 0, 0)) - 2;
+
+const EMPTY_MAP = new Map<string, never>();
+const entries = <V>(m: ReadonlyMap<string, V>, len: (v: V) => number) => {
+  let n = commas(m.size);
+  for (const [k, v] of m) n += keyed(k, len(v));
+  return n;
+};
+/** `body` as a sum of entries, with the same per-entry functions as bodyDelta and no document
+ *  value (the session constructor: loading a large file allocates no second document). */
+export function bodyOf(s: DocState): number {
+  const skeleton = {
+    ...s,
+    orderedRootIds: [] as string[],
+    nodesById: EMPTY_MAP,
+    stylesById: EMPTY_MAP,
+    paletteById: EMPTY_MAP,
+    sourceAssetsById: EMPTY_MAP,
+  } as DocState;
+  return (
+    fullBody(skeleton) +
+    idArrayLength(s.orderedRootIds) -
+    2 +
+    entries(s.nodesById, nodeLength) +
+    entries(s.stylesById, (v) => canonicalLength(encodeStyle(v))) +
+    entries(s.paletteById, (v) => canonicalLength(encodePalette(v))) +
+    entries(s.sourceAssetsById, (v) => canonicalLength(encodeAsset(v)))
+  );
+}
 
 function mapDelta<V>(
   x: ReadonlyMap<string, V>,

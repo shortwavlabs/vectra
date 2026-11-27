@@ -5,6 +5,7 @@
 import type { DecodePolicy } from "./provenance.ts";
 import {
   bodyDelta,
+  bodyOf,
   DEFAULT_PERSIST_LIMITS,
   fullBody,
   type PersistInfo,
@@ -170,7 +171,9 @@ export class DocumentSession {
     for (const [id, bytes] of o.sources ?? []) this.#sources.set(id, bytes.slice());
     // AM-3.3: the initial state is persistable, like every state committed after it.
     this.#persistLimits = Object.freeze({ ...(o.persistLimits ?? DEFAULT_PERSIST_LIMITS) });
-    const d: SessionDerived = { ...v, body: fullBody(o.state) };
+    const d: SessionDerived = { ...v, body: bodyOf(o.state) };
+    if (this.validation === "compare" && fullBody(o.state) !== d.body)
+      throw new ValidationDisagreement("persistable body: entry sum and full serialization differ");
     const problem = persistProblem(this.#sizes(o.state, d, this.#nextId), this.#persistLimits);
     if (problem) throw new DocumentError("persist_limit", problem);
     this.#onListenerError =
