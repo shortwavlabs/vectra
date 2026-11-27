@@ -1,10 +1,11 @@
 # G-0 — Architecture contracts (frozen for G-ENG and G-DOC)
 
-**Status:** FROZEN at G-0 closure, then amended twice through change control:
+**Status:** FROZEN at G-0 closure, then amended three times through change control:
 - **amendment set AM-1** (P1-A corrective review, maintainer-approved, 2026-11-25), recorded in §AM-1 and in [G0-DECISION-REGISTER §6](G0-DECISION-REGISTER.md);
-- **amendment AM-2** (G-DOC-R history accounting, maintainer-approved, 2026-11-26), recorded in §AM-2 and in [G0-DECISION-REGISTER §11](G0-DECISION-REGISTER.md).
+- **amendment AM-2** (G-DOC-R history accounting, maintainer-approved, 2026-11-26), recorded in §AM-2 and in [G0-DECISION-REGISTER §11](G0-DECISION-REGISTER.md);
+- **amendment set AM-3** (G-PRJ project persistence, maintainer-approved, 2026-11-27), recorded in §AM-3 and in [G0-DECISION-REGISTER §14](G0-DECISION-REGISTER.md). AM-3.2–3.4 are implemented by G-PRJ-0; AM-3.1 and AM-3.5 are approved and not yet implemented (G-PRJ-1 to G-PRJ-3).
 
-Both are integrated below.
+All are integrated below.
 
 This file holds the **byte-level and API details** that RFC-002 defers to. Architecture, rationale and evidence stay in [RFC-002](../../RFC-002.md); this file does not restate them.
 
@@ -23,12 +24,12 @@ Additive fields are allowed only where a contract says so. A gate that needs a c
 | C2 | GeometryStore ownership and lifetime | **r2** (AM-1: A1) | — | yes | RFC §5.2 |
 | C3 | GeometryPacket and resource accounting | **r3** (AM-1: AR-1, AR-3; AM-2: history accounting) | `packetVersion` 1 (unchanged) | yes | RFC §6, §7 |
 | C4 | Engine API (Rust and WASM) | **r2** (AM-1: finalised signatures) | — | yes | RFC §6, §11.2 |
-| C5 | Worker protocol | **r2** (AM-1: AR-2) | `protocolVersion` 2 (unchanged) | yes | RFC §10 |
-| C6 | Geometry and algorithm versions | **r2** (AM-1: version table) | — | yes | RFC §12.2 |
-| C7 | `.vectra` container | **r2** (AM-1: offsets, contiguity) | `formatVersion` 1 (unchanged; unreleased) | yes | RFC §14 |
+| C5 | Worker protocol | **r3** (AM-1: AR-2; AM-3.5: persistence worker admitted) | `protocolVersion` 2 (unchanged) | yes | RFC §10 |
+| C6 | Geometry and algorithm versions | **r3** (AM-1: version table; AM-3.2: `documentSchemaVersion` 2) | — | yes | RFC §12.2 |
+| C7 | `.vectra` container | **r3** (AM-1: offsets, contiguity; AM-3.3: complete-container persistability; AM-3.4: save semantics) | `formatVersion` 1 (unchanged; unreleased) | yes | RFC §14 |
 | C8 | Renderer boundary, snapshots and P1 clipping | **r2** (AM-1: A2, A3, AR-2) | — | yes | RFC §8, §12.3 |
 | C9 | Measurement boundaries | r1 | — | yes | RFC §17 |
-| C10 | Document v1 schema and TraceProvenance | **r1** (new at AM-1) | `documentSchemaVersion` 1 (unchanged; unreleased), `provenanceVersion` 1 | yes | RFC §5.1, §6.1, §14 |
+| C10 | Document schema and TraceProvenance | **r2** (new at AM-1; AM-3.2: compact v2 encoding) | `documentSchemaVersion` **2** written, 1 read (unreleased), `provenanceVersion` 1 | yes | RFC §5.1, §6.1, §14 |
 
 ## C1 — Identifiers and revisions
 - **Node IDs.**
@@ -332,6 +333,12 @@ segment/estimate (handle-scoped to the worker instance)
 - A worker is never deliberately terminated during start-up before its handshake passes and its job is posted, except by the start-up timeout. After that timeout, a job that never ran is requeued once.
 - Explicit cancel only for apply, final and export.
 
+**Persistence worker (r3, AM-3.5; approved, not yet implemented: G-PRJ-1).** A third dedicated worker of the same build, under the same handshake, generation and build-isolation rules as the two above. Its message set is specified with its implementation. Normative boundaries ([G-PRJ-ARCHITECTURE §4.1](../g-prj/G-PRJ-ARCHITECTURE.md)):
+- it is **never a second authoritative document engine**: it holds no `DocState`, session or history, only a container's bytes for the duration of one job;
+- on save it receives transferred canonical sections and returns digests, sizes and a result code; on open it returns parsed sections that the main thread adopts without re-parsing, and the main thread runs `validateState` once;
+- only the main thread publishes: it marks a state saved, or flips a library or recovery pointer, after the worker reports a verified write;
+- the whole hand-off is measured, so work moved off the main thread cannot reappear there unmeasured.
+
 ## C6 — Geometry and algorithm versions
 | Version | Owner | Rule |
 |---|---|---|
@@ -340,7 +347,7 @@ segment/estimate (handle-scoped to the worker instance)
 | `presetVersion` (`TraceRequest`) | engine | Bumped on any default change; old versions keep working |
 | `packetVersion` | C3 | 1 |
 | scene version | engine | v1 for export and interchange; v2 only for a needed capability, with dual-format regression |
-| `documentSchemaVersion` | G-DOC | 1 (finalised at AM-1, unreleased; C10). Forward-only deterministic migrations after first release |
+| `documentSchemaVersion` | G-DOC | **2** written since G-PRJ-0 (AM-3.2, the compact encoding; C10 r2), **1** still read; both unreleased. Reading v1 and saving writes v2 (a deterministic migration). Forward-only deterministic migrations after first release |
 | `provenanceVersion` | C10 | 1 |
 | container `formatVersion` | C7 | 1 |
 | operation versions (recipes) | per operation | Migrations in Rust |
@@ -371,6 +378,24 @@ The layout is in RFC §14. Normative limits:
 - Each geometry section is decoded into **fresh, whole-buffer** arrays and committed through C2. The store's validation is the file → store trust boundary.
 - Loading is atomic: the new document is built off to the side and swapped in only on success.
 - An unknown or newer `formatVersion`, `documentSchemaVersion` or `packetVersion` is refused with a typed error.
+- **(r3)** The manifest's `documentSchemaVersion` is 1 or 2 and must equal the document section's (otherwise `manifest`). Writers write 2 (C10 r2).
+
+### Persistability (r3, AM-3.3)
+**Every committed document state is persistable:** the complete container it would write satisfies every limit above. A command whose result would not is refused **before anything is published**, atomically, with the typed error `persist_limit` naming the limit, the size needed and the cap. The session holds the initial state, and every later one, to these rules:
+
+| Limit | How it is held |
+|---|---|
+| Document section ≤ 64 MiB | Exact incremental accounting of the v2 canonical bytes: one number per state (`body`, the section without the two high-water marks' digits), updated from the transaction's write log; no traversal of unchanged nodes |
+| High-water marks | `nextId` and `nextChunkId` live outside the state and only grow (C1). Each is **charged at its maximum width, 16 digits**, so a state accepted at the exact limit still saves after later edits widen the marks and the artist undoes back to it. The usable document capacity is therefore up to 30 bytes below 64 MiB |
+| Sections ≤ 4,096 | 2 + referenced chunks + embedded sources, checked per transaction |
+| Header ≤ 1 MiB | Implied by the section count: the worst case (4,096 entries, every number at the 16-digit maximum, the longest ids) is 962,592 bytes |
+| Total declared bytes ≤ the session budget | Manifest + document (marks at maximum width) + referenced geometry records (exact, `GeometryStore.recordBytes`) + embedded sources, per transaction. The loader passes its session budget to the session it builds |
+| Source section ≤ 20 MiB; geometry section ≤ the C3.0 record cap | Rechecked per transaction; an embedded asset whose bytes the session does not hold is refused |
+| Compression | No limit applies to compressed lengths; inflation stays bounded by the declared lengths |
+
+No independent path-count limit exists. Messages near or at the document-section cap speak of document complexity or section capacity, never of a maximum total file size.
+
+**Pre-flight.** A save checks the exact sizes from this accounting against the limits **before** serializing, hashing or compressing, and checks that what it built matches the accounting (a mismatch is a defect: nothing is returned).
 
 ### Canonical content
 Every section's **uncompressed** bytes are a pure function of the saved state. Canonical JSON is produced **only by the TypeScript container code** (G-DOC). The Rust engine never emits container JSON, so it needs no ECMAScript number formatting; serde_json, for example, prints the f64 `1280` as `1280.0`, which RFC 8785 forbids.
@@ -404,7 +429,8 @@ Native `deflate-raw` takes no parameters, and engines may emit different streams
 - `documentRevision`, history, camera and selection are not persisted.
 - **Dirty state uses state identity.**
   - Every committed transaction produces an immutable document state, and undo and redo restore earlier states **by reference**.
-  - `dirty = currentState !== savedState`: O(1), with no hashing per edit. Saving or loading sets `savedState = currentState`.
+  - `dirty = currentState !== savedState`: O(1), with no hashing per edit. Loading sets `savedState = currentState`.
+  - **(r3, AM-3.4) Serialization is not a save.** Producing container bytes never changes `savedState`. It is set only after the bytes were written and verified by reload (G-PRJ-1), or by an explicit decision about the serialized state (a confirmed download, D-PRJ-4), and always to **the state that was serialized**, never to a newer one.
   - Undo or redo back to the saved state is clean.
   - A different edit sequence that happens to reproduce equal content is conservatively dirty.
   - High-water marks sit outside the undoable state (C1), so duplicate followed by undo is clean.
@@ -469,10 +495,10 @@ ExportDrawList { width, height,                                   // artboard
    - Arbitrary path clips and rotated or skewed rect clips require scene v2 (RFC §6.1), with dual-format regression. They come in P2-A, or earlier only after qualification.
    - P1 presets emit no clips. Halftone (P2) emits an artboard rect clip, so the rotated-clip decision (scene v2, or keeping the rejection rule) must be taken before Halftone ships.
 
-## C10 — Document v1 schema and TraceProvenance (new at AM-1)
-`documentSchemaVersion` stays **1**.
-- No `.vectra` file has been released, so v1 is finalised here, before its first release, instead of being bumped.
-- The test golden files are regenerated.
+## C10 — Document schema and TraceProvenance (new at AM-1; r2 at AM-3.2)
+**r2 (AM-3.2, G-PRJ-0): writers write `documentSchemaVersion` 2, the compact encoding (§Document v2 below); readers accept 1 and 2.** The document model and its semantics are unchanged: v2 changes only how the same state is written. History at AM-1:
+- `documentSchemaVersion` 1 was finalised at AM-1, before any release, instead of being bumped, and the test golden files were regenerated then.
+- At AM-3.2 the historical v1 golden and frozen hashes are **kept as they are** and re-derived by a test-only v1 writer; the v2 golden and hashes are re-baselined explicitly beside them.
 - Any change after the first release needs a version bump and a forward-only migration (C6).
 
 **Document section** (canonical JSON, C7). Every member listed here is required unless it is marked `?`. Unknown members are rejected.
@@ -495,13 +521,44 @@ SourceAsset    { id: ast_n, digest (SHA-256, 64 lowercase hex), mime: image/png 
 - **Artboard.** The artboard `background` is document data: it is the export background in document form (see below).
 - **Transforms.** Every transform entry satisfies `|v| ≤ 1e9`, and the linear part must be non-singular with condition number `σmax/σmin ≤ 1e8`.
 - **Tree shape.** The root holds Layers and SourceReferences; Layers and Groups hold Groups and PathObjects.
-- **Effect stacks** (`effectStack`) are **not part of v1**. They must be absent. Their introduction (P2-B) is a `documentSchemaVersion` 2 change, with the deterministic migration "absent → empty stack".
+- **Effect stacks** (`effectStack`) are **not part of v1 or v2**. They must be absent. Their introduction (P2-B) is a later `documentSchemaVersion` change (3 or above; 2 was taken by AM-3.2), with the deterministic migration "absent → empty stack".
 - **Source provenance.** The supported v1 subset is `{ kind: "local-file" }`, or the member is absent. Provider provenance (for example image-library attribution) is a later, versioned extension.
 - **`decodePolicy`** is a closed enum. In v1 it has two values:
   - `"browser-canvas-v1"`: the P1 app path, browser decode to straight RGBA through canvas (TD-GEO-007);
   - `"external"`: the pixels were supplied by a caller outside the app's decoder, such as engine tools or tests.
 
   A new decoder needs a new enum value, and P0 defaults are never switched silently.
+
+### Document v2: the compact canonical encoding (r2, AM-3.2)
+`documentSchemaVersion` 2 writes the same document as v1 with every member that the key or a default already determines left out. The section stays RFC 8785 canonical JSON (C7). **Every document has exactly one v2 encoding, and the reader rejects any other.**
+
+| Where | Rule | Reconstructed on read |
+|---|---|---|
+| Every entry of `nodesById`, `stylesById`, `paletteById`, `sourceAssetsById` | `id` is **never written**: the entry's key is its id | `id` = key |
+| Every node | `kind` is **never written**: the key's prefix is the kind (`lay_` layer, `grp_` group, `pth_` path, `src_` source). A key with any other prefix is rejected | `kind` from the prefix |
+| Node `name` | written **only when not ""**; `"name":""` is rejected | `""` |
+| Node `visible` | written **only when false**; `true` is rejected | `true` |
+| Node `locked` | written **only when true**; `false` is rejected | `false` |
+| Node `localTransform` | written **only when not the identity** `[1,0,0,1,0,0]`, compared by value; an explicit identity is rejected | the shared identity matrix |
+| Style `fill`, `paletteRef`, `stroke` | each written **only when not null**; an explicit `null` is rejected | `null` |
+| Everything else | as in v1: the top-level members (all required, `artboard.background` nullable), `clipRef?`, `orderedChildIds`, `traceProvenance?`, `geometry`, `styleRef`, `fillRule`, `assetId`, `sourceToDocument`, palette `name` and `color`, every asset member and `provenance?` | — |
+
+```text
+Document v2  { documentSchemaVersion: 2, documentId, nextId, nextChunkId, artboard, orderedRootIds,
+               nodesById, stylesById, paletteById, sourceAssetsById }          // all required
+Node         { name?, visible?: false, locked?: true, localTransform?, clipRef? } + by key prefix:
+  lay_       + orderedChildIds, traceProvenance?
+  grp_       + orderedChildIds
+  pth_       + geometry: { chunkId, pathIndex }, styleRef, fillRule
+  src_       + assetId, sourceToDocument
+Style        { fill?: u32, paletteRef?: pal_n, stroke?: { color, width } }
+PaletteEntry { name, color }
+SourceAsset  { digest, mime, width, height, embedded, decodePolicy, provenance? }
+```
+- **Strictness.** Unknown members, missing required members, explicitly written defaults or nulls, an `id` or `kind` member, and an unknown key prefix are schema errors (`document`). Semantic rules (references, tree, transforms, limits) stay with `validateState`, exactly as for v1.
+- **v1 stays readable** with its own strict schema (C10 r1). A v1 member set inside a v2 document, or the reverse, is rejected.
+- **Migration.** A v1 file loads into the same document a v2 file of that document loads into; saving it writes v2. Semantic equality is checked through the independent v1 writer (G-PRJ-0 qualification).
+- **Measured effect** (G-PRJ-0 qualification): the v2 section is 0.529–0.533 of the v1 size for synthetic artwork and 0.586–0.595 for photographic traces and palette-heavy documents. The 996k-anchor workload is 36.9 MiB (58 % of the cap) and the 1M-anchor limit case 56.0 MiB (87 %).
 
 ### TraceProvenance v1
 **Shape:**
@@ -551,6 +608,7 @@ TraceProvenance { provenanceVersion: 1,
   - `derivedFrom` lists each traced layer that contributes exported items, in paint order.
   - `edited` is the negation of export-unedited for that layer.
   - Document form never presents an original trace's parameters as describing the edited artwork. They appear only as labelled provenance entries.
+  - **(r2)** `params.documentSchemaVersion` stays the literal **1**. It is part of the frozen export format, not the version of any `.vectra` file, so AM-3.2 leaves every export byte unchanged.
 - No clocks, file names or node IDs are written.
 
 **Number formatting.** The document stores `traceRequest` and `originalScene.metadata.params` as canonical JSON, so a whole-number f64 such as `pitch: 8.0` is written as `8`. The Rust export path re-types `metadata.params` through the engine's `Settings` type before writing it, which restores the engine's own serialisation (`8.0`). Unedited exports are therefore byte-identical.
@@ -603,3 +661,18 @@ Approved by the maintainer on 2026-11-26 ("G-DOC-R Stage B/C Acceptance and AM-2
 - **No double counting.** The chunk ledger cost (`M_mem + manifestBytes + D`), `bytes()` by owner and C2 are unchanged.
 - **The accepted model** (frozen at `729e63a`): per history-attributed chunk, `3,136 + max(0, deepCost(manifest) − manifestBytes)`, with the C3.2 owner precedence. Typed-array headers are costed at 216 bytes in the structure model.
 - **Evidence:** [G-DOC-R report §7.1](../g-doc-r/G-DOC-R-REPORT.md).
+
+## AM-3 — Amendment record (G-PRJ project persistence)
+Approved by the maintainer on 2026-11-27 ("G-PRJ-R Acceptance and G-PRJ-0 Authorization"; [decision register §14](G0-DECISION-REGISTER.md); proposals and refinements: [G-PRJ-DECISIONS](../g-prj/G-PRJ-DECISIONS.md) §4–§7). Recorded through change control in G-PRJ-0: contract revisions above, the [RFC-002](../../RFC-002.md) §14 amendment, maintainer approval.
+
+| Item | Contract | Change | Wire impact | Status |
+|---|---|---|---|---|
+| AM-3.1 | **RFC-002 §14, D08**; PRD-002 VS-12 and the G-0 plan's exclusions | Autosave and recovery, a local project library, recent projects and OPFS/IndexedDB persistence are admitted under the three tiers ([G-PRJ-ARCHITECTURE §2](../g-prj/G-PRJ-ARCHITECTURE.md)). An explicit save overwrites in place only through a granted File System Access handle; elsewhere a save is a download. Persistent undo history and cloud storage stay excluded | none | Approved; **not yet implemented** (G-PRJ-1 to G-PRJ-3) |
+| AM-3.2 | **C10 r1 → r2**, **C6 r2 → r3** | The compact canonical encoding, `documentSchemaVersion` 2, with strict v1 read support (§C10 Document v2). Historical v1 fixtures and hashes preserved; v2 hashes re-baselined explicitly. Export metadata keeps `params.documentSchemaVersion: 1` | `documentSchemaVersion` 1 → **2** (unreleased) | **Implemented** (G-PRJ-0) |
+| AM-3.3 | **C7 r2 → r3** (§Persistability) | Exact persistable-size enforcement over the complete container, per transaction, before publication; high-water marks charged at maximum width; the 64 MiB document-section cap retained | none | **Implemented** (G-PRJ-0) |
+| AM-3.4 | **C7 r3** (dirty state) | Serialization is separate from verified-save semantics: producing container bytes never marks a state saved | none | **Implemented** (G-PRJ-0): `saveContainer` no longer calls `markSaved` |
+| AM-3.5 | **C5 r2 → r3** | A dedicated persistence worker under C5 build isolation, never a second authoritative document engine | none (protocol specified with its implementation) | Approved; **not yet implemented** (G-PRJ-1) |
+| AM-3.6 | C7 r4 (sectioned document, streaming) | — | — | **Deferred** |
+| — | C1–C4, C8, C9 | **Unchanged** | none | — |
+
+**AM-2 interaction (accounting, not a contract change).** G-PRJ-0 keeps one number per document state (the persistable `body`) as a fourth field of the session's per-state derived record, and one number per geometry chunk (`recordBytes`) in the store's chunk record. Both are counted in the AM-2 model: the derived record's cost now counts its fields (`objectCost(4)` instead of `objectCost(3)`), and the chunk record's measured fixed part is re-checked against the frozen 3,136 bytes ([G-PRJ-0 report](../g-prj-0/G-PRJ-0-REPORT.md) §6). No COSTS constant changes.

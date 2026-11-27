@@ -113,7 +113,7 @@ Sizes in MiB. "Per node" is canonical bytes ÷ nodes. Save is codec none / defla
 2. **Make persistability a document limit (the invariant)**, over the **complete container**, not only the document section (§9):
    - Account the **exact** compact document-section size incrementally, at transaction time.
    - Nodes are written through the transaction log, and a node's canonical bytes are a pure function of the node, so the delta is computed per written key: the AM-2 delta pattern, with no whole-document pass.
-   - Enforce it like the anchor cap: a command whose result would exceed the section limit is **rejected before commit** with an actionable error ("This change would make the project too large to save as one file"), and imports and trace commits are pre-flighted.
+   - Enforce it like the anchor cap: a command whose result would exceed the section limit is **rejected before commit** with an actionable error that names the limit (as implemented in G-PRJ-0: "This change would make the document too complex to save: its document section would need N bytes, and the document section cap is M bytes"; never a "maximum file size", refinement 7.5), and imports and trace commits are pre-flighted.
    - Load keeps refusing over-cap files (`limit`), so a file the app wrote is always within what it reads.
 3. **Keep 64 MiB** until option 3 is qualified. With compact encoding it covers the designated stress workloads and the 1M-anchor synthetic case.
 4. **Move parse and validate into a worker** (option 3's first half, no format change) to meet the ≤ 50 ms blocking target.
