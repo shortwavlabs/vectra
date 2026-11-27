@@ -7,7 +7,11 @@
 // bytes; then clear the history and collect once more. Measured history retention is the
 // heap before clearing minus after. Chunk bytes retired into history (replace) are reported
 // separately and subtracted (their own ledger term). Repetitions give min / median / max.
+// Accounted = history-only structure bytes + the store records of history-attributed chunks
+// (COSTS.chunkRecord, AM-2 closure; reported separately).
 // Scenarios marked `set: "calibration"` chose the COSTS constants; the others validate them.
+// `closure-fresh` scenarios were written after the closure constants were frozen (4899605)
+// and before any of them ran.
 import { execFileSync } from "node:child_process";
 import { cpus, loadavg, totalmem } from "node:os";
 import { writeFileSync } from "node:fs";
@@ -339,6 +343,108 @@ scenarios.push(
   },
 );
 
+/** Many traced layers, each its own chunk (commitTrace without replace adds a layer). */
+const manyLayers = (n, paths) => () => {
+  const doc = buildWorkload(1000, { history: HUGE });
+  for (let i = 0; i < n; i++)
+    doc.session.dispatch({
+      type: "commitTrace",
+      provenance: TEST_PROVENANCE,
+      packet: syntheticPacket({ paths, anchorsPerPath: 5, seed: 100 + i }),
+    });
+  return doc;
+};
+/** Accounting closure, fresh validation: written after the constants were frozen at 4899605
+ *  and run once as they come out. Traced-layer replacement and large structural deletions. */
+scenarios.push(
+  {
+    name: "closure-fresh: 200k paths, replace a 5k-path traced layer ×4",
+    paths: 200000,
+    set: "closure-fresh",
+    build: () => {
+      const doc = buildWorkload(200000, { history: HUGE });
+      doc.session.dispatch({
+        type: "commitTrace",
+        provenance: TEST_PROVENANCE,
+        packet: syntheticPacket({ paths: 5000, anchorsPerPath: 5, seed: 21 }),
+      });
+      return doc;
+    },
+    run: (d) => {
+      const layer = d.session.state.orderedRootIds.at(-1);
+      for (let i = 0; i < 4; i++)
+        d.session.dispatch({
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: syntheticPacket({ paths: 5000, anchorsPerPath: 5, seed: 22 + i }),
+          replaceLayerId: layer,
+        });
+    },
+  },
+  {
+    name: "closure-fresh: 43k paths, replace the whole 43k-path main layer ×2",
+    paths: 43000,
+    set: "closure-fresh",
+    run: (d) => {
+      for (let i = 0; i < 2; i++)
+        d.session.dispatch({
+          type: "commitTrace",
+          provenance: TEST_PROVENANCE,
+          packet: syntheticPacket({ paths: 43000, anchorsPerPath: 6, groups: 8, seed: 31 + i }),
+          replaceLayerId: d.session.state.orderedRootIds[0],
+        });
+    },
+  },
+  {
+    name: "closure-fresh: 250k paths, delete 4 of the main layer's 8 groups at once",
+    paths: 250000,
+    set: "closure-fresh",
+    run: (d) => {
+      const st = d.session.state;
+      const groups = st.nodesById.get(st.orderedRootIds[0]).orderedChildIds;
+      d.session.dispatch({ type: "delete", ids: groups.slice(0, 4) });
+    },
+  },
+  {
+    name: "closure-fresh: 330k paths (996k anchors), delete 3 groups one at a time",
+    paths: 330000,
+    set: "closure-fresh",
+    run: (d) => {
+      for (let i = 0; i < 3; i++) {
+        const st = d.session.state;
+        const g = st.nodesById.get(st.orderedRootIds[0]).orderedChildIds[0];
+        d.session.dispatch({ type: "delete", ids: [g] });
+      }
+    },
+  },
+  {
+    name: "closure-fresh: 40 traced 100-path layers, each deleted (40 history-only chunks)",
+    paths: 1000,
+    set: "closure-fresh",
+    build: manyLayers(40, 100),
+    run: (d) => {
+      for (const id of d.session.state.orderedRootIds.slice(-40))
+        d.session.dispatch({ type: "delete", ids: [id] });
+    },
+  },
+  {
+    name: "closure-fresh: 43k, replace the 1k layer ×5 and delete 2 groups, undo 3 (redo kept)",
+    paths: 43000,
+    set: "closure-fresh",
+    run: (d) => {
+      for (let i = 0; i < 5; i++) {
+        d.session.dispatch(d.cmds.commitTrace());
+        if (i % 2) {
+          const st = d.session.state;
+          const g = st.nodesById.get(st.orderedRootIds[0]).orderedChildIds[0];
+          d.session.dispatch({ type: "delete", ids: [g] });
+        }
+      }
+      for (let i = 0; i < 3; i++) d.session.undo();
+    },
+  },
+);
+
 /** Disposal: a session with history is dropped; the heap must return to its pre-build level. */
 async function disposal() {
   await collect();
@@ -365,14 +471,25 @@ async function measure(sc) {
   const runMs = performance.now() - t0;
   await collect();
   const h1 = heap();
-  const accounted = s.historyStructureBytes();
+  const structure = s.historyStructureBytes();
+  const chunkRecords = s.historyChunkRecordBytes();
+  const accounted = structure + chunkRecords;
   const chunkHistory = s.store.bytes().byOwnerKind.history;
   const entries = s.historyStates().past.length + s.historyStates().future.length;
   s.dispatch({ type: "setArtboard", width: 998, height: 998 }, { withoutHistory: true });
   await collect();
   const h2 = heap();
   const measured = h1 - h2 - chunkHistory;
-  return { accounted, measured, chunkHistory, entries, growth: h1 - h0, runMs };
+  return {
+    accounted,
+    structure,
+    chunkRecords,
+    measured,
+    chunkHistory,
+    entries,
+    growth: h1 - h0,
+    runMs,
+  };
 }
 
 const q = (xs, p) =>
@@ -405,7 +522,13 @@ for (const sc of scenarios) {
     entries: runs[0].entries,
     accounted: q(a, 0.5),
     measured: { min: Math.min(...m), median: q(m, 0.5), max: Math.max(...m) },
+    accountedParts: { structure: runs[0].structure, chunkRecords: runs[0].chunkRecords },
     ratio: +(q(a, 0.5) / q(m, 0.5)).toFixed(3),
+    // Uncertainty: the ratio against the largest and smallest measured repetition.
+    ratioRange: [
+      +(q(a, 0.5) / Math.max(...m)).toFixed(3),
+      +(q(a, 0.5) / Math.min(...m)).toFixed(3),
+    ],
     chunkHistory: runs[0].chunkHistory,
     runMs: +q(
       runs.map((x) => x.runMs),
@@ -416,7 +539,8 @@ for (const sc of scenarios) {
   console.error(
     `${row.set.padEnd(11)} ${row.name}: accounted ${(row.accounted / 2 ** 20).toFixed(3)} MiB, ` +
       `measured ${(row.measured.median / 2 ** 20).toFixed(3)} MiB ` +
-      `[${(row.measured.min / 2 ** 20).toFixed(3)}, ${(row.measured.max / 2 ** 20).toFixed(3)}], ratio ${row.ratio}`,
+      `[${(row.measured.min / 2 ** 20).toFixed(3)}, ${(row.measured.max / 2 ** 20).toFixed(3)}], ratio ${row.ratio} ` +
+      `[${row.ratioRange.join(", ")}], chunk records ${row.accountedParts.chunkRecords}`,
   );
 }
 if (!ONLY || ONLY.some((o) => "disposal".includes(o))) {
