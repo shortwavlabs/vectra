@@ -63,8 +63,11 @@ A crash at any step leaves the record pointing at a complete, verified file, eit
   - the statement that undo history is not restored.
 - **Choices:**
   - **Recover:** opens the snapshot as a document **with unsaved changes**. Its base stays the original save, so a later Save writes to the original location after the normal checks.
-  - **Open last save instead:** keeps the snapshot.
-  - **Discard…:** confirms, then deletes the snapshot.
+  - **Open last save instead:** opens the last explicit save and **keeps the snapshot**. Choosing it is not a decision to discard (maintainer requirement, 2026-11-26), so the choice can be revisited:
+    - in the workspace, a quiet status entry stays: "Unsaved changes from 12 min ago are still available · Review". It is a word control in the save-status area, not an alarm or a modal;
+    - the project's tile in the project home keeps "Recovery available";
+    - **Review** offers the same Recover / Discard… choice at any time. If the artist has edited or saved the last-save version since, Recover opens the snapshot **as a copy** (a new untitled project), so neither version overwrites the other.
+  - **Discard…:** the only action that deletes the snapshot, apart from retention expiry (§8). It asks for confirmation that names the snapshot's time and says the action cannot be undone.
 - **Never:**
   - overwrite a newer portable file with recovery data without consent. If the base file's digest or modified time changed since the snapshot (Chromium handles show this), the Recover flow says so and offers "Save recovered version as a copy";
   - auto-apply recovery at startup.
@@ -81,7 +84,12 @@ A crash at any step leaves the record pointing at a complete, verified file, eit
 | The source file of the base is gone or its permission expired | Recovery still opens from the snapshot; the base shows "file unavailable", and Save becomes Save As |
 
 ## 8. Retention and cleanup
-- Snapshots of a session are deleted on a clean close: after Save, or after an explicit Discard.
+- **A live session's own snapshots** are deleted on its clean close: after it saves explicitly, or after an explicit Discard.
+- **An interrupted session's snapshot** (one no live session owns, §5) is deleted only by the artist's explicit **Discard…**, or by a **Recover** whose result is then saved explicitly, or by retention expiry. It is never deleted as a side effect of:
+  - choosing Open last save;
+  - editing or saving the last-save version;
+  - opening another project;
+  - closing the project home.
 - Unclaimed snapshots are kept **14 days** after their last write (proposed), then deleted at startup. The storage panel lists them with size and age, and the user can delete them earlier.
 - **Library-backed projects:** a recovery snapshot newer than the library copy is kept until the user recovers or discards it, with no automatic merge.
 
