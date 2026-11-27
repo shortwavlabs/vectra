@@ -102,7 +102,10 @@ export interface DocState {
   readonly sourceAssetsById: ReadonlyMap<AssetId, SourceAsset>;
 }
 
-export const DOCUMENT_SCHEMA_VERSION = 1;
+/** The documentSchemaVersion this build writes: 2, the compact encoding (C10 r2, AM-3.2). It
+ *  still reads 1. Export metadata keeps its own literal `documentSchemaVersion: 1` (C10 export
+ *  metadata semantics; frozen export bytes), which this constant never changes. */
+export const DOCUMENT_SCHEMA_VERSION = 2;
 
 export type DocumentErrorCode =
   | PacketErrorCode
@@ -115,6 +118,7 @@ export type DocumentErrorCode =
   | "not_found"
   | "invalid_argument"
   | "palette_conflict"
+  | "persist_limit"
   | "invariant";
 
 export class DocumentError extends Error {

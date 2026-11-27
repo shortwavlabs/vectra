@@ -162,8 +162,10 @@ function partsOf(chunks: readonly Chunk<unknown>[]): [object, number][] {
 }
 export const stateRecordCost = objectCost(7) + C.stateBookkeeping;
 export const artboardCost = objectCost(3);
+/** The session's per-state derived record: its fields (three from validation, plus the
+ *  persistable `body` since G-PRJ-0) and its chunk map. */
 export const derivedCost = (d: StateDerived | undefined) =>
-  d ? objectCost(3) + mapTableCost(d.chunks.size) : 0;
+  d ? objectCost(Object.keys(d).length) + mapTableCost(d.chunks.size) : 0;
 
 /** An entry of a style, palette or asset map, with its strings, and its per-key record. */
 export function entryParts(e: object | undefined): {

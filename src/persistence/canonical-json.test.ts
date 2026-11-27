@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vite-plus/test";
-import { CanonicalJsonError, canonicalJson, parseCanonicalJson } from "./canonical-json.ts";
+import {
+  CanonicalJsonError,
+  canonicalJson,
+  canonicalJsonBytes,
+  canonicalLength,
+  parseCanonicalJson,
+} from "./canonical-json.ts";
 
 const enc = (s: string) => new TextEncoder().encode(s);
 
@@ -90,5 +96,67 @@ describe("RFC 8785 canonical JSON", () => {
       const loose = JSON.stringify(v, null, rnd(2) ? 0 : 1);
       expect(parseCanonicalJson(enc(loose)) !== null).toBe(loose === text);
     }
+  });
+});
+
+describe("canonicalLength (G-PRJ-0): exact UTF-8 length without building the text", () => {
+  const exact = (v: unknown) => expect(canonicalLength(v)).toBe(canonicalJsonBytes(v).length);
+
+  test("scalars, escapes, multi-byte characters and surrogate pairs", () => {
+    for (const v of [
+      null,
+      true,
+      false,
+      0,
+      -0,
+      1280,
+      -1.5,
+      1e21,
+      1e-7,
+      5e-324,
+      2 ** 32 - 1,
+      Number.MAX_SAFE_INTEGER,
+      "",
+      "plain ascii",
+      '\u0000\u001f\b\f\n\r\t"\\/\u007f é',
+      "ünïcode ✓ – ﬁ",
+      "\u{1F600}\u{10FFFF}",
+      "ࠀ߿\u0080\u007f",
+    ])
+      exact(v);
+  });
+
+  test("arrays and objects: punctuation, sorting irrelevance, undefined members omitted", () => {
+    exact([]);
+    exact({});
+    exact([1, "a", null, [true, {}]]);
+    exact({ b: 1, a: undefined, "\u{1F600}": [1, 2], é: { z: null } });
+    exact({ only: undefined });
+  });
+
+  test("rejects exactly what canonicalJson rejects", () => {
+    for (const bad of [NaN, Infinity, "\uD800", ["\uDC00"], { a: () => 1 }, [undefined]])
+      expect(() => canonicalLength(bad)).toThrow(CanonicalJsonError);
+  });
+
+  test("randomised agreement with the encoder (2,000 values)", () => {
+    let seed = 99;
+    const rnd = (n: number) => {
+      seed = (seed * 1_103_515_245 + 12_345) >>> 0;
+      return seed % n;
+    };
+    const strings = ["", "a", "é", "\u{1F600}", "\n", "\u0000", "✓ﬁ", "pth_12", '"\\'];
+    const gen = (d: number): unknown => {
+      const k = rnd(d > 3 ? 4 : 7);
+      if (k === 0) return null;
+      if (k === 1) return rnd(2) === 0;
+      if (k === 2) return (rnd(4000) - 2000) / [1, 3, 7, 1e9, 1e-9][rnd(5)]!;
+      if (k === 3) return strings[rnd(strings.length)]!.repeat(rnd(4));
+      if (k === 4) return Array.from({ length: rnd(5) }, () => gen(d + 1));
+      const o: Record<string, unknown> = {};
+      for (let i = rnd(6); i > 0; i--) o[`k${strings[rnd(strings.length)]!}${rnd(3)}`] = gen(d + 1);
+      return o;
+    };
+    for (let i = 0; i < 2000; i++) exact(gen(0));
   });
 });

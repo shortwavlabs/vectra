@@ -12,6 +12,11 @@ const align8 = (x: number) => x + ((8 - (x % 8)) % 8);
 import { syntheticPacket } from "../document/testing/synthetic.ts";
 import { canonicalJson, canonicalJsonBytes, parseCanonicalJson } from "./canonical-json.ts";
 import goldenB64 from "./golden/circle-bw.none.vectra.b64?raw";
+import goldenV2B64 from "./golden/circle-bw.v2.none.vectra.b64?raw";
+import { saveContainerV1 } from "../document/testing/document-json-v1.ts";
+
+/** SHA-256 of the v2 golden container, re-baselined in G-PRJ-0 (AM-3.2). */
+const GOLDEN_V2_SHA256 = "ad62176349e45b3ab409cf3a75e96bfe320a2464f257da0c352a88e04419418b";
 import {
   type Codec,
   ContainerError,
@@ -133,6 +138,10 @@ describe("container v1 round trip and determinism (C7)", () => {
     for (const codec of ["deflate-raw", "none"] as const) {
       const session = editedSession();
       const a = await saveContainer(session, { codec });
+      // AM-3.4: serialization is not a save; only an explicit markSaved (after a verified
+      // write, G-PRJ-1) makes the session clean.
+      expect(session.getSnapshot().dirty).toBe(true);
+      session.markSaved(session.state);
       expect(session.getSnapshot().dirty).toBe(false);
       const loaded = await load(a);
       const b = await saveContainer(loaded, { codec });
@@ -178,7 +187,7 @@ describe("container v1 round trip and determinism (C7)", () => {
     );
   });
 
-  test("codec none container equals the committed golden", async () => {
+  test("codec none container equals the committed goldens (v2 written, historical v1 kept)", async () => {
     const store = new GeometryStore();
     const session = new DocumentSession(store, {
       state: createDocument({ documentId: "golden-circle-bw", width: 256, height: 256 }),
@@ -189,10 +198,23 @@ describe("container v1 round trip and determinism (C7)", () => {
       packet: fixturePacket("circle-bw"),
       name: "circle-bw",
     });
+    const b64 = (s: string) => Uint8Array.from(atob(s.trim()), (c) => c.charCodeAt(0));
+    const golden = b64(goldenB64);
+    const goldenV2 = b64(goldenV2B64);
+    // The historical v1 golden is unchanged (same SHA-256 as the G-DOC artifact
+    // docs/research/g-doc/artifacts/circle-bw.none.vectra) and still re-derivable.
+    expect(await sha256Hex(golden)).toBe(
+      "8beeea92f53f6c81737c00e45c4cbf95faca5788b4f27903e4de77472087c3bc",
+    );
+    expect(await saveContainerV1(session)).toEqual(golden);
+    // The v2 golden, re-baselined explicitly in G-PRJ-0 (AM-3.2).
     const bytes = await saveContainer(session, { codec: "none" });
-    const golden = Uint8Array.from(atob(goldenB64.trim()), (c) => c.charCodeAt(0));
-    expect(bytes).toEqual(golden);
-    expect(await sha256Hex(bytes)).toBe(await sha256Hex(golden));
+    expect(bytes).toEqual(goldenV2);
+    expect(await sha256Hex(goldenV2)).toBe(GOLDEN_V2_SHA256);
+    // v1 → v2 migration: the v1 golden loads and saves as the v2 golden; the v2 golden loads
+    // and, written by the independent v1 writer, is the v1 golden again.
+    expect(await saveContainer(await load(golden), { codec: "none" })).toEqual(goldenV2);
+    expect(await saveContainerV1(await load(goldenV2))).toEqual(golden);
   });
 
   test("layout: magic, canonical header, contiguous sections in fixed order, no clocks or names", async () => {
@@ -207,7 +229,7 @@ describe("container v1 round trip and determinism (C7)", () => {
     const secs = await sectionsOf(bytes);
     expect(jsonOf(secs[0]!.data)).toEqual({
       app: "vectra",
-      documentSchemaVersion: 1,
+      documentSchemaVersion: 2,
       formatVersion: 1,
       packetVersion: 1,
     });
@@ -277,6 +299,12 @@ describe("container adversarial suite: typed errors, live document unchanged", (
     goodBytes ??= await saveContainer(editedSession(), { codec: "none" });
     good ??= await sectionsOf(goodBytes);
     return { bytes: goodBytes.slice(), secs: good.map((s) => ({ ...s, data: s.data.slice() })) };
+  };
+  /** The same document as a documentSchemaVersion 1 container (the v1 reader stays strict). */
+  let goodV1: RawSection[] | undefined;
+  const baseV1 = async () => {
+    goodV1 ??= await sectionsOf(await saveContainerV1(editedSession()));
+    return { secs: goodV1.map((s) => ({ ...s, data: s.data.slice() })) };
   };
 
   test("truncation at every structural boundary", async () => {
@@ -419,15 +447,25 @@ describe("container adversarial suite: typed errors, live document unchanged", (
   test("manifest section: newer versions refused, unknown fields rejected", async () => {
     const { secs } = await base();
     await expectCode(
-      assemble(withJson(secs, "manifest", (j) => (j.documentSchemaVersion = 2))),
+      assemble(withJson(secs, "manifest", (j) => (j.documentSchemaVersion = 3))),
       "version",
+    );
+    // The manifest and the document must name the same documentSchemaVersion (1 and 2 read).
+    await expectCode(
+      assemble(withJson(secs, "manifest", (j) => (j.documentSchemaVersion = 1))),
+      "manifest",
+    );
+    const { secs: v1 } = await baseV1();
+    await expectCode(
+      assemble(withJson(v1, "manifest", (j) => (j.documentSchemaVersion = 2))),
+      "manifest",
     );
     await expectCode(assemble(withJson(secs, "manifest", (j) => (j.packetVersion = 2))), "version");
     await expectCode(assemble(withJson(secs, "manifest", (j) => (j.createdAt = 0))), "manifest");
   });
 
-  test("document section: strict schema, versions, duplicates, dangling references, cycles, transforms", async () => {
-    const { secs } = await base();
+  test("document section (v1 reader): strict schema, versions, duplicates, dangling references, cycles, transforms", async () => {
+    const { secs } = await baseV1();
     const doc = (f: (d: Record<string, unknown>) => void) =>
       assemble(withJson(secs, "document", f));
     const nodes = (d: Record<string, unknown>) =>
@@ -435,7 +473,7 @@ describe("container adversarial suite: typed errors, live document unchanged", (
     const firstOf = (d: Record<string, unknown>, kind: string) =>
       Object.values(nodes(d)).find((n) => n.kind === kind)!;
     await expectCode(
-      doc((d) => (d.documentSchemaVersion = 2)),
+      doc((d) => (d.documentSchemaVersion = 3)),
       "version",
     );
     await expectCode(
@@ -541,6 +579,79 @@ describe("container adversarial suite: typed errors, live document unchanged", (
     await expectCode(
       doc((d) => (d.nextChunkId = 1)),
       "document",
+    );
+  });
+
+  test("document section (v2 reader): compact shapes, dangling references, cycles, transforms", async () => {
+    const { secs } = await base();
+    const doc = (f: (d: Record<string, unknown>) => void) =>
+      assemble(withJson(secs, "document", f));
+    const nodes = (d: Record<string, unknown>) =>
+      d.nodesById as Record<string, Record<string, unknown>>;
+    /** v2 nodes carry no kind: it is the key's prefix. */
+    const firstKey = (d: Record<string, unknown>, prefix: string) =>
+      Object.keys(nodes(d)).find((k) => k.startsWith(prefix))!;
+    const first = (d: Record<string, unknown>, prefix: string) => nodes(d)[firstKey(d, prefix)]!;
+    await expectCode(
+      doc((d) => (d.documentSchemaVersion = 3)),
+      "version",
+    );
+    // v1 shapes inside a v2 document, and explicit defaults, are not canonical v2.
+    await expectCode(
+      doc((d) => (first(d, "pth_").kind = "path")),
+      "document",
+    );
+    await expectCode(
+      doc((d) => (first(d, "pth_").id = firstKey(d, "pth_"))),
+      "document",
+    );
+    await expectCode(
+      doc((d) => (first(d, "pth_").visible = true)),
+      "document",
+    );
+    await expectCode(
+      doc((d) => {
+        const k = firstKey(d, "grp_");
+        nodes(d)[`txt_${k.slice(4)}`] = nodes(d)[k]!;
+        delete nodes(d)[k];
+      }),
+      "document",
+    );
+    // Semantic forgeries reach validateState, exactly as in v1.
+    await expectCode(
+      doc((d) => (first(d, "pth_").geometry = { chunkId: "chk_999", pathIndex: 0 })),
+      "document:invariant",
+    );
+    await expectCode(
+      doc((d) => (first(d, "pth_").styleRef = "sty_999")),
+      "document:invariant",
+    );
+    await expectCode(
+      doc((d) => (d.orderedRootIds as string[]).push("lay_999")),
+      "document:invariant",
+    );
+    await expectCode(
+      doc((d) => {
+        const g = firstKey(d, "grp_");
+        const layer = Object.values(nodes(d)).find((n) =>
+          (n.orderedChildIds as string[] | undefined)?.includes(g),
+        )!;
+        const parentKey = Object.keys(nodes(d)).find((k) => nodes(d)[k] === layer)!;
+        (nodes(d)[g]!.orderedChildIds as string[]).push(parentKey); // a cycle
+      }),
+      "document:invariant",
+    );
+    await expectCode(
+      doc((d) => (first(d, "pth_").localTransform = [0, 0, 0, 0, 0, 0])),
+      "document:invalid_transform",
+    );
+    await expectCode(
+      doc((d) => (first(d, "pth_").clipRef = { x: 0, y: 0, width: 1, height: 1 })),
+      "document:clip_unsupported",
+    );
+    await expectCode(
+      doc((d) => (d.nextId = 2)),
+      "document:invariant",
     );
   });
 

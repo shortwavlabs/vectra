@@ -15,7 +15,8 @@ import {
 import { fixturePacket } from "./testing/fixtures.ts";
 import { fixtureProvenance, fixtureSession, TEST_PROVENANCE } from "./testing/helpers.ts";
 import { syntheticPacket } from "./testing/synthetic.ts";
-import { saveContainer } from "../persistence/container.ts";
+import { loadContainer, saveContainer } from "../persistence/container.ts";
+import { saveContainerV1 } from "./testing/document-json-v1.ts";
 import { NodeMap } from "./node-map.ts";
 import { sha256Hex } from "./session.ts";
 
@@ -170,12 +171,19 @@ describe("G-DOC-R stage B: validation modes in dispatch", () => {
   });
 
   test("stable serialization: the scripted document saves to the frozen bytes in every mode", async () => {
-    // Frozen on G-DOC-R stage B (8913cfb), before the command layer changes in stages C and D.
+    // v1, frozen on G-DOC-R stage B (8913cfb), before the command layer changes in stages C and
+    // D. Kept as historical evidence (AM-3.2) and re-derived with the test-only v1 writer.
     const FROZEN = "e60fa32756cdcf1dd6ed42ffff9fc65fe4432492b58f727dc4132fff77538e36";
+    // v2 (compact C10 r2), re-baselined explicitly in G-PRJ-0 (AM-3.2).
+    const FROZEN_V2 = "e53eb9864e3d8c199a191d76d1a30e7c4108c5a333f99444f94b63a8dd719885";
     for (const mode of MODES) {
       const { session } = run(mode, script());
+      expect(await sha256Hex(await saveContainerV1(session)), `${mode} v1`).toBe(FROZEN);
       const bytes = await saveContainer(session, { codec: "none" });
-      expect(await sha256Hex(bytes), mode).toBe(FROZEN);
+      expect(await sha256Hex(bytes), `${mode} v2`).toBe(FROZEN_V2);
+      // Lossless: the v2 file, reloaded and written as v1, is the historical v1 file.
+      const reloaded = await loadContainer(bytes, {});
+      expect(await sha256Hex(await saveContainerV1(reloaded)), `${mode} v2 → v1`).toBe(FROZEN);
     }
   });
 

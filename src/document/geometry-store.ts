@@ -3,7 +3,10 @@
 // publish. No API returns a committed ArrayBuffer or a view over one; jobCopy/renderCopy are
 // the only routes to a transfer list and always return fresh buffers.
 
+import { blockLayout } from "../geometry/packet/codec.ts";
 import { canonicalJsonBytes } from "../persistence/canonical-json.ts";
+
+const align8 = (x: number) => x + ((8 - (x % 8)) % 8);
 import { type ChunkId, DocumentError, MAX_CHUNK_NUMBER } from "./model.ts";
 import {
   DEFAULT_PACKET_LIMITS,
@@ -66,6 +69,8 @@ interface Chunk {
   arrays: PacketArrays | null; // null once freed
   derived: DerivedMetadata | null;
   readonly cost: number;
+  /** Exact length of the chunk's C3.0 geometry record (G-PRJ-0 persistability, AM-3.3). */
+  readonly recordBytes: number;
   readonly counts: Record<OwnerKind, number>;
   readonly view: ChunkView;
   readonly derivedView: DerivedView;
@@ -263,17 +268,23 @@ export class GeometryStore {
     if (this.#nextChunkId > MAX_CHUNK_NUMBER)
       throw new DocumentError("invariant", "the chunk id space is exhausted");
     const id = `chk_${this.#nextChunkId}`;
+    const manifestBytes = canonicalJsonBytes(manifest).length;
     const cost =
       packetMemBytes(manifest) +
-      canonicalJsonBytes(manifest).length +
+      manifestBytes +
       36 * manifest.pathCount +
       4 * r.derived.subpathStart.length;
+    // C3.0 record: u32 manifest length, the manifest, padding to 8, then the block.
+    const recordBytes =
+      align8(4 + manifestBytes) +
+      blockLayout(manifest.pathCount, manifest.verbCount, manifest.coordCount).block;
     const base = {
       id,
       manifest: deepFreeze(manifest),
       arrays,
       derived: r.derived,
       cost,
+      recordBytes,
       counts: { document: 0, snapshot: 0, job: 0, history: 0 },
     };
     this.#chunks.set(id, Object.assign(base, makeViews(base)));
@@ -308,6 +319,10 @@ export class GeometryStore {
   /** C3.2 chunk ledger cost: M_mem + manifestBytes + D. */
   cost(id: ChunkId): number {
     return this.#get(id).cost;
+  }
+  /** Exact length of `encodeRecord(id)`, without encoding (AM-3.3 persistability). */
+  recordBytes(id: ChunkId): number {
+    return this.#get(id).recordBytes;
   }
 
   #copy(ids: readonly ChunkId[]): { packets: TransferPacket[]; transfer: ArrayBuffer[] } {
