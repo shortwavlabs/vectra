@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-labelledby="t d">
+  <title id="t">Vectra export dialog — R-COLOR design proposal (static mockup)</title>
+  <desc id="d">Two states of a proposed export dialog. Left: today, Digital destination with SVG selected, PNG disabled as planned, print settings collapsed. Right: a labelled proposed future state (P2-R1), Print destination with PNG for print services expanded, physical size and resolution, colour and transparency options, preflight results, and disabled CMYK and ink-plate options marked not available yet. Not implemented.</desc>
+  <style>
+    text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; fill: #eeeef0; }
+    .h { font-size: 15px; font-weight: 600; }
+    .s { font-size: 12px; }
+    .m { font-size: 12px; fill: #a9abad; }
+    .xs { font-size: 11px; fill: #a9abad; }
+    .dis { font-size: 12px; fill: #a9abad; opacity: 0.7; }
+    .lime { fill: #b9e87b; }
+    .on { fill: #20251a; font-size: 12px; font-weight: 600; }
+    .warn { fill: #f2c14e; font-size: 12px; }
+  </style>
+  <rect width="1200" height="780" fill="#303134"/>
+  <text x="24" y="30" class="h">R-COLOR export dialog — design proposal (static, not implemented)</text>
+  <text x="24" y="50" class="m">A shows what exists today; anything else is disabled. B is a labelled future state. Tokens: DESIGN-SYSTEM.md.</text>
+
+  <!-- ===== A. Digital (default) ===== -->
+  <g transform="translate(24,70)">
+    <rect width="460" height="420" rx="10" fill="#212224" stroke="#414347"/>
+    <text x="20" y="34" class="h">Export</text>
+    <text x="440" y="34" class="m" text-anchor="end">A · today’s capabilities</text>
+    <!-- destination segmented control -->
+    <rect x="20" y="52" width="200" height="32" rx="6" fill="#191a1c" stroke="#787a7e"/>
+    <rect x="22" y="54" width="98" height="28" rx="5" fill="#b9e87b"/>
+    <text x="71" y="72" class="on" text-anchor="middle">Digital</text>
+    <text x="170" y="72" class="s" text-anchor="middle">Print</text>
+    <!-- format -->
+    <text x="20" y="112" class="m">Format</text>
+    <g transform="translate(20,122)">
+      <circle cx="8" cy="8" r="7" fill="none" stroke="#b9e87b" stroke-width="2"/><circle cx="8" cy="8" r="3.5" fill="#b9e87b"/>
+      <text x="22" y="12" class="s">SVG · vector, sRGB</text>
+      <circle cx="168" cy="8" r="7" fill="none" stroke="#787a7e" stroke-width="1.5"/>
+      <text x="182" y="12" class="s">PDF · vector, RGB</text>
+      <circle cx="318" cy="8" r="7" fill="none" stroke="#414347" stroke-width="1.5"/>
+      <text x="332" y="12" class="dis">PNG (planned)</text>
+    </g>
+    <!-- size info -->
+    <text x="20" y="176" class="m">Size</text>
+    <rect x="20" y="186" width="420" height="44" rx="6" fill="#191a1c" stroke="#414347"/>
+    <text x="34" y="213" class="s">1,600 × 1,067 px  ·  artboard units</text>
+    <text x="426" y="213" class="xs" text-anchor="end">information only</text>
+    <!-- collapsed print row -->
+    <rect x="20" y="248" width="420" height="40" rx="6" fill="#292a2c"/>
+    <path d="M36 262 l6 6 -6 6" fill="none" stroke="#a9abad" stroke-width="1.5"/>
+    <text x="52" y="273" class="s">Preparing for a printer?</text>
+    <text x="226" y="273" class="lime" font-size="12">Switch to Print</text>
+    <!-- notes -->
+    <text x="20" y="318" class="xs">Exports genuine vector geometry. No raster images are embedded.</text>
+    <text x="20" y="336" class="xs">Colours are written as sRGB (the document's working colour space).</text>
+    <!-- buttons -->
+    <rect x="236" y="364" width="96" height="36" rx="6" fill="none" stroke="#787a7e"/>
+    <text x="284" y="387" class="s" text-anchor="middle">Cancel</text>
+    <rect x="344" y="364" width="96" height="36" rx="6" fill="#b9e87b"/>
+    <text x="392" y="387" class="on" text-anchor="middle">Export SVG</text>
+  </g>
+
+  <!-- ===== B. Print → PNG for print services ===== -->
+  <g transform="translate(508,70)">
+    <rect width="668" height="690" rx="10" fill="#212224" stroke="#414347"/>
+    <text x="20" y="34" class="h">Export</text>
+    <text x="648" y="34" class="m" text-anchor="end">B · PROPOSED state (P2-R1): raster export does not exist today</text>
+    <rect x="20" y="52" width="200" height="32" rx="6" fill="#191a1c" stroke="#787a7e"/>
+    <text x="71" y="72" class="s" text-anchor="middle">Digital</text>
+    <rect x="120" y="54" width="98" height="28" rx="5" fill="#b9e87b"/>
+    <text x="169" y="72" class="on" text-anchor="middle">Print</text>
+    <!-- format list -->
+    <text x="20" y="112" class="m">Format</text>
+    <g transform="translate(20,122)">
+      <circle cx="8" cy="8" r="7" fill="none" stroke="#b9e87b" stroke-width="2"/><circle cx="8" cy="8" r="3.5" fill="#b9e87b"/>
+      <text x="22" y="12" class="s">PNG for print services</text>
+      <circle cx="188" cy="8" r="7" fill="none" stroke="#787a7e" stroke-width="1.5"/>
+      <text x="202" y="12" class="s">PDF · RGB vector</text>
+      <circle cx="338" cy="8" r="7" fill="none" stroke="#414347" stroke-width="1.5"/>
+      <text x="352" y="12" class="dis">TIFF</text>
+      <circle cx="418" cy="8" r="7" fill="none" stroke="#414347" stroke-width="1.5"/>
+      <text x="432" y="12" class="dis">Ink plates</text>
+      <rect x="506" y="-3" width="118" height="20" rx="10" fill="#292a2c" stroke="#414347"/>
+      <text x="565" y="11" class="xs" text-anchor="middle">Not available yet</text>
+    </g>
+    <text x="20" y="160" class="xs">Raster image: a separate format. Not a vector file; never used as a fallback for SVG or PDF.</text>
+    <!-- size -->
+    <text x="20" y="192" class="m">Size</text>
+    <g transform="translate(20,202)">
+      <rect width="110" height="34" rx="6" fill="#191a1c" stroke="#787a7e"/><text x="12" y="22" class="s">200</text>
+      <text x="122" y="22" class="m">×</text>
+      <rect x="138" width="110" height="34" rx="6" fill="#191a1c" stroke="#787a7e"/><text x="150" y="22" class="s">133.4</text>
+      <rect x="262" width="70" height="34" rx="6" fill="#191a1c" stroke="#787a7e"/><text x="274" y="22" class="s">mm ▾</text>
+      <rect x="346" width="96" height="34" rx="6" fill="#191a1c" stroke="#787a7e"/><text x="358" y="22" class="s">300 ppi ▾</text>
+      <text x="456" y="14" class="s">2,362 × 1,575 px</text>
+      <text x="456" y="30" class="xs">about 15 MB in memory</text>
+    </g>
+    <!-- colour -->
+    <text x="20" y="268" class="m">Colour</text>
+    <rect x="20" y="278" width="628" height="76" rx="6" fill="#191a1c" stroke="#414347"/>
+    <circle cx="40" cy="298" r="7" fill="none" stroke="#b9e87b" stroke-width="2"/><circle cx="40" cy="298" r="3.5" fill="#b9e87b"/>
+    <text x="56" y="302" class="s">sRGB with embedded profile</text>
+    <text x="56" y="320" class="xs">Most garment and poster services ask for sRGB files and convert to their inks themselves.</text>
+    <circle cx="40" cy="340" r="7" fill="none" stroke="#414347" stroke-width="1.5"/>
+    <text x="56" y="344" class="dis">CMYK with printer profile — PDF and TIFF only</text>
+    <rect x="352" y="331" width="118" height="20" rx="10" fill="#292a2c" stroke="#414347"/>
+    <text x="411" y="345" class="xs" text-anchor="middle">Not available yet</text>
+    <!-- transparency -->
+    <text x="20" y="386" class="m">Transparency</text>
+    <g transform="translate(20,396)">
+      <circle cx="8" cy="8" r="7" fill="none" stroke="#b9e87b" stroke-width="2"/><circle cx="8" cy="8" r="3.5" fill="#b9e87b"/>
+      <text x="22" y="12" class="s">Keep transparent background</text>
+      <circle cx="248" cy="8" r="7" fill="none" stroke="#787a7e" stroke-width="1.5"/>
+      <text x="262" y="12" class="s">Flatten on paper colour</text>
+      <rect x="420" y="0" width="16" height="16" rx="3" fill="#eee8d8" stroke="#787a7e"/>
+    </g>
+    <!-- preflight -->
+    <text x="20" y="448" class="m">Preflight</text>
+    <rect x="20" y="458" width="628" height="132" rx="6" fill="#191a1c" stroke="#414347"/>
+    <g transform="translate(36,478)">
+      <path d="M0 6 l4 4 8-9" fill="none" stroke="#b9e87b" stroke-width="2"/>
+      <text x="22" y="10" class="s">Resolution: 300 ppi at 200 × 133.4 mm (2,362 × 1,575 px)</text>
+      <path d="M6 26 l7 12 h-14z" fill="none" stroke="#f2c14e" stroke-width="1.5"/>
+      <text x="22" y="38" class="warn">Warning</text>
+      <text x="82" y="38" class="s">3 objects are semi-transparent. Garment printers may print them</text>
+      <text x="82" y="54" class="s">opaque or show the white underbase. Acknowledge to continue.</text>
+      <circle cx="6" cy="74" r="6.5" fill="none" stroke="#a9abad" stroke-width="1.5"/>
+      <text x="6" y="78" class="xs" text-anchor="middle">i</text>
+      <text x="22" y="78" class="m">Recommendation</text>
+      <text x="124" y="78" class="s">Check the service's own size template for this product.</text>
+      <text x="22" y="100" class="xs">Preflight gives warnings and recommendations. It does not certify print results.</text>
+    </g>
+    <!-- presets -->
+    <text x="20" y="620" class="m">Preset</text>
+    <rect x="20" y="630" width="300" height="34" rx="6" fill="#191a1c" stroke="#787a7e"/>
+    <text x="32" y="652" class="s">Garment POD: sRGB PNG, 300 ppi ▾</text>
+    <text x="20" y="682" class="xs">Each preset shows its source and “verified on” date.</text>
+    <!-- buttons -->
+    <rect x="444" y="632" width="96" height="36" rx="6" fill="none" stroke="#787a7e"/>
+    <text x="492" y="655" class="s" text-anchor="middle">Cancel</text>
+    <rect x="552" y="632" width="96" height="36" rx="6" fill="#b9e87b"/>
+    <text x="600" y="655" class="on" text-anchor="middle">Export PNG</text>
+  </g>
+
+  <!-- focus ring sample, legend -->
+  <g transform="translate(24,510)">
+    <rect width="460" height="250" rx="10" fill="#212224" stroke="#414347"/>
+    <text x="20" y="32" class="h">Later states (disabled today)</text>
+    <text x="20" y="58" class="s">C · Print → PDF, CMYK (P2, unqualified)</text>
+    <text x="20" y="78" class="xs">Printer profile [Import profile…] · intent Relative / Perceptual</text>
+    <text x="20" y="96" class="xs">Overrides: black = K only · white = paper · exact CMYK per palette entry</text>
+    <text x="20" y="114" class="xs">Bleed 3 mm · extend background · crop marks (off by default)</text>
+    <text x="20" y="132" class="xs">Soft proof toggle · translucency, gamut and ink-total warnings</text>
+    <text x="20" y="162" class="s">D · Ink plates (P3)</text>
+    <text x="20" y="182" class="xs">One page per named ink · registration marks · knock-out / trap later</text>
+    <text x="20" y="212" class="s">Never shown before qualification</text>
+    <text x="20" y="232" class="xs">“PDF/X”, “print-ready”, provider names, spot-accuracy and trapping claims.</text>
+  </g>
+</svg>

@@ -1,0 +1,240 @@
+{
+  "wasm": {
+    "file": "experiments/r-color/cmm/target/wasm32-unknown-unknown/release/r_color_cmm.wasm",
+    "rawBytes": 458048,
+    "gzip9Bytes": 144522,
+    "brotli11Bytes": 119392
+  },
+  "comparisons": [
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "adobe-f32-relative",
+      "values": 771,
+      "bitIdentical": 771,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-f32-absolute",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-f32-perceptual",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-f32-relative",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-f32-saturation",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u16-absolute",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u16-perceptual",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u16-relative",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u16-saturation",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u8-absolute",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u8-perceptual",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u8-relative",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "cmyk-u8-saturation",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm/moxcms-native.json",
+      "nativeSimd": true,
+      "key": "p3-f32-relative",
+      "values": 771,
+      "bitIdentical": 771,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "adobe-f32-relative",
+      "values": 771,
+      "bitIdentical": 771,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-f32-absolute",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-f32-perceptual",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-f32-relative",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-f32-saturation",
+      "values": 1028,
+      "bitIdentical": 356,
+      "maxAbsDiff": 4.76837158203125e-7
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u16-absolute",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u16-perceptual",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u16-relative",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u16-saturation",
+      "values": 1028,
+      "bitIdentical": 1026,
+      "maxAbsDiff": 1
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u8-absolute",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u8-perceptual",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u8-relative",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "cmyk-u8-saturation",
+      "values": 1028,
+      "bitIdentical": 1028,
+      "maxAbsDiff": 0
+    },
+    {
+      "native": "experiments/r-color/out/cmm-scalar/moxcms-native.json",
+      "nativeSimd": false,
+      "key": "p3-f32-relative",
+      "values": 771,
+      "bitIdentical": 771,
+      "maxAbsDiff": 0
+    }
+  ],
+  "throughput": {
+    "pixels": 1048576,
+    "conversion": "sRGB->CMYK f32 relative",
+    "ms": 38
+  },
+  "wasmMemoryBytesAfter": 53084160
+}

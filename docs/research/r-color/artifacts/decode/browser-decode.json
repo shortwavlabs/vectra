@@ -1,0 +1,1419 @@
+{
+  "inputs": [
+    "cicp-display-p3.png",
+    "gama-linear.png",
+    "icc-display-p3.jpg",
+    "iccp-adobe-rgb.png",
+    "iccp-display-p3.png",
+    "srgb-chunk.png",
+    "srgb-tagged.jpg",
+    "untagged.png"
+  ],
+  "browsers": [
+    {
+      "browser": "chromium",
+      "version": "159.0.8154.6",
+      "results": {
+        "cicp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "gama-linear.png": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#ddf5b9",
+              "#bcbcbc",
+              "#e5a87a",
+              "#00bcff",
+              "#f7f5ed"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#ea3323",
+              "#75fb4c",
+              "#0000f5",
+              "#e2f4be",
+              "#bcbcbc",
+              "#dcab81",
+              "#54b9f9",
+              "#f7f5ee"
+            ]
+          }
+        },
+        "icc-display-p3.jpg": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#aceb6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#fe0000",
+              "#01ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "iccp-adobe-rgb.png": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#a3e974",
+              "#818181",
+              "#e3642a",
+              "#0081ff",
+              "#f1e9d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#ff3d2b",
+              "#00fa2d",
+              "#0000f9",
+              "#b2e782",
+              "#818181",
+              "#d36c3b",
+              "#007efa",
+              "#efe9da"
+            ]
+          }
+        },
+        "iccp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#ff0000",
+              "#01ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "srgb-chunk.png": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#ea3323",
+              "#75fb4c",
+              "#0000f5",
+              "#c2e788",
+              "#808080",
+              "#bb693e",
+              "#377ef7",
+              "#ede8da"
+            ]
+          }
+        },
+        "srgb-tagged.jpg": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#e93323",
+              "#75fb4c",
+              "#0000f4",
+              "#c3e888",
+              "#808080",
+              "#bb693e",
+              "#377ef7",
+              "#ede8da"
+            ]
+          }
+        },
+        "untagged.png": {
+          "production": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "srgb",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "display-p3",
+            "pixels": [
+              "#ea3323",
+              "#75fb4c",
+              "#0000f5",
+              "#c2e788",
+              "#808080",
+              "#bb693e",
+              "#377ef7",
+              "#ede8da"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "browser": "firefox-playwright-default",
+      "version": "159.0",
+      "results": {
+        "cicp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "gama-linear.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "icc-display-p3.jpg": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "iccp-adobe-rgb.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "iccp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "srgb-chunk.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "srgb-tagged.jpg": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "untagged.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "browser": "firefox-cm2",
+      "version": "159.0",
+      "results": {
+        "cicp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          }
+        },
+        "gama-linear.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#dcf4b7",
+              "#bababa",
+              "#e4a77a",
+              "#00baff",
+              "#f7f4ec"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#dcf4b7",
+              "#bababa",
+              "#e4a77a",
+              "#00baff",
+              "#f7f4ec"
+            ]
+          }
+        },
+        "icc-display-p3.jpg": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#aceb6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#aceb6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          }
+        },
+        "iccp-adobe-rgb.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#a3e974",
+              "#818181",
+              "#e3642a",
+              "#0081ff",
+              "#f1e9d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#a3e974",
+              "#818181",
+              "#e3642a",
+              "#0081ff",
+              "#f1e9d8"
+            ]
+          }
+        },
+        "iccp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          }
+        },
+        "srgb-chunk.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "srgb-tagged.jpg": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "untagged.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "browser": "webkit",
+      "version": "27.2",
+      "results": {
+        "cicp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "gama-linear.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#ddf5b9",
+              "#bcbcbc",
+              "#e5a87a",
+              "#00bcff",
+              "#f7f5ed"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#ddf5b9",
+              "#bcbcbc",
+              "#e5a87a",
+              "#00bcff",
+              "#f7f5ed"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ea3323",
+              "#75fb4c",
+              "#0000f5",
+              "#e2f4be",
+              "#bcbcbc",
+              "#dcab81",
+              "#54b9f9",
+              "#f7f5ee"
+            ]
+          }
+        },
+        "icc-display-p3.jpg": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#aceb6a",
+              "#808080",
+              "#d75d1f",
+              "#0081ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#aceb6a",
+              "#808080",
+              "#d75d1f",
+              "#0081ff",
+              "#efe8d6"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#017fff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "iccp-adobe-rgb.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#a3e974",
+              "#818181",
+              "#e3642b",
+              "#0081ff",
+              "#f1e9d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#a3e974",
+              "#818181",
+              "#e3642b",
+              "#0081ff",
+              "#f1e9d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff3d2b",
+              "#00fa2d",
+              "#0000f9",
+              "#b2e782",
+              "#818181",
+              "#d36c3b",
+              "#007efa",
+              "#efe9da"
+            ]
+          }
+        },
+        "iccp-display-p3.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#acea6a",
+              "#808080",
+              "#d75d1f",
+              "#0082ff",
+              "#efe8d6"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          }
+        },
+        "srgb-chunk.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ea3323",
+              "#75fb4c",
+              "#0000f5",
+              "#c2e788",
+              "#808080",
+              "#bb693e",
+              "#377ef7",
+              "#ede8da"
+            ]
+          }
+        },
+        "srgb-tagged.jpg": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#017fff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#fe0000",
+              "#00ff01",
+              "#0000fe",
+              "#b9e97b",
+              "#808080",
+              "#c86432",
+              "#017fff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#e93323",
+              "#75fb4c",
+              "#0000f4",
+              "#c3e888",
+              "#808080",
+              "#bb693e",
+              "#377df6",
+              "#ede8da"
+            ]
+          }
+        },
+        "untagged.png": {
+          "production": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "none": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ff0000",
+              "#00ff00",
+              "#0000ff",
+              "#b9e87b",
+              "#808080",
+              "#c86432",
+              "#0080ff",
+              "#eee8d8"
+            ]
+          },
+          "p3Canvas": {
+            "canvasColorSpace": "(not reported)",
+            "pixels": [
+              "#ea3323",
+              "#75fb4c",
+              "#0000f5",
+              "#c2e788",
+              "#808080",
+              "#bb693e",
+              "#377ef7",
+              "#ede8da"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "expected": {
+    "block": 8,
+    "expectedSrgbIfConverted": {
+      "cicp-display-p3": [
+        "#ff0000",
+        "#00ff00",
+        "#0000ff",
+        "#acea6a",
+        "#808080",
+        "#d75d1f",
+        "#0082ff",
+        "#efe8d6"
+      ],
+      "iccp-adobe-rgb": [
+        "#ff0000",
+        "#00ff00",
+        "#0000ff",
+        "#a3e974",
+        "#818181",
+        "#e3642a",
+        "#0081ff",
+        "#f1e9d8"
+      ],
+      "iccp-display-p3": [
+        "#ff0000",
+        "#00ff00",
+        "#0000ff",
+        "#acea6a",
+        "#808080",
+        "#d75d1f",
+        "#0082ff",
+        "#efe8d6"
+      ],
+      "srgb-chunk": [
+        "#ff0000",
+        "#00ff00",
+        "#0000ff",
+        "#b9e87b",
+        "#808080",
+        "#c86432",
+        "#0080ff",
+        "#eee8d8"
+      ],
+      "untagged": [
+        "#ff0000",
+        "#00ff00",
+        "#0000ff",
+        "#b9e87b",
+        "#808080",
+        "#c86432",
+        "#0080ff",
+        "#eee8d8"
+      ]
+    },
+    "patches": [
+      "#ff0000",
+      "#00ff00",
+      "#0000ff",
+      "#b9e87b",
+      "#808080",
+      "#c86432",
+      "#0080ff",
+      "#eee8d8"
+    ],
+    "profiles": {
+      "adobe-rgb-bytes": 536,
+      "display-p3-bytes": 600
+    }
+  }
+}

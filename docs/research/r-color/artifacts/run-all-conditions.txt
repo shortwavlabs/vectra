@@ -1,0 +1,12 @@
+== 2026-11-25T18:59:18Z start; 12:59  up 1 day, 21:58, 3 users, load averages: 1.85 2.03 1.91
+== wasm-check; 12:59  up 1 day, 21:58, 3 users, load averages: 2.48 2.17 1.96
+== pdf; 12:59  up 1 day, 21:58, 3 users, load averages: 2.48 2.17 1.96
+== decode; 12:59  up 1 day, 21:58, 3 users, load averages: 2.91 2.28 2.00
+== fuzz; 13:00  up 1 day, 21:58, 3 users, load averages: 3.55 2.42 2.06
+== end; 13:00  up 1 day, 21:59, 3 users, load averages: 3.16 2.38 2.04
+== decode rerun (firefox-cm2 with rendering_intent 0); 13:05  up 1 day, 22:03, 3 users, load averages: 1.99 2.50 2.18
+== final-run context recorded 13:07 (after the run; chrome-headless-shell belongs to another session): ngspice processes: 0; top CPU:
+   49.8% chrome-headless-shell
+   11.7% node
+   8.7% chrome-headless-shell
+   5.7% WallpaperAerialsExtension
