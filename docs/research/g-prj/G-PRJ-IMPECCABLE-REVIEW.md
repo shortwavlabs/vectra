@@ -137,14 +137,71 @@ The surface is Operate mode: a project-home start screen and the workspace proje
 
 They are recorded as F-12 and TD-UI-008. The prototype overrides them locally where they affect it.
 
-## 6. Targeted refinement
-*Pending.*
+## 6. Targeted refinement (v1 → v2)
+**One batch, from the critique and the audit and the maintainer's four answers.** It covers all P1 and P2 findings plus the cheap P3s, applied by the builder under the craft floor.
+
+| Finding | Change in v2 |
+|---|---|
+| Critique P1: recovery only for the most recent project | Opening any project with a snapshot (tile, library, Open recent) goes through the same choice in a pre-open dialog (Cancel is the default; preview and consequence line). The tile menu gets **Recover changes…**. New state `recovery-other`. The workspace shows the opened project's own name and state |
+| Critique P1 / audit P1-2 / P2-9: status meaning at 1024 px and at 200 % zoom | "Recovery from 12 min ago kept · Review" (noun first); "Unsaved changes" only means dirty. A ResizeObserver collapses the status to a labelled button whose popover holds the full words. The name truncates (`shrink min-w-0`) and the status takes priority. No overlap at 683 × 384 @2x |
+| Critique P1 / audit P3-13: dialog focus escape | Shared Base UI behaviour at key presses 0 ms apart. The capture scripts now use clicks, or spaced key presses ≥ 50 ms. `inert` was not added: it races Base UI's focus return |
+| Critique P2: inert first launch | **Tracing is the front door:** the ivory sheet is one focusable Import target with a lime "Choose an image…" (dark ink outline on paper); New and Open… become quiet secondaries; one sentence explains `.vectra`; "Start from an empty artboard" |
+| Critique P2: verb and spec mismatches | Rename project changes the title only (the file keeps its name; Save As… makes a new one); ⌘N hint and handler removed; F2 renames; File → Open recent ▸; Close project returns to the home; Save visible ("Unsaved changes · Save"); recovery tiles say "Last saved"; "File unavailable" offers Locate… in place; save-failed adds Save As… and says what Try again does |
+| Maintainer: swap the preview | The preview's image, caption and alt text follow the choice. A real image swap appears on Poster layers; Great Wave's swap is completed in the finish-review fix round (§8) |
+| Maintainer: storage only when at risk | One quiet line; contextual warnings ("No file copy yet"; Safari 7-day note only in Safari; nearly full); one total, broken down in the dialog |
+| Audit P1-1: Enter in a rename field opens another project | The window-level Enter shortcut was removed |
+| Audit P1-3: focus hidden under the sticky header | `scroll-padding-top` scoped to the home; every focused element at least 91 px from the top at 200 % zoom |
+| Audit P1-4: destructive contrast | A local tint override in the prototype (about 5.2:1 at rest, 4.9:1 on hover). The registry fix is TD-UI-008 |
+| Audit P2-5 / P2-6 / P2-7 / P2-8 | The status slot stays mounted, with focus moved to the status control or the neighbouring tile; persistent `status` and `alert` live regions; popovers never self-open (Details is one click); Resume without recovery opens the plain workspace |
+| P3 | sr-only h2 in the library; `main` plus h1 in the workspace; tokens instead of arbitrary px; one rename field |
+| Detector, after v2 | skipped-heading and low-contrast gone; an empty-state line of about 91 characters fixed (`max-w-[62ch]`); flat-type-hierarchy remains, deliberately (§9) |
+
+**Captures:**
+- v2: 13 states at the four viewports, plus 390 × 844 for recovery and empty;
+- extras: `recovery-last`, `recovery-other-last`, `storage-safari`, `populated-storage-full`, three at 683 × 384 @2x.
+
+**Impeccable `first-viewport` check** on the recovery state, at 1440 × 900 and 390 × 844:
+- the thesis section shows 100 % in the first viewport;
+- the primary action is wholly visible and answers a click;
+- the longest empty stretch is ≤ 49 px.
+
+**Raster provenance:** origins embedded in all 12 prototype rasters (`embed-prompt --scan`: 0 missing).
 
 ## 7. Revised mockups and before/after
 *Pending.*
 
-## 8. Final design review
-*Pending.*
+## 8. Final design review (Impeccable finish reviewer)
+**Substitution, disclosed:** this harness exposes no `impeccable-finish-reviewer` agent type, so a fresh general-purpose agent ran the shipped playbook `reference/degraded/finish-reviewer.md`. It had no conversation history and no browser, and reviewed from files only.
+
+**Inputs:**
+- the request and the confirmed answers;
+- the artifact;
+- the 17 required captures (`.impeccable/review/desktop.png` and `mobile.png`, plus the named v2 captures);
+- the direction contract;
+- PRODUCT.md and DESIGN.md;
+- detector findings;
+- the decision sketch as critique reference (code-led; not an approved comp);
+- raster provenance.
+
+**Round 1: `disposition: fix`.**
+- **Persistence:** pass, with the seed corroborated (`--check-seed` exit 0).
+- **Fidelity:** TYPE matches, except an 18 px heading. MATERIAL matches. GROUND matches by eye.
+- **Ceiling:** the artboard-on-surround device, which the world owns, was left unused.
+- **Material fixes:**
+  1. show artwork as the artboard at its true aspect on the canvas surround, with the hero sized to the piece;
+  2. remove the dead voids in both first-viewport columns;
+  3. a real second picture for the Great Wave swap;
+  4. storage in the header only when at risk;
+  5. amend the contract for the removed home Open… and the lime uses;
+  6. keep the word "Export" at 200 % zoom;
+  7. no nested card for the recovery choice;
+  8. "Trace an image" at 15 px, and "yesterday at 18:40" kept on one line.
+- **Keep:** the radio pair rewriting the consequence line; Open last save keeping the snapshot; the charcoal shell with ivory artwork as the only bright surface; lime on one primary per view.
+
+**Fix round:**
+- Fix 5 was applied to the contract: OWN-WORLD and FIRST VIEWPORT are amended with cited reasons. The surface brief was rewritten and verified (6 blocks plus the seed).
+- Fixes 1–4 and 6–8 were applied by the builder in one batch, recaptured over the same v2 files.
+- The verdict pass is below.
 
 ## 9. Recommendations deliberately rejected
 *Pending.*
