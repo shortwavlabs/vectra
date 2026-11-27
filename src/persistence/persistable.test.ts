@@ -216,6 +216,69 @@ describe("transactional enforcement: the first transaction past any limit is ref
     expect(code(() => s.setPersistLimits(tight))).toBe("persist_limit");
   });
 
+  test("limits are validated and never exceed C7's (review finding 1 and nit 6)", () => {
+    const s = fixtureSession(["circle-bw"]);
+    for (const bad of [
+      { maxSections: 5000 }, // looser than C7: a state the save would refuse
+      { sessionBudget: DEFAULT_PERSIST_LIMITS.sessionBudget + 1 },
+      { maxDocumentBytes: Number.NaN },
+      { maxDocumentBytes: undefined as unknown as number },
+      { maxSourceBytes: 0 },
+      { maxGeometryBytes: 1.5 },
+    ]) {
+      const limits = { ...DEFAULT_PERSIST_LIMITS, ...bad };
+      expect(
+        code(() => s.setPersistLimits(limits)),
+        JSON.stringify(bad),
+      ).toBe("invalid_argument");
+      expect(
+        code(() => new DocumentSession(s.store, { state: s.state, persistLimits: limits })),
+      ).toBe("invalid_argument");
+    }
+  });
+
+  test("the loader never hands over a session with a budget above C7's", async () => {
+    const s = fixtureSession(["circle-bw"]);
+    const loaded = await loadContainer(await saveContainer(s, { codec: "none" }), {
+      sessionBudget: 4 * DEFAULT_PERSIST_LIMITS.sessionBudget,
+    });
+    expect(loaded.persistLimits.sessionBudget).toBe(DEFAULT_PERSIST_LIMITS.sessionBudget);
+  });
+
+  test("provenance that canonical JSON cannot write is refused with a typed error (review 2)", () => {
+    const s = fixtureSession(["circle-bw"]);
+    const at = frozen(s);
+    const bad = {
+      ...TEST_PROVENANCE,
+      originalScene: {
+        ...TEST_PROVENANCE.originalScene,
+        metadata: { ...TEST_PROVENANCE.originalScene.metadata, params: { pitch: Number.NaN } },
+      },
+    };
+    expect(
+      code(() =>
+        s.dispatch({
+          type: "commitTrace",
+          provenance: bad,
+          packet: syntheticPacket({ paths: 2, anchorsPerPath: 3 }),
+        }),
+      ),
+    ).toBe("invariant");
+    expect(frozen(s)).toEqual(at);
+  });
+
+  test("refused transactions are not counted as validated (review nit 5)", () => {
+    const s = fixtureSession(["circle-bw"]);
+    const id = unnamedPath(s);
+    s.setPersistLimits({
+      ...DEFAULT_PERSIST_LIMITS,
+      maxDocumentBytes: s.persistInfo().documentBound,
+    });
+    const v = s.validations;
+    expect(code(() => s.dispatch({ type: "rename", id, name: "x" }))).toBe("persist_limit");
+    expect(s.validations).toEqual(v);
+  });
+
   test("limits cannot be tightened below a state reachable by undo or redo", () => {
     const s = fixtureSession(["circle-bw"]);
     const big = s.persistInfo().documentBound;

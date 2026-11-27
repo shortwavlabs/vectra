@@ -12,11 +12,23 @@
 // proof). In particular every node, style, palette and asset key, and every child and root id,
 // is a C1 id: plain ASCII that canonical JSON writes as the string in quotes.
 
-import type { ChunkId, DocNode, DocState, PathNode, SourceAsset } from "../document/model.ts";
+import {
+  type ChunkId,
+  type DocNode,
+  type DocState,
+  DocumentError,
+  type PathNode,
+  type SourceAsset,
+} from "../document/model.ts";
 import { changedKeys } from "../document/node-map.ts";
 import { DEFAULT_PACKET_LIMITS } from "../document/packet-port.ts";
 import { MAX_MANIFEST_BYTES } from "../geometry/packet/types.ts";
-import { canonicalJsonBytes, canonicalLength, canonicalStringLength } from "./canonical-json.ts";
+import {
+  CanonicalJsonError,
+  canonicalJsonBytes,
+  canonicalLength,
+  canonicalStringLength,
+} from "./canonical-json.ts";
 import {
   documentJson,
   encodeAsset,
@@ -47,6 +59,23 @@ export const DEFAULT_PERSIST_LIMITS: Readonly<PersistLimits> = Object.freeze({
   maxGeometryBytes: DEFAULT_PACKET_LIMITS.maxBytes + MAX_MANIFEST_BYTES + 24,
 });
 
+/**
+ * A session's limits, checked: each a positive integer **no greater than C7's**, so the session
+ * never accepts a state the writer or the default loader would refuse (G-PRJ-0 review).
+ */
+export function checkPersistLimits(l: PersistLimits): Readonly<PersistLimits> {
+  for (const k of Object.keys(DEFAULT_PERSIST_LIMITS) as (keyof PersistLimits)[]) {
+    const v = l[k];
+    const cap = DEFAULT_PERSIST_LIMITS[k];
+    if (!Number.isSafeInteger(v) || v <= 0 || v > cap)
+      throw new DocumentError(
+        "invalid_argument",
+        `persistLimits.${k} must be a positive integer no greater than C7's ${fmt(cap)} (got ${String(v)})`,
+      );
+  }
+  return Object.freeze({ ...l });
+}
+
 /** Digits of the largest nextId and nextChunkId (C1: 15-digit numbers, so ≤ 10^15). */
 export const MARK_DIGITS = 16;
 export const MANIFEST_BYTES = canonicalJsonBytes(MANIFEST).length;
@@ -71,7 +100,22 @@ export function idArrayLength(ids: readonly string[]): number {
 const provenanceMemo = new WeakMap<object, number>();
 function provenanceLength(p: object): number {
   let n = provenanceMemo.get(p);
-  if (n === undefined) provenanceMemo.set(p, (n = canonicalLength(p)));
+  if (n === undefined) {
+    try {
+      n = canonicalLength(p);
+    } catch (e) {
+      // The validators check traceRequest's encodability but not originalScene's (pre-existing;
+      // unreachable from the engine, whose metadata is parsed JSON). A record canonical JSON
+      // cannot write is refused here, typed and atomic, instead of failing at save.
+      if (e instanceof CanonicalJsonError)
+        throw new DocumentError(
+          "invariant",
+          `trace provenance is not writable as canonical JSON: ${e.message}`,
+        );
+      throw e;
+    }
+    provenanceMemo.set(p, n);
+  }
   return n;
 }
 
@@ -285,14 +329,14 @@ export function persistProblem(i: PersistInfo, L: PersistLimits): string | null 
   if (i.missingSources.length)
     return `The embedded source ${i.missingSources[0]} has no image bytes in this session, so the project could not be saved`;
   if (i.documentBound > L.maxDocumentBytes)
-    return `This change would make the document too complex to save: its document section would need ${fmt(i.documentBound)} bytes, and the document section cap is ${fmt(L.maxDocumentBytes)} bytes`;
+    return `The document is too complex to save: its document section would need ${fmt(i.documentBound)} bytes, and the document section cap is ${fmt(L.maxDocumentBytes)} bytes`;
   if (i.sections > L.maxSections)
-    return `This change would need ${fmt(i.sections)} container sections, and the cap is ${fmt(L.maxSections)} (one per geometry chunk and embedded source, plus two)`;
+    return `The project would need ${fmt(i.sections)} container sections, and the cap is ${fmt(L.maxSections)} (one per geometry chunk and embedded source, plus two)`;
   if (i.largestSource && i.largestSource.bytes > L.maxSourceBytes)
     return `The embedded source ${i.largestSource.id} is ${fmt(i.largestSource.bytes)} bytes, and the source section cap is ${fmt(L.maxSourceBytes)} bytes`;
   if (i.largestGeometry && i.largestGeometry.bytes > L.maxGeometryBytes)
     return `The geometry chunk ${i.largestGeometry.id} needs ${fmt(i.largestGeometry.bytes)} bytes, and the geometry section cap is ${fmt(L.maxGeometryBytes)} bytes`;
   if (i.totalBound > L.sessionBudget)
-    return `This change would need ${fmt(i.totalBound)} uncompressed bytes in total, and the session budget cap is ${fmt(L.sessionBudget)} bytes`;
+    return `The project would need ${fmt(i.totalBound)} uncompressed bytes in total, and the session budget cap is ${fmt(L.sessionBudget)} bytes`;
   return null;
 }

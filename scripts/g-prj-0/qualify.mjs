@@ -284,7 +284,17 @@ async function qualify(name, w) {
         0,
     );
   checks.cleanAfterLoad = loaded.getSnapshot().dirty === false;
-  checks.serializationDidNotMarkSaved = s.getSnapshot().dirty === dirtyBefore; // AM-3.4
+  // AM-3.4, checked on a dirty session (a loaded session starts clean, which would prove
+  // nothing): edit, serialize, and the session must still be dirty; then undo the edit.
+  {
+    const id = [...s.state.nodesById.keys()][0];
+    s.dispatch({ type: "rename", id, name: "dirty-check" });
+    await saveContainer(s, { codec: "none" });
+    const dirtyAfterSave = s.getSnapshot().dirty;
+    s.undo(); // back to the measured state: clean if loaded, dirty if built by commands
+    checks.serializationDidNotMarkSaved =
+      dirtyAfterSave === true && s.getSnapshot().dirty === dirtyBefore;
+  }
   if (v1) {
     // Independent migration check: the original v1 file's document section equals the v1
     // encoding of the document reloaded from the v2 file.

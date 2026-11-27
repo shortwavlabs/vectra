@@ -349,7 +349,11 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
       // The session keeps every later state within what this loader accepts (AM-3.3).
       persistLimits: {
         ...DEFAULT_PERSIST_LIMITS,
-        sessionBudget: o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget,
+        // Never above C7's: the session must not accept a state the writer refuses.
+        sessionBudget: Math.min(
+          o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget,
+          CONTAINER_LIMITS.sessionBudget,
+        ),
       },
       ...(o.limits ? { limits: o.limits } : {}),
       ...(o.history ? { history: o.history } : {}),

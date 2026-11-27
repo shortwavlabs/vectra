@@ -10,6 +10,7 @@ import {
   fullBody,
   type PersistInfo,
   type PersistLimits,
+  checkPersistLimits,
   persistProblem,
   persistSizes,
 } from "../persistence/persistable.ts";
@@ -178,7 +179,7 @@ export class DocumentSession {
       throw new DocumentError("invariant", "nextId must exceed every node ID");
     for (const [id, bytes] of o.sources ?? []) this.#sources.set(id, bytes.slice());
     // AM-3.3: the initial state is persistable, like every state committed after it.
-    this.#persistLimits = Object.freeze({ ...(o.persistLimits ?? DEFAULT_PERSIST_LIMITS) });
+    this.#persistLimits = checkPersistLimits(o.persistLimits ?? DEFAULT_PERSIST_LIMITS);
     const d = withBody(v, bodyOf(o.state));
     if (this.validation === "compare" && fullBody(o.state) !== d.body)
       throw new ValidationDisagreement("persistable body: entry sum and full serialization differ");
@@ -237,7 +238,7 @@ export class DocumentSession {
   /** Changes the limits (a profile change, or a test). Refused when any state undo or redo can
    *  reach would not satisfy them, so every reachable state stays persistable. */
   setPersistLimits(limits: PersistLimits): void {
-    const next = Object.freeze({ ...limits });
+    const next = checkPersistLimits(limits);
     for (const s of [this.#state, ...this.#past, ...this.#future]) {
       const problem = persistProblem(this.#sizes(s, this.#derived.get(s)!, this.#nextId), next);
       if (problem) throw new DocumentError("persist_limit", problem);
@@ -367,6 +368,7 @@ export class DocumentSession {
       throw e;
     }
     // Publish: nothing below throws.
+    this.#validations[this.#decidedBy]++; // accepted transactions only
     this.#derived.set(next, d);
     this.#deltas.set(next, delta);
     this.#own(next, "document", 1);
@@ -390,7 +392,9 @@ export class DocumentSession {
 
   /** Validates `next` against the validated `prev` (see ValidationMode). `writes` is the
    *  transaction's complete Draft write log, or null (identity diff). Throws the full pass's
-   *  error on an invalid state; counts only accepted transactions. */
+   *  error on an invalid state. Records which path decided; dispatch counts it only when the
+   *  transaction is published (later checks may still refuse it). */
+  #decidedBy: "incremental" | "full" = "full";
   #validate(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): StateDerived {
     const { store, limits } = this;
     if (this.validation !== "full") {
@@ -410,14 +414,14 @@ export class DocumentSession {
           if (!sameDerived(full, inc.derived))
             throw new ValidationDisagreement("incremental and full derived data differ");
         }
-        this.#validations.incremental++;
+        this.#decidedBy = "incremental";
         return inc.derived;
       }
     }
     const full = validateState(next, store, limits);
     // Compare mode checks the stage C/D invariants on the full-pass path too (review C4).
     if (this.validation === "compare") this.#compareInvariants(prev, next, writes);
-    this.#validations.full++;
+    this.#decidedBy = "full";
     return full;
   }
 
