@@ -168,7 +168,26 @@ They are recorded as F-12 and TD-UI-008. The prototype overrides them locally wh
 **Raster provenance:** origins embedded in all 12 prototype rasters (`embed-prompt --scan`: 0 missing).
 
 ## 7. Revised mockups and before/after
-*Pending.*
+- **Revised captures (v2):** [`mockups/v2/`](mockups/v2/), WebP, 61 files.
+  - 13 states at 1024 × 640, 1280 × 720, 1366 × 768 and 1920 × 1080;
+  - recovery and empty at 390 × 844;
+  - `recovery-last`, `recovery-other-last`, `storage-safari`, `populated-storage-full`;
+  - three captures at 683 × 384 @2x (200 % zoom);
+  - `NOTES.txt` lists the synthetic content and the composite workspace body.
+- **Before / after comparisons** (v1 left, v2 right): [`mockups/before-after/`](mockups/before-after/), covering:
+  - `recovery-1366x768`
+  - `empty-1366x768`
+  - `library-1366x768`
+  - `populated-1024x640`
+  - `workspace-recovery-kept-1024x640`
+  - `history-budget-1366x768`
+- **The required set:**
+  - **empty library:** `empty-*`;
+  - **populated library:** `populated-*` and `library-*`;
+  - **recovery state:** `recovery-*`, `recovery-other-*`, `workspace-recovery-kept-*`;
+  - **active workspace:** `workspace-*`, `unsaved-*`, `history-budget-*`, `conflict-*`, `save-failed-*`, `download-saved-*`.
+
+  Each is captured at all four viewports.
 
 ## 8. Final design review (Impeccable finish reviewer)
 **Substitution, disclosed:** this harness exposes no `impeccable-finish-reviewer` agent type, so a fresh general-purpose agent ran the shipped playbook `reference/degraded/finish-reviewer.md`. It had no conversation history and no browser, and reviewed from files only.
@@ -200,8 +219,42 @@ They are recorded as F-12 and TD-UI-008. The prototype overrides them locally wh
 
 **Fix round:**
 - Fix 5 was applied to the contract: OWN-WORLD and FIRST VIEWPORT are amended with cited reasons. The surface brief was rewritten and verified (6 blocks plus the seed).
-- Fixes 1–4 and 6–8 were applied by the builder in one batch, recaptured over the same v2 files.
-- The verdict pass is below.
+- Fixes 1–4 and 6–8 were applied by the builder in one batch, recaptured over the same v2 files, with `desktop.png` and `mobile.png` recaptured by `impeccable first-viewport` (all checks ok).
+- **The fix round's visible changes:**
+  - artwork shown as the artboard at its true aspect on the canvas surround, with the hero sized to the piece (about 541 × 364 px of art at 1440, up from 418 × 282);
+  - one top-anchored details block, and the Start column capped at about 26rem;
+  - the recovered Great Wave is a real second picture: one documented vector recolour of the public-domain trace, with provenance embedded;
+  - storage words in the header only when at risk;
+  - "Export" kept as a word at 200 % zoom;
+  - no nested card;
+  - a 15 px heading, and non-breaking dates.
 
-## 9. Recommendations deliberately rejected
-*Pending.*
+**Verdict pass 1:** all **8 fixes resolved**. One regression introduced by the batch: the contract's "Left 58 %" no longer matched the built split. It was amended (FIRST VIEWPORT: about two-thirds, Start capped near 26rem, citing fix 2).
+
+**Verdict pass 2: `disposition: ship`.**
+- The regression is resolved; nothing remains.
+- In the reviewer's words, it covers "the eight scored material fixes and this one regression. It is not a fresh review of the whole surface", and it is reported at exactly that scope.
+
+**Documenter step:** not run, by design. This build is a new surface inside an **established** world (new-work §3), so `DESIGN.md` and `docs/DESIGN-SYSTEM.md` are preserved, not rewritten. The brief also forbids silently overwriting approved design records.
+- Evidence checked: the reviewer confirmed DESIGN.md's tokens (#191a1c, #212224, #292a2c, #414347, #eee8d8, #b9e87b) match the rendered surface.
+- Two conventions are new to this surface: the artboard-on-surround preview and the project controls in the top bar. They are proposed for `docs/DESIGN-SYSTEM.md` at G-PRJ-4 acceptance, under change control.
+
+**FINISH line discharged:**
+- finish review ✓;
+- verdict (ship, scoped) ✓;
+- DESIGN.md: preserved as an established-world extension, evidence checked ✓;
+- raster provenance: `embed-prompt --scan` reports 13 rasters, 0 missing ✓.
+
+## 9. Recommendations deliberately rejected, or deferred
+| Recommendation | Source | Decision | Why |
+|---|---|---|---|
+| Raise the type ratio to about 1.2–1.25 between body and headings (flat-type-hierarchy) | Detector | **Rejected** | `docs/DESIGN-SYSTEM.md` fixes a compact creative-tool scale of 11/12/13/15 px, and the brief asks for "compact, professional creative-tool typography" and no oversized headings. Hierarchy comes from weight and placement, plus 15 px for the project name |
+| Show both previews side by side for the recovery choice | Critique (question) | **Rejected** by the maintainer | "Swap the preview" was chosen; one large artwork keeps the artwork leading |
+| Keep the always-visible storage summary on the home | v1 design | **Rejected** by the maintainer | Storage speaks only when at risk |
+| Mark content outside open modals `inert` | Audit P3-13 | **Deferred** to G-PRJ-4 | Setting `inert` on the root races Base UI's focus return. At human speed the trap held in all engines |
+| Save As… in tile "…" menus | Critique P2 | **Not adopted** | Save As needs the project open; it stays in the workspace File menu |
+| Fix the registry destructive tint, `shrink-0`, 14/16 px defaults, `transition-all` and animation classes in `src/ui/registry` | Audit P1-4, P3 | **Deferred** (TD-UI-008) | G-PRJ-R makes no production change. The prototype overrides locally |
+| Install Impeccable's design-detector hook | `impeccable context` (CONTEXT_STALE) | **Not done** | The brief forbids installing hooks or modifying Claude settings; the detector was run manually instead |
+| Update Impeccable to v4.11.1 | `impeccable context` | **Not done** | It would rewrite the skill files mid-session; mentioned to the maintainer once |
+| Send Impeccable's anonymous decision-round ping | concept-seed | **Not sent** | The no-telemetry stance |
+| A narrow-viewport (390 px) "Drop an image" prompt | Critique minor | **Recorded** | Narrow layouts are designed, not qualified. Touch import wording is a G-PRJ-4 item |

@@ -82,7 +82,16 @@ In summary ([storage](G-PRJ-STORAGE-COMPARISON.md) §1):
 - Details: [recovery contract](G-PRJ-RECOVERY-CONTRACT.md).
 
 ## 5. Project home and workspace design
-*See §8 below and the [Impeccable review](G-PRJ-IMPECCABLE-REVIEW.md).*
+- **Direction A, "Resume hero with shelf",** chosen by the maintainer from three structures that Impeccable's `concept-seed` dealt from seven candidates:
+  - the last artwork, shown as its artboard at true aspect on the canvas surround, fills the first viewport;
+  - beside it, its true save and recovery state, and one lime **Resume**;
+  - Start actions on the right;
+  - a Recent shelf below.
+- **Signature interaction:** the recovery choice (Recover changes / Open last save) rewrites Resume's consequence line, and switches the preview between the recovered and last-saved artwork before anything opens. **Open last save keeps the snapshot** for later (M-4).
+- **First launch:** tracing is the front door (a focusable ivory Import target with a lime "Choose an image…"), with New and Open… as quiet secondary actions and one sentence explaining `.vectra`.
+- **Workspace:** a File menu (Save, Save As, Download a copy, Save to this browser, Export kept apart, Open recent, Project home) and a word status that keeps its meaning at every width and at 200 % zoom ("Unsaved changes · Save", "Recovery from 12 min ago kept · Review", "Couldn't save · Details").
+- **Dialogs** for unsaved changes, TD-UI-006 (Cancel default; discloses that undo and redo are cleared; Save a copy first), a file changed on disk, and storage.
+- **Mockups:** [`mockups/v2/`](mockups/v2/) at 1024 × 640, 1280 × 720, 1366 × 768 and 1920 × 1080 (plus 390 × 844 and 200 % zoom), with [before/after](mockups/before-after/) comparisons. The prototype is `prototypes/g-prj/home/` (dev server, `?state=…`).
 
 ## 6. Implementation sequence
 G-PRJ-0 (limits and contracts) → 1 (portable Save/Open) → 2 (library) → 3 (recovery) → 4 (project home) → 5 (safeguards, TD-UI-006) → Q ([plan](G-PRJ-IMPLEMENTATION-PLAN.md)).
@@ -94,8 +103,18 @@ The [qualification plan](G-PRJ-QUALIFICATION-PLAN.md) holds the matrix. Its prop
 - snapshot ≤ 16 ms of main thread;
 - zero unreopenable saves.
 
-## 8. Design outcome
-*Filled in after the Impeccable reviews.*
+## 8. Impeccable audit and design refinements
+| Step | Result |
+|---|---|
+| Context and preparation | `impeccable context`; G-UI-R's prior runs studied; approved records untouched; hook not installed (brief) |
+| Decision round | concept-seed dealt 3 of 7 structures (`seed:4dea934f2c506be4`); A chosen; direction contract recorded |
+| Critique v1 (dual agent) | **27/40, Acceptable.** P1: recovery only for the most recent project; status meaning and zoom; dialog focus. P2: inert first launch; verb and spec mismatches. Detector: 3 rules, all confirmed |
+| Audit v1 | **13/20, Acceptable.** P1: Enter shortcut; top bar at 200 %; focus hidden under the header; destructive contrast 4.43:1 (shared registry, recorded as **TD-UI-008**) |
+| Refinement | All P1 and P2 issues, plus the maintainer's four answers: swap the preview; storage only at risk; tracing as the front door; fix everything |
+| Final review (finish reviewer) | Round 1: `fix` (8 material fixes). Fix round, then verdict pass: all 8 resolved, plus one contract regression. Verdict pass 2: **`ship`**, scoped to those fixes, not a fresh whole-surface review |
+| Detector after v2 | Only flat-type-hierarchy remains, deliberately rejected (the approved compact scale) |
+
+Full record, with the rejected recommendations: [Impeccable review](G-PRJ-IMPECCABLE-REVIEW.md).
 
 ## 9. Amendments and decisions for the maintainer
 AM-3.1 to AM-3.5, and D-PRJ-1 to D-PRJ-13 ([decisions](G-PRJ-DECISIONS.md) §4–§5).
@@ -106,5 +125,5 @@ AM-3.1 to AM-3.5, and D-PRJ-1 to D-PRJ-13 ([decisions](G-PRJ-DECISIONS.md) §4�
 | [`bench/persistence-limits-8b6c451.json`](bench/persistence-limits-8b6c451.json) | Node sizes, compact encoding, save, load, peak RSS |
 | [`bench/browser-load.json`](bench/browser-load.json) | Browser load-and-validate and frame gaps |
 | [`bench/storage-probe.json`](bench/storage-probe.json) | Storage capabilities in 4 engines |
-| [`mockups/`](mockups/) | Decision sketches, prototype captures before and after refinement |
+| [`mockups/`](mockups/) | Decision sketches (PNG), thumbnails, v1 and v2 captures (WebP), before/after comparisons |
 | `sources/` | Audit, research, design digest |
