@@ -53,7 +53,7 @@ const time = (f) => {
 function measure(doc, name) {
   const { session } = doc;
   const make = doc.cmds[name];
-  const rows = { dispatch: [], undo: [], redo: [] };
+  const rows = { dispatch: [], undo: [], redo: [], persist: [] };
   const v0 = session.validations;
   for (let r = 0; r < WARMUP + REPS; r++) {
     session.dispatch({ type: "setArtboard", width: 1000 + ((r + 1) % 2), height: 1000 });
@@ -61,6 +61,9 @@ function measure(doc, name) {
     gc();
     const dispatch = time(() => session.dispatch(make()));
     if (session.state === S) throw new Error(`${name}: dispatch was a no-op`);
+    // G-PRJ-0: persistability accounting inside that dispatch (absent before G-PRJ-0).
+    if (typeof session.lastPersistMs === "number" && r >= WARMUP)
+      rows.persist.push(session.lastPersistMs);
     const undo = time(() => session.undo());
     const redo = time(() => session.redo());
     session.undo();
@@ -75,6 +78,7 @@ function measure(doc, name) {
   const decided = v1.incremental - v0.incremental - (WARMUP + REPS);
   return {
     dispatch: stats(rows.dispatch),
+    ...(rows.persist.length ? { persist: stats(rows.persist) } : {}),
     undo: stats(rows.undo),
     redo: stats(rows.redo),
     incrementalDecided: session.validation === "full" ? 0 : +(decided / (WARMUP + REPS)).toFixed(3),
@@ -108,7 +112,8 @@ for (const paths of SIZES)
       const c = (run.commands[name] = measure(doc, name));
       console.error(
         `${paths} ${validation} ${name}: dispatch p50 ${c.dispatch.p50} p95 ${c.dispatch.p95} ms ` +
-          `(decided ${c.incrementalDecided}); undo ${c.undo.p50}, redo ${c.redo.p50}`,
+          `(decided ${c.incrementalDecided}); undo ${c.undo.p50}, redo ${c.redo.p50}` +
+          (c.persist ? `; persist p50 ${c.persist.p50} p95 ${c.persist.p95}` : ""),
       );
     }
     run.loadavgEnd = load();

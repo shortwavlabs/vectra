@@ -217,6 +217,9 @@ export class DocumentSession {
   }
 
   // --- persistability (G-PRJ-0, AM-3.3) -----------------------------------------------------
+  /** Milliseconds the last dispatch that reached validation spent on persistability
+   *  accounting and enforcement (measurement, like the store's `lastCommitTiming`). */
+  lastPersistMs = 0;
   get persistLimits(): Readonly<PersistLimits> {
     return this.#persistLimits;
   }
@@ -314,7 +317,10 @@ export class DocumentSession {
       const writes = log.complete ? log.keys : null;
       const v = this.#validate(prev, next, writes);
       // AM-3.3: persistability, from the write log, before anything is published.
+      const tp = performance.now();
       d = { ...v, body: this.#derived.get(prev)!.body + bodyDelta(prev, next, writes) };
+      const problem = persistProblem(this.#sizes(next, d, ids.next), this.#persistLimits);
+      this.lastPersistMs = performance.now() - tp; // the compare-mode oracle below is excluded
       if (this.validation === "compare") {
         const full = fullBody(next);
         if (full !== d.body)
@@ -322,7 +328,6 @@ export class DocumentSession {
             `persistable body: incremental ${d.body} bytes, full serialization ${full}`,
           );
       }
-      const problem = persistProblem(this.#sizes(next, d, ids.next), this.#persistLimits);
       if (problem) throw new DocumentError("persist_limit", problem);
       now = this.#now();
       coalesce =
