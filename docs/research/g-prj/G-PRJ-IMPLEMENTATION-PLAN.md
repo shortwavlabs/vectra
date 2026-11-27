@@ -16,7 +16,7 @@
 - **The project home (G-PRJ-4) needs** the library (G-PRJ-2) and recovery (G-PRJ-3) to show anything real; a home with only New, Open and Import is possible earlier, as G-PRJ-1's empty state.
 
 ## Stages
-### G-PRJ-0: Persistence foundations and contract closure (authorized 2026-11-27)
+### G-PRJ-0: Persistence foundations and contract closure (authorized 2026-11-27; implemented, awaiting acceptance: [report](../g-prj-0/G-PRJ-0-REPORT.md))
 - **Scope** (the maintainer's G-PRJ-0 authorization):
   - compact C10 v2 canonical document encoding, with every default and canonical omission rule defined per field, and malformed or ambiguous encodings rejected;
   - strict v1 and v2 readers; deterministic default reconstruction; v1 → v2 migration verified independently of ordinary v2 round trips;
