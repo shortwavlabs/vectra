@@ -1,0 +1,565 @@
+{
+  "script": "scripts/calibrate-structure-accounting.mjs",
+  "commit": "2341123bf557573341126792023e248e8bdfd086",
+  "trackedChanges": false,
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "totalMemGiB": 128,
+  "reps": 3,
+  "costs": {
+    "object": 24,
+    "field": 8,
+    "heapNumber": 16,
+    "array": 48,
+    "element": 8,
+    "typedArray": 216,
+    "typedElement": 8,
+    "string": 16,
+    "mapTable": 64,
+    "mapSlot": 28,
+    "clonedProperties": 16,
+    "stateBookkeeping": 320,
+    "chunkRecord": 3136
+  },
+  "loadavgStart": [2.01611328125, 2.5947265625, 2.197265625],
+  "topStart": [
+    "17.8 node",
+    "8.4 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+    "7.8 /Users/shortwavlabs/Library/Application Support/Claude/claude-code/2.1.331/5cdc5c10ac5c/claude.app/Contents/MacOS/claude",
+    "3.2 /bin/zsh",
+    "2.7 /Applications/Claude.app/Contents/Frameworks/Claude Helper.app/Contents/MacOS/Claude Helper"
+  ],
+  "scenarios": [
+    {
+      "name": "43k: 1 small edit",
+      "set": "calibration",
+      "entries": 1,
+      "accounted": 7496,
+      "measured": {
+        "min": -21728,
+        "median": 4416,
+        "max": 44760
+      },
+      "accountedParts": {
+        "structure": 7496,
+        "chunkRecords": 0
+      },
+      "ratio": 1.697,
+      "ratioRange": [0.167, -0.345],
+      "chunkHistory": 0,
+      "runMs": 0.1
+    },
+    {
+      "name": "43k: 10 small edits",
+      "set": "calibration",
+      "entries": 10,
+      "accounted": 75176,
+      "measured": {
+        "min": 70064,
+        "median": 70328,
+        "max": 71528
+      },
+      "accountedParts": {
+        "structure": 75176,
+        "chunkRecords": 0
+      },
+      "ratio": 1.069,
+      "ratioRange": [1.051, 1.073],
+      "chunkHistory": 0,
+      "runMs": 0.5
+    },
+    {
+      "name": "43k: 50 small edits",
+      "set": "calibration",
+      "entries": 50,
+      "accounted": 375976,
+      "measured": {
+        "min": 355704,
+        "median": 359872,
+        "max": 359872
+      },
+      "accountedParts": {
+        "structure": 375976,
+        "chunkRecords": 0
+      },
+      "ratio": 1.045,
+      "ratioRange": [1.045, 1.057],
+      "chunkHistory": 0,
+      "runMs": 1.6
+    },
+    {
+      "name": "43k: 100 small edits",
+      "set": "calibration",
+      "entries": 100,
+      "accounted": 751976,
+      "measured": {
+        "min": 719344,
+        "median": 719408,
+        "max": 719520
+      },
+      "accountedParts": {
+        "structure": 751976,
+        "chunkRecords": 0
+      },
+      "ratio": 1.045,
+      "ratioRange": [1.045, 1.045],
+      "chunkHistory": 0,
+      "runMs": 2.9
+    },
+    {
+      "name": "43k: 20 structural edits",
+      "set": "calibration",
+      "entries": 20,
+      "accounted": 1042728,
+      "measured": {
+        "min": 1034592,
+        "median": 1034592,
+        "max": 1034592
+      },
+      "accountedParts": {
+        "structure": 1042728,
+        "chunkRecords": 0
+      },
+      "ratio": 1.008,
+      "ratioRange": [1.008, 1.008],
+      "chunkHistory": 0,
+      "runMs": 66
+    },
+    {
+      "name": "43k: replace the 1k-path layer ×10",
+      "set": "calibration",
+      "entries": 10,
+      "accounted": 2375988,
+      "measured": {
+        "min": 2353764,
+        "median": 2367724,
+        "max": 2367804
+      },
+      "accountedParts": {
+        "structure": 2340128,
+        "chunkRecords": 35860
+      },
+      "ratio": 1.003,
+      "ratioRange": [1.003, 1.009],
+      "chunkHistory": 2395820,
+      "runMs": 66.5
+    },
+    {
+      "name": "250k: 100 small edits",
+      "set": "validation",
+      "entries": 100,
+      "accounted": 1721576,
+      "measured": {
+        "min": 1685000,
+        "median": 1689120,
+        "max": 1689120
+      },
+      "accountedParts": {
+        "structure": 1721576,
+        "chunkRecords": 0
+      },
+      "ratio": 1.019,
+      "ratioRange": [1.019, 1.022],
+      "chunkHistory": 0,
+      "runMs": 6.4
+    },
+    {
+      "name": "250k: 20 structural edits",
+      "set": "validation",
+      "entries": 20,
+      "accounted": 14512088,
+      "measured": {
+        "min": 14345824,
+        "median": 14345824,
+        "max": 14345824
+      },
+      "accountedParts": {
+        "structure": 14512088,
+        "chunkRecords": 0
+      },
+      "ratio": 1.012,
+      "ratioRange": [1.012, 1.012],
+      "chunkHistory": 0,
+      "runMs": 323.8
+    },
+    {
+      "name": "330k (996k anchors): 50 small edits",
+      "set": "validation",
+      "entries": 50,
+      "accounted": 1049176,
+      "measured": {
+        "min": 1033056,
+        "median": 1033056,
+        "max": 1033056
+      },
+      "accountedParts": {
+        "structure": 1049176,
+        "chunkRecords": 0
+      },
+      "ratio": 1.016,
+      "ratioRange": [1.016, 1.016],
+      "chunkHistory": 0,
+      "runMs": 4.2
+    },
+    {
+      "name": "330k: delete the whole main layer",
+      "set": "validation",
+      "entries": 1,
+      "accounted": 74369019,
+      "measured": {
+        "min": 63863355,
+        "median": 63867411,
+        "max": 63867411
+      },
+      "accountedParts": {
+        "structure": 74364880,
+        "chunkRecords": 4139
+      },
+      "ratio": 1.164,
+      "ratioRange": [1.164, 1.165],
+      "chunkHistory": 46216021,
+      "runMs": 609.1
+    },
+    {
+      "name": "43k: undo/redo and a branch",
+      "set": "validation",
+      "entries": 21,
+      "accounted": 228328,
+      "measured": {
+        "min": 221408,
+        "median": 221488,
+        "max": 261072
+      },
+      "accountedParts": {
+        "structure": 228328,
+        "chunkRecords": 0
+      },
+      "ratio": 1.031,
+      "ratioRange": [0.875, 1.031],
+      "chunkHistory": 0,
+      "runMs": 4.1
+    },
+    {
+      "name": "large palette and provenance: 20k styles, 30k palette entries, ×5 recolour",
+      "set": "calibration",
+      "entries": 5,
+      "accounted": 4651400,
+      "measured": {
+        "min": 4642176,
+        "median": 4642176,
+        "max": 4642176
+      },
+      "accountedParts": {
+        "structure": 4651400,
+        "chunkRecords": 0
+      },
+      "ratio": 1.002,
+      "ratioRange": [1.002, 1.002],
+      "chunkHistory": 0,
+      "runMs": 18.4
+    },
+    {
+      "name": "large provenance: replace a traced layer ×3",
+      "set": "calibration",
+      "entries": 3,
+      "accounted": 11415123,
+      "measured": {
+        "min": 10570083,
+        "median": 10613291,
+        "max": 10613291
+      },
+      "accountedParts": {
+        "structure": 11404368,
+        "chunkRecords": 10755
+      },
+      "ratio": 1.076,
+      "ratioRange": [1.076, 1.08],
+      "chunkHistory": 1036933,
+      "runMs": 92.9
+    },
+    {
+      "name": "fresh: 120k paths, 60 mixed edits (visibility, transform, rename, reorder)",
+      "set": "fresh-validation",
+      "entries": 72,
+      "accounted": 801936,
+      "measured": {
+        "min": 778544,
+        "median": 778544,
+        "max": 778544
+      },
+      "accountedParts": {
+        "structure": 801936,
+        "chunkRecords": 0
+      },
+      "ratio": 1.03,
+      "ratioRange": [1.03, 1.03],
+      "chunkHistory": 0,
+      "runMs": 153
+    },
+    {
+      "name": "fresh: 8k styles, 12k-entry provenance, ×8 palette and fill edits",
+      "set": "fresh-validation",
+      "entries": 16,
+      "accounted": 2815904,
+      "measured": {
+        "min": 2808904,
+        "median": 2808904,
+        "max": 2808904
+      },
+      "accountedParts": {
+        "structure": 2815904,
+        "chunkRecords": 0
+      },
+      "ratio": 1.002,
+      "ratioRange": [1.002, 1.002],
+      "chunkHistory": 0,
+      "runMs": 15.9
+    },
+    {
+      "name": "fresh: 50k-entry provenance, replace a traced layer ×2",
+      "set": "fresh-validation",
+      "entries": 2,
+      "accounted": 12524994,
+      "measured": {
+        "min": 11600562,
+        "median": 11600602,
+        "max": 11600618
+      },
+      "accountedParts": {
+        "structure": 12517824,
+        "chunkRecords": 7170
+      },
+      "ratio": 1.08,
+      "ratioRange": [1.08, 1.08],
+      "chunkHistory": 1039390,
+      "runMs": 102.1
+    },
+    {
+      "name": "fresh: 250k paths, 15 structural edits (group, duplicate, delete)",
+      "set": "fresh-validation",
+      "entries": 15,
+      "accounted": 3572712,
+      "measured": {
+        "min": 3567024,
+        "median": 3567024,
+        "max": 3567024
+      },
+      "accountedParts": {
+        "structure": 3572712,
+        "chunkRecords": 0
+      },
+      "ratio": 1.002,
+      "ratioRange": [1.002, 1.002],
+      "chunkHistory": 0,
+      "runMs": 218.4
+    },
+    {
+      "name": "fresh: eviction, 60 edits at maxEntries 10 (history keeps 10)",
+      "set": "fresh-validation",
+      "entries": 10,
+      "accounted": 75200,
+      "measured": {
+        "min": 71976,
+        "median": 71976,
+        "max": 111608
+      },
+      "accountedParts": {
+        "structure": 75200,
+        "chunkRecords": 0
+      },
+      "ratio": 1.045,
+      "ratioRange": [0.674, 1.045],
+      "chunkHistory": 0,
+      "runMs": 2.2
+    },
+    {
+      "name": "fresh (added): eviction, 40 reorders in an 31k-sibling group at maxEntries 10",
+      "set": "fresh-validation",
+      "entries": 10,
+      "accounted": 2672480,
+      "measured": {
+        "min": 2669256,
+        "median": 2669256,
+        "max": 2669256
+      },
+      "accountedParts": {
+        "structure": 2672480,
+        "chunkRecords": 0
+      },
+      "ratio": 1.001,
+      "ratioRange": [1.001, 1.001],
+      "chunkHistory": 0,
+      "runMs": 574.4
+    },
+    {
+      "name": "closure-fresh: 200k paths, replace a 5k-path traced layer ×4",
+      "set": "closure-fresh",
+      "entries": 4,
+      "accounted": 4618500,
+      "measured": {
+        "min": 4611468,
+        "median": 4614284,
+        "max": 4632812
+      },
+      "accountedParts": {
+        "structure": 4604160,
+        "chunkRecords": 14340
+      },
+      "ratio": 1.001,
+      "ratioRange": [0.997, 1.002],
+      "chunkHistory": 4122844,
+      "runMs": 126.6
+    },
+    {
+      "name": "closure-fresh: 43k paths, replace the whole 43k-path main layer ×2",
+      "set": "closure-fresh",
+      "entries": 2,
+      "accounted": 19410924,
+      "measured": {
+        "min": 18107604,
+        "median": 18107604,
+        "max": 18107604
+      },
+      "accountedParts": {
+        "structure": 19402640,
+        "chunkRecords": 8284
+      },
+      "ratio": 1.072,
+      "ratioRange": [1.072, 1.072],
+      "chunkHistory": 20554836,
+      "runMs": 401.2
+    },
+    {
+      "name": "closure-fresh: 250k paths, delete 4 of the main layer's 8 groups at once",
+      "set": "closure-fresh",
+      "entries": 1,
+      "accounted": 28147224,
+      "measured": {
+        "min": 24219048,
+        "median": 24219048,
+        "max": 24219048
+      },
+      "accountedParts": {
+        "structure": 28147224,
+        "chunkRecords": 0
+      },
+      "ratio": 1.162,
+      "ratioRange": [1.162, 1.162],
+      "chunkHistory": 0,
+      "runMs": 217.6
+    },
+    {
+      "name": "closure-fresh: 330k paths (996k anchors), delete 3 groups one at a time",
+      "set": "closure-fresh",
+      "entries": 3,
+      "accounted": 27959096,
+      "measured": {
+        "min": 24070264,
+        "median": 24070264,
+        "max": 24070264
+      },
+      "accountedParts": {
+        "structure": 27959096,
+        "chunkRecords": 0
+      },
+      "ratio": 1.162,
+      "ratioRange": [1.162, 1.162],
+      "chunkHistory": 0,
+      "runMs": 222.9
+    },
+    {
+      "name": "closure-fresh: 40 traced 100-path layers, each deleted (40 history-only chunks)",
+      "set": "closure-fresh",
+      "entries": 40,
+      "accounted": 2044184,
+      "measured": {
+        "min": 2019872,
+        "median": 2019872,
+        "max": 2019872
+      },
+      "accountedParts": {
+        "structure": 1900624,
+        "chunkRecords": 143560
+      },
+      "ratio": 1.012,
+      "ratioRange": [1.012, 1.012],
+      "chunkHistory": 841752,
+      "runMs": 10.7
+    },
+    {
+      "name": "closure-fresh: 43k, replace the 1k layer ×5 and delete 2 groups, undo 3 (redo kept)",
+      "set": "closure-fresh",
+      "entries": 7,
+      "accounted": 2401802,
+      "measured": {
+        "min": 2268306,
+        "median": 2268306,
+        "max": 2268306
+      },
+      "accountedParts": {
+        "structure": 2383872,
+        "chunkRecords": 17930
+      },
+      "ratio": 1.059,
+      "ratioRange": [1.059, 1.059],
+      "chunkHistory": 1197910,
+      "runMs": 53.2
+    },
+    {
+      "name": "refreeze-fresh: replace a 4k-path traced layer with 4k styles and 256 groups ×3",
+      "set": "refreeze-fresh",
+      "entries": 3,
+      "accounted": 4912915,
+      "measured": {
+        "min": 4139963,
+        "median": 4140043,
+        "max": 4260163
+      },
+      "accountedParts": {
+        "structure": 4084432,
+        "chunkRecords": 828483
+      },
+      "ratio": 1.187,
+      "ratioRange": [1.153, 1.187],
+      "chunkHistory": 2524221,
+      "runMs": 105.6
+    },
+    {
+      "name": "refreeze-fresh: delete 6 traced 1k-path layers with 2k styles and 500 groups each",
+      "set": "refreeze-fresh",
+      "entries": 6,
+      "accounted": 3238362,
+      "measured": {
+        "min": 2587506,
+        "median": 2587506,
+        "max": 2587506
+      },
+      "accountedParts": {
+        "structure": 2224008,
+        "chunkRecords": 1014354
+      },
+      "ratio": 1.252,
+      "ratioRange": [1.252, 1.252],
+      "chunkHistory": 1938622,
+      "runMs": 23.6
+    }
+  ],
+  "disposal": [
+    {
+      "held": 21886136,
+      "accountedHistory": 1053064,
+      "afterDropMinusBefore": -9648
+    },
+    {
+      "held": 22001024,
+      "accountedHistory": 1053064,
+      "afterDropMinusBefore": 3320
+    },
+    {
+      "held": 21885624,
+      "accountedHistory": 1053064,
+      "afterDropMinusBefore": -1896
+    }
+  ],
+  "loadavgEnd": [1.998046875, 2.517578125, 2.185546875]
+}
