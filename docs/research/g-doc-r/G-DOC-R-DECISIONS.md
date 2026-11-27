@@ -95,6 +95,8 @@ This register separates the decisions taken within the authorised scope (impleme
 |---|---|---|
 | F-15 | The container loader cannot open the 330k-path (996k-anchor) benchmark workload: its document section is 72.7 MB, over C7's 64 MiB document cap. The 250k-path workload saves (80.2 MB container). *Corrected: an earlier revision of this row attributed the 72.7 MB to the 250k-path workload* | Recorded for G-PRJ and the approved compact Document v1 serialization follow-up (TECHNICAL-DEBT); the browser dispatch harness replays the workload's commands instead (report §11.1) |
 
+| F-16 | WebKit flake in `ui-document.spec.ts:828` (layers split dragged past its minimum sometimes stays expanded, line 886): 3/10 on `main` (`0e95737`) and 3/10 on the final build, same assertion | Not G-DOC-R; G-DOC-R changes no panel code or that test. Recorded, not suppressed; a follow-up outside this gate |
+
 | # | Decision requested | Recommendation |
 |---|---|---|
 | M-10 | Confirm that the per-chunk store record is counted under AM-2 term 3 ("any other retained structural resource"), with the C3.2 chunk ledger cost and C2 unchanged, or require a C3 r4 amendment that adds it to the chunk ledger cost instead. **The code already implements term 3 (re-frozen at `729e63a`), ahead of this confirmation** | Confirm term 3: only an explanatory note in the AM-2 record; no normative text, revision or serialized version changes, and store bytes by owner stay as specified |

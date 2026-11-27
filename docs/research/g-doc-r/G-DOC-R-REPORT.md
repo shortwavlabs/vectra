@@ -881,11 +881,19 @@ The preview target (≤ 100 ms at the interactive target) was already missed bef
 - the full Playwright suite: **375 passed, 0 failed, 39 skipped** (36 opt-in, plus the new opt-in memory spec in 3 engines);
 - `vp test`: 464 passed.
 
-**Closure head** (`d10ef36`, `VERSION` `6cdbae7e5bb8ad3f`, `BUILD_ID` `83daa2d29699dfdb`; the later commits are documentation and records only):
-- the full Playwright suite: **375 passed, 0 failed, 42 skipped**. The 42 are the 36 earlier opt-in skips, plus the opt-in memory spec and the new opt-in dispatch spec, each in 3 engines. Load was 1.24–1.82 and the run took 9.0 minutes;
-- `vp test`: **465 passed**;
-- `vp check`: clean on the changed sources;
-- bundle (gzip KiB): design-system JS 114.3, CSS 9.5, workspace JS **237.8** (+0.3 for the debug hook; budgets 150 / 15 / 250).
+**Final build** (`0b593b7`, `VERSION` `1c983c93f5bbe71e`, **`BUILD_ID` `cdced0f2b2791fd7`**; the commits after it are documentation and records only):
+- **Full Playwright suite: 374 passed, 1 failed, 42 skipped.** Load 1.06–1.83; 9.1 minutes.
+- **The failure is a WebKit flake that predates G-DOC-R** (F-16): `ui-document.spec.ts:828` "layers: an explicit collapse control…", at line 886. A drag of the layers split past its minimum sometimes leaves the panel expanded.
+  - Repeated 10 times in WebKit, it fails **3 of 10 on this build and 3 of 10 on `main`** (the G-BRAND baseline `0e95737`, `BUILD_ID` `69b8618a0497ded6`), with the same assertion.
+  - G-DOC-R changes neither that test nor any panel code. Recorded, not suppressed.
+- **The previous full run,** on `d10ef36` (`BUILD_ID` `83daa2d29699dfdb`, before the record model was re-frozen), passed 375 with 0 failed and 42 skipped.
+- `vp test`: **465 passed**. `vp check` (repo-wide): clean.
+- Bundle (gzip KiB): design-system JS 114.3, CSS 9.5, workspace JS **237.8** (+0.3 for the debug hook; budgets 150 / 15 / 250).
+- **Real Safari 26.6.2 on `cdced0f2b2791fd7`:** persistence **23/23** ([`safari/final-cdced0f2-*`](safari/)).
+- **Real Safari on `83daa2d29699dfdb`:**
+  - persistence 23/23;
+  - gui **invalid**: the screen was locked and the page hidden (0 animation frames), so 11 of 15 timed out or lost focus ([`safari/closure-83daa2d2-*`](safari/)).
+- **Not run on the closure builds:** gr1, gjob and gr0, and a valid gui run, which needs an unlocked screen. All five passed on `e3cfd750f82410a6`. Since then the changes are the history accounting, a debug-only hook and test harnesses.
 
 **Opt-in skip counts, reconciled:**
 - 36 on `0700087`: the earlier opt-in specs;
@@ -1021,6 +1029,13 @@ So Safari's blob and storage layer, or its file access, was failing for every bu
 - **Undo and redo** are ≤ 1 ms everywhere (timer resolution).
 - **Real Safari dispatch: not attempted.** It would need a safaridriver harness that serves the workload's geometry records from the preview origin (Playwright's request routing is not available there) and drives `buildDetached` through WebDriver. Playwright WebKit stands in; whether the 996k miss holds in Safari 26 is unknown.
 
+**Final build re-run** (`0b593b7`, `BUILD_ID` `cdced0f2b2791fd7`, after the record model was re-frozen; [`bench/closure-dispatch-*-0b593b7.json`](bench/)).
+- Every transaction was again decided incrementally. Worst type, median / p95:
+  - **Chromium:** 5.9 / 7.8, 26.6 / 27.6 and **35.4 / 35.7 ms**;
+  - **Firefox:** 5 / 8, 16 / 17 and **21 / 23 ms**;
+  - **WebKit:** 9 / 10, 41 / 42 and **58 / 58 ms** (applyTransformLayer at 996k, the **third reproduction of the miss**).
+- **Firefox varies between runs:** applyTransformLayer at 996k was 33 / 34 ms on `d10ef36` and 17 / 19 ms here. Chromium and WebKit agree within 1–3 %.
+
 **Consequence.** Browser dispatch is qualified at the interactive target and at 756k in three engines. At 996k anchors it is qualified in Chromium and Firefox only. **The WebKit 996k miss keeps TD-PERF-007 open and the gate PARTIAL**, together with lower-end hardware and the quiet machine.
 
 ## 12. Disposition
@@ -1060,14 +1075,16 @@ The maintainer accepted stage D as an implementation at `1a7b45f`, subject to an
 | Browser heap claims | Chromium only. Wording corrected (§7): no conservative claim for Firefox or WebKit, no universal guarantee |
 | Re-qualification | `vp test` 465 passed (ledger, budget, owner precedence, oracle fuzz, transitions, retention); repo-wide `vp check` clean; `check-retention.mjs` PASS; accounting cost unchanged (§7.1) |
 | Browser dispatch | Production build `83daa2d29699dfdb`, a session that is not shown, the incremental path, 12 types, median and p95 (§11.1). **Met:** interactive target and 756k anchors in Chromium, Firefox and WebKit; 996k anchors in Chromium and Firefox. **Missed: WebKit at 996k anchors, applyTransformLayer 59 / 68 ms** (repeat 58 / 58). Real Safari dispatch NOT RUN |
+| Final build | `cdced0f2b2791fd7` (`0b593b7`): Playwright 374 passed, 1 failed (F-16: a WebKit flake that predates G-DOC-R, 3/10 on `main` and on this build), 42 skipped; dispatch re-run reproduces every result, the WebKit 996k miss included (58 / 58 ms); real Safari persistence 23/23 |
 | Blocker found on the way | The container loader cannot open the 330k-path (996k-anchor) workload: its 72.7 MB document section is over C7's 64 MiB cap; the 250k-path workload saves (F-15; TD-PERF-009, G-PRJ input) |
 | Debt | TD-PERF-012 added (renderer regressions, accepted and tracked); TD-UI-006: confirmation authorised as a G-PRJ follow-up, refusal kept; TD-PERF-007 and TD-PERF-011 stay OPEN; TD-PERF-009 gains F-15. **45 open items, 14 High** |
 | Decisions | M-7, M-8 and M-9 recorded as decided (decisions §6, decision register §12). G-PRJ and G-COLOR-UI recorded in the roadmap; neither is started |
 | Reconciled | F-14 (the preview regression is +7 / +12 ms, not "unchanged"); the PR summary's calibration range (0.987–1.074, not 1.061), disposal (within 4 KB) and eviction ratio (0.689); opt-in skip counts (§11) |
 
 **Remaining open qualifications:**
-- Playwright WebKit dispatch at 996k anchors (applyTransformLayer);
-- real Safari dispatch;
+- Playwright WebKit dispatch at 996k anchors (applyTransformLayer, reproduced three times);
+- real Safari dispatch (not attempted; needs a safaridriver harness that serves the workload records);
+- real Safari gui, gr1, gjob and gr0 on the final build (persistence passed; gui needs an unlocked screen);
 - lower-end hardware;
 - a designated quiet-machine run;
 - heap evidence from engines other than Chromium;
