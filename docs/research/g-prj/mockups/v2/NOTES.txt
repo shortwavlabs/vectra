@@ -1,0 +1,74 @@
+G-PRJ-R prototype captures (v2, after the Impeccable refinement).
+Command: node scripts/g-prj/capture-mockups.mjs
+Date: 2026-11-27T05:44:48.937Z
+Commit: b5496b09c88c0560e968d17c373c8e2b94fa9612 (working tree may differ)
+Browser: Playwright Chromium 159.0.8154.6
+Data: project names, times, sizes and states are synthetic; thumbnails are licensed fixture traces,
+rendered as the artboard at its true aspect (scripts/g-prj/render-thumbs.mjs).
+SYNTHETIC picture: great-wave-recovered.webp, Great Wave's 'Recovered changes' preview, is the same
+Hokusai trace with one vector edit (palette fill #efe5ca replaced by #f0cfa8: the sky recoloured).
+Workspace states are COMPOSITES: the proposed top bar over a production-build screenshot of the
+real workspace showing a different fixture (the multi-layer renderer fixture), not Great Wave.
+@2x: 683 x 384 CSS px at deviceScaleFactor 2 (200 % zoom of a 1366 x 768 screen).
+
+empty-1024x640.png
+empty-1280x720.png
+empty-1366x768.png
+empty-1920x1080.png
+populated-1024x640.png
+populated-1280x720.png
+populated-1366x768.png
+populated-1920x1080.png
+recovery-1024x640.png
+recovery-1280x720.png
+recovery-1366x768.png
+recovery-1920x1080.png
+recovery-other-1024x640.png
+recovery-other-1280x720.png
+recovery-other-1366x768.png
+recovery-other-1920x1080.png
+library-1024x640.png
+library-1280x720.png
+library-1366x768.png
+library-1920x1080.png
+storage-1024x640.png
+storage-1280x720.png
+storage-1366x768.png
+storage-1920x1080.png
+workspace-1024x640.png
+workspace-1280x720.png
+workspace-1366x768.png
+workspace-1920x1080.png
+unsaved-1024x640.png
+unsaved-1280x720.png
+unsaved-1366x768.png
+unsaved-1920x1080.png
+history-budget-1024x640.png
+history-budget-1280x720.png
+history-budget-1366x768.png
+history-budget-1920x1080.png
+conflict-1024x640.png
+conflict-1280x720.png
+conflict-1366x768.png
+conflict-1920x1080.png
+save-failed-1024x640.png
+save-failed-1280x720.png
+save-failed-1366x768.png
+save-failed-1920x1080.png
+download-saved-1024x640.png
+download-saved-1280x720.png
+download-saved-1366x768.png
+download-saved-1920x1080.png
+workspace-recovery-kept-1024x640.png
+workspace-recovery-kept-1280x720.png
+workspace-recovery-kept-1366x768.png
+workspace-recovery-kept-1920x1080.png
+recovery-390x844.png
+empty-390x844.png
+recovery-last-1280x720.png
+recovery-other-last-1280x720.png
+storage-safari-1280x720.png
+populated-storage-full-1280x720.png
+workspace-683x384@2x.png
+save-failed-683x384@2x.png
+workspace-recovery-kept-683x384@2x.png

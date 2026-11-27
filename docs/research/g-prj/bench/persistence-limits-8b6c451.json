@@ -1,0 +1,496 @@
+{
+  "script": "scripts/g-prj/persistence-limits.mjs",
+  "commit": "8b6c45143c623701262ec385d51bb9f2535aa987",
+  "node": "v24.22.1",
+  "cpu": "Apple M5 Max",
+  "totalMemGiB": 128,
+  "limits": {
+    "maxHeaderBytes": 1048576,
+    "maxSections": 4096,
+    "maxManifestBytes": 1048576,
+    "maxDocumentBytes": 67108864,
+    "maxSourceBytes": 20971520,
+    "sessionBudget": 536870912
+  },
+  "reps": 3,
+  "loadavgStart": [2.89306640625, 1.88232421875, 1.34423828125],
+  "workloads": [
+    {
+      "name": "small",
+      "description": "ordinary small artwork: the renderer fixture edited-styles-visibility (a traced and edited document)",
+      "nodes": 7,
+      "paths": 5,
+      "anchors": 37,
+      "styles": 6,
+      "palette": 5,
+      "document": {
+        "canonicalBytes": 3394,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 1324,
+          "provenance": 1148,
+          "styles": 429,
+          "palette": 268,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 484.9,
+        "serializeMs": 0,
+        "deflateRawBytes": 976,
+        "compact": {
+          "bytes": 2850,
+          "ratio": 0.84,
+          "overCap": false,
+          "serializeMs": 0,
+          "deflateRawBytes": 910,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 1976,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 6023,
+        "saveMs": 0.2,
+        "loadMs": 0.4,
+        "structuredCopyMs": 0
+      },
+      "containerDeflate": {
+        "bytes": 2136,
+        "saveMs": 1,
+        "loadMs": 0.9,
+        "structuredCopyMs": 0
+      },
+      "peakRssMiB": {
+        "save": 7.7,
+        "load": 3.2
+      }
+    },
+    {
+      "name": "bark-1224",
+      "description": "real photographic trace (G-R1 registered, 270k anchors)",
+      "nodes": 16058,
+      "paths": 16056,
+      "anchors": 269996,
+      "styles": 13662,
+      "palette": 13662,
+      "document": {
+        "canonicalBytes": 5978208,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 3537574,
+          "provenance": 465453,
+          "styles": 1109183,
+          "palette": 865740,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 372.3,
+        "serializeMs": 61,
+        "deflateRawBytes": 632518,
+        "compact": {
+          "bytes": 4565128,
+          "ratio": 0.764,
+          "overCap": false,
+          "serializeMs": 37.3,
+          "deflateRawBytes": 574625,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 13922408,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 19901286,
+        "saveMs": 63.2,
+        "loadMs": 103.8,
+        "structuredCopyMs": 1.4
+      },
+      "containerDeflate": {
+        "bytes": 4544646,
+        "saveMs": 463.5,
+        "loadMs": 140.5,
+        "structuredCopyMs": 0.1
+      },
+      "peakRssMiB": {
+        "save": 114.3,
+        "load": 168.7
+      }
+    },
+    {
+      "name": "bark-2350",
+      "description": "real photographic trace (G-R1 registered, 812k anchors)",
+      "nodes": 43623,
+      "paths": 43621,
+      "anchors": 812003,
+      "styles": 30595,
+      "palette": 30595,
+      "document": {
+        "canonicalBytes": 15175437,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 9643881,
+          "provenance": 1054200,
+          "styles": 2497689,
+          "palette": 1979407,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 347.9,
+        "serializeMs": 161.3,
+        "deflateRawBytes": 1537447,
+        "compact": {
+          "bytes": 11331823,
+          "ratio": 0.747,
+          "overCap": false,
+          "serializeMs": 113,
+          "deflateRawBytes": 1382307,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 41208712,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 56384822,
+        "saveMs": 186.6,
+        "loadMs": 257.4,
+        "structuredCopyMs": 2
+      },
+      "containerDeflate": {
+        "bytes": 13151909,
+        "saveMs": 1370.3,
+        "loadMs": 363.3,
+        "structuredCopyMs": 0.5
+      },
+      "peakRssMiB": {
+        "save": 166.2,
+        "load": 381.8
+      }
+    },
+    {
+      "name": "halftone",
+      "description": "halftone trace (G-R1 registered, 977k anchors in one path)",
+      "nodes": 3,
+      "paths": 1,
+      "anchors": 977505,
+      "styles": 1,
+      "palette": 1,
+      "document": {
+        "canonicalBytes": 1821,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 551,
+          "provenance": 912,
+          "styles": 71,
+          "palette": 55,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 607,
+        "serializeMs": 0,
+        "deflateRawBytes": 748,
+        "compact": {
+          "bytes": 1589,
+          "ratio": 0.873,
+          "overCap": false,
+          "serializeMs": 0,
+          "deflateRawBytes": 688,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 41837512,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 41839994,
+        "saveMs": 4.3,
+        "loadMs": 28.4,
+        "structuredCopyMs": 1.2
+      },
+      "containerDeflate": {
+        "bytes": 10039710,
+        "saveMs": 1238.4,
+        "loadMs": 101.6,
+        "structuredCopyMs": 0.3
+      },
+      "peakRssMiB": {
+        "save": 98.2,
+        "load": 138.3
+      }
+    },
+    {
+      "name": "palette-provenance",
+      "description": "20k paths with 20k styles and a 30k-entry provenance palette",
+      "nodes": 20005,
+      "paths": 20000,
+      "anchors": 80000,
+      "styles": 20000,
+      "palette": 10000,
+      "document": {
+        "canonicalBytes": 7707421,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 4409648,
+          "provenance": 1031733,
+          "styles": 1616235,
+          "palette": 649577,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 385.3,
+        "serializeMs": 69.6,
+        "deflateRawBytes": 894790,
+        "compact": {
+          "bytes": 5947035,
+          "ratio": 0.772,
+          "overCap": false,
+          "serializeMs": 60.6,
+          "deflateRawBytes": 820113,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 4038632,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 11746721,
+        "saveMs": 86.2,
+        "loadMs": 128.8,
+        "structuredCopyMs": 0.4
+      },
+      "containerDeflate": {
+        "bytes": 2912093,
+        "saveMs": 183,
+        "loadMs": 147.1,
+        "structuredCopyMs": 0.1
+      },
+      "peakRssMiB": {
+        "save": 103.6,
+        "load": 157.4
+      }
+    },
+    {
+      "name": "interactive-43k",
+      "description": "interactive target: 43k paths, 264k anchors (bench-workload)",
+      "nodes": 44012,
+      "paths": 44000,
+      "anchors": 264000,
+      "styles": 8,
+      "palette": 4,
+      "document": {
+        "canonicalBytes": 9509699,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 9507373,
+          "provenance": 1228,
+          "styles": 613,
+          "palette": 239,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 216.1,
+        "serializeMs": 95.7,
+        "deflateRawBytes": 515285,
+        "compact": {
+          "bytes": 5647845,
+          "ratio": 0.594,
+          "overCap": false,
+          "serializeMs": 56.6,
+          "deflateRawBytes": 365244,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 8752824,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 18263377,
+        "saveMs": 101.7,
+        "loadMs": 137,
+        "structuredCopyMs": 0.5
+      },
+      "containerDeflate": {
+        "bytes": 6702465,
+        "saveMs": 323.3,
+        "loadMs": 170.6,
+        "structuredCopyMs": 0.2
+      },
+      "peakRssMiB": {
+        "save": 132.5,
+        "load": 171.7
+      }
+    },
+    {
+      "name": "synthetic-250k",
+      "description": "interactive target: 42k paths, 250k anchors (G-R1 registered)",
+      "nodes": 41862,
+      "paths": 41853,
+      "anchors": 250000,
+      "styles": 16,
+      "palette": 8,
+      "document": {
+        "canonicalBytes": 9083911,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 9081140,
+          "provenance": 908,
+          "styles": 1174,
+          "palette": 430,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 217,
+        "serializeMs": 85,
+        "deflateRawBytes": 498658,
+        "compact": {
+          "bytes": 5411171,
+          "ratio": 0.596,
+          "overCap": false,
+          "serializeMs": 52.1,
+          "deflateRawBytes": 358533,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 11371056,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 20455637,
+        "saveMs": 100.4,
+        "loadMs": 124.5,
+        "structuredCopyMs": 1.4
+      },
+      "containerDeflate": {
+        "bytes": 3455756,
+        "saveMs": 453.3,
+        "loadMs": 164.9,
+        "structuredCopyMs": 0.1
+      },
+      "peakRssMiB": {
+        "save": 143.3,
+        "load": 185.4
+      }
+    },
+    {
+      "name": "w756k",
+      "description": "250k paths, 756k anchors (bench-workload)",
+      "nodes": 251012,
+      "paths": 251000,
+      "anchors": 756000,
+      "styles": 8,
+      "palette": 4,
+      "document": {
+        "canonicalBytes": 55032771,
+        "overCap": false,
+        "composition": {
+          "nodesExcludingProvenance": 55030429,
+          "provenance": 1228,
+          "styles": 623,
+          "palette": 243,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 219.2,
+        "serializeMs": 676.4,
+        "deflateRawBytes": 2908208,
+        "compact": {
+          "bytes": 32803898,
+          "ratio": 0.596,
+          "overCap": false,
+          "serializeMs": 398.6,
+          "deflateRawBytes": 2064021,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 25206552,
+      "sourceBytes": 0,
+      "containerNone": {
+        "bytes": 80240182,
+        "saveMs": 749.2,
+        "loadMs": 773.2,
+        "structuredCopyMs": 5.7
+      },
+      "containerDeflate": {
+        "bytes": 19668298,
+        "saveMs": 1326.3,
+        "loadMs": 942.9,
+        "structuredCopyMs": 0.6
+      },
+      "peakRssMiB": {
+        "save": 490,
+        "load": 719
+      }
+    },
+    {
+      "name": "w996k",
+      "description": "330k paths, 996k anchors (bench-workload, designated stress)",
+      "nodes": 331012,
+      "paths": 331000,
+      "anchors": 996000,
+      "styles": 8,
+      "palette": 4,
+      "document": {
+        "canonicalBytes": 72712771,
+        "overCap": true,
+        "composition": {
+          "nodesExcludingProvenance": 72710429,
+          "provenance": 1228,
+          "styles": 623,
+          "palette": 243,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 219.7,
+        "serializeMs": 797.6,
+        "deflateRawBytes": 3833765,
+        "compact": {
+          "bytes": 43363898,
+          "ratio": 0.596,
+          "overCap": false,
+          "serializeMs": 478.6,
+          "deflateRawBytes": 2721431,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 33215640,
+      "sourceBytes": 0,
+      "containerNone": {
+        "refused": "section document declares 72712771 bytes (cap 67108864)"
+      },
+      "containerDeflate": {
+        "refused": "section document declares 72712771 bytes (cap 67108864)"
+      },
+      "peakRssMiB": {
+        "note": "not saveable under C7"
+      }
+    },
+    {
+      "name": "limit-500k",
+      "description": "near the limits: 500k paths × 2 anchors = 1M anchors (the anchor cap)",
+      "nodes": 500009,
+      "paths": 500000,
+      "anchors": 1000000,
+      "styles": 4,
+      "palette": 2,
+      "document": {
+        "canonicalBytes": 110058308,
+        "overCap": true,
+        "composition": {
+          "nodesExcludingProvenance": 110057066,
+          "provenance": 614,
+          "styles": 287,
+          "palette": 112,
+          "sourceAssetRecords": 2
+        },
+        "bytesPerPath": 220.1,
+        "serializeMs": 1200.2,
+        "deflateRawBytes": 5782160,
+        "compact": {
+          "bytes": 65668672,
+          "ratio": 0.597,
+          "overCap": false,
+          "serializeMs": 744,
+          "deflateRawBytes": 4105697,
+          "lossless": true
+        }
+      },
+      "geometryBytes": 33489672,
+      "sourceBytes": 0,
+      "containerNone": {
+        "refused": "section document declares 110058308 bytes (cap 67108864)"
+      },
+      "containerDeflate": {
+        "refused": "section document declares 110058308 bytes (cap 67108864)"
+      },
+      "peakRssMiB": {
+        "note": "not saveable under C7"
+      }
+    }
+  ],
+  "loadavgEnd": [1.95068359375, 1.830078125, 1.36962890625]
+}

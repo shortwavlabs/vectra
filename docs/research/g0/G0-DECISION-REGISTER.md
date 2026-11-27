@@ -456,3 +456,27 @@ Then merge PR #22 with a merge commit, and verify main CI, ancestry and the resu
 
 R-COLOR is left untouched. No deployment or release tag.
 
+## 14. G-PRJ-R acceptance and G-PRJ-0 authorisation (maintainer, 2026-11-27)
+**G-PRJ-R research and design are accepted**, subject to contract refinements. Reviewed head `7ddadb31419b892d8cf77a1ae302cf7e812b6af7`; CI run `45948216117` independently verified by the maintainer. Full record: [G-PRJ-DECISIONS](../g-prj/G-PRJ-DECISIONS.md) §4–§8.
+
+**Design.** Direction A, "Resume hero with shelf", is the approved target for G-PRJ-4; the compact list design stays the basis for Show all projects. The research prototypes are not production-qualified interfaces.
+
+**AM-3 is approved:**
+- **AM-3.1:** local project library, recovery, recents and OPFS/IndexedDB persistence;
+- **AM-3.2:** compact canonical C10 v2 encoding, with continued v1 read support;
+- **AM-3.3:** exact persistable-size enforcement;
+- **AM-3.4:** serialization separated from verified-save semantics;
+- **AM-3.5:** a dedicated persistence worker under C5 build isolation.
+
+**AM-3.6** (sectioned C7, streaming container changes) is deferred. The **64 MiB document-section cap is retained.** The amendments are recorded through change control in G-PRJ-0. Historical v1 fixtures and hashes are preserved; v2 canonical hashes are re-baselined explicitly, never by overwriting historical evidence.
+
+**D-PRJ-1 to D-PRJ-13 are approved**, with qualifications on downloads (D-PRJ-4), new projects (D-PRJ-5), retention (D-PRJ-6), persistent storage (D-PRJ-7), shortcuts (D-PRJ-8), qualification targets (D-PRJ-9), source assets (D-PRJ-10) and installed-app file handling (D-PRJ-11). **Contract refinements before implementation:** persistence identity, portable write failure, atomic local publication, concurrency, complete-container persistability and the worker architecture. All are reconciled in the G-PRJ-R documents (G-PRJ-DECISIONS §6–§7).
+
+**Research PR closure:** update PR #23, verify that it contains no production implementation, keep Auto-fix off, run required CI on the final documentation head, and merge with a merge commit; verify main CI and ancestry; do not bypass branch protection.
+
+**G-PRJ-0 is authorised, and only G-PRJ-0.** From verified main, in the main checkout (no redundant copies or worktrees), implement: compact C10 v2; strict v1 and v2 readers; deterministic default reconstruction; exact incremental persistable-size accounting; transactional enforcement before publication; pre-flight validation before expensive serialization, hashing and compression; removal of the premature `markSaved`; the approved amendments. No Save UI, library, autosave or production project home. If a required workload cannot fit, report the exact limit and stop; limits are never raised silently. Open a dedicated PR and stop for acceptance; do not merge G-PRJ-0 or begin G-PRJ-1.
+
+**Impeccable and accessibility.** The maintainer updated Impeccable (now 4.11.1); no further update or reinstall. Record the installed version, run doctor, investigate and report its findings, and correct repository-local issues that do not conflict with approved design specifications. Changes to global settings, hooks, dependencies or authoritative design records need maintainer approval. No optional telemetry. Impeccable stays mandatory for every user-facing G-PRJ stage. **TD-UI-008 must be corrected before production destructive project controls**, qualified at rest, hover, focus and disabled in the shared design system. No unrelated UI fixes in G-PRJ-0.
+
+R-COLOR and G-COLOR-UI stay untouched. No deployment, release tag or new production dependency.
+

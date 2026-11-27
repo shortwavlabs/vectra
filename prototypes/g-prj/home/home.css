@@ -1,0 +1,45 @@
+/* G-PRJ-R prototype stylesheet: the product tokens and owned rules (src/ui/styles.css), plus
+   Tailwind scanning of this folder (styles.css scans only src/shell and src/ui). */
+@import "../../../src/ui/styles.css";
+@source "./";
+
+/* The tallest the hero artboard may be: as large as the viewport allows while the Recent shelf
+   still starts in the first viewport. The artboard keeps the piece's own aspect inside it. */
+:root {
+  --art-h: clamp(10rem, calc(100svh - 28rem), 32rem);
+}
+
+/* An artboard on the canvas surround, as in the workspace: a soft offset shadow marks its edge. */
+.vx-artboard {
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.45);
+}
+
+/* A tile's open button covers the whole tile (::after); its focus ring goes round the tile. */
+.tile-open:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.tile-open:focus-visible::after {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background);
+}
+
+/* The home scrolls under a sticky 44 px header: keep focused elements clear of it (200 % zoom). */
+html:has(.home-root) {
+  scroll-padding-top: 3.5rem;
+}
+
+/* Destructive buttons and menu items at ≥ 4.5:1 at rest, on hover and when highlighted. The
+   registry's 20–30 % tint measures 4.43:1 and 3.61:1 (TD-UI-008); the registry is not patched
+   here, the prototype owns a 12–15 % tint. */
+[data-slot="button"].vx-destructive {
+  background-color: color-mix(in srgb, var(--destructive) 12%, transparent);
+}
+[data-slot="button"].vx-destructive:hover {
+  background-color: color-mix(in srgb, var(--destructive) 15%, transparent);
+}
+[data-slot="dropdown-menu-item"][data-variant="destructive"]:focus,
+[data-slot="dropdown-menu-item"][data-variant="destructive"][data-highlighted] {
+  background-color: color-mix(in srgb, var(--destructive) 15%, transparent);
+}

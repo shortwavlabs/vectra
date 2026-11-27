@@ -1,0 +1,142 @@
+{
+  "script": "scripts/g-prj/browser-load.mjs",
+  "commit": "7403ca532b2b90711092e4055e5e8b39ed218023",
+  "buildId": "84a902d7cb59cba9",
+  "engines": {
+    "chromium": {
+      "browserVersion": "159.0.8154.6",
+      "workloads": {
+        "bark-1224": {
+          "loadMs": 113.8,
+          "maxFrameGapMs": 17.8,
+          "longestTaskMs": 0
+        },
+        "bark-2350": {
+          "loadMs": 275.9,
+          "maxFrameGapMs": 33.9,
+          "longestTaskMs": 0
+        },
+        "halftone": {
+          "loadMs": 66.5,
+          "maxFrameGapMs": 23.7,
+          "longestTaskMs": 0
+        },
+        "interactive-43k": {
+          "loadMs": 133.3,
+          "maxFrameGapMs": 29.1,
+          "longestTaskMs": 0
+        },
+        "palette-provenance": {
+          "loadMs": 108.9,
+          "maxFrameGapMs": 18.4,
+          "longestTaskMs": 0
+        },
+        "small": {
+          "loadMs": 0.3,
+          "maxFrameGapMs": 17.2,
+          "longestTaskMs": 0
+        },
+        "synthetic-250k": {
+          "loadMs": 118.4,
+          "maxFrameGapMs": 24.1,
+          "longestTaskMs": 0
+        },
+        "w756k": {
+          "loadMs": 716.7,
+          "maxFrameGapMs": 160.4,
+          "longestTaskMs": 160
+        }
+      }
+    },
+    "firefox": {
+      "browserVersion": "159.0",
+      "workloads": {
+        "bark-1224": {
+          "loadMs": 137,
+          "maxFrameGapMs": 28,
+          "longestTaskMs": null
+        },
+        "bark-2350": {
+          "loadMs": 335,
+          "maxFrameGapMs": 57,
+          "longestTaskMs": null
+        },
+        "halftone": {
+          "loadMs": 74,
+          "maxFrameGapMs": 54,
+          "longestTaskMs": null
+        },
+        "interactive-43k": {
+          "loadMs": 183,
+          "maxFrameGapMs": 41,
+          "longestTaskMs": null
+        },
+        "palette-provenance": {
+          "loadMs": 159,
+          "maxFrameGapMs": 27,
+          "longestTaskMs": null
+        },
+        "small": {
+          "loadMs": 1,
+          "maxFrameGapMs": 19,
+          "longestTaskMs": null
+        },
+        "synthetic-250k": {
+          "loadMs": 165,
+          "maxFrameGapMs": 36,
+          "longestTaskMs": null
+        },
+        "w756k": {
+          "loadMs": 931,
+          "maxFrameGapMs": 219,
+          "longestTaskMs": null
+        }
+      }
+    },
+    "webkit": {
+      "browserVersion": "27.2",
+      "workloads": {
+        "bark-1224": {
+          "loadMs": 125,
+          "maxFrameGapMs": 46,
+          "longestTaskMs": null
+        },
+        "bark-2350": {
+          "loadMs": 305,
+          "maxFrameGapMs": 113,
+          "longestTaskMs": null
+        },
+        "halftone": {
+          "loadMs": 55,
+          "maxFrameGapMs": 101,
+          "longestTaskMs": null
+        },
+        "interactive-43k": {
+          "loadMs": 171,
+          "maxFrameGapMs": 60,
+          "longestTaskMs": null
+        },
+        "palette-provenance": {
+          "loadMs": 145,
+          "maxFrameGapMs": 44,
+          "longestTaskMs": null
+        },
+        "small": {
+          "loadMs": 1,
+          "maxFrameGapMs": 26,
+          "longestTaskMs": null
+        },
+        "synthetic-250k": {
+          "loadMs": 158,
+          "maxFrameGapMs": 39,
+          "longestTaskMs": null
+        },
+        "w756k": {
+          "loadMs": 1039,
+          "maxFrameGapMs": 333,
+          "longestTaskMs": null
+        }
+      }
+    }
+  }
+}
