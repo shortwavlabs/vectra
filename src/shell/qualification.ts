@@ -34,6 +34,7 @@ interface TreeNode {
 }
 
 export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
+  let detached: DocumentSession | null = null;
   const api = {
     canvas: {
       diag: () => {
@@ -105,6 +106,16 @@ export function installWorkspaceQualification(o: WorkspaceProbe): () => void {
         o.adopt(session);
         return { fetchMs: t1 - t0, loadValidateMs: t2 - t1, loadedAt: t2 };
       },
+      /** Loads a `.vectra` from a same-origin URL into a session that is not shown: no
+       *  subscribers, no renderer (G-DOC-R browser dispatch timing on the production loader,
+       *  session and validation mode). Replaces the previous detached session. */
+      loadDetached: async (url: string) => {
+        const { loadContainer } = await import("../persistence/container.ts");
+        detached = null;
+        detached = await loadContainer(new Uint8Array(await (await fetch(url)).arrayBuffer()), {});
+        return { validation: detached.validation, nodes: detached.state.nodesById.size };
+      },
+      detached: () => detached,
       loadContainer: async (b64: string) => {
         const { loadContainer } = await import("../persistence/container.ts");
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
