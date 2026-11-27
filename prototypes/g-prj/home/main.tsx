@@ -6,17 +6,17 @@ import { CSPProvider } from "@base-ui/react/csp-provider";
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TooltipProvider } from "../../../src/ui/registry/tooltip";
-import { STATES, type StateName } from "./data.ts";
+import { STATES, type OpenProject, type StateName } from "./data.ts";
 import { Home } from "./Home.tsx";
 import { WorkspaceProto } from "./Workspace.tsx";
 import "./home.css";
 
 export interface Nav {
   state: StateName;
-  /** The project the workspace shows (defaults to Great Wave). `file: null` = never saved. */
-  project?: { name: string; file: string | null };
-  /** The workspace opened recovered changes. */
-  recovered?: boolean;
+  /** The project the workspace shows, in its own words (defaults to Great Wave). */
+  project?: OpenProject;
+  /** How it was opened: as saved, with its recovered changes, or as last saved (recovery kept). */
+  opened?: "plain" | "recovered" | "last";
   /** The home and library show the recovery data set. */
   recovery?: boolean;
 }
@@ -50,7 +50,9 @@ function App() {
     setProtoNote("");
     setNav({ state, ...extra });
   };
-  const home = ["empty", "populated", "recovery", "library", "storage"].includes(nav.state);
+  const home = ["empty", "populated", "recovery", "recovery-other", "library", "storage"].includes(
+    nav.state,
+  );
   // Each state (and each navigation) starts fresh: the prototype keeps no data between them.
   const key = `${nav.state}:${JSON.stringify(nav)}`;
   return (
@@ -63,7 +65,7 @@ function App() {
           state={nav.state}
           go={go}
           project={nav.project}
-          recovered={nav.recovered}
+          opened={nav.opened}
         />
       )}
       {!capture && (

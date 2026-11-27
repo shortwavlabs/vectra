@@ -16,6 +16,7 @@ export const STATES = [
   ["empty", "First launch, no projects"],
   ["populated", "Project home"],
   ["recovery", "Project home with recovery"],
+  ["recovery-other", "Recovery for another project"],
   ["library", "All projects"],
   ["storage", "Projects and storage"],
   ["workspace", "Workspace project controls"],
@@ -37,20 +38,24 @@ export type Backing =
 export interface Project {
   id: string;
   name: string;
+  /** The project as last saved (what the tile shows; a snapshot is never "the project"). */
   thumb: string;
   edited: string;
+  /** The last explicit save (Save, Save As, Save to this browser). */
+  saved: string;
   /** Sort key: minutes since the last edit. */
   age: number;
   backing: Backing;
   /** Bytes kept in this browser's storage (a library copy), if any. */
   stored?: number;
-  /** An unsaved-changes snapshot (recovery data); never the project itself. */
-  recovery?: { when: string; bytes: number; expires: string };
+  /** An unsaved-changes snapshot (recovery data) with its own thumbnail; never the project. */
+  recovery?: { when: string; thumb: string; bytes: number; expires: string };
   size: string;
 }
 
 const MB = 1_000_000;
 
+export const GREAT_WAVE = "Great Wave — limited palette";
 export const GREAT_WAVE_FILE = "great-wave.vectra";
 export const LAST_SAVED = "yesterday at 18:40";
 
@@ -58,15 +63,17 @@ export function projects(withRecovery: boolean): Project[] {
   return [
     {
       id: "wave",
-      name: "Great Wave — limited palette",
+      name: GREAT_WAVE,
       thumb: greatWave,
       edited: withRecovery ? "12 min ago" : "2 hours ago",
+      saved: withRecovery ? LAST_SAVED : "2 hours ago",
       age: withRecovery ? 12 : 120,
       backing: { kind: "file", file: GREAT_WAVE_FILE },
       stored: 3.4 * MB,
       size: "640 × 430 px · 1,613 paths · 2 layers",
+      // Only one Great Wave thumbnail exists, so both versions show it; the caption says which.
       ...(withRecovery && {
-        recovery: { when: "12 min ago", bytes: 3.6 * MB, expires: "Dec 10" },
+        recovery: { when: "12 min ago", thumb: greatWave, bytes: 3.6 * MB, expires: "Dec 10" },
       }),
     },
     {
@@ -74,36 +81,42 @@ export function projects(withRecovery: boolean): Project[] {
       name: "Scene in a Library — halftone",
       thumb: library,
       edited: "yesterday",
+      saved: "yesterday",
       age: 1_440,
       backing: { kind: "file", file: "library-halftone.vectra" },
       size: "640 × 510 px · 9,850 paths · 1 layer",
     },
     {
-      id: "rings",
-      name: "Rings study",
-      thumb: rings,
+      id: "ring",
+      name: "Ring study",
+      thumb: ring,
       edited: "Nov 23",
+      saved: "Nov 23",
       age: 4_320,
       backing: { kind: "browser" },
       stored: 0.4 * MB,
-      size: "256 × 256 px · 12 paths · 1 layer",
+      size: "256 × 256 px · 2 paths · 1 layer",
     },
     {
+      // Two real fixture thumbnails: the last save (the rings) and the snapshot (rings plus the
+      // circle layer added since).
       id: "poster",
       name: "Poster layers",
-      thumb: layers,
+      thumb: rings,
       edited: "Nov 22",
+      saved: "Nov 20",
       age: 5_760,
       backing: { kind: "file", file: "poster-layers.vectra" },
       stored: 1.2 * MB,
       size: "256 × 256 px · 7 paths · 2 layers",
-      recovery: { when: "Nov 22", bytes: 1.1 * MB, expires: "Dec 6" },
+      recovery: { when: "Nov 22", thumb: layers, bytes: 1.1 * MB, expires: "Dec 6" },
     },
     {
       id: "strokes",
       name: "Thin strokes test",
       thumb: strokes,
       edited: "Nov 19",
+      saved: "Nov 19",
       age: 10_080,
       backing: { kind: "unavailable", file: "thin-strokes.vectra" },
       size: "256 × 256 px · 40 paths · 1 layer",
@@ -113,32 +126,32 @@ export function projects(withRecovery: boolean): Project[] {
       name: "Mosaic mark",
       thumb: mosaic,
       edited: "Nov 3",
+      saved: "Nov 3",
       age: 33_120,
       backing: { kind: "browser" },
       stored: 0.2 * MB,
       size: "256 × 256 px · 3 paths · 1 layer",
     },
     {
-      id: "ring",
-      name: "Transparent ring",
-      thumb: ring,
+      id: "layer-test",
+      name: "Layer test",
+      thumb: layers,
       edited: "Oct 28",
+      saved: "Oct 28",
       age: 41_760,
-      backing: { kind: "file", file: "transparent-ring.vectra" },
-      size: "256 × 256 px · 2 paths · 1 layer",
+      backing: { kind: "file", file: "layer-test.vectra" },
+      size: "256 × 256 px · 7 paths · 2 layers",
     },
   ];
 }
 
-/** Thumbnails, the recent list and its index. */
-export const INDEX_BYTES = 0.3 * MB;
-
 export const mb = (bytes: number) => `${(bytes / MB).toFixed(1)} MB`;
 
+/** One total: projects plus recovery data (thumbnails count with their project). */
 export function storageTotals(list: Project[]) {
   const stored = list.reduce((s, p) => s + (p.stored ?? 0), 0);
   const recovery = list.reduce((s, p) => s + (p.recovery?.bytes ?? 0), 0);
-  return { stored, recovery, total: stored + recovery + (list.length ? INDEX_BYTES : 0) };
+  return { stored, recovery, total: stored + recovery };
 }
 
 /** The file state in words, short (tiles) and long (menus, the storage dialog). */
@@ -157,10 +170,12 @@ export function backingWords(p: Project): { short: string; long: string } {
       long: `${b.file} was moved or renamed, or this browser’s permission to open it expired.`,
     };
   return {
-    short: "In this browser only",
+    short: "No file copy yet",
     long: "Kept only in this browser, with no file copy yet. Clearing browser data deletes it.",
   };
 }
+
+export const fileOf = (x: Project) => (x.backing.kind === "browser" ? null : x.backing.file);
 
 export const fileSlug = (name: string) =>
   `${
@@ -169,3 +184,33 @@ export const fileSlug = (name: string) =>
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "untitled"
   }.vectra`;
+
+/** What the workspace needs to show an opened project in its own words. */
+export interface OpenProject {
+  name: string;
+  /** null: no file yet (browser-only, or never saved). */
+  file: string | null;
+  where: "file" | "browser" | "none";
+  saved: string;
+  recoveryWhen?: string;
+}
+
+export const toOpen = (x: Project): OpenProject => ({
+  name: x.name,
+  file: fileOf(x),
+  where: x.backing.kind === "browser" ? "browser" : "file",
+  saved: x.saved,
+  recoveryWhen: x.recovery?.when,
+});
+
+export const NEW_PROJECT: OpenProject = {
+  name: "Untitled project",
+  file: null,
+  where: "none",
+  saved: "",
+};
+
+/** Prototype flags: ?engine=safari (Safari-only notes), ?storage=full (nearly-full storage). */
+const flags = new URLSearchParams(location.search);
+export const SAFARI = flags.get("engine") === "safari";
+export const STORAGE_FULL = flags.get("storage") === "full";

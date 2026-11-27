@@ -33,7 +33,10 @@
 - **Open…:** "Open a .vectra project file from this device";
 - **Import image…:** "Trace a PNG, JPEG or WebP into vectors on this device".
 
-A two-line note below them says where projects live (files you keep, copies and recovery data in this browser; nothing is uploaded).
+One quiet line follows: "Projects are .vectra files you keep · this browser keeps copies and recovery data · nothing is uploaded · Projects and storage".
+- **Storage speaks only when at risk** (maintainer, after the critique). It warns contextually: a browser-only tile shows "No file copy yet"; near-full storage changes the top-bar figure to a warning; the Safari 7-day note appears in Safari only.
+- **The top bar shows one total**, "9.9 MB stored in this browser" (projects plus recovery data). The storage dialog breaks it down.
+- **The home has no second Open…** in its top bar.
 
 **Recent shelf (full width, below):**
 - up to five tiles, each with the artwork, the name, the edited date, and the file state in words with a small icon;
@@ -44,48 +47,56 @@ A two-line note below them says where projects live (files you keep, copies and 
 - Below about 900 px wide, Start stacks under the resume panel.
 - Narrow viewports (390 px) stack everything: the artwork first, then Resume, Start and Recent. They are shown in the mockups, but no mobile qualification is claimed.
 
-## 3. First launch (empty state)
-- **No fictional projects.** The screen teaches three ways in, each a large outline action with one sentence: New project, Open a .vectra file, Import an image to trace.
-- **Below:** the line "Your projects are files you keep. Vectra also keeps copies and recovery data in this browser, on this device. Nothing is uploaded."
+## 3. First launch (empty state): tracing is the front door
+*Maintainer decision after the critique.*
+- **No fictional projects.**
+- **The ivory sheet is the Import target:** "Trace an image". Drop a PNG, JPEG or WebP, or choose one. It is one focusable control, with click and keyboard support, a drag-over state, and the lime **"Choose an image…"** label outlined in dark ink so lime on paper passes non-text contrast.
+- **Other ways to start** are quiet secondary actions with no lime: **New project** ("Start from an empty artboard") and **Open…** ("Open a .vectra file from this device").
+- **One sentence explains the format:** "A .vectra file is a whole Vectra project: the artwork, its layers and palette, in one file you keep and can move to another device. This browser also keeps copies and recovery data on this device; nothing is uploaded."
 - **When storage access fails** (for example, private browsing without OPFS), the line says what is unavailable ("This browser won't keep projects between visits. Save your work as a file.") and the library sections are not shown.
 
 ## 4. Recovery in the home (the signature interaction)
 - **When:** a recovery snapshot exists that is newer than the project's last explicit save.
 - **What the resume panel shows:**
+  - **The preview follows the choice** (maintainer, after the critique): its image, caption ("Recovered changes · 12 min ago" / "Last save · yesterday at 18:40") and alt text. The prototype shows a real image swap on Poster layers (last save against recovered); Great Wave has one fixture thumbnail, so only its caption changes.
   - "Unsaved changes from 12 min ago can be recovered. Undo history isn't restored."
   - A radio pair:
     - **Recover changes** (default): the Resume consequence line reads "Opens your recovered changes (unsaved)";
     - **Open last save**: the consequence line reads "Opens great-wave.vectra as last saved · your unsaved changes stay available".
 - **Open last save never discards the snapshot** (maintainer requirement M-4):
   - the project's tile keeps "Recovery available";
-  - the workspace shows the quiet control "Unsaved changes from 12 min ago are still available · Review".
+  - the workspace shows the quiet control **"Recovery from 12 min ago kept · Review"**.
+  - This wording replaced "Unsaved changes … are still available" after the critique. "Unsaved changes" is reserved for the dirty state, so the two never share a prefix.
+  - Below the width the full words need, the control collapses to a labelled "Recovery kept" button whose popover holds the full text. It never overlaps and never truncates to a sliver (measured at 200 % zoom).
 - **Review:** a small popover offering **Recover**, **Discard…** and **Not now**. Recover opens the snapshot as a copy if the last save has since been edited. Discard asks for confirmation naming the time, and says it cannot be undone.
-- **Recovery for a project other than the most recent** appears on its tile ("Recovery available") and in its "…" menu.
+- **Recovery for a project other than the most recent:** opening it, from a tile, the library or File → Open recent, goes through **the same choice** in a small dialog. The dialog has the two radios, the swapped preview and the consequence line, and Cancel is the default. The tile's "…" menu has **Recover changes…**. A recovery tile says "Last saved …", never "Edited …".
 
 ## 5. Library ("All projects")
-- **Header:** "Projects", search (shown when there are 7 or more projects), sort (Last edited / Name), and a grid/list toggle.
+- **Header:** "All projects", search (shown when there are 7 or more projects), sort (Last edited / Name), and a grid/list toggle. The library's only Open… is here.
 - **Grid tile:** artwork (4:3, contain, on ivory), the name, the edited time, and the file state.
 - **List row:** a 72 px thumbnail, the name, the location or state, the edited time, and the "…" menu.
 - **"…" menu:**
   - Open
-  - Rename
+  - Recover changes… (when a snapshot exists)
+  - Rename project: changes the project's title in Vectra and the library only. A file keeps its name; a new file name is Save As…
   - Duplicate
   - Download a copy (.vectra)
   - Remove from recent: "Removes it from this list. The project stays where it is."
   - Delete from this browser…: only for browser-stored projects. Its confirmation names the project, says a file copy elsewhere is not affected, and says the action cannot be undone.
-- **Unavailable files:** "File unavailable: moved or permission expired", with **Locate…** (Chromium re-grant) or **Remove from recent**.
+- **Unavailable files:** opening one shows, inside the tile, "File unavailable: moved or permission expired", with **Locate…** (Chromium re-grant; it takes focus) or **Remove from recent**. Esc returns focus to the tile.
 
 ## 6. Workspace project controls (top bar; the canvas is untouched)
 **Left of the existing top bar:**
 - the symbol and "vectra";
-- the **project name** as a button: click to rename, Enter commits, Esc reverts;
-- the **File** menu.
+- the **File** menu, then the **project name** as a button: click or F2 to rename the project's title, Enter commits, Esc reverts. A file keeps its name; the field says so and points to Save As….
 
 **File menu** (shortcut hints per §9), in groups:
-1. New project · Open… · Open recent ▸
+1. New project · Open… · Open recent ▸ (a project with recovery goes through the recovery choice)
 2. Save · Save As… · Download a copy · Save to this browser
-3. Export SVG / PDF…: its own group, with the words "Export"; never next to Save
-4. Project home · Close project
+3. Export SVG / PDF…: its own group, labelled "For other apps; does not save the project"
+4. Project home. In the refined prototype, Close project behaves identically (it returns to the project home), so the two may merge in G-PRJ-4.
+
+**Save is visible outside the menu.** When there are unsaved changes, the status reads "Unsaved changes · Save", or a Save button when compact. Export is then not the only prominent action.
 
 **Save status** (a quiet word control after the name):
 
@@ -93,11 +104,11 @@ A two-line note below them says where projects live (files you keep, copies and 
 |---|---|
 | Saved to a file | "Saved to great-wave.vectra · 2 min ago" |
 | Saved in the library | "Saved in this browser · 2 min ago" |
-| Dirty | "Unsaved changes" |
+| Dirty | "Unsaved changes · Save" |
 | Download flavour (Firefox, Safari) | "Downloaded a copy (great-wave.vectra) · Mark as saved?" (D-PRJ-4) |
-| Failure | "Couldn't save: [reason] · Try again · Download a copy" (not a toast; it stays until resolved) |
+| Failure | "Couldn't save · Details". It stays until resolved and is announced once as an alert. Details opens the reason with **Try again** (says it asks the browser for permission again), **Save As…** and **Download a copy**. Popovers never open by themselves, so no key press is lost |
 | Recovery paused | "Recovery paused: browser storage is full · Manage" |
-| Recovery kept | "Unsaved changes from 12 min ago are still available · Review" (§4) |
+| Recovery kept | "Recovery from 12 min ago kept · Review"; compact: a "Recovery kept" button (§4) |
 | Healthy autosave | Nothing: never shown |
 
 ## 7. Dialogs

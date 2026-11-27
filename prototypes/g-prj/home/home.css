@@ -19,3 +19,22 @@
   outline-offset: 2px;
   box-shadow: 0 0 0 2px var(--background);
 }
+
+/* The home scrolls under a sticky 44 px header: keep focused elements clear of it (200 % zoom). */
+html:has(.home-root) {
+  scroll-padding-top: 3.5rem;
+}
+
+/* Destructive buttons and menu items at ≥ 4.5:1 at rest, on hover and when highlighted. The
+   registry's 20–30 % tint measures 4.43:1 and 3.61:1 (TD-UI-008); the registry is not patched
+   here, the prototype owns a 12–15 % tint. */
+[data-slot="button"].vx-destructive {
+  background-color: color-mix(in srgb, var(--destructive) 12%, transparent);
+}
+[data-slot="button"].vx-destructive:hover {
+  background-color: color-mix(in srgb, var(--destructive) 15%, transparent);
+}
+[data-slot="dropdown-menu-item"][data-variant="destructive"]:focus,
+[data-slot="dropdown-menu-item"][data-variant="destructive"][data-highlighted] {
+  background-color: color-mix(in srgb, var(--destructive) 15%, transparent);
+}

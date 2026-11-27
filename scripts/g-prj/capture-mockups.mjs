@@ -4,13 +4,16 @@
 //    (runs `pnpm run build` only if dist/ is missing), opens /workspace.html?debug=1, loads the
 //    renderer fixture tests/output/renderer-fixtures/multi-layer.vectra.b64 through the debug-only
 //    `loadContainer` hook, and writes the page minus its own 44 px top bar to
-//    prototypes/g-prj/home/composite/workspace-<w>x<h>.png (h = viewport height - 44).
-// 2. States: starts the dev server, opens each state with ?capture=1 (Chromium, deviceScaleFactor
-//    1), waits for every image, opens the menu or popover a state is about, and writes
-//    docs/research/g-prj/mockups/v1/<state>-<w>x<h>.png. Fails on a page error, a console error
-//    or a broken image. Kills only the servers it started.
+//    prototypes/g-prj/home/composite/workspace-<w>x<h>[@2x].png (h = viewport height - 44).
+//    Every workspace-state capture is therefore a COMPOSITE: the proposed top bar over the real
+//    workspace showing a different fixture (multi-layer), not the Great Wave named in the bar.
+// 2. States: starts the dev server, opens each state with ?capture=1 (Chromium), waits for every
+//    image, opens the menu or popover a state is about (clicks only; any synthetic key presses
+//    must be at least 50 ms apart), and writes docs/research/g-prj/mockups/v2/<name>.png plus
+//    NOTES.txt (command, commit, browser version, the list). Fails on a page error, a console
+//    error or a broken image. Kills only the servers it started.
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { get } from "node:http";
 import { createServer } from "node:net";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -27,6 +30,7 @@ const STATES = [
   "empty",
   "populated",
   "recovery",
+  "recovery-other",
   "library",
   "storage",
   "workspace",
@@ -39,12 +43,27 @@ const STATES = [
 ];
 /** What a state is about, opened before the shot (a closed menu proves nothing). */
 const PREPARE = {
-  library: (p) => p.getByRole("button", { name: "More actions for Rings study" }).click(),
+  library: (p) => p.getByRole("button", { name: "More actions for Ring study" }).click(),
   workspace: (p) => p.getByRole("button", { name: "File", exact: true }).click(),
-  "workspace-recovery-kept": (p) => p.getByRole("button", { name: "Review" }).click(),
+  "workspace-recovery-kept": (p) => p.getByRole("button", { name: /review/i }).click(),
+  "save-failed": (p) => p.getByRole("button", { name: /details/i }).click(),
+  "download-saved": (p) => p.getByRole("button", { name: /did it save/i }).click(),
 };
+const lastSave = (p) => p.getByLabel("Open last save").click();
+const lastSaveInDialog = (p) => p.getByRole("dialog").getByLabel("Open last save").click();
+/** Evidence beyond the state × size grid: the swapped preview, flags, and 200 % zoom. */
+const EXTRAS = [
+  { state: "recovery", variant: "last", w: 1280, h: 720, prepare: lastSave },
+  { state: "recovery-other", variant: "last", w: 1280, h: 720, prepare: lastSaveInDialog },
+  { state: "storage", variant: "safari", w: 1280, h: 720, query: "&engine=safari" },
+  { state: "populated", variant: "storage-full", w: 1280, h: 720, query: "&storage=full" },
+  // 200 % zoom of a 1366 × 768 screen: 683 × 384 CSS px at deviceScaleFactor 2.
+  { state: "workspace", w: 683, h: 384, dsf: 2 },
+  { state: "save-failed", w: 683, h: 384, dsf: 2 },
+  { state: "workspace-recovery-kept", w: 683, h: 384, dsf: 2 },
+];
 const BODY_DIR = "prototypes/g-prj/home/composite";
-const OUT = "docs/research/g-prj/mockups/v1";
+const OUT = "docs/research/g-prj/mockups/v2";
 
 const arg = (name) => {
   const i = process.argv.indexOf(name);
@@ -115,10 +134,10 @@ try {
       "tests/output/renderer-fixtures/multi-layer.vectra.b64",
       "utf8",
     ).trim();
-    for (const [w, h] of SIZES) {
+    for (const [w, h, dsf = 1] of [...SIZES, [683, 384, 2]]) {
       const ctx = await browser.newContext({
         viewport: { width: w, height: h },
-        deviceScaleFactor: 1,
+        deviceScaleFactor: dsf,
         serviceWorkers: "block",
       });
       const page = await ctx.newPage();
@@ -131,7 +150,7 @@ try {
       });
       await page.waitForTimeout(1000);
       if (errors.length) throw new Error(errors.join("\n"));
-      const path = `${BODY_DIR}/workspace-${w}x${h - 44}.png`;
+      const path = `${BODY_DIR}/workspace-${w}x${h - 44}${dsf === 2 ? "@2x" : ""}.png`;
       await page.screenshot({ path, clip: { x: 0, y: 44, width: w, height: h - 44 } });
       console.error(`wrote ${path}`);
       await ctx.close();
@@ -145,37 +164,59 @@ try {
   stops.push(
     await serve(["dev", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], base),
   );
-  /** @type {{ state: string, w: number, h: number }[]} */
+  /** @type {{ state: string, w: number, h: number, dsf?: number, variant?: string, query?: string, prepare?: (p: import("@playwright/test").Page) => Promise<void> }[]} */
   const jobs = [
     ...STATES.flatMap((state) => SIZES.map(([w, h]) => ({ state, w, h }))),
     { state: "recovery", w: NARROW[0], h: NARROW[1] },
     { state: "empty", w: NARROW[0], h: NARROW[1] },
+    ...EXTRAS,
   ].filter((j) => !only || only.includes(j.state));
   const failures = [];
-  for (const { state, w, h } of jobs) {
+  const written = [];
+  for (const { state, w, h, dsf = 1, variant, query = "", prepare } of jobs) {
     const ctx = await browser.newContext({
       viewport: { width: w, height: h },
-      deviceScaleFactor: 1,
+      deviceScaleFactor: dsf,
     });
     const page = await ctx.newPage();
-    const errors = watch(page, `${state} ${w}x${h}`);
-    await page.goto(`${base}?state=${state}&capture=1`);
+    const name = `${state}${variant ? `-${variant}` : ""}-${w}x${h}${dsf === 2 ? "@2x" : ""}`;
+    const errors = watch(page, name);
+    await page.goto(`${base}?state=${state}&capture=1${query}`);
     await page.waitForSelector("header");
     await page.waitForFunction(() =>
       [...document.images].every((i) => i.complete && i.naturalWidth > 0),
     );
-    await PREPARE[state]?.(page);
+    await (prepare ?? PREPARE[state])?.(page);
     await page.waitForTimeout(400);
     const broken = await page.evaluate(() =>
       [...document.images].filter((i) => !i.naturalWidth).map((i) => i.src),
     );
-    if (broken.length) errors.push(`${state} ${w}x${h}: broken images ${broken.join(", ")}`);
-    const path = `${OUT}/${state}-${w}x${h}.png`;
+    if (broken.length) errors.push(`${name}: broken images ${broken.join(", ")}`);
+    const path = `${OUT}/${name}.png`;
     await page.screenshot({ path });
     console.error(`wrote ${path}`);
+    written.push(`${name}.png`);
     failures.push(...errors);
     await ctx.close();
   }
+  if (!only)
+    writeFileSync(
+      `${OUT}/NOTES.txt`,
+      [
+        "G-PRJ-R prototype captures (v2, after the Impeccable refinement).",
+        `Command: node scripts/g-prj/capture-mockups.mjs`,
+        `Date: ${new Date().toISOString()}`,
+        `Commit: ${execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim()} (working tree may differ)`,
+        `Browser: Playwright Chromium ${browser.version()}`,
+        "Data: project names, times, sizes and states are synthetic; thumbnails are licensed fixture traces.",
+        "Workspace states are COMPOSITES: the proposed top bar over a production-build screenshot of the",
+        "real workspace showing a different fixture (the multi-layer renderer fixture), not Great Wave.",
+        "@2x: 683 x 384 CSS px at deviceScaleFactor 2 (200 % zoom of a 1366 x 768 screen).",
+        "",
+        ...written,
+        "",
+      ].join("\n"),
+    );
   if (failures.length) throw new Error(`capture errors:\n${failures.join("\n")}`);
 } finally {
   for (const s of stops) s();

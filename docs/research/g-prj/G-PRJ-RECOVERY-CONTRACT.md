@@ -64,7 +64,7 @@ A crash at any step leaves the record pointing at a complete, verified file, eit
 - **Choices:**
   - **Recover:** opens the snapshot as a document **with unsaved changes**. Its base stays the original save, so a later Save writes to the original location after the normal checks.
   - **Open last save instead:** opens the last explicit save and **keeps the snapshot**. Choosing it is not a decision to discard (maintainer requirement, 2026-11-26), so the choice can be revisited:
-    - in the workspace, a quiet status entry stays: "Unsaved changes from 12 min ago are still available · Review". It is a word control in the save-status area, not an alarm or a modal;
+    - in the workspace, a quiet status entry stays: "Recovery from 12 min ago kept · Review". It is a word control in the save-status area, not an alarm or a modal. The wording was refined after the Impeccable critique: "Unsaved changes" is reserved for the dirty state;
     - the project's tile in the project home keeps "Recovery available";
     - **Review** offers the same Recover / Discard… choice at any time. If the artist has edited or saved the last-save version since, Recover opens the snapshot **as a copy** (a new untitled project), so neither version overwrites the other.
   - **Discard…:** the only action that deletes the snapshot, apart from retention expiry (§8). It asks for confirmation that names the snapshot's time and says the action cannot be undone.

@@ -1,4 +1,5 @@
-// Project home (empty, populated, recovery), All projects and the Projects and storage dialog.
+// Project home (empty, populated, recovery), All projects, the pre-open recovery choice and the
+// Projects and storage dialog.
 import {
   Check,
   ChevronRight,
@@ -7,6 +8,7 @@ import {
   FolderOpen,
   HardDrive,
   History,
+  ImageUp,
   LayoutGrid,
   List,
   MoreHorizontal,
@@ -16,7 +18,7 @@ import {
   Upload,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { FIELD } from "../../../src/ui/numeric-field.tsx";
 import { Button } from "../../../src/ui/registry/button";
 import {
@@ -39,29 +41,46 @@ import {
 import { Input } from "../../../src/ui/registry/input";
 import {
   backingWords,
+  fileOf,
   fileSlug,
-  INDEX_BYTES,
-  LAST_SAVED,
   mb,
+  NEW_PROJECT,
   projects,
+  SAFARI,
+  STORAGE_FULL,
   storageTotals,
+  toOpen,
   type Project,
   type StateName,
 } from "./data.ts";
+import type { Go } from "./main.tsx";
 import {
   BackingLine,
   Brand,
+  ChoiceGroup,
+  consequence,
   Confirm,
   Divider,
   note,
   OUTLINE,
+  Preview,
+  RecoveryDialog,
   RecoveryLine,
+  RenameField,
   WORD,
+  type Choice,
 } from "./parts.tsx";
-import type { Go } from "./main.tsx";
 
 type Ask = Omit<Parameters<typeof Confirm>[0], "open" | "onOpenChange">;
 const SECTION = "text-2xs font-semibold tracking-[0.06em] text-muted-foreground uppercase";
+const EMPTY_ASK: Ask = { title: "", children: null, confirm: "", onConfirm: () => {} };
+const names = (xs: Project[]) =>
+  xs.length === 1
+    ? xs[0]!.name
+    : `${xs
+        .slice(0, -1)
+        .map((x) => x.name)
+        .join(", ")} and ${xs.at(-1)!.name}`;
 
 export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
   const empty = p.state === "empty";
@@ -71,41 +90,48 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
   const [status, setStatus] = useState("");
   const [storageOpen, setStorageOpen] = useState(p.state === "storage");
   const [ask, setAsk] = useState<Ask | null>(null);
+  const [preOpen, setPreOpen] = useState<{ project: Project; initial?: Choice } | null>(() =>
+    p.state === "recovery-other"
+      ? { project: projects(true).find((x) => x.id === "poster")! }
+      : null,
+  );
   const focusAfter = useRef<HTMLElement>(null);
+  /** After deleting a project, focus moves to its neighbour (its own menu trigger is gone). */
+  const nextFocus = useRef<HTMLElement | null>(null);
   const library = p.state === "library";
   const totals = storageTotals(list);
   const sorted = [...list].sort((a, b) => a.age - b.age);
   const recent = sorted.filter((x) => !hidden.has(x.id));
   const [hero, ...shelf] = recent;
 
-  const open = (x: Project) => {
-    if (x.backing.kind === "unavailable")
-      return setStatus(
-        `${x.backing.file} is unavailable: it was moved or renamed, or permission expired. Use Locate file… in its menu.`,
-      );
-    p.go("workspace", { project: { name: x.name, file: fileOf(x) } });
+  /** After a tile disappears, focus the tile that took its place (never the page body). */
+  const focusNear = (id: string) => {
+    const ids = [...document.querySelectorAll<HTMLElement>("[data-tile-id]")].map(
+      (el) => el.dataset.tileId,
+    );
+    const i = ids.indexOf(id);
+    requestAnimationFrame(() => {
+      if (document.querySelector(`[data-tile-id="${id}"]`)) return;
+      const open = [...document.querySelectorAll<HTMLButtonElement>("[data-tile-id] .tile-open")];
+      (open[Math.min(i, open.length - 1)] ?? focusAfter.current)?.focus();
+    });
+  };
+  const openProject = (x: Project, choice?: Choice) => {
+    if (!x.recovery) return p.go("workspace", { project: toOpen(x), opened: "plain" });
+    if (!choice) return setPreOpen({ project: x });
+    if (choice === "recover") p.go("workspace", { project: toOpen(x), opened: "recovered" });
+    else p.go("workspace-recovery-kept", { project: toOpen(x), opened: "last" });
   };
   const actions: TileActions = {
-    open,
-    locate: (x) => note(`Locate file… shows the file picker to choose ${fileOf(x)} again.`),
+    open: (x) => openProject(x),
+    recover: (x) => setPreOpen({ project: x, initial: "recover" }),
+    locate: (x) => note(`Locate… shows the file picker to choose ${fileOf(x)} again.`),
     rename: (x, name) => {
-      setList((l) =>
-        l.map((y) =>
-          y.id !== x.id
-            ? y
-            : {
-                ...y,
-                name,
-                ...(y.backing.kind === "file" && {
-                  backing: { kind: "file" as const, file: fileSlug(name) },
-                }),
-              },
-        ),
-      );
+      setList((l) => l.map((y) => (y.id === x.id ? { ...y, name } : y)));
       setStatus(
         x.backing.kind === "file"
-          ? `Saved as ${fileSlug(name)} (Save As). ${x.backing.file} stays as it is.`
-          : `Renamed to “${name}” in this browser.`,
+          ? `Renamed to “${name}”. The file is still ${x.backing.file}.`
+          : `Renamed to “${name}”.`,
       );
     },
     duplicate: (x) => {
@@ -116,38 +142,37 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
         backing: { kind: "browser" },
         stored: x.stored ?? 400_000,
         edited: "just now",
+        saved: "just now",
         age: 0,
         recovery: undefined,
       };
       setList((l) => [...l, copy]);
       setStatus(`Duplicated as “${copy.name}”, stored in this browser.`);
     },
-    download: (x) => setStatus(`Downloaded a copy (${fileOf(x)}).`),
+    download: (x) => setStatus(`Downloaded a copy (${fileOf(x) ?? fileSlug(x.name)}).`),
     remove: (x) => {
+      focusNear(x.id);
       setHidden((h) => new Set(h).add(x.id));
       if (!x.stored) setList((l) => l.filter((y) => y.id !== x.id));
       setStatus(
         x.stored
           ? `Removed “${x.name}” from Recent. It is still stored in this browser.`
-          : `Removed “${x.name}” from Recent. ${fileOf(x)} was not deleted.`,
+          : `Removed “${x.name}” from Recent. ${fileOf(x)} stays where it is.`,
       );
     },
-    del: (x) => setAsk(deleteAsk(x, setList, setStatus)),
+    del: (x) => {
+      const open = [...document.querySelectorAll<HTMLElement>("[data-tile-id] .tile-open")];
+      const i = open.findIndex(
+        (el) => el.closest<HTMLElement>("[data-tile-id]")?.dataset.tileId === x.id,
+      );
+      nextFocus.current =
+        x.backing.kind === "file" ? null : (open[i + 1] ?? open[i - 1] ?? focusAfter.current);
+      setAsk(deleteAsk(x, setList, setStatus));
+    },
   };
 
-  // Enter resumes the most recent project when nothing has focus (the page's one primary action).
-  useEffect(() => {
-    if (!hero || library) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && document.activeElement === document.body)
-        document.getElementById("resume")?.click();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [hero, library]);
-
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="home-root flex min-h-full flex-col">
       <header className="sticky top-0 z-10 flex h-11 shrink-0 items-center gap-2.5 border-b border-border bg-panel px-3">
         <Brand />
         <Divider />
@@ -169,22 +194,27 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
         <p
           role="status"
           aria-live="polite"
-          title={status || undefined}
-          className="ml-auto min-w-0 truncate text-right text-xs text-foreground/85"
+          className="ml-auto line-clamp-2 min-w-0 text-right text-xs text-pretty text-foreground/85"
         >
           {status}
         </p>
         {!empty && (
-          <>
-            <Button
-              variant="ghost"
-              className="h-8 shrink-0 text-xs text-muted-foreground max-sm:px-2"
-              aria-label={`Projects and storage: ${mb(totals.total)} in this browser`}
-              onClick={() => setStorageOpen(true)}
-            >
+          <Button
+            variant="ghost"
+            className={`h-8 shrink-0 text-xs max-sm:px-2 ${STORAGE_FULL ? "text-warning hover:text-warning" : "text-muted-foreground"}`}
+            aria-label={`Projects and storage: ${mb(totals.total)} stored in this browser${STORAGE_FULL ? ", nearly full" : ""}`}
+            onClick={() => setStorageOpen(true)}
+          >
+            {STORAGE_FULL ? (
+              <TriangleAlert data-icon="inline-start" />
+            ) : (
               <HardDrive data-icon="inline-start" />
-              <span className="max-sm:hidden">{mb(totals.total)} in this browser</span>
-            </Button>
+            )}
+            <span className="max-sm:hidden">{mb(totals.total)} stored in this browser</span>
+          </Button>
+        )}
+        {library && (
+          <>
             <Divider />
             <Button
               variant="outline"
@@ -198,84 +228,74 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
       </header>
 
       {library ? (
-        <Library list={list} actions={actions} searchRef={focusAfter} />
+        <Library
+          list={list}
+          actions={actions}
+          onSearchEl={(el) => {
+            focusAfter.current = el;
+          }}
+        />
       ) : (
         <main className="w-full px-4 py-4 md:px-8 md:py-6">
-          <div className="grid gap-6 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <div className="grid gap-6 min-[56.25rem]:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
             {hero ? (
-              <ResumePanel
-                project={hero}
-                onResume={(choice) =>
-                  choice === "last"
-                    ? p.go("workspace-recovery-kept")
-                    : p.go("workspace", {
-                        project: { name: hero.name, file: fileOf(hero) },
-                        recovered: !!hero.recovery,
-                      })
-                }
-              />
+              <ResumePanel project={hero} onResume={(c) => openProject(hero, c)} />
             ) : (
-              <DropSheet />
+              <TraceSheet />
             )}
-            <section aria-labelledby="start-h" className="flex flex-col">
-              <h2 id="start-h" className="text-ui font-semibold">
-                Start
-              </h2>
-              <div className="mt-2.5 grid gap-2">
-                <Action
-                  icon={Plus}
-                  title="New project"
-                  desc="Start from a blank ivory artboard."
-                  onClick={() =>
-                    p.go("workspace", { project: { name: "Untitled project", file: null } })
-                  }
-                />
-                <Action
-                  icon={FolderOpen}
-                  title="Open…"
-                  desc="Open a .vectra project file from this device."
-                  onClick={() => note("Open… shows the system file picker for .vectra files.")}
-                />
-                <Action
-                  icon={Upload}
-                  title="Import image…"
-                  desc="Trace a PNG, JPEG or WebP into vectors on this device."
-                  onClick={() => note("Import image… shows the system file picker for images.")}
-                />
-              </div>
-              {empty ? (
-                <p className="mt-auto pt-4 text-xs text-pretty text-muted-foreground">
-                  Projects are .vectra files you own. This browser keeps copies and recovery data on
-                  this device; nothing is uploaded.
+            {empty ? (
+              <section aria-labelledby="start-h" className="flex flex-col">
+                <h2 id="start-h" className="text-ui font-semibold">
+                  Other ways to start
+                </h2>
+                <div className="mt-2 grid gap-0.5">
+                  <QuietAction
+                    icon={Plus}
+                    title="New project"
+                    desc="Start from an empty artboard."
+                    onClick={() => p.go("workspace", { project: NEW_PROJECT, opened: "plain" })}
+                  />
+                  <QuietAction
+                    icon={FolderOpen}
+                    title="Open…"
+                    desc="Open a .vectra file from this device."
+                    onClick={() => note("Open… shows the system file picker for .vectra files.")}
+                  />
+                </div>
+                <p className="mt-4 max-w-[62ch] text-xs text-pretty text-muted-foreground">
+                  A .vectra file is a whole Vectra project: the artwork, its layers and palette, in
+                  one file you keep and can move to another device. This browser also keeps copies
+                  and recovery data on this device; nothing is uploaded.
                 </p>
-              ) : (
-                <ul
-                  aria-label="Where projects live"
-                  className="mt-auto grid gap-1.5 pt-5 text-xs text-pretty text-muted-foreground"
-                >
-                  <Tier icon={File}>
-                    <span className="text-foreground">.vectra files</span> you save, wherever you
-                    keep them
-                  </Tier>
-                  <Tier icon={HardDrive}>
-                    <span className="text-foreground">This browser:</span>{" "}
-                    {plural(list.filter((x) => x.stored).length, "project")} and the recent list ·{" "}
-                    {mb(totals.stored + INDEX_BYTES)}
-                  </Tier>
-                  <Tier icon={History}>
-                    <span className="text-foreground">Recovery data:</span> unsaved changes for{" "}
-                    {plural(list.filter((x) => x.recovery).length, "project")} ·{" "}
-                    {mb(totals.recovery)} · kept 14 days
-                  </Tier>
-                  <li className="pl-5.5">
-                    Nothing is uploaded.{" "}
-                    <button type="button" className={WORD} onClick={() => setStorageOpen(true)}>
-                      Projects and storage
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </section>
+              </section>
+            ) : (
+              <section aria-labelledby="start-h" className="flex flex-col">
+                <h2 id="start-h" className="text-ui font-semibold">
+                  Start
+                </h2>
+                <div className="mt-2.5 grid gap-2">
+                  <Action
+                    icon={Plus}
+                    title="New project"
+                    desc="Start from an empty artboard."
+                    onClick={() => p.go("workspace", { project: NEW_PROJECT, opened: "plain" })}
+                  />
+                  <Action
+                    icon={FolderOpen}
+                    title="Open…"
+                    desc="Open a .vectra project file from this device."
+                    onClick={() => note("Open… shows the system file picker for .vectra files.")}
+                  />
+                  <Action
+                    icon={Upload}
+                    title="Import image…"
+                    desc="Trace a PNG, JPEG or WebP into vectors on this device."
+                    onClick={() => note("Import image… shows the system file picker for images.")}
+                  />
+                </div>
+                <StorageLine list={list} onOpen={() => setStorageOpen(true)} />
+              </section>
+            )}
           </div>
 
           <section aria-labelledby="recent-h" className="mt-7">
@@ -322,22 +342,49 @@ export function Home(p: { state: StateName; go: Go; recovery?: boolean }) {
         recentCount={recent.length}
         clearRecent={() => setHidden(new Set(list.map((x) => x.id)))}
       />
+      <RecoveryDialog
+        key={preOpen?.project.id ?? "none"}
+        project={preOpen?.project ?? null}
+        initial={preOpen?.initial}
+        onOpenChange={(o) => !o && setPreOpen(null)}
+        onOpen={(c) => preOpen && openProject(preOpen.project, c)}
+      />
       <Confirm
         open={!!ask}
         onOpenChange={(o) => !o && setAsk(null)}
-        afterConfirm={focusAfter}
+        afterConfirm={nextFocus}
         {...(ask ?? EMPTY_ASK)}
       />
     </div>
   );
 }
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
-
-const EMPTY_ASK: Ask = { title: "", children: null, confirm: "", onConfirm: () => {} };
-
-function fileOf(x: Project) {
-  return x.backing.kind === "browser" ? fileSlug(x.name) : x.backing.file;
+/** Storage speaks only when something is at risk; otherwise one quiet line. */
+function StorageLine(p: { list: Project[]; onOpen: () => void }) {
+  const onlyHere = p.list.filter((x) => x.backing.kind === "browser");
+  const link = (
+    <button type="button" className={WORD} onClick={p.onOpen}>
+      Projects and storage
+    </button>
+  );
+  if (STORAGE_FULL || (SAFARI && onlyHere.length))
+    return (
+      <p className="mt-auto flex gap-2 pt-4 text-xs text-pretty text-warning">
+        <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+        <span>
+          {STORAGE_FULL
+            ? "Browser storage is nearly full: recovery data may stop being saved. Save projects as files, or free space in "
+            : `Safari may remove ${names(onlyHere)} after 7 days without use: they have no file copy. Download copies in `}
+          {link}.
+        </span>
+      </p>
+    );
+  return (
+    <p className="mt-auto pt-4 text-xs text-pretty text-muted-foreground">
+      Projects are .vectra files you keep · this browser keeps copies and recovery data · nothing is
+      uploaded · {link}
+    </p>
+  );
 }
 
 function deleteAsk(
@@ -354,10 +401,7 @@ function deleteAsk(
         This cannot be undone.
       </p>
     ) : (
-      <p>
-        {x.backing.kind === "file" ? x.backing.file : "The file"} on your device is not affected.
-        This cannot be undone.
-      </p>
+      <p>{fileOf(x)} on your device is not affected. This cannot be undone.</p>
     ),
     confirm: "Delete",
     destructive: true,
@@ -365,7 +409,7 @@ function deleteAsk(
       <Button
         variant="outline"
         className={OUTLINE}
-        onClick={() => setStatus(`Downloaded a copy (${fileOf(x)}).`)}
+        onClick={() => setStatus(`Downloaded a copy (${fileSlug(x.name)}).`)}
       >
         Download a copy
       </Button>
@@ -400,56 +444,92 @@ function Action(p: { icon: LucideIcon; title: string; desc: string; onClick: () 
   );
 }
 
-/** First launch: the approved empty-state sheet (paper as an onboarding surface), as a drop target. */
-function DropSheet() {
+/** A secondary way in on first launch: no border, no lime. */
+function QuietAction(p: { icon: LucideIcon; title: string; desc: string; onClick: () => void }) {
+  const Icon = p.icon;
   return (
-    <div className="grid aspect-[4/3] rounded-[3px] bg-paper p-4 text-background md:aspect-auto md:min-h-[var(--hero-h)]">
-      <div className="grid place-content-center justify-items-center gap-2.5 border border-dashed border-background/30 px-6 text-center">
-        <Upload className="size-6" aria-hidden="true" />
-        <h2 className="text-lg font-semibold tracking-tight">Drop an image or a .vectra file</h2>
-        <p className="max-w-[24rem] text-xs text-pretty text-ink-muted">
-          Images are traced into vectors on this device. Project files open as they were saved.
-          Nothing is uploaded.
-        </p>
-      </div>
-    </div>
+    <button
+      type="button"
+      onClick={p.onClick}
+      className="-mx-3 grid grid-cols-[1rem_minmax(0,1fr)] gap-x-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-elevated active:translate-y-px active:bg-elevated/70 disabled:pointer-events-none disabled:opacity-50"
+    >
+      <Icon className="row-span-2 mt-px size-4 text-muted-foreground" aria-hidden="true" />
+      <span className="text-ui font-medium">{p.title}</span>
+      <span className="text-xs text-muted-foreground">{p.desc}</span>
+    </button>
   );
 }
 
-function ResumePanel(p: { project: Project; onResume: (choice: "recover" | "last") => void }) {
+/**
+ * First launch: tracing is the front door. The approved empty-state sheet (paper as an onboarding
+ * surface) is one large Import control and a drop target; the lime label carries the dark ink
+ * outline so it holds its edge on paper (DESIGN-SYSTEM §13).
+ */
+function TraceSheet() {
+  const [over, setOver] = useState(false);
+  const choose = () => note("Choose an image… shows the file picker for PNG, JPEG or WebP.");
+  return (
+    <button
+      type="button"
+      aria-label="Choose an image to trace…"
+      aria-describedby="trace-desc"
+      onClick={choose}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        note("A dropped image is traced on this device.");
+      }}
+      className="group grid aspect-[4/3] rounded-sm bg-paper p-4 text-background min-[56.25rem]:aspect-auto min-[56.25rem]:min-h-[var(--hero-h)]"
+    >
+      <span
+        className={`grid place-content-center justify-items-center gap-2.5 rounded-xs border border-dashed px-6 text-center transition-colors ${over ? "border-solid border-background bg-background/5" : "border-background/30 group-hover:border-background/60"}`}
+      >
+        <Upload className="size-6" aria-hidden="true" />
+        <span className="text-lg font-semibold tracking-tight">Trace an image</span>
+        <span id="trace-desc" className="max-w-[24rem] text-xs text-pretty text-ink-muted">
+          Drop a PNG, JPEG or WebP here, or choose one. It is traced into vectors on this device;
+          nothing is uploaded.
+        </span>
+        <span className="mt-1 inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground ring-1 ring-background transition-colors group-hover:bg-primary/80 group-active:translate-y-px">
+          <ImageUp className="size-4" aria-hidden="true" /> Choose an image…
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function ResumePanel(p: { project: Project; onResume: (choice: Choice) => void }) {
   const x = p.project;
   const rec = x.recovery;
   const file = fileOf(x);
-  const [choice, setChoice] = useState<"recover" | "last">("recover");
-  const consequence = !rec
-    ? `Opens ${file} as last saved`
-    : choice === "recover"
-      ? `Opens the recovered changes · save to keep them in ${file}`
-      : `Opens ${file} as last saved · your unsaved changes stay available`;
+  const [choice, setChoice] = useState<Choice>("recover");
   return (
     <section
       aria-labelledby="resume-name"
-      className="@container rounded-lg border border-border bg-panel p-4"
+      className="@container flex flex-col rounded-lg border border-border bg-panel p-4"
     >
-      <div className="grid gap-4 @[30rem]:grid-cols-[minmax(0,1fr)_clamp(15rem,40%,22rem)] @[30rem]:gap-5">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[4px] bg-paper @[30rem]:aspect-auto @[30rem]:min-h-[var(--hero-h)]">
-          <img
-            src={x.thumb}
-            alt={`${x.name}: preview of the ${rec && choice === "recover" ? "recovered changes" : "last save"}`}
-            className="absolute inset-0 size-full object-contain"
-          />
-        </div>
+      <div className="grid flex-1 gap-4 @[30rem]:grid-cols-[minmax(0,1fr)_clamp(15rem,40%,22rem)] @[30rem]:gap-5">
+        <Preview
+          project={x}
+          choice={choice}
+          className="aspect-[4/3] @[30rem]:aspect-auto @[30rem]:min-h-[var(--hero-h)]"
+        />
         <div className="flex min-w-0 flex-col">
           <h2 id="resume-name" className="text-title font-semibold text-balance">
             {x.name}
           </h2>
-          <p className="mt-1 text-xs text-muted-foreground">Edited {x.edited}</p>
+          {!rec && <p className="mt-1 text-xs text-muted-foreground">Edited {x.edited}</p>}
           <p className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground">
             <File className="mt-px size-3.5 shrink-0" aria-hidden="true" />
             <span>
               {rec ? "Last saved to " : "Saved to "}
-              <span className="text-foreground">{file}</span>
-              {rec && ` ${LAST_SAVED}`}
+              <span className="text-foreground">{file ?? "this browser"}</span>
+              {rec && ` ${x.saved}`}
             </span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground tabular-nums">{x.size}</p>
@@ -457,52 +537,13 @@ function ResumePanel(p: { project: Project; onResume: (choice: "recover" | "last
               rewrites. */}
           <div className="mt-auto grid gap-3 pt-4">
             {rec && (
-              <div
-                role="radiogroup"
-                aria-labelledby="recovery-note"
-                className="rounded-md bg-elevated px-3 pt-2.5 pb-1.5"
-              >
-                <p id="recovery-note" className="flex gap-2 text-xs text-foreground">
-                  <History
-                    className="mt-px size-3.5 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <span className="text-pretty">
-                    Unsaved changes from {rec.when} can be recovered. Undo history is not restored.
-                  </span>
-                </p>
-                <div className="mt-1 grid">
-                  {(
-                    [
-                      ["recover", "Recover changes"],
-                      ["last", "Open last save"],
-                    ] as const
-                  ).map(([v, label]) => (
-                    <label
-                      key={v}
-                      className="-mx-1.5 flex h-7 cursor-pointer items-center gap-2 rounded-md px-1.5 pl-[1.4rem] text-ui transition-colors hover:bg-background/40"
-                    >
-                      <input
-                        type="radio"
-                        name="resume-choice"
-                        value={v}
-                        checked={choice === v}
-                        onChange={() => setChoice(v)}
-                        className="size-3.5 accent-primary"
-                      />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <ChoiceGroup id="resume" project={x} choice={choice} onChoice={setChoice} withNote />
             )}
             <div>
               <Button
-                id="resume"
                 className="h-9 w-full font-semibold"
                 aria-describedby="resume-consequence"
-                aria-keyshortcuts="Enter"
-                onClick={() => p.onResume(rec ? choice : "last")}
+                onClick={() => p.onResume(choice)}
               >
                 Resume
               </Button>
@@ -511,7 +552,7 @@ function ResumePanel(p: { project: Project; onResume: (choice: "recover" | "last
                 aria-live="polite"
                 className="mt-1.5 text-xs text-pretty text-muted-foreground"
               >
-                {consequence}
+                {consequence(x, choice)}
               </p>
             </div>
           </div>
@@ -523,6 +564,7 @@ function ResumePanel(p: { project: Project; onResume: (choice: "recover" | "last
 
 interface TileActions {
   open: (x: Project) => void;
+  recover: (x: Project) => void;
   locate: (x: Project) => void;
   rename: (x: Project, name: string) => void;
   duplicate: (x: Project) => void;
@@ -535,10 +577,18 @@ interface TileActions {
 function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
   const x = p.project;
   const [renaming, setRenaming] = useState(false);
+  const [locating, setLocating] = useState(false);
   const openBtn = useRef<HTMLButtonElement>(null);
+  const locateBtn = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (locating) locateBtn.current?.focus();
+  }, [locating]);
+  const meta = x.recovery ? `Last saved ${x.saved}` : `Edited ${x.edited}`;
   const name = renaming ? (
     <RenameField
-      project={x}
+      id={`rename-${x.id}`}
+      name={x.name}
+      file={fileOf(x)}
       onDone={(v) => {
         setRenaming(false);
         if (v) p.actions.rename(x, v);
@@ -551,24 +601,71 @@ function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
       type="button"
       className="tile-open block max-w-full truncate text-left after:absolute after:inset-0 after:rounded-lg"
       aria-describedby={`state-${x.id}`}
-      onClick={() => p.actions.open(x)}
+      onClick={() => (x.backing.kind === "unavailable" ? setLocating(true) : p.actions.open(x))}
     >
       {x.name}
     </button>
   );
+  // A missing file is offered in place: Locate… or Remove from recent, never a header message.
+  const offer = locating && x.backing.kind === "unavailable" && (
+    <div
+      role="group"
+      aria-label={`${x.backing.file} is unavailable`}
+      className="relative z-10 mt-1.5 grid gap-1.5 rounded-md bg-elevated p-2 text-xs"
+      onKeyDown={(e) => {
+        if (e.key !== "Escape") return;
+        setLocating(false);
+        openBtn.current?.focus();
+      }}
+    >
+      <p className="text-pretty text-muted-foreground">
+        {x.backing.file} was moved or renamed, or permission expired.
+      </p>
+      <div className="flex flex-wrap gap-1.5">
+        <Button
+          ref={locateBtn}
+          variant="outline"
+          size="xs"
+          className="border-control-border"
+          onClick={() => p.actions.locate(x)}
+        >
+          Locate…
+        </Button>
+        <Button
+          variant="outline"
+          size="xs"
+          className="border-control-border"
+          onClick={() => p.actions.remove(x)}
+        >
+          Remove from recent
+        </Button>
+      </div>
+    </div>
+  );
   const thumb = (
-    <div className="overflow-hidden rounded-[4px] bg-paper">
+    <div className="h-full overflow-hidden rounded-sm bg-paper">
       <img src={x.thumb} alt="" className="size-full object-contain" />
     </div>
   );
-  const menu = <ProjectMenu project={x} actions={p.actions} onRename={() => setRenaming(true)} />;
+  const menu = (
+    <ProjectMenu
+      project={x}
+      actions={p.actions}
+      onRename={() => setRenaming(true)}
+      onLocate={() => setLocating(true)}
+    />
+  );
   if (p.row)
     return (
-      <li className="relative grid grid-cols-[4rem_minmax(0,1fr)_auto] items-center gap-x-4 rounded-lg px-2 py-2 transition-colors hover:bg-elevated/70 has-[.tile-open:active]:bg-elevated md:grid-cols-[4rem_minmax(0,3fr)_minmax(0,3fr)_5rem_auto]">
-        <div className="h-10 [&>div]:h-full">{thumb}</div>
+      <li
+        data-tile-id={x.id}
+        className="relative grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-x-4 rounded-lg px-2 py-2 transition-colors hover:bg-elevated/70 has-[.tile-open:active]:bg-elevated md:grid-cols-[4.5rem_minmax(0,3fr)_minmax(0,3fr)_5rem_auto]"
+      >
+        <div className="h-12">{thumb}</div>
         <div className="min-w-0">
           <h3 className="text-ui font-medium">{name}</h3>
-          <p className="text-xs text-muted-foreground">Edited {x.edited}</p>
+          <p className="text-xs text-muted-foreground">{meta}</p>
+          {offer}
         </div>
         <div id={`state-${x.id}`} className="min-w-0 max-md:hidden">
           <BackingLine project={x} />
@@ -576,22 +673,26 @@ function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
         </div>
         <p className="text-right text-xs text-muted-foreground tabular-nums max-md:hidden">
           {x.stored ? mb(x.stored) : "—"}
-          <span className="sr-only"> in this browser</span>
+          <span className="sr-only"> stored in this browser</span>
         </p>
         {menu}
       </li>
     );
   return (
-    <li className="relative -m-1.5 rounded-lg p-1.5 transition-colors hover:bg-elevated/70 has-[.tile-open:active]:bg-elevated">
-      <div className="aspect-[16/10] [&>div]:h-full">{thumb}</div>
+    <li
+      data-tile-id={x.id}
+      className="relative -m-1.5 rounded-lg p-1.5 transition-colors hover:bg-elevated/70 has-[.tile-open:active]:bg-elevated"
+    >
+      <div className="aspect-[16/10]">{thumb}</div>
       <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-1">
         <div className="min-w-0">
           <h3 className="text-ui font-medium">{name}</h3>
-          <p className="text-xs text-muted-foreground">Edited {x.edited}</p>
+          <p className="text-xs text-muted-foreground">{meta}</p>
           <div id={`state-${x.id}`} className="mt-0.5">
             <BackingLine project={x} />
             <RecoveryLine project={x} />
           </div>
+          {offer}
         </div>
         {menu}
       </div>
@@ -599,42 +700,12 @@ function Tile(p: { project: Project; actions: TileActions; row?: boolean }) {
   );
 }
 
-function RenameField(p: { project: Project; onDone: (name: string | null) => void }) {
-  const file = p.project.backing.kind === "file";
-  return (
-    <span className="relative z-10 grid gap-0.5">
-      <Input
-        autoFocus
-        aria-label={`Name of ${p.project.name}`}
-        aria-describedby={file ? `rename-note-${p.project.id}` : undefined}
-        defaultValue={p.project.name}
-        className={`${FIELD} text-ui md:text-ui`}
-        onFocus={(e) => e.currentTarget.select()}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") e.currentTarget.blur();
-          if (e.key === "Escape") {
-            e.currentTarget.value = p.project.name;
-            p.onDone(null);
-          }
-        }}
-        onBlur={(e) => {
-          const v = e.currentTarget.value.trim();
-          p.onDone(v && v !== p.project.name ? v : null);
-        }}
-      />
-      {file && (
-        <span
-          id={`rename-note-${p.project.id}`}
-          className="text-xs font-normal text-muted-foreground"
-        >
-          Saves a renamed copy (Save As)
-        </span>
-      )}
-    </span>
-  );
-}
-
-function ProjectMenu(p: { project: Project; actions: TileActions; onRename: () => void }) {
+function ProjectMenu(p: {
+  project: Project;
+  actions: TileActions;
+  onRename: () => void;
+  onLocate: () => void;
+}) {
   const x = p.project;
   const gone = x.backing.kind === "unavailable" && !x.stored;
   const Icon =
@@ -661,7 +732,7 @@ function ProjectMenu(p: { project: Project; actions: TileActions; onRename: () =
               <span>{backingWords(x).long}</span>
               {x.recovery && (
                 <span className="text-foreground">
-                  Unsaved changes from {x.recovery.when} can be recovered when you open it.
+                  Unsaved changes from {x.recovery.when} can be recovered.
                 </span>
               )}
             </span>
@@ -670,12 +741,17 @@ function ProjectMenu(p: { project: Project; actions: TileActions; onRename: () =
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {x.backing.kind === "unavailable" ? (
-            <DropdownMenuItem onClick={() => p.actions.locate(x)}>Locate file…</DropdownMenuItem>
+            <DropdownMenuItem onClick={p.onLocate}>Locate…</DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={() => p.actions.open(x)}>Open</DropdownMenuItem>
           )}
+          {x.recovery && (
+            <DropdownMenuItem onClick={() => p.actions.recover(x)}>
+              Recover changes…
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem disabled={gone} onClick={p.onRename}>
-            Rename
+            Rename project
           </DropdownMenuItem>
           <DropdownMenuItem disabled={gone} onClick={() => p.actions.duplicate(x)}>
             Duplicate
@@ -688,7 +764,7 @@ function ProjectMenu(p: { project: Project; actions: TileActions; onRename: () =
         <DropdownMenuItem className="items-start" onClick={() => p.actions.remove(x)}>
           <span className="grid">
             Remove from recent
-            <span className="text-xs text-muted-foreground">Does not delete the artwork</span>
+            <span className="text-xs text-muted-foreground">The project stays where it is</span>
           </span>
         </DropdownMenuItem>
         {x.stored !== undefined && (
@@ -704,7 +780,7 @@ function ProjectMenu(p: { project: Project; actions: TileActions; onRename: () =
 function Library(p: {
   list: Project[];
   actions: TileActions;
-  searchRef: RefObject<HTMLElement | null>;
+  onSearchEl: (el: HTMLElement | null) => void;
 }) {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"edited" | "name">("edited");
@@ -719,23 +795,24 @@ function Library(p: {
           {p.list.length} {p.list.length === 1 ? "project" : "projects"}
         </p>
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <label className="relative">
-            <span className="sr-only">Search projects</span>
-            <Search
-              className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              ref={(el) => {
-                p.searchRef.current = el;
-              }}
-              type="search"
-              placeholder="Search projects"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className={`${FIELD} w-56 pl-7`}
-            />
-          </label>
+          {/* Search appears once the list is long enough to need it (UX spec §5: 7 or more). */}
+          {p.list.length >= 7 && (
+            <label className="relative">
+              <span className="sr-only">Search projects</span>
+              <Search
+                className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <Input
+                ref={p.onSearchEl}
+                type="search"
+                placeholder="Search projects"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                className={`${FIELD} w-56 pl-7`}
+              />
+            </label>
+          )}
           <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
             Sort
             <select
@@ -773,6 +850,7 @@ function Library(p: {
           </div>
         </div>
       </div>
+      <h2 className="sr-only">Projects</h2>
       {shown.length === 0 ? (
         <p className="mt-10 text-center text-xs text-muted-foreground">
           {q ? (
@@ -787,7 +865,7 @@ function Library(p: {
           )}
         </p>
       ) : view === "grid" ? (
-        <ul className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-x-4 gap-y-5">
+        <ul className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-x-4 gap-y-5">
           {shown.map((x) => (
             <Tile key={x.id} project={x} actions={p.actions} />
           ))}
@@ -812,20 +890,13 @@ function StorageDialog(p: {
   clearRecent: () => void;
 }) {
   const [kept, setKept] = useState(false);
-  const [note, setNote] = useState("");
+  const [msg, setMsg] = useState("");
   const [ask, setAsk] = useState<Ask | null>(null);
   const done = useRef<HTMLButtonElement>(null);
   const t = storageTotals(p.list);
   const stored = p.list.filter((x) => x.stored);
   const snaps = p.list.filter((x) => x.recovery);
   const onlyHere = p.list.filter((x) => x.backing.kind === "browser");
-  const names = (xs: Project[]) =>
-    xs.length === 1
-      ? xs[0]!.name
-      : `${xs
-          .slice(0, -1)
-          .map((x) => x.name)
-          .join(", ")} and ${xs.at(-1)!.name}`;
   const discard = (xs: Project[]): Ask => ({
     title:
       xs.length === 1
@@ -834,7 +905,7 @@ function StorageDialog(p: {
     children: (
       <p>
         {xs.length === 1
-          ? `${xs[0]!.name} will open as last saved to ${fileOf(xs[0]!)}.`
+          ? `${xs[0]!.name} will open as last saved${fileOf(xs[0]!) ? ` to ${fileOf(xs[0]!)}` : ""}.`
           : `Deletes the unsaved changes ${xs.map((x) => `from ${x.recovery!.when} (${x.name})`).join(" and ")}. Saved files and projects stored in this browser are not affected.`}{" "}
         This cannot be undone.
       </p>
@@ -844,7 +915,7 @@ function StorageDialog(p: {
     onConfirm: () => {
       const ids = new Set(xs.map((x) => x.id));
       p.setList((l) => l.map((x) => (ids.has(x.id) ? { ...x, recovery: undefined } : x)));
-      setNote(
+      setMsg(
         xs.length === 1
           ? `Discarded unsaved changes for ${xs[0]!.name}.`
           : "Removed all recovery data.",
@@ -859,12 +930,20 @@ function StorageDialog(p: {
       >
         <DialogHeader>
           <DialogTitle>Projects and storage</DialogTitle>
-          <DialogDescription>
-            Everything stays on this device. Nothing is uploaded.
+          <DialogDescription className="tabular-nums">
+            {mb(t.total)} stored in this browser: projects {mb(t.stored)}, recovery data{" "}
+            {mb(t.recovery)}. Nothing is uploaded.
           </DialogDescription>
         </DialogHeader>
         <div className="-mx-4 grid content-start gap-x-8 gap-y-5 overflow-y-auto px-4 text-xs md:grid-cols-2">
           <div className="grid content-start gap-5">
+            {STORAGE_FULL && (
+              <p className="flex gap-2 text-pretty text-warning">
+                <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+                Browser storage is nearly full. Recovery data may stop being saved, and projects
+                without a file copy are at risk.
+              </p>
+            )}
             <section className="grid gap-2">
               <h3 className={SECTION}>Where projects live</h3>
               <Fact icon={File}>
@@ -873,7 +952,7 @@ function StorageDialog(p: {
               </Fact>
               <Fact icon={HardDrive}>
                 <b className="font-medium text-foreground">This browser:</b> copies of some
-                projects, the recent list and thumbnails.{" "}
+                projects, their thumbnails and the recent list.{" "}
                 <button
                   type="button"
                   className={WORD}
@@ -892,7 +971,7 @@ function StorageDialog(p: {
                       destructive: true,
                       onConfirm: () => {
                         p.clearRecent();
-                        setNote("Cleared the recent list. No artwork was deleted.");
+                        setMsg("Cleared the recent list. No artwork was deleted.");
                       },
                     })
                   }
@@ -923,7 +1002,7 @@ function StorageDialog(p: {
                     className="justify-self-start border-control-border text-xs"
                     onClick={() => {
                       setKept(true);
-                      setNote("The browser agreed to keep Vectra’s data.");
+                      setMsg("The browser agreed to keep Vectra’s data.");
                     }}
                   >
                     Keep data in this browser
@@ -940,17 +1019,19 @@ function StorageDialog(p: {
                 ) : null}
                 all recovery data and the recent list. Your .vectra files are not affected.
               </p>
-              <p className="flex gap-2 text-pretty text-warning">
-                <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-                Safari may remove projects kept only in this browser after 7 days without use.
-                Download a copy of anything you want to keep.
-              </p>
+              {SAFARI && (
+                <p className="flex gap-2 text-pretty text-warning">
+                  <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+                  Safari may remove projects kept only in this browser after 7 days without use.
+                  Download a copy of anything you want to keep.
+                </p>
+              )}
             </section>
           </div>
           <div className="grid content-start gap-5">
             <section className="grid gap-1.5">
               <h3 className={`${SECTION} flex justify-between`}>
-                Stored in this browser <span className="tabular-nums">{mb(t.stored)}</span>
+                Projects in this browser <span className="tabular-nums">{mb(t.stored)}</span>
               </h3>
               <ul className="divide-y divide-border">
                 {stored.map((x) => (
@@ -964,7 +1045,7 @@ function StorageDialog(p: {
                       >
                         {x.backing.kind === "file"
                           ? `File copy: ${x.backing.file}`
-                          : "No file copy"}
+                          : "No file copy yet"}
                       </p>
                     </div>
                     <span className="text-muted-foreground tabular-nums">{mb(x.stored!)}</span>
@@ -973,7 +1054,7 @@ function StorageDialog(p: {
                       size="xs"
                       className="text-muted-foreground hover:text-destructive focus-visible:text-destructive"
                       aria-label={`Delete ${x.name} from this browser`}
-                      onClick={() => setAsk(deleteAsk(x, p.setList, setNote))}
+                      onClick={() => setAsk(deleteAsk(x, p.setList, setMsg))}
                     >
                       Delete…
                     </Button>
@@ -1026,19 +1107,15 @@ function StorageDialog(p: {
                 </button>
               </p>
             </section>
-            <p className="text-muted-foreground tabular-nums">
-              Total in this browser: <span className="text-foreground">{mb(t.total)}</span>{" "}
-              (including thumbnails and the recent list).
-            </p>
           </div>
         </div>
         <DialogFooter className="items-center">
           <p
             role="status"
             aria-live="polite"
-            className="min-w-0 truncate text-xs text-foreground/85 sm:mr-auto"
+            className="min-w-0 text-xs text-pretty text-foreground/85 sm:mr-auto"
           >
-            {note}
+            {msg}
           </p>
           <Button
             ref={done}
@@ -1057,16 +1134,6 @@ function StorageDialog(p: {
         />
       </DialogContent>
     </Dialog>
-  );
-}
-
-function Tier(p: { icon: LucideIcon; children: ReactNode }) {
-  const Icon = p.icon;
-  return (
-    <li className="flex gap-2">
-      <Icon className="mt-px size-3.5 shrink-0" aria-hidden="true" />
-      <span>{p.children}</span>
-    </li>
   );
 }
 
