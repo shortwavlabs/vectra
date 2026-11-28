@@ -389,11 +389,13 @@ The layout is in RFC §14. Normative limits:
 | High-water marks | `nextId` and `nextChunkId` live outside the state and only grow (C1). Each is **charged at its maximum width, 16 digits**, so a state accepted at the exact limit still saves after later edits widen the marks and the artist undoes back to it. The usable document capacity is therefore up to 30 bytes below 64 MiB |
 | Sections ≤ 4,096 | 2 + referenced chunks + embedded sources, checked per transaction |
 | Header ≤ 1 MiB | Implied by the section count: the worst case (4,096 entries, every number at the 16-digit maximum, the longest ids) is 962,592 bytes |
-| Total declared bytes ≤ the session budget | Manifest + document (marks at maximum width) + referenced geometry records (exact, `GeometryStore.recordBytes`) + embedded sources, per transaction. The loader passes its session budget to the session it builds |
+| Total declared bytes ≤ the session budget | Manifest + document (marks at maximum width) + referenced geometry records (exact, `GeometryStore.recordBytes`) + embedded sources, per transaction. The loader passes its session budget to the session it builds, **capped at C7's 512 MiB** |
 | Source section ≤ 20 MiB; geometry section ≤ the C3.0 record cap | Rechecked per transaction; an embedded asset whose bytes the session does not hold is refused |
 | Compression | No limit applies to compressed lengths; inflation stays bounded by the declared lengths |
 
 No independent path-count limit exists. Messages near or at the document-section cap speak of document complexity or section capacity, never of a maximum total file size.
+
+**A session's limits** are each a positive integer **no greater than C7's** (refused otherwise, `invalid_argument`), so a session never accepts a state the writer or the default loader would refuse. Tightening them is refused when any state undo or redo can reach would not satisfy them.
 
 **Pre-flight.** A save checks the exact sizes from this accounting against the limits **before** serializing, hashing or compressing, and checks that what it built matches the accounting (a mismatch is a defect: nothing is returned).
 

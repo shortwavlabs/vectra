@@ -85,6 +85,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PROCESS-001](#td-process-001) | No automated required checks | Enhancement | Low | OPEN | Maintainer decision | P-CI |
 | [TD-ARCH-005](#td-arch-005) | Typed-array immutability is a convention | Limitation | **High** | OPEN | G-DOC | G-DOC |
 | [TD-ARCH-006](#td-arch-006) | WebKit offline worker start-up under churn | Defect (prototype-reproduced) | **High** | OPEN | G-JOB | G-JOB |
+| [TD-ARCH-007](#td-arch-007) | Trace provenance encodability is checked for `traceRequest` only (pre-existing; refused at the transaction since G-PRJ-0) | Defect (validation gap) | Low | OPEN | next change to document validation | G-PRJ-0 review (found) |
 | [TD-REN-001](#td-ren-001) | Chromium quadratic incremental Path2D | Defect (browser) | **High** | **CLOSED** (maintainer, 2026-11-25) | G-R0 | G-R0 |
 | [TD-REN-002](#td-ren-002) | Worker-canvas presentation (WebKit) and raster (Firefox) | Untested / limitation | Medium | OPEN | G-R0/G-R1 | G-R0/G-R1 |
 | [TD-REN-003](#td-ren-003) | Layered drag-cache correctness and cost | Limitation (unqualified) | **High** | OPEN | G-R1 | G-R1 |
@@ -121,7 +122,7 @@ Counts:
 - **G-PRJ-R (2026-11-26, research; no production change):** one item added, TD-UI-008 (Medium): the shared registry's destructive button fails WCAG AA contrast, found by the Impeccable audit of the G-PRJ-R prototype. **47 open items, 14 High.**
 - **G-DOC-R final acceptance (2026-11-26):** one item added, TD-UI-007 (Low): F-16, a known WebKit test failure that predates G-DOC-R (3/10 on `main` and on G-DOC-R). **46 open items, 14 High.** TD-PERF-007's WebKit stress miss is temporarily accepted, with the threshold unchanged and a subtree-summary optimisation recorded.
 - **G-DOC-R maintainer acceptance and closure (2026-11-26):** stage D accepted as an implementation, subject to the accounting closure. One item added, TD-PERF-012 (Medium): the accepted temporary renderer-path regressions, kept explicitly tracked. **45 open items, 14 High.** No item is closed: TD-PERF-007 and TD-PERF-011 stay open while the gate is PARTIAL (lower-end hardware, quiet machine). TD-UI-006: the confirmation is authorised as a G-PRJ follow-up; the refusal stays. TD-PERF-009 gains the 64 MiB document-cap finding.
-- **G-PRJ-0 (2026-11-27, not yet accepted):** one item added, TD-PERF-013 (Low): the C7 section cap, now enforced per transaction, bounds a document to 4,094 referenced geometry chunks. **48 open items, 14 High** (counted from the summary table). No item is closed. TD-PERF-009: the compact encoding is delivered, the 64 MiB finding resolved (w996k saves at 36.9 MiB) and the Node open criteria met; closure is proposed for the maintainer (§TD-PERF-009). TD-UI-008: its target is now "before any production destructive project control" (maintainer); not touched by G-PRJ-0. TD-UI-006 unchanged.
+- **G-PRJ-0 (2026-11-27, not yet accepted):** two items added: TD-PERF-013 (Low), the C7 section cap, now enforced per transaction, bounds a document to 4,094 referenced geometry chunks; TD-ARCH-007 (Low), a pre-existing provenance validation gap found by the independent review. **49 open items, 14 High** (counted from the summary table). No item is closed. TD-PERF-009: the compact encoding is delivered, the 64 MiB finding resolved (w996k saves at 36.9 MiB) and the Node open criteria met; closure is proposed for the maintainer (§TD-PERF-009). TD-UI-008: its target is now "before any production destructive project control" (maintainer); not touched by G-PRJ-0. TD-UI-006 unchanged.
 
 ---
 
@@ -728,6 +729,17 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Owner action:** Safari authorisation.
 - **G-JOB disposition (2026-11-25):** the fix (no termination before the job is posted, R03 v2 rule; RFC §10.3 rule 4) is implemented in the production scheduler. Against the production build, offline, the churn pattern (terminate a running worker, then five previews while the next worker's module graph loads from the service worker) passed 4 of 4 runs in each of Chromium, Firefox and Playwright WebKit, with exactly one worker created per run and no start-up failure. It also passes in an old tab after a deploy, offline, and on the new build offline after the update (3 engines). A scheduler mutation that terminates starting workers fails the unit and property tests. Real Safari NOT RUN; closure needs it or a documented restriction. Stage: **FIX PRODUCTION-BUILD VERIFIED in 3 engines / Safari pending**. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 - **Real Safari (2026-11-25):** the churn pattern passes in Safari 26.6.2 against the production build: online, 4 runs offline, in an old tab after a deploy (offline), on the new build offline after the update, and under build A during a failed template-only update. With 3 engines plus real Safari, the closure criteria (fix verified on the production build, offline and across a service-worker update) are **met; proposed for closure, maintainer to confirm**. [G-JOB report §18](research/g-job/G-JOB-REPORT.md).
+
+<a id="td-arch-007"></a>
+### TD-ARCH-007 — Trace provenance encodability is checked for `traceRequest` only
+- **Source:** the G-PRJ-0 independent correctness review (finding 2); predates G-PRJ-0.
+- **Category / severity / status:** Defect (validation gap; not reachable from the engine) · Low · OPEN.
+- **Facts.** C10 stores provenance as canonical JSON. `checkTraceProvenance` checks `traceRequest`'s canonical encodability, but not `originalScene`. A caller-built record with NaN, a Date or a BigInt in `metadata.params`, or a lone surrogate in `generator` or `mode`, passes both validators.
+  - On `main` such a state was accepted and failed later, at save, with an untyped error.
+  - Since G-PRJ-0 it is refused at the transaction, atomically, as `DocumentError("invariant")`, by the persistability accounting rather than by the validators.
+  - The engine's metadata is parsed JSON, so production never produces such a record.
+- **Closure criteria:** `checkTraceProvenance` checks the whole record's canonical encodability, memoised per immutable record so layer edits do not re-walk large provenance; with the matching forgery in `testing/incremental-differential.ts` (the `invariants.ts` rule).
+- **Owner action:** next change to document validation.
 
 <a id="td-ren-001"></a>
 ### TD-REN-001 — Chromium builds Path2D incrementally in quadratic time

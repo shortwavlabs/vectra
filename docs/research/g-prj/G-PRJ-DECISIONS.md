@@ -52,7 +52,7 @@ This register separates three things: what this research decided within its mand
 | AM-3.3 | C3/C10 | A persistable document-section size limit, enforced per transaction like the anchor cap | **Approved** as **exact** persistable-size enforcement over the complete container, not only the document section (§7.5) |
 | AM-3.4 | C7 save semantics (`saveContainer`) | Serialization does not mark the session saved; only a verified write does | **Approved**: serialization and verified-save semantics are separate |
 | AM-3.5 | C5 | A persistence worker in the build's worker set, under build isolation | **Approved**: a dedicated persistence worker under C5 build isolation, never a second authoritative document engine (§7.6) |
-| AM-3.6 (deferred) | C7 r3 | A sectioned document with streaming, only if limits above the compact ceiling are wanted | **Deferred**, with any streaming container change. The **64 MiB document-section cap is retained** |
+| AM-3.6 (deferred) | C7 r4 (r3 is now AM-3.3/3.4) | A sectioned document with streaming, only if limits above the compact ceiling are wanted | **Deferred**, with any streaming container change. The **64 MiB document-section cap is retained** |
 
 **Formal recording.** The approved amendments go through the frozen-contract change-control process ([contracts](../g0/G0-ARCHITECTURE-CONTRACTS.md), "Change control": revision bumps, an RFC-002 amendment, maintainer approval) in G-PRJ-0, together with the code that implements them. Until then the contracts and RFC-002 describe the implemented v1 behaviour, so main never documents v2 as current while it writes v1.
 

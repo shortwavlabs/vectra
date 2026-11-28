@@ -2,6 +2,12 @@
 
 **Status: implemented and qualified for maintainer acceptance. Not merged; G-PRJ-1 not started.** No Save UI, library, autosave or production project home is part of this stage.
 
+**Decisions requested from the maintainer:**
+1. **The high-water-mark rule (C7 r3):** enforcement charges `nextId` and `nextChunkId` at their maximum width, 16 digits each. This keeps every state reachable by undo saveable after the marks grow, at the cost of up to 30 bytes of the 64 MiB document capacity (§4, §7).
+2. **TD-PERF-009 closure:** the Node open criteria are now met on the P1-A benchmark itself (§8). The browser main-thread budget stays with TD-PERF-010 and G-PRJ-1.
+3. **TD-PERF-013:** accept the 4,094-chunk bound for P1, or schedule chunk compaction before bake-heavy editing (§7, §12).
+4. **Impeccable `hooks off`:** recording `hook.enabled: false` in a new, committed `.impeccable/config.json` would silence doctor's `hook-not-installed` finding. It changes hook configuration, so it waits for approval (§13).
+
 | | |
 |---|---|
 | Mandate | "Vectra — G-PRJ-R Acceptance and G-PRJ-0 Authorization" (maintainer, 2026-11-27), §6–§8; [G0 decision register §14](../g0/G0-DECISION-REGISTER.md) |
@@ -9,7 +15,7 @@
 | Branch | `gate/g-prj-0`, in the main checkout (no extra clone or worktree) |
 | Machine | Apple M5 Max, 128 GiB, macOS 26.6.2, Node 24.22.1. Shared, never quiet: load averages and top processes are recorded in every run file; no `ngspice` ran |
 | Engines | Chromium 159.0.8154.6, Firefox 159.0, Playwright WebKit 27.2; real Safari 26.6.2 |
-| Dependencies | none added; lockfile unchanged |
+| Scope (checked: `git diff --name-only main...HEAD`) | no change to `package.json`, `pnpm-lock.yaml`, `Cargo.*`, `crates/`, `packages/`, `src/shell`, `src/ui`, `src/workspace`, `public/`, `vite.config.ts` or the HTML entries; no dependency added. Changed: `src/document`, `src/persistence`, tests, scripts, docs |
 
 ## 1. G-PRJ-R integration (verified)
 - PR #23 merged with a merge commit: `2341123`, parents `276c1ec` (previous main) and `c6e8885` (final research head). The merge's tree equals the PR head's tree (`4cedb2eb…`), and both parents are ancestors of main.
@@ -57,7 +63,7 @@ The amendment record is [G0-ARCHITECTURE-CONTRACTS §AM-3](../g0/G0-ARCHITECTURE
   - document section (64 MiB);
   - section count (4,096);
   - header (implied: worst case 962,592 bytes);
-  - total declared bytes against the session budget, which the loader passes to the session it builds;
+  - total declared bytes against the session budget, which the loader passes to the session it builds, capped at C7's;
   - source and geometry section caps;
   - embedded assets without bytes, which are refused.
 
@@ -66,6 +72,7 @@ The amendment record is [G0-ARCHITECTURE-CONTRACTS §AM-3](../g0/G0-ARCHITECTURE
 - **Enforcement** runs in `dispatch` after validation and before anything is published. A transaction that would exceed a limit throws `DocumentError("persist_limit")`, naming the limit, the size needed and the cap. The session, its revision, `nextId` and the store's live chunks are unchanged.
   - The shell shows it on its existing paths ("Edit rejected: …", "Import failed: …"); no new UI.
   - Messages near the document cap speak of document complexity, never a maximum file size.
+- **Limits** are each a positive integer no greater than C7's (constructor, `setPersistLimits`, the loader's budget), and tightening them is refused when a state undo or redo can reach would exceed them (both from the independent review, §11).
 - **Saves.** `saveContainer` no longer marks the session saved (AM-3.4). It pre-flights the exact sizes against the loader's limits **before** serializing, hashing or compressing, and refuses to return bytes if what it built differs from the accounting.
 - **Files:** `src/persistence/persistable.ts` (accounting), `limits.ts` (shared C7 constants), `document-json.ts` (v2 writer, v1 and v2 readers), `canonical-json.ts` (`canonicalLength`), `container.ts`; `src/document/session.ts`, `geometry-store.ts` (`recordBytes`), `structure-accounting.ts` (`derivedCost` counts fields).
 
@@ -195,6 +202,7 @@ Timings are `f7db368 · bd2fd8b` (quiet-ish · loaded). Peaks are from `bd2fd8b`
 | Browser persistence (`tests/browser/persistence`), Chromium, Firefox, Playwright WebKit | **`bd2fd8b`** | **28 passed, 2 skipped** (the cross-engine test runs once) |
 | Real Safari 26.6.2 (`tests/safari/persistence.mjs`, console unlocked: `IOConsoleLocked = No`) | `34e5ca9`, re-run on **`bd2fd8b`** | **23/23**, both times |
 | Job specs using the document digest (Chromium, production build) | `34e5ca9` | **14/14** |
+| UI document spec (Chromium, production build), including the workspace opening a v2 container saved by Node ("no fill") | `bd2fd8b` (`58a2a35ce046ea1a`) | **25/25** |
 
 ## 11. Independent correctness review
 - **Who and what.** A fresh agent with no access to this conversation reviewed the diff at `3ad9f6a`, given the specification and the claims, not my conclusions.
@@ -212,7 +220,7 @@ Timings are `f7db368 · bd2fd8b` (quiet-ish · loaded). Peaks are from `bd2fd8b`
 | Finding | Severity | Disposition |
 |---|---|---|
 | 1. Limits looser than C7 (a session option, or a loader budget above 512 MiB) let the session accept a state `saveContainer` refuses. Executed: 4,097 sections accepted under a 5,000 cap, then the save refused it. Latent; no production caller passes limits | Risk | **Fixed** (`e900096`). Limits must be positive integers no greater than C7's (`checkPersistLimits`, constructor and `setPersistLimits`), and the loader caps the budget it passes at C7's. Tests added |
-| 2. Provenance that canonical JSON cannot write (NaN, Date, BigInt, lone surrogates in `originalScene`) made `dispatch` throw an untyped `CanonicalJsonError` (atomically). On main, such a state was accepted and failed at save. Root cause predates G-PRJ-0: the validators check `traceRequest`'s encodability, not `originalScene`'s. Unreachable from the engine | Risk | **Fixed at the boundary:** refused with `DocumentError("invariant")`. Test added. The validator gap is recorded here and left for a validation change with its differential forgery (rule of `invariants.ts`) |
+| 2. Provenance that canonical JSON cannot write (NaN, Date, BigInt, lone surrogates in `originalScene`) made `dispatch` throw an untyped `CanonicalJsonError` (atomically). On main, such a state was accepted and failed at save. Root cause predates G-PRJ-0: the validators check `traceRequest`'s encodability, not `originalScene`'s. Unreachable from the engine | Risk | **Fixed at the boundary:** refused with `DocumentError("invariant")`. Test added. The validator gap is registered as **TD-ARCH-007** for the next validation change, with its differential forgery (the `invariants.ts` rule) |
 | 3. A loader can refuse a file it accepted under the same budget, because the marks are charged at 16 digits (≤ 30 bytes); messages said "This change would…" during a load | Nit | Accepted by C7 r3 (the reserved width is the stated rule; it bites only with a budget smaller than the writer's). Messages reworded to read correctly for edits, loads and saves |
 | 4. The loader forwards `sessionBudget` but not `packetLimits` | Nit | No change. A larger packet limit cannot make the session accept an unwritable state, because the session's geometry cap is C7's |
 | 5. `validations.incremental` counted refused transactions (also true for `history_budget` refusals on main) | Nit | **Fixed:** counted at publication. Test added |
@@ -220,11 +228,11 @@ Timings are `f7db368 · bd2fd8b` (quiet-ish · loaded). Peaks are from `bd2fd8b`
 | 7. The qualification's "serialization did not mark saved" check was vacuous for clean (loaded) sessions | Nit | **Fixed:** checked on a dirty session, then undone |
 
 ## 12. Technical debt
-- **Added:** TD-PERF-013 (Low). The section cap, now enforced per transaction, bounds a document to 4,094 referenced chunks; measured in §7.
+- **Added:** TD-PERF-013 (Low). The section cap, now enforced per transaction, bounds a document to 4,094 referenced chunks; measured in §7. TD-ARCH-007 (Low). The pre-existing provenance validation gap (review finding 2) is now refused at the transaction; the validator fix is left for the next validation change.
 - **TD-PERF-009:** the compact encoding is delivered, the 64 MiB finding resolved, and the Node open criteria met on the P1-A benchmark itself (§8). **Closure is proposed**, for the maintainer to decide. The browser main-thread budget stays with TD-PERF-010 and G-PRJ-1.
 - **TD-UI-008:** target set to "before any production destructive project control" (first in G-PRJ-2). Not touched here: no UI in G-PRJ-0.
 - **TD-UI-006, TD-PERF-010, TD-PERF-012:** unchanged.
-- **Total:** 48 open items, 14 High.
+- **Total:** 49 open items, 14 High.
 
 ## 13. Impeccable and accessibility
 - **Installed version: 4.11.1**, the maintainer's update, recorded with `impeccable --version`. No update or reinstall was run.
