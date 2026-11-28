@@ -47,7 +47,8 @@ test.describe("each engine against Node", () => {
       expect(r.before.sources).toHaveLength(1);
       expect(r.after).toEqual(r.before);
       expect(r.before).toEqual(semantic(await buildDocument(TEXTS, { embedded: true })));
-      expect(r.savedClean).toBe(true);
+      expect(r.serializedDirty).toBe(true); // AM-3.4: serialization does not mark saved
+      expect(r.savedClean).toBe(true); // after the explicit markSaved
       expect(r.loadedClean).toBe(true);
       expect(r.loadedCanUndo).toBe(false);
       expect(r.resaveIdentical).toBe(true);

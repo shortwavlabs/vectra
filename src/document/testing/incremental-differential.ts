@@ -94,7 +94,9 @@ const MATRICES: Matrix[] = [
 const NAMES = ["a", "b-1", "", "run-0", "x".repeat(300), "bad\uD800", "ok😀"];
 const DIGEST = "ab".repeat(32);
 
-function randomCommand(r: Rng, s: DocState): Command {
+/** One random command against `s` (valid, invalid and rejected mixes). Also drives the G-PRJ-0
+ *  persistability differential (src/persistence/persistable-differential.test.ts). */
+export function randomCommand(r: Rng, s: DocState): Command {
   const ids = [...s.nodesById.keys()];
   const any = (): NodeId =>
     ids.length && r.bool(0.92) ? r.pick(ids) : r.pick(["pth_999999", "grp_424242"]);

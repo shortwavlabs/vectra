@@ -15,22 +15,20 @@ import { DEFAULT_PACKET_LIMITS, type PacketLimits, decodeRecord } from "../docum
 import { DocumentSession, type HistoryLimits, sha256Hex } from "../document/session.ts";
 import { IntakeError, sniffImage } from "../vectorization/intake.ts";
 import { canonicalJsonBytes, parseCanonicalJson } from "./canonical-json.ts";
-import { documentJson, parseDocumentJson, SchemaError } from "./document-json.ts";
+import {
+  documentJson,
+  parseDocumentJson,
+  READ_SCHEMA_VERSIONS,
+  SchemaError,
+} from "./document-json.ts";
+import { CONTAINER_LIMITS, MANIFEST } from "./limits.ts";
+import { DEFAULT_PERSIST_LIMITS, persistProblem } from "./persistable.ts";
 
+export { CONTAINER_LIMITS } from "./limits.ts";
 export const MAGIC = Uint8Array.of(0x56, 0x45, 0x43, 0x54, 0x52, 0x41, 0x00, 0x01);
 export const FORMAT_VERSION = 1;
 export type Codec = "none" | "deflate-raw";
 export type SectionKind = "manifest" | "document" | "geometry" | "source";
-
-/** C7 limits table (session budget is the profile's; default 512 MiB). */
-export const CONTAINER_LIMITS = Object.freeze({
-  maxHeaderBytes: 2 ** 20,
-  maxSections: 4096,
-  maxManifestBytes: 2 ** 20, // not in C7's table; the manifest section is a few dozen bytes
-  maxDocumentBytes: 64 * 2 ** 20,
-  maxSourceBytes: 20 * 2 ** 20,
-  sessionBudget: 512 * 2 ** 20,
-});
 
 export type ContainerErrorCode =
   | "truncated"
@@ -240,16 +238,18 @@ export async function readSection(
   return data;
 }
 
-const MANIFEST = { app: "vectra", formatVersion: 1, documentSchemaVersion: 1, packetVersion: 1 };
-
-function checkManifest(data: Uint8Array): void {
+/** Checks the manifest and returns its documentSchemaVersion (1 or 2: both are read). */
+function checkManifest(data: Uint8Array): number {
   const p = parseCanonicalJson(data);
   if (!p || !isObj(p.value)) return fail("manifest", "manifest section is not canonical JSON");
   const m = p.value;
-  for (const k of ["formatVersion", "documentSchemaVersion", "packetVersion"] as const)
+  for (const k of ["formatVersion", "packetVersion"] as const)
     if (m[k] !== 1) fail("version", `unsupported ${k} ${String(m[k])}`);
+  if (!READ_SCHEMA_VERSIONS.has(m.documentSchemaVersion))
+    fail("version", `unsupported documentSchemaVersion ${String(m.documentSchemaVersion)}`);
   if (!exactKeys(m, Object.keys(MANIFEST)) || m.app !== "vectra")
     fail("manifest", "invalid manifest section");
+  return m.documentSchemaVersion as number;
 }
 
 /** Packet failures: a newer packetVersion is a `version` refusal, anything else `packet`. */
@@ -275,11 +275,18 @@ const MIME_OF = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp" } as 
 export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<DocumentSession> {
   const packetLimits = o.packetLimits ?? DEFAULT_PACKET_LIMITS;
   const h = readHeader(bytes);
-  checkLimits(h, packetLimits, o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget);
+  // One budget for this loader and the session it builds: whole bytes, never above C7's (the
+  // session must not accept a state the writer refuses), and refused when meaningless.
+  const sessionBudget = Math.min(
+    Math.floor(o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget),
+    CONTAINER_LIMITS.sessionBudget,
+  );
+  if (!(sessionBudget > 0)) fail("limit", `invalid sessionBudget ${String(o.sessionBudget)}`);
+  checkLimits(h, packetLimits, sessionBudget);
   const data: Uint8Array[] = [];
   for (const s of h.sections) data.push(await readSection(bytes, h, s));
 
-  checkManifest(data[0]!);
+  const manifestVersion = checkManifest(data[0]!);
   const docValue = parseCanonicalJson(data[1]!);
   if (!docValue) return fail("document", "document section is not canonical JSON");
   let parsed;
@@ -289,6 +296,11 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
     if (e instanceof SchemaError) return fail(e.version ? "version" : "document", e.message);
     throw e;
   }
+  if (parsed.version !== manifestVersion)
+    fail(
+      "manifest",
+      `manifest documentSchemaVersion ${manifestVersion} differs from the document's ${parsed.version}`,
+    );
 
   const store = new GeometryStore({ limits: packetLimits });
   const sources = new Map<AssetId, Uint8Array>();
@@ -341,11 +353,17 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
       state: parsed.state,
       nextId: parsed.nextId,
       sources,
+      // The session keeps every later state within what this loader accepts (AM-3.3).
+      persistLimits: {
+        ...DEFAULT_PERSIST_LIMITS,
+        sessionBudget, // validated and capped above
+      },
       ...(o.limits ? { limits: o.limits } : {}),
       ...(o.history ? { history: o.history } : {}),
     });
   } catch (e) {
-    if (e instanceof DocumentError) return fail("document", e.message, e.code);
+    if (e instanceof DocumentError)
+      return fail(e.code === "persist_limit" ? "limit" : "document", e.message, e.code);
     throw e;
   }
   // Every geometry section must be referenced (the constructor freed unreferenced chunks).
@@ -357,9 +375,16 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
 const digestCache = new WeakMap<GeometryStore, Map<ChunkId, string>>();
 
 /**
- * Serializes the session's current state. Section contents are built synchronously from the
- * immutable state, so edits during compression cannot change what is saved. Marks that state
- * saved (C7 dirty tracking) and returns the container bytes.
+ * Serializes the session's current state and returns the container bytes. Section contents are
+ * built synchronously from the immutable state, so edits during compression cannot change what
+ * is saved.
+ *
+ * It does **not** mark anything saved (C7 r3, AM-3.4): serialization is not a save. The caller
+ * marks the saved state (`session.markSaved(state)`) only after the bytes were written and
+ * verified (G-PRJ-1), or after an explicit decision such as a confirmed download.
+ *
+ * Pre-flight (AM-3.3): the exact sizes from the session's accounting are checked against the
+ * loader's limits before any section is serialized, hashed or compressed.
  */
 export async function saveContainer(
   session: DocumentSession,
@@ -368,6 +393,9 @@ export async function saveContainer(
   const codec = o.codec ?? "deflate-raw";
   const state = session.state;
   const store = session.store;
+  const info = session.persistInfo();
+  const problem = persistProblem(info, DEFAULT_PERSIST_LIMITS);
+  if (problem) fail("limit", problem);
   const byNumber = (a: string, b: string) => idNumber(a) - idNumber(b);
   const chunkIds = [...session.derivedOf(state)!.chunks.keys()].sort(byNumber);
   const embedded = [...state.sourceAssetsById.values()]
@@ -389,6 +417,17 @@ export async function saveContainer(
       return { id, kind: "source" as const, data };
     }),
   ];
+  // The accounting must describe exactly what was built: a mismatch is a defect, never a user
+  // error, and nothing is written.
+  const built = plain.reduce((t, s) => t + s.data.length, 0);
+  if (
+    plain[1]!.data.length !== info.documentBytes ||
+    plain.length !== info.sections ||
+    built !== info.totalBytes
+  )
+    throw new Error(
+      `persistability accounting disagrees with serialization: document ${plain[1]!.data.length}/${info.documentBytes}, sections ${plain.length}/${info.sections}, total ${built}/${info.totalBytes}`,
+    );
   let cache = digestCache.get(store);
   if (!cache) digestCache.set(store, (cache = new Map()));
   const entries: SectionEntry[] = [];
@@ -431,6 +470,5 @@ export async function saveContainer(
     out.set(b, pos);
     pos += b.length;
   }
-  session.markSaved(state);
-  return out;
+  return out; // AM-3.4: no markSaved here
 }

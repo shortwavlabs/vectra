@@ -3,6 +3,17 @@
 // bounded undo/redo, keyboard coalescing, chunk ownership and state-identity dirty tracking.
 
 import type { DecodePolicy } from "./provenance.ts";
+import {
+  bodyDelta,
+  bodyOf,
+  DEFAULT_PERSIST_LIMITS,
+  fullBody,
+  type PersistInfo,
+  type PersistLimits,
+  checkPersistLimits,
+  persistProblem,
+  persistSizes,
+} from "../persistence/persistable.ts";
 import { sniffImage } from "../vectorization/intake.ts";
 import {
   applyCommand,
@@ -90,7 +101,23 @@ export interface SessionOptions {
   onListenerError?: (error: unknown) => void;
   /** Transaction validation (default `DEFAULT_VALIDATION_MODE`). */
   validation?: ValidationMode;
+  /** Persistence limits every committed state must satisfy (AM-3.3; default: C7's). */
+  persistLimits?: PersistLimits;
 }
+
+/** The session's per-state cache: the validator's derived data plus the persistable `body`
+ *  (G-PRJ-0, AM-3.3), the one number the persistability accounting keeps per state. */
+interface SessionDerived extends StateDerived {
+  readonly body: number;
+}
+/** One literal with all four fields, so every record has the same in-object layout. An object
+ *  spread here measured 40 bytes per retained state instead of 8 (calibration, G-PRJ-0 §6). */
+const withBody = (v: StateDerived, body: number): SessionDerived => ({
+  chunks: v.chunks,
+  anchors: v.anchors,
+  maxIdNumber: v.maxIdNumber,
+  body,
+});
 
 /** C7 source-section cap, enforced when a source is embedded. */
 export const MAX_EMBEDDED_SOURCE_BYTES = 20 * 2 ** 20;
@@ -122,7 +149,8 @@ export class DocumentSession {
   /** AM-2: each published state's structural delta from its chain predecessor. */
   readonly #deltas = new WeakMap<DocState, Delta>();
   #state: DocState;
-  readonly #derived = new WeakMap<DocState, StateDerived>();
+  readonly #derived = new WeakMap<DocState, SessionDerived>();
+  #persistLimits: Readonly<PersistLimits>;
   #past: DocState[] = [];
   #future: DocState[] = [];
   #saved: DocState | null;
@@ -145,11 +173,18 @@ export class DocumentSession {
     this.validation = o.validation ?? DEFAULT_VALIDATION_MODE;
     this.#coalesceWindowMs = o.coalesceWindowMs ?? 1000;
     this.#now = o.now ?? (() => performance.now());
-    const d = validateState(o.state, store, this.limits);
-    this.#nextId = o.nextId ?? d.maxIdNumber + 1;
-    if (!(Number.isSafeInteger(this.#nextId) && this.#nextId > d.maxIdNumber))
+    const v = validateState(o.state, store, this.limits);
+    this.#nextId = o.nextId ?? v.maxIdNumber + 1;
+    if (!(Number.isSafeInteger(this.#nextId) && this.#nextId > v.maxIdNumber))
       throw new DocumentError("invariant", "nextId must exceed every node ID");
     for (const [id, bytes] of o.sources ?? []) this.#sources.set(id, bytes.slice());
+    // AM-3.3: the initial state is persistable, like every state committed after it.
+    this.#persistLimits = checkPersistLimits(o.persistLimits ?? DEFAULT_PERSIST_LIMITS);
+    const d = withBody(v, bodyOf(o.state));
+    if (this.validation === "compare" && fullBody(o.state) !== d.body)
+      throw new ValidationDisagreement("persistable body: entry sum and full serialization differ");
+    const problem = persistProblem(this.#sizes(o.state, d, this.#nextId), this.#persistLimits);
+    if (problem) throw new DocumentError("persist_limit", problem);
     this.#onListenerError =
       o.onListenerError ??
       ((e) =>
@@ -191,6 +226,39 @@ export class DocumentSession {
   derivedOf(state: DocState): StateDerived | undefined {
     const d = this.#derived.get(state);
     return d && { ...d, chunks: new Map(d.chunks) };
+  }
+
+  // --- persistability (G-PRJ-0, AM-3.3) -----------------------------------------------------
+  /** Milliseconds the last dispatch that reached validation spent on persistability
+   *  accounting and enforcement (measurement, like the store's `lastCommitTiming`). */
+  lastPersistMs = 0;
+  get persistLimits(): Readonly<PersistLimits> {
+    return this.#persistLimits;
+  }
+  /** Changes the limits (a profile change, or a test). Refused when any state undo or redo can
+   *  reach would not satisfy them, so every reachable state stays persistable. */
+  setPersistLimits(limits: PersistLimits): void {
+    const next = checkPersistLimits(limits);
+    for (const s of [this.#state, ...this.#past, ...this.#future]) {
+      const problem = persistProblem(this.#sizes(s, this.#derived.get(s)!, this.#nextId), next);
+      if (problem) throw new DocumentError("persist_limit", problem);
+    }
+    this.#persistLimits = next;
+  }
+  /** Exact sizes of the container the current state would write (C7 r3; AM-3.3). */
+  persistInfo(): PersistInfo {
+    return this.#sizes(this.#state, this.#derived.get(this.#state)!, this.#nextId);
+  }
+  #sizes(s: DocState, d: SessionDerived, nextId: number): PersistInfo {
+    return persistSizes({
+      body: d.body,
+      nextId,
+      nextChunkId: this.store.nextChunkId,
+      chunks: d.chunks.keys(),
+      recordBytes: (id) => this.store.recordBytes(id),
+      assets: s.sourceAssetsById.values(),
+      sourceBytes: (id) => this.#sources.get(id)?.byteLength,
+    });
   }
   /** A copy of the source bytes: callers never alias session-owned sources (G-DOC review 2). */
   sourceBytes(assetId: AssetId): Uint8Array | undefined {
@@ -246,7 +314,7 @@ export class DocumentSession {
     const log = new DraftLog();
     const ctx: CommandContext = { store, ids, commit: (p) => store.commit(p), log };
     let next = prev;
-    let d: StateDerived;
+    let d: SessionDerived;
     let now = 0;
     let coalesce = false;
     let delta: Delta = { removed: 0, added: 0 };
@@ -260,7 +328,21 @@ export class DocumentSession {
         store.settle();
         return this.#revision; // a no-op is not a transaction
       }
-      d = this.#validate(prev, next, log.complete ? log.keys : null);
+      const writes = log.complete ? log.keys : null;
+      const v = this.#validate(prev, next, writes);
+      // AM-3.3: persistability, from the write log, before anything is published.
+      const tp = performance.now();
+      d = withBody(v, this.#derived.get(prev)!.body + bodyDelta(prev, next, writes));
+      const problem = persistProblem(this.#sizes(next, d, ids.next), this.#persistLimits);
+      this.lastPersistMs = performance.now() - tp; // the compare-mode oracle below is excluded
+      if (this.validation === "compare") {
+        const full = fullBody(next);
+        if (full !== d.body)
+          throw new ValidationDisagreement(
+            `persistable body: incremental ${d.body} bytes, full serialization ${full}`,
+          );
+      }
+      if (problem) throw new DocumentError("persist_limit", problem);
       now = this.#now();
       coalesce =
         o.coalesceKey !== undefined &&
@@ -272,8 +354,8 @@ export class DocumentSession {
         // prev coalesces into. What it removes is what the pushed entry alone would retain.
         const pred = coalesce ? this.#past[this.#past.length - 1]! : prev;
         // The write log is relative to prev: usable only when prev is the predecessor.
-        const writes = !coalesce && log.complete ? log.keys : null;
-        delta = structureDelta(pred, next, this.#derived.get(pred), d, writes);
+        const predWrites = coalesce ? null : writes;
+        delta = structureDelta(pred, next, this.#derived.get(pred), d, predWrites);
         const entry = this.#entryBytes(prev, d, next) + delta.removed;
         if (entry > this.historyLimits.maxBytes)
           throw new DocumentError(
@@ -286,6 +368,7 @@ export class DocumentSession {
       throw e;
     }
     // Publish: nothing below throws.
+    this.#validations[this.#decidedBy]++; // accepted transactions only
     this.#derived.set(next, d);
     this.#deltas.set(next, delta);
     this.#own(next, "document", 1);
@@ -307,9 +390,12 @@ export class DocumentSession {
     return this.#revision;
   }
 
+  /** The path that decided the last validation; dispatch counts it only on publication. */
+  #decidedBy: "incremental" | "full" = "full";
   /** Validates `next` against the validated `prev` (see ValidationMode). `writes` is the
    *  transaction's complete Draft write log, or null (identity diff). Throws the full pass's
-   *  error on an invalid state; counts only accepted transactions. */
+   *  error on an invalid state. Records which path decided; dispatch counts it only when the
+   *  transaction is published (later checks may still refuse it). */
   #validate(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): StateDerived {
     const { store, limits } = this;
     if (this.validation !== "full") {
@@ -329,14 +415,14 @@ export class DocumentSession {
           if (!sameDerived(full, inc.derived))
             throw new ValidationDisagreement("incremental and full derived data differ");
         }
-        this.#validations.incremental++;
+        this.#decidedBy = "incremental";
         return inc.derived;
       }
     }
     const full = validateState(next, store, limits);
     // Compare mode checks the stage C/D invariants on the full-pass path too (review C4).
     if (this.validation === "compare") this.#compareInvariants(prev, next, writes);
-    this.#validations.full++;
+    this.#decidedBy = "full";
     return full;
   }
 

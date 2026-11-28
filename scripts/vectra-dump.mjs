@@ -57,9 +57,14 @@ function packetSummary(record) {
   };
 }
 
+/** documentSchemaVersion 2 (C10 r2) omits `kind` and `id`: the key and its prefix imply them. */
+const KIND_OF_PREFIX = { lay: "layer", grp: "group", pth: "path", src: "source" };
 function documentSummary(doc) {
   const kinds = {};
-  for (const n of Object.values(doc.nodesById)) kinds[n.kind] = (kinds[n.kind] ?? 0) + 1;
+  for (const [k, n] of Object.entries(doc.nodesById)) {
+    const kind = n.kind ?? KIND_OF_PREFIX[k.slice(0, 3)] ?? "unknown";
+    kinds[kind] = (kinds[kind] ?? 0) + 1;
+  }
   return {
     documentSchemaVersion: doc.documentSchemaVersion,
     documentId: doc.documentId,
@@ -69,11 +74,11 @@ function documentSummary(doc) {
     roots: doc.orderedRootIds,
     nodes: kinds,
     styles: Object.keys(doc.stylesById).length,
-    palette: Object.values(doc.paletteById).map(
-      (p) => `${p.id} ${p.name} #${(p.color >>> 0).toString(16).padStart(8, "0")}`,
+    palette: Object.entries(doc.paletteById).map(
+      ([id, p]) => `${id} ${p.name} #${(p.color >>> 0).toString(16).padStart(8, "0")}`,
     ),
-    sourceAssets: Object.values(doc.sourceAssetsById).map(
-      (a) => `${a.id} ${a.mime} ${a.width}x${a.height} embedded=${a.embedded}`,
+    sourceAssets: Object.entries(doc.sourceAssetsById).map(
+      ([id, a]) => `${id} ${a.mime} ${a.width}x${a.height} embedded=${a.embedded}`,
     ),
   };
 }

@@ -13,11 +13,15 @@ import { chromium, firefox, webkit } from "@playwright/test";
 
 const PORT = 4183;
 const BASE = `http://127.0.0.1:${PORT}`;
-const DIR = "tests/output/g-prj/containers";
-const out = process.argv.includes("--out") ? process.argv[process.argv.indexOf("--out") + 1] : null;
+const arg = (n) => (process.argv.includes(n) ? process.argv[process.argv.indexOf(n) + 1] : null);
+// G-PRJ-0: `--dir tests/output/g-prj-0/containers` measures the v2 containers.
+const DIR = arg("--dir") ?? "tests/output/g-prj/containers";
+const ONLY = arg("--only")?.split(",");
+const out = arg("--out");
 const names = readdirSync(DIR)
   .filter((f) => f.endsWith(".vectra"))
-  .map((f) => f.replace(/\.vectra$/, ""));
+  .map((f) => f.replace(/\.vectra$/, ""))
+  .filter((n) => !ONLY || ONLY.includes(n));
 const server = spawn(
   "pnpm",
   ["exec", "vp", "preview", "--host", "127.0.0.1", "--port", String(PORT), "--strictPort"],

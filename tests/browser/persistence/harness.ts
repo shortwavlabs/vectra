@@ -325,10 +325,14 @@ const harness = {
     const session = await build();
     const before = semantic(session);
     const bytes = await saveContainer(session, { codec });
+    // AM-3.4: serialization is not a save; only an explicit markSaved makes the session clean.
+    const serializedDirty = session.getSnapshot().dirty;
+    session.markSaved(session.state);
     const loaded = await loadContainer(bytes, {});
     return {
       before,
       after: semantic(loaded),
+      serializedDirty,
       savedClean: !session.getSnapshot().dirty,
       loadedClean: !loaded.getSnapshot().dirty,
       loadedCanUndo: loaded.getSnapshot().canUndo,

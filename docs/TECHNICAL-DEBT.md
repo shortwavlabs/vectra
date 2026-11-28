@@ -68,10 +68,11 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PERF-006](#td-perf-006) | Precision mode cost on photographs | Limitation | Low | ACCEPTED FOR P0 | Later | Later |
 | [TD-PERF-007](#td-perf-007) | Structural transactions cost O(nodes) | Limitation (measured) | **High** | OPEN (authorised: G-DOC-R) | G-DOC-R | G-DOC-R |
 | [TD-PERF-008](#td-perf-008) | WASM copy-out at 1M anchors above 2 ms | Limitation (measured; accepted exception) | Low | OPEN | quiet re-run | performance follow-up |
-| [TD-PERF-009](#td-perf-009) | Document v1 open above 1 s at 250k paths | Limitation (measured; accepted exception) | Medium | OPEN | before G-PRJ and public Document v1 | compact Document v1 follow-up |
+| [TD-PERF-009](#td-perf-009) | Document v1 open above 1 s at 250k paths | Limitation (measured; accepted exception) | Medium | OPEN (compact encoding delivered in G-PRJ-0; size finding resolved; Node open criteria met: **closure proposed**, maintainer to decide) | maintainer decision at G-PRJ-0 acceptance | compact Document v1 follow-up; G-PRJ-0 |
 | [TD-PERF-010](#td-perf-010) | Job handling blocks the main thread above 50 ms | Defect (budget not met, measured; accepted temporary exception) | **High** | OPEN | G-R1, G-TRACE, G-EXP, G-PRJ | G-TRACE/G-EXP/G-PRJ |
 | [TD-PERF-011](#td-perf-011) | History retains a full node-map table per entry | Limitation (measured) | **High** | OPEN (authorised: G-DOC-R) | G-DOC-R | G-DOC-R |
 | [TD-PERF-012](#td-perf-012) | G-DOC-R renderer-path regressions (load, preview, Safari snapshot preparation) | Limitation (measured; accepted temporary regression) | Medium | OPEN | walk-lookup optimisation; before TD-PERF-001 closure | G-DOC-R |
+| [TD-PERF-013](#td-perf-013) | The C7 section cap bounds a document to 4,094 referenced geometry chunks (fewer with embedded sources), now enforced per transaction | Limitation (measured) | Low | OPEN | before bake-heavy editing (G-EDIT) or AM-3.6 | G-PRJ-0 (found) |
 | [TD-ARCH-001](#td-arch-001) | VTracer alpha dependency | Limitation (dependency risk) | Medium | ACCEPTED FOR P0 (provisional) | Ongoing; RFC-002 | ongoing/G-ENG |
 | [TD-ARCH-002](#td-arch-002) | Worker lifecycle and persistent editor state | Limitation | **High** | OPEN | **RFC-002** | G-DOC/G-JOB |
 | [TD-ARCH-003](#td-arch-003) | Scene v1 expressiveness and JSON transport | Limitation | **High** | OPEN | **RFC-002** | G-ENG/G-DOC |
@@ -84,6 +85,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-PROCESS-001](#td-process-001) | No automated required checks | Enhancement | Low | OPEN | Maintainer decision | P-CI |
 | [TD-ARCH-005](#td-arch-005) | Typed-array immutability is a convention | Limitation | **High** | OPEN | G-DOC | G-DOC |
 | [TD-ARCH-006](#td-arch-006) | WebKit offline worker start-up under churn | Defect (prototype-reproduced) | **High** | OPEN | G-JOB | G-JOB |
+| [TD-ARCH-007](#td-arch-007) | Trace provenance encodability is checked for `traceRequest` only (pre-existing; refused at the transaction since G-PRJ-0) | Defect (validation gap) | Low | OPEN | next change to document validation | G-PRJ-0 review (found) |
 | [TD-REN-001](#td-ren-001) | Chromium quadratic incremental Path2D | Defect (browser) | **High** | **CLOSED** (maintainer, 2026-11-25) | G-R0 | G-R0 |
 | [TD-REN-002](#td-ren-002) | Worker-canvas presentation (WebKit) and raster (Firefox) | Untested / limitation | Medium | OPEN | G-R0/G-R1 | G-R0/G-R1 |
 | [TD-REN-003](#td-ren-003) | Layered drag-cache correctness and cost | Limitation (unqualified) | **High** | OPEN | G-R1 | G-R1 |
@@ -93,7 +95,7 @@ All paths are relative to the repository root. Unless stated otherwise, fixtures
 | [TD-UI-003](#td-ui-003) | Border, track and focus-ring contrast | Defect (tokens) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-004](#td-ui-004) | Notices do not cover copied sources and CSS | Limitation (licence compliance) | Medium | OPEN | G-UI | G-UI |
 | [TD-UI-005](#td-ui-005) | Palette display names: custom vs generated names are not recorded | Limitation (document model) | Medium | OPEN | before user-facing palette renaming | G-UI-R |
-| [TD-UI-008](#td-ui-008) | Registry destructive button below WCAG AA contrast (4.43:1; 3.61:1 on hover), plus Button `shrink-0` and off-scale defaults | Defect (accessibility, measured) | Medium | OPEN | next shell or design-system change; before G-PRJ-4 | G-PRJ-R (found) |
+| [TD-UI-008](#td-ui-008) | Registry destructive button below WCAG AA contrast (4.43:1; 3.61:1 on hover), plus Button `shrink-0` and off-scale defaults | Defect (accessibility, measured) | Medium | OPEN | **before any production destructive project control** (first: G-PRJ-2, maintainer 2026-11-27); not in G-PRJ-0 | G-PRJ-R (found) |
 | [TD-UI-007](#td-ui-007) | WebKit: dragging the layers split past its minimum sometimes leaves the panel expanded (F-16; known test failure on `main`) | Defect or test race (unconfirmed) | Low | OPEN (known failure; not suppressed) | before WebKit suite results are reported clean | G-DOC-R (found) |
 | [TD-UI-006](#td-ui-006) | No "commit without history" confirmation in the shell (RFC §7) | Limitation (UI) | Medium | OPEN (confirmation authorised as a G-PRJ follow-up) | G-PRJ follow-up; refusal kept until qualified | G-DOC-R |
 | [TD-GEO-010](#td-geo-010) | Sliver metric and junction criterion restatement | Limitation (measurement) | Medium | OPEN | G-SB | G-SB |
@@ -120,6 +122,7 @@ Counts:
 - **G-PRJ-R (2026-11-26, research; no production change):** one item added, TD-UI-008 (Medium): the shared registry's destructive button fails WCAG AA contrast, found by the Impeccable audit of the G-PRJ-R prototype. **47 open items, 14 High.**
 - **G-DOC-R final acceptance (2026-11-26):** one item added, TD-UI-007 (Low): F-16, a known WebKit test failure that predates G-DOC-R (3/10 on `main` and on G-DOC-R). **46 open items, 14 High.** TD-PERF-007's WebKit stress miss is temporarily accepted, with the threshold unchanged and a subtree-summary optimisation recorded.
 - **G-DOC-R maintainer acceptance and closure (2026-11-26):** stage D accepted as an implementation, subject to the accounting closure. One item added, TD-PERF-012 (Medium): the accepted temporary renderer-path regressions, kept explicitly tracked. **45 open items, 14 High.** No item is closed: TD-PERF-007 and TD-PERF-011 stay open while the gate is PARTIAL (lower-end hardware, quiet machine). TD-UI-006: the confirmation is authorised as a G-PRJ follow-up; the refusal stays. TD-PERF-009 gains the 64 MiB document-cap finding.
+- **G-PRJ-0 (2026-11-27, not yet accepted):** two items added: TD-PERF-013 (Low), the C7 section cap, now enforced per transaction, bounds a document to 4,094 referenced geometry chunks; TD-ARCH-007 (Low), a pre-existing provenance validation gap found by the independent review. **49 open items, 14 High** (counted from the summary table). No item is closed. TD-PERF-009: the compact encoding is delivered, the 64 MiB finding resolved (w996k saves at 36.9 MiB) and the Node open criteria met; closure is proposed for the maintainer (§TD-PERF-009). TD-UI-008: its target is now "before any production destructive project control" (maintainer); not touched by G-PRJ-0. TD-UI-006 unchanged.
 
 ---
 
@@ -727,6 +730,18 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **G-JOB disposition (2026-11-25):** the fix (no termination before the job is posted, R03 v2 rule; RFC §10.3 rule 4) is implemented in the production scheduler. Against the production build, offline, the churn pattern (terminate a running worker, then five previews while the next worker's module graph loads from the service worker) passed 4 of 4 runs in each of Chromium, Firefox and Playwright WebKit, with exactly one worker created per run and no start-up failure. It also passes in an old tab after a deploy, offline, and on the new build offline after the update (3 engines). A scheduler mutation that terminates starting workers fails the unit and property tests. Real Safari NOT RUN; closure needs it or a documented restriction. Stage: **FIX PRODUCTION-BUILD VERIFIED in 3 engines / Safari pending**. Not closed. [G-JOB report](research/g-job/G-JOB-REPORT.md).
 - **Real Safari (2026-11-25):** the churn pattern passes in Safari 26.6.2 against the production build: online, 4 runs offline, in an old tab after a deploy (offline), on the new build offline after the update, and under build A during a failed template-only update. With 3 engines plus real Safari, the closure criteria (fix verified on the production build, offline and across a service-worker update) are **met; proposed for closure, maintainer to confirm**. [G-JOB report §18](research/g-job/G-JOB-REPORT.md).
 
+<a id="td-arch-007"></a>
+### TD-ARCH-007 — Trace provenance encodability is checked for `traceRequest` only
+- **Source:** the G-PRJ-0 independent correctness review (finding 2); predates G-PRJ-0.
+- **Category / severity / status:** Defect (validation gap; not reachable from the engine) · Low · OPEN.
+- **Facts.** C10 stores provenance as canonical JSON. `checkTraceProvenance` checks `traceRequest`'s canonical encodability, but not `originalScene`. A caller-built record with NaN, a Date or a BigInt in `metadata.params`, or a lone surrogate in `generator` or `mode`, passes both validators.
+  - On `main` such a state was accepted and failed later, at save, with an untyped error.
+  - Since G-PRJ-0 it is refused at the transaction, atomically, as `DocumentError("invariant")`, by the persistability accounting rather than by the validators.
+  - The engine's metadata is parsed JSON, so production never produces such a record.
+  - A cyclic `params` object still throws an untyped `RangeError` (atomically, as on main): the same check closes it.
+- **Closure criteria:** `checkTraceProvenance` checks the whole record's canonical encodability, memoised per immutable record so layer edits do not re-walk large provenance; with the matching forgery in `testing/incremental-differential.ts` (the `invariants.ts` rule).
+- **Owner action:** next change to document validation.
+
 <a id="td-ren-001"></a>
 ### TD-REN-001 — Chromium builds Path2D incrementally in quadratic time
 - **Review ID:** RISK-R02-PATH2D.
@@ -1016,6 +1031,15 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Approved follow-up (bounded compact Document v1 serialization, before G-PRJ qualification and public Document v1 release; independent of G-JOB):** omit canonical default-valued node properties without changing the in-memory model; pre-registered workloads with the original representation as a control; unambiguous canonical defaults; strict schema validation, deterministic canonical sections, integrity checks and decompression limits, project semantics, export hashes, provenance and ID high-water marks preserved; cross-browser interchange; explicit compatibility with development fixtures; frozen-contract amendment for an adopted schema change; no binary format or new dependency without approval. Explain the profile vs end-to-end gap (allocation, GC, warm-up, instrumentation boundaries). The earlier scratch experiment (−32 % bytes, −21 % parse) is preliminary only: its artefacts were not retained.
 - **Closure criteria:** open ≤ 1 s at 50k and 250k paths at 1M anchors, measured as above, with every preservation requirement verified.
 - **G-DOC-R closure finding (2026-11-26).** The G-DOC-R benchmark workload at 330k paths (996k anchors; `bench-workload.ts`) serializes to a **72.7 MB document section, over C7's 64 MiB document cap**, so `saveContainer` refuses it. At 250k paths (756k anchors) the same workload saves (an 80.2 MB container, `codec: "none"`), and P1-A saved a 250k-path, 1M-anchor document (above). The cap is reached by this workload's serialized size per node (about 220 bytes), not by path count alone; how far real traced documents sit from it was not measured. Serialization is unchanged by G-DOC-R (frozen hash), so this is not a G-DOC-R regression. Input for the compact serialization follow-up above and for G-PRJ (report §11.1).
+- **G-PRJ-0 disposition (2026-11-27; [G-PRJ-0 report](research/g-prj-0/G-PRJ-0-REPORT.md) §5, §7).** The approved follow-up is delivered as C10 r2, the compact `documentSchemaVersion` 2 encoding (AM-3.2): canonical defaults omitted without changing the in-memory model, one encoding per document, strict readers for v1 and v2, frozen export hashes unchanged (576/576), provenance, high-water marks and project semantics preserved (checked through the independent v1 writer), cross-browser interchange verified (real Safari 23/23, Playwright 28/28). Persistability is enforced per transaction over the complete container (AM-3.3).
+  - **Size finding resolved:** the 330k-path workload's document section is 36.9 MiB (58 % of the cap) and the 1M-anchor limit case 56.0 MiB (87 %); v2 is 0.53 of v1 for synthetic artwork and 0.59 for photographic traces.
+  - **Open-time criteria: met in Node; closure proposed for the maintainer.** The P1-A open benchmark itself (`docs/research/g-doc/bench/bench.mjs`), run on `main` and on G-PRJ-0 minutes apart on the same shared machine. `loadContainer` medians, ms, codec none / deflate-raw:
+    - **A** (50k × 20): 166 / 292 on main → **133 / 253**;
+    - **B** (250k × 4, 1M anchors): 857 / 1,007 on main → **643 / 813**;
+    - **I** (interactive): 126 / 162 on main → 101 / 138.
+
+    All are now ≤ 1 s; on main, B with deflate-raw missed it.
+    The main-thread blocking budget for a browser open is a separate requirement (TD-PERF-010; the worker-side open of G-PRJ-1). The profile vs end-to-end gap is not re-examined here.
 
 <a id="td-perf-010"></a>
 ### TD-PERF-010 — Job handling blocks the main thread above 50 ms
@@ -1087,6 +1111,16 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
 - **Maintainer disposition (2026-11-26):** accepted as temporary regressions, to remain explicitly tracked. No threshold is relaxed; the preview target (≤ 100 ms at the interactive target) was already missed (TD-PERF-001) and stays under its temporary exception.
 - **Closure criteria:** the measured stages back at or below the G-BRAND baseline on the matched setup, or a maintainer decision recorded against the preview target's closure (TD-PERF-001).
 - **Owner action:** none now; schedule a walk-lookup optimisation (for example per-walk chunk cursors) before TD-PERF-001 closure.
+
+<a id="td-perf-013"></a>
+### TD-PERF-013 — The C7 section cap bounds a document's referenced geometry chunks
+- **Source:** G-PRJ-0 (found while enforcing persistability, AM-3.3).
+- **Category / severity / status:** Limitation (measured) · Low · OPEN.
+- **Facts.** A `.vectra` file holds at most 4,096 sections: the manifest, the document, one per referenced geometry chunk and one per embedded source. Before G-PRJ-0 this was checked only at save; it is now enforced per transaction, so the transaction that would need section 4,097 is refused (`persist_limit`, naming the section cap). Every trace commit and every bake creates a chunk, and a document keeps one chunk per trace or bake that still has referenced paths.
+- **Evidence** ([G-PRJ-0 report](research/g-prj-0/G-PRJ-0-REPORT.md) §7): 4,094 one-path trace commits are accepted and the 4,095th is refused at 4,097 sections, atomically.
+- **Reach.** An ordinary session holds a few traces and bakes; the cap needs about 4,000 separately committed geometry chunks still referenced at once. Bake-heavy editing (G-EDIT) could approach it; no measured workflow does.
+- **Closure criteria:** either a chunk-compaction step that merges small referenced chunks (no format change), or a sectioned container (AM-3.6, deferred), or a maintainer decision that the bound is acceptable for P1.
+- **Owner action:** revisit when G-EDIT designs repeated bakes.
 
 <a id="td-platform-007"></a>
 ### TD-PLATFORM-007 — Native and WASM Artistic output differ on some inputs

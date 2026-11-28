@@ -214,7 +214,7 @@ Write-new, verify, then transactionally flip the IndexedDB pointer. **OPFS and I
 | AM-3.3 | **C3/C10 document limit** | A persistable document-section size, enforced at transaction time like the anchor cap | **Approved** as exact enforcement over the complete container ([limits](G-PRJ-PERSISTENCE-LIMITS.md) §9) |
 | AM-3.4 | **`saveContainer` semantics** | Serialization no longer marks the session saved; the store marks it only after a verified write | **Approved** |
 | AM-3.5 | **C5 / service worker** | A persistence worker added to the build's worker set, inside the same build-isolation rules | **Approved**, with the boundaries of §4.1 |
-| AM-3.6 (optional, later) | **C7 r3** | Sectioned document and worker-side streaming, only if limits above the compact ceiling are required | **Deferred**; the 64 MiB document-section cap is retained |
+| AM-3.6 (optional, later) | **C7 r4** (r3 is now AM-3.3/3.4) | Sectioned document and worker-side streaming, only if limits above the compact ceiling are required | **Deferred**; the 64 MiB document-section cap is retained |
 
 Formal change control (revision bumps, the RFC-002 amendment) happens in G-PRJ-0 with the implementation ([decisions](G-PRJ-DECISIONS.md) §4).
 

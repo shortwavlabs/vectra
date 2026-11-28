@@ -101,7 +101,7 @@ Sizes in MiB. "Per node" is canonical bytes ÷ nodes. Save is codec none / defla
 |---|---|---|---|
 | **1. Existing canonical** | Fails today at about 305k synthetic nodes or 190k photographic paths | — | — |
 | **2. Compact canonical JSON**: defaults omitted, `id` implied by its key | The 996k workload fits (41.4 MiB) and the 1M-anchor synthetic case just fits (62.6). Not sufficient alone: style-heavy documents above about 245k paths still exceed the cap | Small: a deterministic rewrite at the boundary; v1 files remain readable | **C10 v2** (`documentSchemaVersion` 2) with a defined v1 reader; canonical bytes and frozen export hashes stay intact, since exports do not read the document JSON |
-| **3. Streaming or section-oriented processing**: the document split into several sections, for example nodes in chunks of 64k, or parsed in a worker | Lifts the single-section ceiling without raising per-section memory; parsing moves off the main thread | Moderate: the container writer and reader, the incremental hash, ordering rules | **C7 r3** (a section list and its order), `formatVersion` 2 |
+| **3. Streaming or section-oriented processing**: the document split into several sections, for example nodes in chunks of 64k, or parsed in a worker | Lifts the single-section ceiling without raising per-section memory; parsing moves off the main thread | Moderate: the container writer and reader, the incremental hash, ordering rules | **C7 r4** (a section list and its order), `formatVersion` 2 |
 | **4. A revised section limit**, e.g. 128 MiB | Lets w996k and limit-500k save today | Raises the decompression-bomb ceiling and the parse memory (already 719 MiB at 52 MiB) | C7 amendment; needs a memory budget per profile |
 | **5. Alternative encodings** (binary, columnar) | Large reductions possible | New format; rejected while 2 and 3 are unexhausted (brief §6) | New `formatVersion`; out of scope without approval |
 
@@ -113,13 +113,13 @@ Sizes in MiB. "Per node" is canonical bytes ÷ nodes. Save is codec none / defla
 2. **Make persistability a document limit (the invariant)**, over the **complete container**, not only the document section (§9):
    - Account the **exact** compact document-section size incrementally, at transaction time.
    - Nodes are written through the transaction log, and a node's canonical bytes are a pure function of the node, so the delta is computed per written key: the AM-2 delta pattern, with no whole-document pass.
-   - Enforce it like the anchor cap: a command whose result would exceed the section limit is **rejected before commit** with an actionable error ("This change would make the project too large to save as one file"), and imports and trace commits are pre-flighted.
+   - Enforce it like the anchor cap: a command whose result would exceed the section limit is **rejected before commit** with an actionable error that names the limit (as implemented in G-PRJ-0: "The document is too complex to save: its document section would need N bytes, and the document section cap is M bytes"; never a "maximum file size", refinement 7.5), and imports and trace commits are pre-flighted.
    - Load keeps refusing over-cap files (`limit`), so a file the app wrote is always within what it reads.
 3. **Keep 64 MiB** until option 3 is qualified. With compact encoding it covers the designated stress workloads and the 1M-anchor synthetic case.
 4. **Move parse and validate into a worker** (option 3's first half, no format change) to meet the ≤ 50 ms blocking target.
    - The container bytes transfer in O(1); the validated document and geometry come back as transferred buffers.
    - Measured: w756k blocks the main thread for 160–333 ms today.
-5. **Revisit option 3's sectioned document (C7 r3)** only if the product supports documents beyond the compact ceiling. That ceiling is about 500k synthetic nodes or about 245k photographic paths.
+5. **Revisit option 3's sectioned document (C7 r4; r3 is now AM-3.3/3.4)** only if the product supports documents beyond the compact ceiling. That ceiling is about 500k synthetic nodes or about 245k photographic paths.
 6. **Codec:**
    - `deflate-raw` for explicit saves, where size matters and the user waits for a save;
    - **`none` for recovery snapshots**, which are frequent, local and latency-sensitive (4 ms against 1,238 ms on the halftone). The recovery store's quota accounting covers it.
