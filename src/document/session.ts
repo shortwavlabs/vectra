@@ -390,11 +390,12 @@ export class DocumentSession {
     return this.#revision;
   }
 
+  /** The path that decided the last validation; dispatch counts it only on publication. */
+  #decidedBy: "incremental" | "full" = "full";
   /** Validates `next` against the validated `prev` (see ValidationMode). `writes` is the
    *  transaction's complete Draft write log, or null (identity diff). Throws the full pass's
    *  error on an invalid state. Records which path decided; dispatch counts it only when the
    *  transaction is published (later checks may still refuse it). */
-  #decidedBy: "incremental" | "full" = "full";
   #validate(prev: DocState, next: DocState, writes: ReadonlySet<NodeId> | null): StateDerived {
     const { store, limits } = this;
     if (this.validation !== "full") {

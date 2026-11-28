@@ -275,7 +275,14 @@ const MIME_OF = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp" } as 
 export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<DocumentSession> {
   const packetLimits = o.packetLimits ?? DEFAULT_PACKET_LIMITS;
   const h = readHeader(bytes);
-  checkLimits(h, packetLimits, o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget);
+  // One budget for this loader and the session it builds: whole bytes, never above C7's (the
+  // session must not accept a state the writer refuses), and refused when meaningless.
+  const sessionBudget = Math.min(
+    Math.floor(o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget),
+    CONTAINER_LIMITS.sessionBudget,
+  );
+  if (!(sessionBudget > 0)) fail("limit", `invalid sessionBudget ${String(o.sessionBudget)}`);
+  checkLimits(h, packetLimits, sessionBudget);
   const data: Uint8Array[] = [];
   for (const s of h.sections) data.push(await readSection(bytes, h, s));
 
@@ -349,11 +356,7 @@ export async function loadContainer(bytes: Uint8Array, o: LoadOptions): Promise<
       // The session keeps every later state within what this loader accepts (AM-3.3).
       persistLimits: {
         ...DEFAULT_PERSIST_LIMITS,
-        // Never above C7's: the session must not accept a state the writer refuses.
-        sessionBudget: Math.min(
-          o.sessionBudget ?? CONTAINER_LIMITS.sessionBudget,
-          CONTAINER_LIMITS.sessionBudget,
-        ),
+        sessionBudget, // validated and capped above
       },
       ...(o.limits ? { limits: o.limits } : {}),
       ...(o.history ? { history: o.history } : {}),

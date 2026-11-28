@@ -227,6 +227,11 @@ Timings are `f7db368 · bd2fd8b` (quiet-ish · loaded). Peaks are from `bd2fd8b`
 | 6. NaN or undefined limits silently disabled a check | Nit | **Fixed** with finding 1 |
 | 7. The qualification's "serialization did not mark saved" check was vacuous for clean (loaded) sessions | Nit | **Fixed:** checked on a dirty session, then undone |
 
+**Re-review of the fixes** (`3ad9f6a..bd2fd8b`, the same reviewer):
+- Findings 1, 2, 5, 6 and 7 are **resolved**, with evidence. Finding 3 is reworded as intended; finding 4 is unchanged by design. The re-runs are clean: 1,640 reader mutations, length fuzz, a 2,800-step differential, the exact boundary.
+- **One small regression introduced by finding 1's fix,** now fixed: `loadContainer` reported a fractional or NaN `sessionBudget` as a broken document. The loader now validates its budget once (whole bytes, capped at C7, otherwise a typed `limit`) and uses that one value for its own check and for the session. Test added.
+- **Still open, pre-existing:** a cyclic `params` object in caller-built provenance throws an untyped `RangeError` (atomically, as on main). It is recorded with TD-ARCH-007.
+
 ## 12. Technical debt
 - **Added:** TD-PERF-013 (Low). The section cap, now enforced per transaction, bounds a document to 4,094 referenced chunks; measured in §7. TD-ARCH-007 (Low). The pre-existing provenance validation gap (review finding 2) is now refused at the transaction; the validator fix is left for the next validation change.
 - **TD-PERF-009:** the compact encoding is delivered, the 64 MiB finding resolved, and the Node open criteria met on the P1-A benchmark itself (§8). **Closure is proposed**, for the maintainer to decide. The browser main-thread budget stays with TD-PERF-010 and G-PRJ-1.

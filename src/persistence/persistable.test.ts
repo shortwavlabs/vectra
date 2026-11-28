@@ -243,6 +243,16 @@ describe("transactional enforcement: the first transaction past any limit is ref
       sessionBudget: 4 * DEFAULT_PERSIST_LIMITS.sessionBudget,
     });
     expect(loaded.persistLimits.sessionBudget).toBe(DEFAULT_PERSIST_LIMITS.sessionBudget);
+    // One validated budget for the loader and the session (re-review): fractional rounds down,
+    // and a meaningless budget is a typed `limit` refusal, not a "broken document".
+    const bytes = await saveContainer(s, { codec: "none" });
+    const total = readHeader(bytes).sections.reduce((t, x) => t + x.uncompressedLength, 0);
+    const ok = await loadContainer(bytes, { sessionBudget: total + 1000.5 });
+    expect(ok.persistLimits.sessionBudget).toBe(total + 1000);
+    for (const bad of [Number.NaN, 0, -5])
+      await expect(loadContainer(bytes, { sessionBudget: bad })).rejects.toMatchObject({
+        code: "limit",
+      });
   });
 
   test("provenance that canonical JSON cannot write is refused with a typed error (review 2)", () => {

@@ -738,6 +738,7 @@ These map the review's proposed risks (`docs/research/rfc-002-review/TECHNICAL-D
   - On `main` such a state was accepted and failed later, at save, with an untyped error.
   - Since G-PRJ-0 it is refused at the transaction, atomically, as `DocumentError("invariant")`, by the persistability accounting rather than by the validators.
   - The engine's metadata is parsed JSON, so production never produces such a record.
+  - A cyclic `params` object still throws an untyped `RangeError` (atomically, as on main): the same check closes it.
 - **Closure criteria:** `checkTraceProvenance` checks the whole record's canonical encodability, memoised per immutable record so layer edits do not re-walk large provenance; with the matching forgery in `testing/incremental-differential.ts` (the `invariants.ts` rule).
 - **Owner action:** next change to document validation.
 
