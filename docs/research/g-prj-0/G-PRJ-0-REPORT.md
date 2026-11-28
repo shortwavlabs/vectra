@@ -97,7 +97,7 @@ The amendment record is [G0-ARCHITECTURE-CONTRACTS §AM-3](../g0/G0-ARCHITECTURE
 | Registered photographic v1 containers (bark-1224, bark-2350, synthetic-many-250k, architecture-street-halftone) | load; the original v1 file's document section equals the v1 encoding of the document reloaded from its v2 save |
 
 ## 7. Large-project round trips (Node)
-- **Records.** Correctness is from `scripts/g-prj-0/qualify.mjs` on the final code, `bd2fd8b` (`bench/qualify-bd2fd8b.json`; load 5.1 → 7.7, other work running). Timings are given from both that run and the identical-path run on `f7db368` (`bench/qualify-f7db368.json`; load about 1.8).
+- **Records.** Correctness is from `scripts/g-prj-0/qualify.mjs` on `bd2fd8b` (the head `ea8cdc0` changes only how `loadContainer` treats an explicit `sessionBudget`, which no run passes) (`bench/qualify-bd2fd8b.json`; load 5.1 → 7.7, other work running). Timings are given from both that run and the identical-path run on `f7db368` (`bench/qualify-f7db368.json`; load about 1.8).
 - **Checks.** Each workload is saved with both codecs (medians of three) and loaded. Its round trip is checked through independent paths:
   - resave byte-identical (codec none);
   - the v1 encoding of the reloaded document equal to the original's;
@@ -197,9 +197,9 @@ Timings are `f7db368 · bd2fd8b` (quiet-ish · loaded). Peaks are from `bd2fd8b`
 |---|---|---|
 | Engine corpus (326 minus every `concert-*`: 294) | `c7230c8` (no Rust change on the branch) | **294/294** identical to `a4cf172.sha256` |
 | Bundle v2 | `c7230c8` | **72/72** identical |
-| Document export (scene → document → `.vectra` save and strict load, both codecs → export) | `c7230c8`, re-run on **`bd2fd8b`** | **576/576** identical to `a4cf172.sha256`, both times |
+| Document export (scene → document → `.vectra` save and strict load, both codecs → export) | `c7230c8`, re-run on **`bd2fd8b`** and the head **`ea8cdc0`** | **576/576** identical to `a4cf172.sha256`, every time |
 | Bundle v1 through the workbench (Chromium, production build) | `34e5ca9` (`24497db2b67f7267`), re-run on **`bd2fd8b`** (`58a2a35ce046ea1a`) | **15/15** identical, both times |
-| Browser persistence (`tests/browser/persistence`), Chromium, Firefox, Playwright WebKit | **`bd2fd8b`** | **28 passed, 2 skipped** (the cross-engine test runs once) |
+| Browser persistence (`tests/browser/persistence`), Chromium, Firefox, Playwright WebKit | **`bd2fd8b`** and the head **`ea8cdc0`** | **28 passed, 2 skipped** (the cross-engine test runs once), both times |
 | Real Safari 26.6.2 (`tests/safari/persistence.mjs`, console unlocked: `IOConsoleLocked = No`) | `34e5ca9`, re-run on **`bd2fd8b`** | **23/23**, both times |
 | Job specs using the document digest (Chromium, production build) | `34e5ca9` | **14/14** |
 | UI document spec (Chromium, production build), including the workspace opening a v2 container saved by Node ("no fill") | `bd2fd8b` (`58a2a35ce046ea1a`) | **25/25** |
